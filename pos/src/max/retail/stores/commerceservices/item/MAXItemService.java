@@ -2,7 +2,7 @@ package max.retail.stores.commerceservices.item;
 
 import oracle.retail.stores.commerceservices.item.ItemService;
 import oracle.retail.stores.domain.lineitem.SaleReturnLineItemIfc;
-
+// add test comment
 public class MAXItemService extends ItemService {
 	public boolean isEligibleForSend(SaleReturnLineItemIfc lineItem) {
 		// start out being true and try to invalidate
