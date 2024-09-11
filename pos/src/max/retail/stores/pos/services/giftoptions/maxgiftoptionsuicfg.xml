@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012 - 2013 MAX, Inc.    All Rights Reserved.
+  
+   Rev 1.0	05/09/2013	Prateek	 		Disabled Gift Card
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!--<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">-->
+
+<UICFG>
+
+    <BEAN
+        specName="GiftOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            labelTag="GiftCard"
+            actionName="GiftCard"
+            enabled="true"
+            keyName="F2" />
+        <!-- Start : Removed For Prod Defects
+ 		<BUTTON
+            labelTag="GiftCert"
+            actionName="GiftCert"
+            enabled="true"
+            keyName="F3" />
+ 		  End: Removed For Prod Defects-->
+
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="posText"
+        specName="GIFT_OPTIONS">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[false]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="GiftOptionsButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftOptionsPrompt"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+
+</UICFG>

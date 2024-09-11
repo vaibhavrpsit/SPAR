@@ -1,0 +1,71 @@
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/sale/validate/IsAlterationItemPresentSignal.java /rgbustores_13.4x_generic_branch/1 2011/05/05 16:17:10 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/03/10 - update header date
+ *
+ * ===========================================================================
+ * $Log:
+ *  1    360Commerce 1.0         5/22/2008 5:58:00 AM   subramanyaprasad gv CR#
+ *        31423: Added new error site AlterationsErrorSite. 
+ * $
+ * 
+ * ===========================================================================
+ */
+package oracle.retail.stores.pos.services.sale.validate;
+
+import oracle.retail.stores.pos.services.sale.SaleCargoIfc;
+import oracle.retail.stores.domain.lineitem.AbstractTransactionLineItemIfc;
+import oracle.retail.stores.domain.lineitem.SaleReturnLineItemIfc;
+import oracle.retail.stores.domain.transaction.SaleReturnTransactionIfc;
+import oracle.retail.stores.foundation.tour.ifc.BusIfc;
+import oracle.retail.stores.foundation.tour.ifc.TrafficLightIfc;
+
+public class IsAlterationItemPresentSignal implements TrafficLightIfc  
+{
+	
+    /**
+		revision number
+    **/
+	public static String revisionNumber = "$Revision: /rgbustores_13.4x_generic_branch/1 $";
+
+    //--------------------------------------------------------------------------
+    /**
+		Checks if alteration item is present
+        <P>
+        @return true if alteration item is present, false otherwise.
+    **/
+    //--------------------------------------------------------------------------
+
+    public boolean roadClear(BusIfc bus)
+    {
+        boolean hasAlterationItem = false;
+        SaleCargoIfc cargo = (SaleCargoIfc)bus.getCargo();
+        SaleReturnTransactionIfc  transaction = cargo.getTransaction();
+        AbstractTransactionLineItemIfc[] lineItems = null;
+        
+        if (transaction != null)
+        {
+            lineItems = transaction.getLineItems();
+            
+            if (lineItems != null && lineItems.length > 0)
+            {
+                for (int i=0; i<lineItems.length; i++)
+                {
+                    if (((SaleReturnLineItemIfc)lineItems[i]).getAlterationItemFlag())
+                    {
+                         hasAlterationItem = true;
+                         break;
+                    }
+                }
+            }
+        }
+        return hasAlterationItem; 
+    }
+}

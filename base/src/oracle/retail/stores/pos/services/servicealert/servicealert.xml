@@ -1,0 +1,666 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/servicealert/servicealert.xml /main/21 2013/02/11 13:17:49 sgu Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    sgu       02/11/13 - fix crash for xchannel
+ *    sgu       01/09/13 - update order to printed status in picklist and
+ *                         servicealert
+ *    sgu       01/09/13 - go to order meanu directly for xc
+ *    rsnayak   06/11/10 - Bug 9729901 Fix
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   04/26/10 - XbranchMerge cgreene_tech11_techissueseatel from
+ *                         st_rgbustores_techissueseatel_generic_branch
+ *    blarsen   03/31/10 - Required for case when Till is already open and
+ *                         simply needs to be inserted into cash drawer.
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *    blarsen   10/05/09 - Recent enhancment for orders added a new letter
+ *                         (ExitSpecialOrder) which was not handled by this
+ *                         service causing a POS hang. Added support for letter
+ *                         ExitSpecialOrder.
+ *
+ * ===========================================================================
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:45:08 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin-4
+      3    360Commerce 1.2         3/31/2005 4:29:56 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:25:12 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:14:10 PM  Robert Pearse
+     $
+     Revision 1.5.2.1  2005/01/20 21:03:43  bwf
+     @scr 5126 Handle QueueFull letter inorder to go back to main options screen.
+
+     Revision 1.5  2004/06/25 22:54:55  cdb
+     @scr 1642 Updated so that Undo selected from Operator ID screen returns
+     to the calling service rather than prompting for another security override.
+
+     Revision 1.4  2004/05/13 14:10:00  awilliam
+     @scr 4314 selcting Service Alert crashes Pos
+
+     Revision 1.3  2004/03/26 00:24:23  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:51:58  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:20  cschellenger
+     updating to pvcs 360store-current
+
+
+ *
+ *    Rev 1.1   Sep 17 2001 13:10:20   msg
+ */
+ * ===========================================================================
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ServiceAlert" package="oracle.retail.stores.pos.services.servicealert" tourcam="OFF">
+<CARGO class="ServiceAlertCargo" package="oracle.retail.stores.pos.services.servicealert"/>
+<SERVICECODE>
+     <!-- Letters -->
+     <LETTER name="Yes"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Success"/>
+     <LETTER name="Override"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Next"/>
+     <LETTER name="Orders"/>
+     <LETTER name="WebStore"/>
+     <LETTER name="Refresh"/>
+     <LETTER name="Continue"/>
+     <LETTER name="EmailDetail"/>
+     <LETTER name="PrintOrder"/>
+     <LETTER name="EmailFind" />
+     <LETTER name="Pickup" />
+     <LETTER name="Email" />
+     <LETTER name="NotFound" />
+     <LETTER name="OperatorID"/>
+     <LETTER name="ResumeTill"/>
+     <LETTER name="QueueFull"/>
+     <LETTER name="CloseDrawer"/>
+     <LETTER name="RetryCashDrawerOpen"/>
+
+     <!-- Signals -->
+     <SIGNAL class="IsXChannelOrderSignal" package="oracle.retail.stores.pos.services.common"/>
+
+     <!-- Sites -->
+     <SITEACTION class="DisplayNoMatchSite" package="oracle.retail.stores.pos.services.order.lookup" />
+     <SITEACTION class="CheckAccountabilitySite"/>
+     <SITEACTION class="ListNewAlertEntriesSite" />
+     <SITEACTION class="LoadSelectedAlertEntrySite" />
+     <SITEACTION class="UpdateOrderStatusSite" />
+     <SITEACTION class="EvaluateOperatorSite" package="oracle.retail.stores.pos.services.common" />
+     <SITEACTION class="CheckOpenTillSite" />
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+     <!-- Aisles and Roads -->
+     <LANEACTION class="LoadSelectedOrderAisle" />
+     <LANEACTION class="LoadSelectedEmailAisle" />
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="SetSelectedAlertRoad"/>
+     <LANEACTION class="SetRetrieveListFailedRoad"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="CashDrawerOpenAisle"/>
+     <LANEACTION class="CashDrawerCloseAisle"/>
+     <LANEACTION class="ResumeTillLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="CheckAndUpdateOrderRoad" package="oracle.retail.stores.pos.services.order.print"/>
+
+
+     <!-- Shuttles -->
+     <SHUTTLE class="OpenTillLaunchShuttle" package="oracle.retail.stores.pos.services.common" />
+     <SHUTTLE class="OpenTillReturnShuttle"/>
+     <SHUTTLE class="OrderShuttle" package="oracle.retail.stores.pos.services.order.common" />
+     <SHUTTLE class="EmailDetailLaunchShuttle" />
+     <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common" />
+     <SHUTTLE class="EmailFindLaunchShuttle" />
+     <SHUTTLE class="OperatorIdLaunchShuttle"/>
+     <SHUTTLE class="SaleLaunchShuttle"/>
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SHUTTLE class="WebStoreLaunchShuttle" />
+     <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+
+</SERVICECODE>
+<MAP>
+    <REGION region="SERVICE" startsite="CheckAccountability">
+        <SITE name="CheckAccountability" siteaction="CheckAccountabilitySite">
+            <COMMENT>
+                This site checks to see if Operator ID needs to be called.
+            </COMMENT>
+            <ROAD name="IdentifyOperator"
+                  letter="OperatorID"
+                  destination="OperatorIDStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                <COMMENT>
+                    This road is traveled when Operator ID needs to be
+                    called.
+                </COMMENT>
+            </ROAD>
+            <ROAD name="OperatorKnown"
+                  letter="Continue"
+                  destination="CheckAccess"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                <COMMENT>
+                    This road is traveled when Operator ID is not needed.
+                </COMMENT>
+            </ROAD>
+        </SITE>
+
+        <STATION name="OperatorIDStation"
+                 servicename="services.operatorid.operatorid"
+                 targettier="APPLICATIONTIER"
+                 launchshuttle="OperatorIdLaunchShuttle"
+                 returnshuttle="OperatorIdReturnShuttle">
+                <AISLE
+                    name="LoginUndo"
+                    letter="Undo"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to Failure
+                    </COMMENT>
+                </AISLE>
+            <ROAD name="LoginFailed"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="LoginSucceeded"
+                  letter="Success"
+                  destination="CheckAccess"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </STATION>
+
+        <SITE name="CheckAccess" siteaction="CheckAccessSite">
+            <ROAD name="NoAccess"
+                  letter="Override"
+                  destination="SecurityOverrideStation">
+            </ROAD>
+            <ROAD name="UserAuthorized"
+                  letter="Continue"
+                  destination="CheckOpenTill">
+            </ROAD>
+        </SITE>
+
+        <STATION name="SecurityOverrideStation"
+                 servicename="security.override.override"
+                 targettier="CURRENTTIER"
+                 launchshuttle="SecurityOverrideLaunchShuttle" >
+            <ROAD name="LoginSucceededSecurityOverride"
+                  letter="Success"
+                  destination="CheckOpenTill"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="SecurityOverrideFailed"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="SecurityOverrideCancelled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </STATION>
+
+        <SITE name="CheckOpenTill" siteaction="CheckOpenTillSite">
+            <ROAD name="TillOpen"
+                  letter="Success"
+                  destination="EvaluateOperator"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                  <COMMENT>
+                      This road is traveled when Till is open
+                  </COMMENT>
+            </ROAD>
+            <ROAD name="TillNotOpen"
+                  letter="Failure"
+                  destination="OpenTillStation"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD
+                name="FloatingTill"
+                letter="ResumeTill"
+                destination="ResumeTillStation"
+                tape="ADVANCE"
+                record="OFF"
+                index="OFF">
+                <COMMENT>
+                    The operator wishes to resume a floating till.
+                </COMMENT>
+            </ROAD>
+        </SITE>
+
+        <STATION name="OpenTillStation"
+                 servicename="till.tillopen.tillopen"
+                 targettier="CURRENTTIER"
+                 launchshuttle="OpenTillLaunchShuttle"
+                 returnshuttle="OpenTillReturnShuttle">
+            <COMMENT>
+                This station is the transfer point for the tillopen
+                service.
+            </COMMENT>
+            <AISLE name="TillOpenFailure"
+                   letter="Failure"
+                   laneaction="CancelLetterAisle">
+                <COMMENT>
+                    This aisle is traversed to convert the current letter
+                    to cancel
+                </COMMENT>
+            </AISLE>
+            <AISLE name="TillOpenUndo"
+                   letter="Undo"
+                   laneaction="CancelLetterAisle">
+                <COMMENT>
+                    This aisle is traversed to convert the current letter
+                    to cancel
+                </COMMENT>
+            </AISLE>
+            <ROAD name="TillOpenCancel"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+                 <COMMENT>
+                     This road is traveled when the Open Till service returns.
+                 </COMMENT>
+            </ROAD>
+            <ROAD name="TillOpenEvaluate"
+                  letter="Success"
+                  destination="EvaluateOperator"
+                  tape="ADVANCE" record="ON" index="ON">
+                 <COMMENT>
+                     This road is traveled when the TillOpen service returns
+                     with a Success letter.
+                 </COMMENT>
+            </ROAD>
+        </STATION>
+
+        <SITE name="EvaluateOperator" siteaction="EvaluateOperatorSite">
+            <COMMENT>
+                 Makes sure the Operator is setup correctly for Till
+                 for till accountability.
+            </COMMENT>
+             <AISLE
+                 name="CashDrawerOpen"
+                 letter="OpenDrawer"
+                 laneaction="CashDrawerOpenAisle">
+             </AISLE>
+             <AISLE
+                 name="CashDrawerClose"
+                 letter="CloseDrawer"
+                 laneaction="CashDrawerCloseAisle">
+             </AISLE>
+             <AISLE
+                 name="CashDrawerOpenRetry"
+                 letter="RetryCashDrawerOpen"
+                 laneaction="CashDrawerOpenAisle">
+             </AISLE>
+            <ROAD name="ResumeTill"
+                  letter="Yes"
+                  destination="ResumeTillStation"
+                  tape="ADVANCE" record="ON" index="ON">
+                 <COMMENT>
+                      The till is suspended.
+                 </COMMENT>
+            </ROAD>
+            <ROAD name="OperatorValidated"
+                  letter="Success"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+                 <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+                 <COMMENT>
+                      The operator has been correctly set up.
+                 </COMMENT>
+            </ROAD>
+            <ROAD name="OperatorValidated"
+                  letter="Success"
+                  destination="SaleStation"
+                  tape="ADVANCE" record="ON" index="ON">
+                 <LIGHT signal="IsXChannelOrderSignal" />
+                 <COMMENT>
+                      The operator has been correctly set up.
+                 </COMMENT>
+            </ROAD>
+            <ROAD name="OperatorFailure"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+                 <COMMENT>
+                      Exit the service.
+                 </COMMENT>
+            </ROAD>
+        </SITE>
+
+        <STATION name="ResumeTillStation"
+                 servicename="till.tillresume.tillresume"
+                 targettier="CURRENTTIER"
+                 launchshuttle="ResumeTillLaunchShuttle"
+                 returnshuttle="FinancialCargoShuttle">
+            <COMMENT>
+                This station is the transfer point for the tillopen
+                service.
+            </COMMENT>
+            <AISLE name="TillResumeFailure"
+                   letter="Failure"
+                   laneaction="CancelLetterAisle">
+                 <COMMENT>
+                     This aisle is traversed to convert the current letter
+                     to cancel
+                 </COMMENT>
+            </AISLE>
+            <AISLE name="TillResumeUndo"
+                   letter="Undo"
+                   laneaction="CancelLetterAisle">
+                 <COMMENT>
+                     This aisle is traversed to convert the current letter
+                     to cancel
+                 </COMMENT>
+             </AISLE>
+            <ROAD name="TillResumeCancel"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+                 <COMMENT>
+                     This road is traveled when the Till Resume service
+                     returns.
+                 </COMMENT>
+            </ROAD>
+            <ROAD name="TillResumeSuccess"
+                  letter="Success"
+                  destination="EvaluateOperator"
+                  tape="ADVANCE" record="ON" index="ON">
+                 <COMMENT>
+                     This road is traveled when the Till Resume service
+                     returns with a Success letter.
+                 </COMMENT>
+            </ROAD>
+        </STATION>
+
+        <SITE name="ListNewAlertEntries" siteaction="ListNewAlertEntriesSite">
+            <AISLE name="RetrieveAlertListFailed"
+                   letter="Failure"
+                   laneaction="DataBaseErrorAisle">
+            </AISLE>
+            <ROAD name="ServiceAlertNoMatch"
+                  letter="NotFound"
+                  destination="DisplayNoMatch"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="ServiceAlertNotificationAcknowledged"
+                  letter="Ok"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="AlertEntrySelected"
+                  letter="Next"
+                  laneaction="SetSelectedAlertRoad"
+                  destination="LoadSelectedAlertEntry"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="OrdersSelected"
+                  letter="Orders"
+                  destination="SaleStation"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="WebStoreSelected"
+                  letter="WebStore"
+                  destination="WebStoreStation"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="RefreshSelected"
+                  letter="Refresh"
+                  laneaction="SetRetrieveListFailedRoad"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="EmailFindSelected"
+                  letter="EmailFind"
+                  destination="EmailFindStation"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="ServiceAlertUndoSelected"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="DisplayNoMatch" siteaction="DisplayNoMatchSite">
+               <COMMENT>
+                  Displays the no match screen
+               </COMMENT>
+               <ROAD name="DisplayNoMatchStatusSearch"
+                     letter="Ok"
+                     destination="ListNewAlertEntries"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+        </SITE>
+
+        <SITE name="LoadSelectedAlertEntry" siteaction="LoadSelectedAlertEntrySite">
+            <AISLE name="RetrieveSelectedItemFailed"
+                   letter="Failure"
+                   laneaction="DataBaseErrorAisle">
+            </AISLE>
+            <AISLE name="LoadSelectedOrder"
+                   letter="Pickup"
+                   laneaction="LoadSelectedOrderAisle">
+            </AISLE>
+            <AISLE name="LoadSelectedEmail"
+                   letter="Email"
+                   laneaction="LoadSelectedEmailAisle">
+            </AISLE>
+            <ROAD name="PrintOrderSelected"
+                  letter="PrintOrder"
+                  destination="PrintOrderStation"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="EmailDetailSelected"
+                  letter="EmailDetail"
+                  destination="EmailDetailStation"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="LoadItemNotificationAcknowledged"
+                  letter="Ok"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="UpdateOrderStatus" siteaction="UpdateOrderStatusSite">
+            <AISLE name="UpdateOrderFailed"
+                   letter="Failure"
+                   laneaction="DataBaseErrorAisle">
+            </AISLE>
+            <ROAD name="UpdateSucceeded"
+                  letter="Success"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="UpdateFailureAcknowledged"
+                  letter="Ok"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+
+        <STATION name="PrintOrderStation"
+                 servicename="order.print.printorder"
+                 targettier="APPLICATIONTIER"
+                 launchshuttle="OrderShuttle">
+            <ROAD name="PrintOrderSucceeded"
+                  letter="Success"
+                  destination="UpdateOrderStatus"
+                  laneaction="CheckAndUpdateOrderRoad"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="PrintOrderFailed"
+                  letter="Failure"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="PrintOrderUndone"
+                  letter="Undo"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </STATION>
+
+        <STATION name="WebStoreStation"
+                 servicename="services.browser.browser"
+                 targettier="APPLICATIONTIER"
+                 launchshuttle="WebStoreLaunchShuttle">
+            <ROAD name="WebStoreCompleted"
+                  letter="Continue"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="WebStoreCancel"
+                  letter="Cancel"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="WebStoreUndo"
+                  letter="Undo"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="WebStoreFailure"
+                  letter="Failure"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </STATION>
+
+        <STATION name="EmailDetailStation"
+                 servicename="email.detail.emaildetail"
+                 targettier="APPLICATIONTIER"
+                 launchshuttle="EmailDetailLaunchShuttle" >
+            <ROAD name="EmailDetailSucceeded"
+                  letter="Success"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="EmailDetailCancel"
+                  letter="Cancel"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="EmailDetailUndo"
+                  letter="Undo"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="EmailDetailFailure"
+                  letter="Failure"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </STATION>
+
+        <STATION name="EmailFindStation"
+                 servicename="email.find.emailfind"
+                 targettier="APPLICATIONTIER"
+                 launchshuttle="EmailFindLaunchShuttle" >
+            <ROAD name="EmailFindSucceeded"
+                  letter="Success"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="EmailFindCancel"
+                  letter="Cancel"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="EmailFindUndo"
+                  letter="Undo"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="EmailFindFailure"
+                  letter="Failure"
+                  destination="ListNewAlertEntries"
+                  tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </STATION>
+        <STATION name="SaleStation"
+                 servicename="services.sale.sale"
+                 targettier="APPLICATIONTIER"
+                 launchshuttle="SaleLaunchShuttle">
+            <ROAD name="SaleSucceededRoad"
+                   letter="Success"
+                   destination="ListNewAlertEntries"
+                   tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+            </ROAD>
+            <ROAD name="XChannelSaleSucceededRoad"
+                   letter="Success"
+                   destination="SaleStation"
+                   tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal"/>
+            </ROAD>
+            <ROAD name="SaleFailureRoad"
+                   letter="Failure"
+                   destination="ListNewAlertEntries"
+                   tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+            </ROAD>
+            <ROAD name="XChannelSaleFailureRoad"
+                   letter="Failure"
+                   destination="SaleStation"
+                   tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal"/>
+            </ROAD>
+            <ROAD name="SaleCancelRoad"
+                   letter="Cancel"
+                   destination="ListNewAlertEntries"
+                   tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+            </ROAD>
+            <ROAD name="XChannelSaleCancelRoad"
+                   letter="Cancel"
+                   destination="SaleStation"
+                   tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal"/>
+            </ROAD>
+            <ROAD name="SaleTimeoutCompleteRoad"
+                   letter="TimeoutComplete"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="SaleUndoRoad"
+                   letter="Undo"
+                   destination="ListNewAlertEntries"
+                   tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+            </ROAD>
+            <ROAD name="XChannelSaleUndoRoad"
+                   letter="Undo"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal"/>
+            </ROAD>
+            <ROAD name="SaleUndoRoad"
+                   letter="QueueFull"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </STATION>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

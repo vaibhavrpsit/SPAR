@@ -1,0 +1,555 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/manager/registerreports/registerreports.xml /main/19 2013/01/15 18:46:24 sgu Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    sgu       01/15/13 - add back order status report
+ *    sgu       07/12/12 - remove retrieve order summary by status or by
+ *                         emessage
+ *    rsnayak   07/05/11 - Added Done road
+ *    vtemker   03/07/11 - Print Preview for Reports - fixed review comments
+ *    vtemker   03/03/11 - Changes for Print Preview Reports Quickwin
+ *    nkgautam  07/06/10 - bill pay report changes
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="RegisterReports" package="oracle.retail.stores.pos.services.manager.registerreports" tourcam="OFF">
+<CARGO class="RegisterReportsCargo">
+</CARGO>
+<SERVICECODE>
+     <SITEACTION class="ReportsRouterSite" />
+     <SITEACTION class="ReportsOptionsSite" />
+     <SITEACTION class="SummaryReportSite"  />
+     <SITEACTION class="DateRangeReportSite" />
+     <SITEACTION class="PrintReportSite" />
+     <SITEACTION class="OrdersSummaryReportSite" />
+     <SITEACTION class="OrderStatusReportSite" />
+     <SITEACTION class="RetrieveSuspendedTransactionsReportSite" />
+     <SITEACTION class="BillPayTransactionReportSite" />
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common" />
+	 <SITEACTION class="PrintPreviewSite" />
+
+     <LANEACTION class="SummaryReportSelectedAisle" />
+     <LANEACTION class="OrdersSummaryReportSelectedAisle" />
+     <LANEACTION class="OrderStatusReportSelectedAisle" />
+     <LANEACTION class="SuspendedTransactionsReportSelectedAisle" />
+     <LANEACTION class="DeptSalesReportSelectedAisle" />
+     <LANEACTION class="HrlySalesReportSelectedAisle" />
+     <LANEACTION class="AssocProdReportSelectedAisle" />
+     <LANEACTION class="QueTransReportSelectedAilse" />
+     <LANEACTION class="ValidateSummaryReportAisle" />
+     <LANEACTION class="ValidateDateRangeReportAisle" />
+     <LANEACTION class="ValidateOrdersSummaryReportAisle" />
+     <LANEACTION class="ValidateOrderStatusReportAisle" />
+     <LANEACTION class="BillPaymentsReportSelectedAisle" />
+     <LANEACTION class="ValidateBillPayTransactionReportAisle" />
+     <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common" />
+
+    <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common" />
+
+     <LETTER name="Ok" />
+     <LETTER name="Cancel" />
+     <LETTER name="Undo" />
+     <LETTER name="PrintComplete" />
+     <LETTER name="PrintReportComplete" />
+     <LETTER name="DeptSalesReport" />
+     <LETTER name="HrlySalesReport" />
+     <LETTER name="AssocProdReport" />
+     <LETTER name="QueTransReport" />
+     <LETTER name="DateRange" />
+     <LETTER name="Summary" />
+     <LETTER name="OrdersSummary" />
+     <LETTER name="OrderStatus" />
+     <LETTER name="SuspendedTransactions" />
+     <LETTER name="Print" />
+     <LETTER name="Continue" />
+     <LETTER name="ValidSummary" />
+     <LETTER name="ValidDateRange" />
+     <LETTER name="ValidOrdersSummary" />
+     <LETTER name="ValidOrderStatus" />
+     <LETTER name="BillPaySummary" />
+     <LETTER name="Retry" />
+     <LETTER name="Override" />
+     <LETTER name="Success" />
+     <LETTER name="Failure" />
+     <LETTER name="Preview" />
+     <LETTER name="PrintPreview" />
+     <LETTER name="Done"/>
+
+</SERVICECODE>
+<MAP>
+    <REGION region="SERVICE" startsite="ReportsOptions">
+        <SITE name="CheckAccess" siteaction="CheckAccessSite">
+            <ROAD
+                name="NoAccess"
+                letter="Override"
+                destination="SecurityOverrideStation">
+            </ROAD>
+            <ROAD
+                name="UserAuthorized"
+                letter="Continue"
+                destination="ReportsRouter">
+            </ROAD>
+        </SITE>
+
+        <STATION name="SecurityOverrideStation"
+                  servicename="security.override.override"
+                  targettier="CURRENTTIER"
+                  launchshuttle="SecurityOverrideLaunchShuttle" >
+            <AISLE
+                name="ReportAccessDenied"
+                letter="Failure"
+                laneaction="CancelLetterAisle" >
+            </AISLE>
+            <ROAD
+                name="SecurityOverrideSucceeded"
+                letter="Success"
+                destination="ReportsRouter"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD
+                name="SecurityOverrideCancelled"
+                letter="Cancel"
+                destination="ReportsOptions"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </STATION>
+
+        <SITE name="ReportsRouter" siteaction="ReportsRouterSite">
+            <ROAD
+                name="DateRangeReportType"
+                letter="DateRange"
+                destination="DateRangeReport"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD
+                name="PrintReportNeeded"
+                letter="Print"
+                destination="PrintReport"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="ReportsPreviewSelected"
+                      letter="PrintPreview"
+                      destination="PrintPreview"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+             </ROAD>
+            <ROAD
+                name="SummaryWasSelected"
+                letter="Summary"
+                destination="SummaryReport"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD
+                name="OrdersSummaryWasSelected"
+                letter="OrdersSummary"
+                destination="OrdersSummaryReport"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD 
+                name="OrderStatusWasSelected" 
+                letter="OrderStatus" 
+                destination="OrderStatusReport" 
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD
+                name="SuspendedTransactionsWasSelected"
+                letter="SuspendedTransactions"
+                destination="RetrieveSuspendedTransactionsReport"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD
+                name="BillPayTransactionsWasSelected"
+                letter="BillPayTransactionsReport"
+                destination="BillPayTransactionReport"
+                tape="ADVANCE" record="OFF" index="OFF"/>
+        </SITE>
+
+          <SITE name="ReportsOptions" siteaction="ReportsOptionsSite">
+               <AISLE name="DeptSalesReportSelected"
+                      letter="DeptSalesReport"
+                      laneaction="DeptSalesReportSelectedAisle">
+               </AISLE>
+               <AISLE name="HrlySalesReportSelected"
+                      letter="HrlySalesReport"
+                      laneaction="HrlySalesReportSelectedAisle">
+               </AISLE>
+               <AISLE name="AssocProdReportSelected"
+                      letter="AssocProdReport"
+                      laneaction="AssocProdReportSelectedAisle">
+               </AISLE>
+               <AISLE name="QueTransReportSelected"
+                      letter="QueTransReport"
+                      laneaction="QueTransReportSelectedAilse">
+               </AISLE>
+               <AISLE name="SummarySelected"
+                      letter="Summary"
+                      laneaction="SummaryReportSelectedAisle">
+               </AISLE>
+               <AISLE name="OrdersSummarySelected"
+                      letter="OrdersSummary"
+                      laneaction="OrdersSummaryReportSelectedAisle">
+               </AISLE>
+               <AISLE name="OrderStatusSelected" 
+                      letter="OrderStatus" 
+                      laneaction="OrderStatusReportSelectedAisle">
+               </AISLE>
+               <AISLE name="SuspendedTransactionsSelected"
+                      letter="SuspendedTransactions"
+                      laneaction="SuspendedTransactionsReportSelectedAisle">
+               </AISLE>
+               <AISLE name="BillPaySelected"
+                      letter="BillPaySummary"
+                      laneaction="BillPaymentsReportSelectedAisle">
+               </AISLE>
+               <ROAD  name="ReportSelected"
+                      letter="Continue"
+                      destination="CheckAccess">
+               </ROAD>
+               <ROAD  name="UndoReports"
+                      letter="Undo"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="SummaryReport" siteaction="SummaryReportSite">
+               <AISLE name="ValidateSummaryReport"
+                      letter="Print"
+                      laneaction="ValidateSummaryReportAisle">
+               </AISLE>
+               <AISLE name="ValidateSummaryReportPreview"
+                      letter="Preview"
+                      laneaction="ValidateSummaryReportAisle">
+               </AISLE>
+               <ROAD name="InvalidSummaryReportdata"
+                      letter="Ok"
+                      destination="SummaryReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="UndoSummary"
+                      letter="Undo"
+                      destination="ReportsOptions"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="CancelSummary"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidSummaryData"
+                      letter="ValidSummary"
+                      destination="PrintReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidPreviewSummaryData"
+                      letter="PrintPreview"
+                      destination="PrintPreview"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="DateRangeReport" siteaction="DateRangeReportSite">
+               <AISLE name="ValidateDateRangeReport"
+                      letter="Print"
+                      laneaction="ValidateDateRangeReportAisle">
+               </AISLE>
+               <AISLE name="ValidateDateRangeReportPreview"
+                      letter="Preview"
+                      laneaction="ValidateDateRangeReportAisle">
+               </AISLE>
+               <ROAD name="InvalidDateRangeReportData"
+                      letter="Ok"
+                      destination="DateRangeReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="UndoDateRange"
+                      letter="Undo"
+                      destination="ReportsOptions"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="CancelDateRange"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidDateRangeData"
+                      letter="ValidDateRange"
+                      destination="PrintReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidPreviewDateRangeData"
+                      letter="PrintPreview"
+                      destination="PrintPreview"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="OrdersSummaryReport" siteaction="OrdersSummaryReportSite">
+               <AISLE name="ValidateOrdersSummaryReport"
+                      letter="Print"
+                      laneaction="ValidateOrdersSummaryReportAisle">
+               </AISLE>
+               <AISLE name="ValidateOrdersSummaryReportPreview"
+                      letter="Preview"
+                      laneaction="ValidateOrdersSummaryReportAisle">
+               </AISLE>
+               <ROAD name="InvalidOrdersSummaryReportData"
+                      letter="Ok"
+                      destination="OrdersSummaryReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="UndoOrdersSummary"
+                      letter="Undo"
+                      destination="ReportsOptions"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="CancelOrdersSummary"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidOrdersSummaryData"
+                      letter="ValidOrdersSummary"
+                      destination="PrintReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidPreviewOrdersSummaryData"
+                      letter="PrintPreview"
+                      destination="PrintPreview"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="OrderStatusReport" siteaction="OrderStatusReportSite">
+               <AISLE name="ValidateOrderStatusReport" 
+                      letter="Print" 
+                      laneaction="ValidateOrderStatusReportAisle">
+               </AISLE>
+               <AISLE name="ValidateOrderStatusReportPreview" 
+                      letter="Preview" 
+                      laneaction="ValidateOrderStatusReportAisle">
+               </AISLE>
+               <ROAD name="InvalidOrderStatusReportData" 
+                      letter="Ok" 
+                      destination="OrderStatusReport" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="UndoOrderStatus" 
+                      letter="Undo" 
+                      destination="ReportsOptions" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="CancelOrdersStatus" 
+                      letter="Cancel" 
+                      destination="Final" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidOrderStatusData" 
+                      letter="ValidOrderStatus" 
+                      destination="PrintReport" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidPreviewOrderStatusData" 
+                      letter="PrintPreview" 
+                      destination="PrintPreview" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="BillPayTransactionReport" siteaction="BillPayTransactionReportSite">
+               <AISLE name="ValidateBillPayTransactionReport"
+                      letter="Print"
+                      laneaction="ValidateBillPayTransactionReportAisle">
+               </AISLE>
+               <AISLE name="ValidateBillPayTransactionReportPreview"
+                      letter="Preview"
+                      laneaction="ValidateBillPayTransactionReportAisle">
+               </AISLE>
+               <ROAD name="InvalidBillPayReportData"
+                      letter="Ok"
+                      destination="BillPayTransactionReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="UndoBillPayReport"
+                      letter="Undo"
+                      destination="ReportsOptions"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="CancelBillPayReport"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidBillPayReport"
+                      letter="ValidBillPayReport"
+                      destination="PrintReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidPreviewBillPayData"
+                      letter="PrintPreview"
+                      destination="PrintPreview"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+
+          </SITE>
+
+          <SITE name="RetrieveSuspendedTransactionsReport" siteaction="RetrieveSuspendedTransactionsReportSite">
+               <ROAD name="InvalidSuspendedTransactionsReportData"
+                      letter="Ok"
+                      destination="ReportsOptions"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="ValidSuspendedTransactionsData"
+                      letter="PrintPreview"
+                      destination="PrintPreview"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="DatabaseError"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+          </SITE>
+
+          <SITE name="PrintPreview" siteaction="PrintPreviewSite">
+               <ROAD name="PreviewComplete"
+                      letter="PreviewComplete"
+                      destination="PrintReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="Print"
+                      letter="Print"
+                      destination="PrintReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="Next"
+                      letter="Next"
+                      destination="PrintReport"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="UndoPrintPreview"
+                      letter="Undo"
+                      destination="ReportsOptions"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+               <ROAD name="CancelPrintPreview"
+                     letter="Cancel"
+                     destination="ReportsOptions"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+               </ROAD>
+               <ROAD name="DonePrintPreview"
+                      letter="Done"
+                      destination="ReportsOptions"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+               </ROAD>
+          </SITE>
+
+          <SITE name="PrintReport" siteaction="PrintReportSite">
+               <ROAD name="PrintDone"
+                     letter="PrintComplete"
+                     destination="ReportsOptions"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+               </ROAD>
+               <ROAD name="RetryPrintReport"
+                     letter="Retry"
+                     destination="PrintReport"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+               </ROAD>
+               <ROAD name="CancelPrintReport"
+                     letter="Cancel"
+                     destination="ReportsOptions"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+               </ROAD>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

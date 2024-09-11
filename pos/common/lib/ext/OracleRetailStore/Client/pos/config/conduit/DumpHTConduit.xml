@@ -1,0 +1,72 @@
+<?xml version='1.0' ?>
+
+<!DOCTYPE DISPATCHER SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/dispatch.dtd">
+<DISPATCHER name="DUMPHTCONDUIT">
+    <APPLICATION name="APPLICATION"
+                 class="TierTechnician"
+                 package="oracle.retail.stores.foundation.manager.tier"
+                 startservice="classpath://oracle/retail/stores/pos/services/buildfftour/dumphttour.xml">
+        <PROPERTY propname="managerData"
+                  propvalue="name=DeviceManager,managerpropname=className,managerpropvalue=oracle.retail.stores.foundation.manager.device.DeviceManager"/>
+    </APPLICATION>
+
+    <TECHNICIAN name="BUSINESSTIER"
+                class="TierTechnician"
+                package="oracle.retail.stores.foundation.manager.tier"
+                export="Y">
+    </TECHNICIAN>
+
+    <MANAGER name="ThreadManager"
+             class="ThreadManager"
+             package="oracle.retail.stores.foundation.manager.thread">
+        <PROPERTY propname="threadPool" propvalue="StaticCache"/>
+        <PROPERTY propname="threadPoolProperty" propvalue="maxSize=4"/>
+    </MANAGER>
+
+    <TECHNICIAN name="DeviceTechnician"
+                class="DeviceTechnician"
+                package="oracle.retail.stores.foundation.manager.device"
+                export="Y">
+        <COMMENT>
+            The Technician that provides access to the devices.
+        </COMMENT>
+        <PROPERTY propname="deviceScript"
+                  propvalue="classpath://config/technician/PosDeviceTechnician.xml"/>
+    </TECHNICIAN>
+
+    <MANAGER name="DLFormatManager"
+             class="ValidationManager"
+             package="oracle.retail.stores.domain.manager.validation"
+             export="N">
+       <PROPERTY propname="techName" propvalue="DLFormatTechnician"/>
+   </MANAGER>
+
+   <TECHNICIAN name="DLFormatTechnician" class="ValidationTechnician"
+                package="oracle.retail.stores.domain.manager.validation"
+                export="Y">
+        <PROPERTY
+            propname="configScript"
+            propvalue="classpath://config/validation/dlvalidationscript.xml"/>
+   </TECHNICIAN>
+
+
+
+   <MANAGER name="DataManager" class="DataManager"
+				package="oracle.retail.stores.foundation.manager.data">
+		   <PROPERTY propname="configScript"
+					 propvalue="classpath://config/manager/PosDataManager.xml" />
+   </MANAGER>
+
+   <TECHNICIAN name="LocalDT" class="DataTechnician"
+				   package="oracle.retail.stores.foundation.manager.data"
+				   export="Y">
+           <PROPERTY propname="configuratorClassName"
+                     propvalue="oracle.retail.stores.foundation.manager.data.XMLDataTechnicianConfiguratorForJPA"/>				   
+		   <PROPERTY
+			   propname="dataScript"
+			   propvalue="classpath://config/technician/PosLDBDataTechnician.xml"
+		   />
+    </TECHNICIAN>
+
+
+</DISPATCHER>

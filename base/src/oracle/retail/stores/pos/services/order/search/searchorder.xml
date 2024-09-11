@@ -1,0 +1,331 @@
+<!--
+/*===========================================================================
+* Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+* ===========================================================================
+* $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/search/searchorder.xml /main/6 2013/05/01 10:33:34 jswan Exp $
+* ===========================================================================
+* NOTES
+* <other useful comments, qualifications, etc.>
+*
+* MODIFIED    (MM/DD/YY)
+* jswan       04/29/13 - When transaction lookup for returns (by trans id,
+*                        customer number, etc.) fails to find a match, the
+*                        applicaiton gives the user the options to return by
+*                        item. The modification supports the same behavior for
+*                        lookup by Order.
+* jswan       04/18/13 - Modified to make lookup by credit card work the same
+*                        way for orders and transactions.
+* abhinavs    03/21/13 - Undo search order operation on customer/credit card
+*                        criteria return to previous screen
+* yiqzhao     08/01/12 - Update flow for order search by credit/debit card.
+* yiqzhao     07/27/12 - modify order search flow and populate order cargo for
+*                        searching
+* yiqzhao     07/23/12 - modify order search flow for xchannel order and
+*                        special order
+* yiqzhao     07/19/12 - Creation
+* ===========================================================================
+*/
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="searchorder"
+    package="oracle.retail.stores.pos.services.order.search"
+    tourcam="OFF">
+    <CARGO class="OrderCargo" package="oracle.retail.stores.pos.services.order.common"></CARGO>
+    <SERVICECODE>
+
+        <!-- Letters -->
+        <LETTER name="Cancel" />
+        <LETTER name="Success" />
+        <LETTER name="Failure" />
+        <LETTER name="Undo" />
+        <LETTER name="Ok" />
+        <LETTER name="Customer" />
+        <LETTER name="CustInfo" />
+        <LETTER name="CreditCard" />
+        <LETTER name="Next" />
+        <LETTER name="NoMatch" />
+        <LETTER name="Enter" />
+        <LETTER name="Swipe" />
+        <LETTER name="Error" />
+        <LETTER name="Retry"/>
+	    <LETTER name="ReturnItem"/>
+        
+        <!-- Shuttles -->
+        <SHUTTLE class="OrderShuttle" package="oracle.retail.stores.pos.services.order.common" />
+        
+        <!-- Sites -->
+        <SITEACTION class="DisplayOrderSearchOptionsSite"/>
+        <SITEACTION class="CustomerInfoSite"/>
+        <SITEACTION class="SearchByCustomerSite"/>
+        <SITEACTION class="SearchByCreditCardSite"/>  
+        
+        <SITEACTION class="SearchByEnterCreditDebitSite"/>
+        <SITEACTION class="SearchBySwipeCreditDebitSite"/>
+        <SITEACTION class="SearchByEnterInfoForSwipeCardSite"/>
+        
+        <!-- Lanes -->
+        <LANEACTION class="CustomerInfoEnteredAisle"/>
+        <LANEACTION class="ResetOrderCargoRoad" package="oracle.retail.stores.pos.services.order.common" />
+        <LANEACTION class="OrderIDEnteredRoad" package="oracle.retail.stores.pos.services.order.common" />
+  
+    </SERVICECODE>
+    
+    <MAP>
+         <REGION region="SERVICE"
+            startsite="DisplayOrderSearchOptions">
+            <SITE name="DisplayOrderSearchOptions"
+                siteaction="DisplayOrderSearchOptionsSite">
+                <COMMENT>fill order search site options</COMMENT>
+                <ROAD 
+                    name="SearchByCustomer"
+                    letter="Customer"
+                    destination="SearchByCustomer"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="SearchByCreditCard"
+                    letter="CreditCard"
+                    destination="SearchByCreditCard"
+                    record="OFF"
+                    index="ON">
+                </ROAD>  
+                <ROAD 
+                    name="OrderNumberEntered" 
+                    letter="Next"
+                    destination="LookupOrderStation" 
+                    laneaction="OrderIDEnteredRoad"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>                               
+                <ROAD 
+                    name="OrderSearchOptionsCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="OrderSearchOptionsUndo" 
+                    letter="Undo"
+                    destination="Final" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="SearchByCustomer"
+                siteaction="SearchByCustomerSite">
+                <COMMENT>fill order search site options</COMMENT>
+                <ROAD 
+                    name="CustomerIDentered" 
+                    letter="Next"
+                    destination="LookupOrderStation" 
+                    record="OFF" 
+                    index="ON">
+                </ROAD> 
+                <ROAD 
+                    name="CustomerInfoSelected" 
+                    letter="CustInfo"
+                    destination="CustomerInfo" 
+                    record="ON" 
+                    index="ON">
+                </ROAD>                                
+                <ROAD 
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="DisplayOrderSearchOptions"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>              
+            </SITE>
+            <SITE name="CustomerInfo" siteaction="CustomerInfoSite">
+                <COMMENT>fill customer info</COMMENT>
+                <AISLE name="CustomerInfoEnteredAisle"
+                     letter="Next"
+                     laneaction ="CustomerInfoEnteredAisle">
+                </AISLE>                
+                <ROAD 
+                    name="CustomerInfoCheckedOk" 
+                    letter="Ok"
+                    destination="LookupOrderStation" 
+                    record="OFF" 
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="CustomerInfoCheckedFail" 
+                    letter="Error"
+                    destination="CustomerInfo" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>                                 
+                <ROAD 
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoSelected" 
+                    letter="Undo"
+                    destination="DisplayOrderSearchOptions"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>               
+            </SITE>
+            <SITE name="SearchByCreditCard"
+                siteaction="SearchByCreditCardSite">
+                <COMMENT>find out to enter card info or swipe card</COMMENT>
+                <ROAD 
+                    name="EnterCardInfo"
+                    letter="Enter"
+                    destination="SearchByEnterCreditDebit"
+                    record="OFF" 
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="SwipeCard" 
+                    letter="Swipe"
+                    destination="SearchBySwipeCreditDebit" 
+                    record="OFF" 
+                    index="ON">
+                </ROAD>               
+            </SITE>            
+            <SITE name="SearchByEnterCreditDebit"
+                siteaction="SearchByEnterCreditDebitSite">
+                <COMMENT>fill order search site options</COMMENT>
+                <ROAD 
+                    name="NextSelected"
+                    letter="Next"
+                    destination="LookupOrderStation"
+                    record="OFF" 
+                    index="ON">
+                </ROAD>                
+                <ROAD 
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoSelected" 
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>               
+            </SITE>            
+            <SITE name="SearchBySwipeCreditDebit"
+                siteaction="SearchBySwipeCreditDebitSite">
+                <ROAD 
+                    name="SearchCardSuccess"
+                    letter="Success"
+                    destination="SearchByEnterInfoForSwipeCard"
+                    record="OFF" 
+                    index="ON">
+                </ROAD>                                
+                <ROAD 
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoSelected" 
+                    letter="Undo"
+                    destination="DisplayOrderSearchOptions"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>               
+                <ROAD 
+                    name="YesSelected"
+                    letter="Yes"
+                    destination="SearchByEnterCreditDebit"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="NoSelected" 
+                    letter="No"
+                    destination="DisplayOrderSearchOptions"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>               
+            </SITE>
+            <SITE name="SearchByEnterInfoForSwipeCard"
+                siteaction="SearchByEnterInfoForSwipeCardSite">
+                <COMMENT>fill order search site options</COMMENT>
+                <ROAD 
+                    name="SearchCardSuccess"
+                    letter="Next"
+                    destination="LookupOrderStation"
+                    record="OFF" 
+                    index="ON">
+                </ROAD>                 
+                <ROAD 
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoSelected" 
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>               
+            </SITE>  
+            <STATION name="LookupOrderStation"
+                     servicename="order.lookup.lookuporder"
+                     targettier="APPLICATIONTIER"
+                     launchshuttle="OrderShuttle"
+                     returnshuttle="OrderShuttle">
+               <COMMENT>
+                    This station is used to launch the Lookup service to search for OrderSummaryEntryIfcs.
+                    If lookup fails due to database error, treat it like a Cancel. Go back to calling service.
+               </COMMENT>
+               <ROAD name="LookupOrderSuccess"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>  
+               <ROAD name="LookupOrderStationNoMatchNumber"
+                     letter="NoMatch"
+                     destination="DisplayOrderSearchOptions"
+                     tape="ADVANCE" record="OFF" index="OFF"/>                               
+               <ROAD name="LookupOrderStationFailure"
+                     letter="Failure"
+                     destination="Final"
+                     laneaction="ResetOrderCargoRoad"
+                     tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupOrderStationRetry"
+                     letter="Retry"
+                     destination="DisplayOrderSearchOptions"
+                     tape="ADVANCE" record="OFF" index="OFF"/>
+               <ROAD name="LookupOrderStationReturnItem"
+                     letter="ReturnItem"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF"/>
+               <ROAD name="LookupOrderStationUndo"
+                     letter="Undo"
+                     destination="DisplayOrderSearchOptions"
+                     tape="ADVANCE" record="ON" index="ON"/>
+          </STATION>
+          <SYSTEMSITE name="Final" action="RETURN"></SYSTEMSITE>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,168 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/print/printorder.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:31 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:26:11 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      3    360Commerce 1.2         3/31/2005 4:29:30 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:24:23 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:13:26 PM  Robert Pearse
+     $
+     Revision 1.4  2004/03/26 00:24:20  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.3  2004/03/16 18:42:45  cdb
+     @scr 0 Removed tabs from all java source code.
+
+     Revision 1.2  2004/02/12 16:51:27  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:19  cschellenger
+     updating to pvcs 360store-current
+
+
+ *
+ *    Rev 1.1   Sep 17 2001 13:10:20   msg
+ * header update
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="OrderPrint" package="oracle.retail.stores.pos.services.order.print" tourcam="OFF">
+<CARGO class="OrderCargo" package="oracle.retail.stores.pos.services.order.common"/>
+<SERVICECODE>
+     <LETTER name="Print"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Error"/>
+     <LETTER name="Retry"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"
+    template="laneaction.tpl">
+        <COMMENT>converts Cancel to Failure letter
+        </COMMENT>
+     </LANEACTION>
+
+     <SITEACTION class="ViewOrderSite" package="oracle.retail.stores.pos.services.order.print"
+     template="siteaction.tpl">
+          <COMMENT>Displays the PRINT_ORDER screen if the viewOrder flag in cargo is set to true.
+        </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="PrintOrderSite" package="oracle.retail.stores.pos.services.order.print"
+    template="siteaction.tpl">
+        <COMMENT>Sends print string to receipt printer.
+        </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="PrinterErrorSite" package="oracle.retail.stores.pos.services.order.print"
+    template="siteaction.tpl">
+        <COMMENT>Displays Printer offline dialog.
+        </COMMENT>
+     </SITEACTION>
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="ViewOrder">
+          <SITE name="ViewOrder" siteaction="ViewOrderSite">
+               <COMMENT>
+                    Determines whether to display the Print Order screen.
+                    If cargo.viewOrder() is false a Print letter is mailed.
+               </COMMENT>
+               <AISLE
+            name="CancelAisle"
+            letter="Cancel"
+            laneaction="FailureConversionAisle"/>
+                <ROAD
+            name="PrintRoad"
+            letter="Print"
+            destination="PrintOrder"
+             tape="ADVANCE"
+            record="OFF"
+            index="OFF"/>
+               <ROAD
+            name="UndoRoad"
+            letter="Undo"
+            destination="Final"
+            tape="ADVANCE"
+            record="OFF"
+            index="OFF"/>
+               <ROAD
+            name="ExitRoad"
+            letter="Failure"
+            destination="Final"
+             tape="ADVANCE"
+            record="OFF"
+            index="OFF"/>
+          </SITE>
+          <SITE name="PrintOrder" siteaction="PrintOrderSite">
+               <COMMENT>
+                    Prints the Order detail.
+               </COMMENT>
+               <ROAD
+            name="SuccessRoad"
+            letter="Success"
+            destination="Final"
+             tape="ADVANCE"
+            record="OFF"
+            index="OFF"/>
+               <ROAD
+            name="ErrorRoad"
+            letter="Error"
+            destination="PrinterError"
+             tape="ADVANCE"
+            record="OFF"
+            index="OFF"/>
+          </SITE>
+          <SITE name="PrinterError" siteaction="PrinterErrorSite">
+               <COMMENT>
+                    Displays the Printer Offline Dialog.
+               </COMMENT>
+               <ROAD
+            name="RetryRoad"
+            letter="Retry"
+            destination="PrintOrder"
+             tape="ADVANCE"
+            record="OFF"
+            index="OFF"/>
+               <ROAD
+            name="FailureRoad"
+            letter="Failure"
+            destination="Final"
+             tape="ADVANCE"
+            record="OFF"
+            index="OFF"/>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP">
+          </SYSTEMSITE>
+            <STATION name="LookupOrderStation" servicename="order.lookup.lookuporder" targettier="APPLICATIONTIER">
+               <ROAD name="LookupOrderStationFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupOrderStationCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupOrderStationUndo" letter="Undo" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupOrderStationSuccess" letter="Success" destination="ViewOrder" tape="ADVANCE" record="ON" index="ON"/>
+          </STATION>
+     </REGION>
+</MAP>
+</SERVICE>

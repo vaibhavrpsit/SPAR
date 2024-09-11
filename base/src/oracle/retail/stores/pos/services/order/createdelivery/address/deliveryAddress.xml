@@ -1,0 +1,62 @@
+<?xml version='1.0' ?>
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="deliveryAddress"
+    package="oracle.retail.stores.pos.services.order.createdelivery.address"
+    tourcam="ON">
+    <COMMENT>
+        This services displays the linked customer's address and allows
+        update. Once the customer's send address is confirmed, the
+        service will let the operator to choose one shipping method, and
+        then the shipping charges are calculated.
+    </COMMENT>
+    <CARGO class="PickupDeliveryOrderCargo" package="oracle.retail.stores.pos.services.order.createpickup" />
+
+    <SERVICECODE>
+
+        <LETTER name="Cancel" />
+        <LETTER name="Continue" />
+        <LETTER name="Undo" />
+        <LETTER name="Done" />
+        <LETTER name="Next" />
+        <LETTER name="Retry" />
+
+        <SITEACTION class="DisplayDeliveryAddressSite" />
+        <SITEACTION class="CheckDeliveryAddressSite" />
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="DisplayDeliveryAddress">
+            <SITE name="DisplayDeliveryAddress"
+                siteaction="DisplayDeliveryAddressSite">
+                <ROAD name="DeliveryAddressEntered" letter="Next"
+                    destination="CheckDeliveryAddress" tape="ADVANCE" record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="UndoDeliveryAddress" letter="Undo"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CancelDeliveryAddress" letter="Cancel"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="CheckDeliveryAddress"
+                siteaction="CheckDeliveryAddressSite">
+                <ROAD name="RetryDeliveryAddress" letter="Retry"
+                    destination="DisplayDeliveryAddress" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="DeliveryAddressEntered" letter="Continue"
+                    destination="Final" tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN" />
+            <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+        </REGION>
+    </MAP>
+</SERVICE>

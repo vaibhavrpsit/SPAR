@@ -1,0 +1,957 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/deploy/shared/config/technician/PaymentTechnician.xml.emv /main/1 2013/07/03 11:29:22 blarsen Exp $
+ * ===========================================================================
+ * NOTES
+ * 
+ *********************************************************************
+ * DELETE THIS AFTER INSTALLER SUPPORTS EMV
+ * THIS IS JUST FOR REFERENCE AND DEBUGGING UNTIL THEN
+ *********************************************************************
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    blarsen   07/03/13 - Temp version of technician for EMV. This can be
+ *                         deleted after the installer supports EMV.
+ *    asinton   05/16/13 - fix formatter used for giftcard activation and
+ *                         reload connector
+ *    asinton   05/15/13 - send reversal when gift card reload request results
+ *                         in offline, timeout, or unknown response
+ *    asinton   05/15/13 - send reversal when response is offline, timeout, or
+ *                         unknown
+ *    icole     05/14/13 - Check reentry mode, changed RetryRule to
+ *                         DefaultActionRule for check and echeck MSGROUTER
+ *                         entries.
+ *    icole     05/14/13 - Check reentry added for AJB and configured in order
+ *                         that it works for ACI.
+ *    icole     05/08/13 - AJB doesn't expect anything for a check call
+ *                         referral.
+ *    blarsen   05/03/13 - Changed a few AJB formatter timeout values. Added
+ *                         support for AJBConnector additionalTimeout property.
+ *    asinton   05/03/13 - updated giftcard wiring for reversal
+ *    blarsen   04/30/13 - Added AJB Call Referral.
+ *    blarsen   04/19/13 - Added support for AJB refunds.
+ *    asinton   04/19/13 - fixed malformed xml with missing close tag
+ *    asinton   04/18/13 - enable house account for AJB
+ *    blarsen   04/16/13 - Added support for AJB reversals.
+ *    icole     04/16/13 - Corrected AJB check referral entries.
+ *    icole     04/15/13 - Added AJB check and signature capture.
+ *    blarsen   04/09/13 - Add support for when bank is offline &
+ *                         store-and-forward is required.
+ *    asinton   04/05/13 - improved use of AJBCodes
+ *    blarsen   04/03/13 - Switching AJB credit formatter to
+ *                         AJBCardTenderFormatter.
+ *    asinton   03/27/13 - improvements to Gift Card to support tender use case
+ *    blarsen   03/26/13 - Credit using AJBConnector directly for now.
+ *    asinton   03/20/13 - ajb gift card implementation phase 1
+ *    blarsen   03/19/13 - Initial pass for AJB integration.
+ *    icole     12/12/12 - Moved from server to shared
+ *    blarsen   02/16/12 - XbranchMerge
+ *                         blarsen_bug13699519-pincomm-reversals-fail-when-offline
+ *                         from rgbustores_13.4x_generic_branch
+ *    blarsen   02/10/12 - Changed PinComm card reversals to go through
+ *                         CardReversalConnector. When offline, token is
+ *                         missing and we must request PinComm to reswipe card.
+ *                         Scrolling session must be ended for this case.
+ *                         CardReversalConnector handles the scrolling session.
+ *    asinton   02/09/12 - XbranchMerge
+ *                         asinton_bug13628683-swipe-again-for-floor-limit from
+ *                         rgbustores_13.4x_generic_branch
+ *    asinton   02/09/12 - make floor limit requests synchronous
+ *    asinton   12/29/11 - XbranchMerge asinton_bug-13526185 from
+ *                         rgbustores_13.4x_generic_branch
+ *    asinton   12/28/11 - implementation of credit floor limit capability
+ *    asinton   11/02/11 - reverting back to synchronous call referral flow
+ *    asinton   10/27/11 - Changing rule for AuthorizeCard to use
+ *                         StopOnErrorForDefaultAction.
+ *    ohorne    10/07/11 - Removed server-side Call Referral queues
+ *    blarsen   10/06/11 - Changed cardTypeRules.xml to cardtyperules.xml. This
+ *                         matches the actual file. Linux is case sensitive.
+ *    asinton   10/03/11 - support card type determination in pincomm
+ *                         formatters in cases where card type could not be
+ *                         determined in the response from authorizer
+ *    asinton   09/30/11 - make pincomm prompt for swipe when call referral
+ *                         message is missing a token.
+ *    blarsen   09/27/11 - Added route for PinComm AuthorizeCardRefund.
+ *    asinton   08/24/11 - added route for message to inquire credit debit only
+ *                         on payment device
+ *    asinton   07/21/11 - added call referral for checks
+ *    sgu       07/15/11 - use CC recipe to get card token
+ *    sgu       07/13/11 - add api to get card token
+ *    ohorne    07/15/11 - reversal flow changes
+ *    blarsen   07/12/11 - Changed the formatter used for reversals. Reversals
+ *                         are different enough for PinComm to merit its own
+ *                         formatter.
+ *    sgu       07/06/11 - use reentry auth connector
+ *    sgu       07/01/11 - add reentry mode
+ *    ohorne    07/07/11 - added PinComm reversal flow
+ *    blarsen   06/30/11 - Added StatusInquiry routes to return the auth svc's
+ *                         current status.
+ *    icole     06/30/11 - Added switch for swipe ahead.
+ *    jswan     06/22/11 - Added configuration for Signature Capture.
+ *    ohorne    06/17/11 - Spring loaded ISDTK properties
+ *    ohorne    06/16/11 - removed autoEncrypt and hkmKeyfile from
+ *                         PinCommConnector config
+ *    blarsen   06/14/11 - Removing IsSwipeAhead. This is being handled by the
+ *                         CustomerInteraction request.
+ *    ohorne    06/14/11 - removed AuthorizeHouseAccount route
+ *    icole     06/11/11 - Corrected PinCommCPOIConnector
+ *    ohorne    06/08/11 - added house account route
+ *    icole     06/10/11 - Removed unused connector and renamed
+ *                         PinCommChainedConnector
+ *    icole     06/09/11 - Scrolling receipt for PinComm
+ *    blarsen   06/09/11 - Added IsSwipeAhead request. Renamed several routers
+ *                         to not include 'Authorize' prefix (removed from
+ *                         PaymentManger code.)
+ *    blarsen   06/06/11 - Changed how cardAuth router works. It now uses its
+ *                         own custom CardAuthConnector to coordinate the 2
+ *                         part inquiry and auth messages.
+ *    sgu       05/20/11 - refactor instant credit inquiry flow
+ *    ohorne    05/13/11 - APF support for PINComm and Servebase
+ *    blarsen   05/12/11 - Added formatters, routes, rules, etc for PinComm
+ *                         Credit/Debit/GiftCard Auth
+ *    sgu       05/12/11 - refactor instant credit formatters
+ *    sgu       05/10/11 - convert instant credit inquiry by SSN to use new
+ *                         payment manager
+ *    ohorne    05/09/11 - added eCheck route
+ *    ohorne    05/09/11 - moved pinComm sequencer wiring to Spring
+ *    sgu       05/05/11 - change commext rounting on client side
+ *    sgu       05/05/11 - use commext framework to load tender pincomm
+ *                         formatter
+ *    sgu       05/05/11 - refactor payment technician commext framework
+ *    sgu       04/12/11 - configure payment manager/technician
+ *    cgreene   03/09/11 - apf refactoring and tweaks
+ *    cgreene   03/09/11 - initial version
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE MSGDISP SYSTEM "classpath://oracle/retail/stores/platform/client/message/config/msgdisp.dtd">
+
+<MSGDISP monitorinterval="300">
+    <COMMENT>
+        ConnectorTechnician configuration XML for PaymentTechnician.
+    </COMMENT>
+
+    <!-- Message filters are listed below. Routes without a filter specified
+        accept all messages. Filters must implement
+        oracle.retail.stores.commext.message.filter.FilterIfc -->
+    <FILTERS>
+        <FILTER name="GiftCardFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="getRequestTenderType"/>
+            <PROPERTY propname="methodResults" propvalue="GIFT_CARD"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+        <FILTER name="ActivateGiftCardFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="getRequestTenderType,getRequestSubType"/>
+            <PROPERTY propname="methodResults" propvalue="GIFT_CARD,Activate"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+        <FILTER name="ReloadGiftCardFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="getRequestTenderType,getRequestSubType"/>
+            <PROPERTY propname="methodResults" propvalue="GIFT_CARD,ReloadGiftCard"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+        <FILTER name="POSGiftCardEntryRequiredFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="isPosGFCardEntryRequired"/>
+            <PROPERTY propname="methodResults" propvalue="true"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+        <FILTER name="HouseAccountFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="getRequestTenderType"/>
+            <PROPERTY propname="methodResults" propvalue="HOUSE_ACCOUNT"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+
+        <!-- filter for Gift Card auth in TransReentry Mode -->
+        <FILTER name="TransReentryModeGiftCardFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="getRequestTenderType,isTransReentryMode"/>
+            <PROPERTY propname="methodResults" propvalue="GIFT_CARD,true"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+
+        <!-- filter for Debit Card auth in TransReentry Mode -->
+        <FILTER name="TransReentryModeDebitCardFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="getRequestTenderType,isTransReentryMode"/>
+            <PROPERTY propname="methodResults" propvalue="DEBIT,true"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+
+        <!-- filter for Check auth in TransReentry Mode -->
+        <FILTER name="TransReentryModeCheckFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="getRequestTenderType,isTransReentryMode"/>
+            <PROPERTY propname="methodResults" propvalue="CHECK,true"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+
+        <!-- filter for call referral messages that do not have a token -->
+        <FILTER name="CallReferralWithoutTokenFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="isCallReferralWithoutToken"/>
+            <PROPERTY propname="methodResults" propvalue="true"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+
+        <FILTER name="CreditFloorLimitFilter"
+            javaclass="oracle.retail.stores.commext.message.filter.MethodResultFilter">
+            <PROPERTY propname="methodNames" propvalue="isFloorLimitAuthorization"/>
+            <PROPERTY propname="methodResults" propvalue="true"/>
+            <PROPERTY propname="accept" propvalue="true" proptype="BOOLEAN"/>
+        </FILTER>
+    </FILTERS>
+
+    <!--  Message formatters are listed below. Formatters must implement
+         oracle.retail.stores.commext.message.formatter.FormatterIfc -->
+    <FORMATTERS>
+        <FORMATTER name="PassThruFormatter"
+            javaclass="oracle.retail.stores.commext.message.formatter.PassThroughFormatter" />
+
+        <!-- BEGIN formatters for PINComm integration
+        <FORMATTER name="CheckFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.CheckFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="GiftCardFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.GiftCardFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="InstantCreditFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.InstantCreditFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="ScrollingReceiptFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.ScrollingReceiptFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="receiptLineWidth" propvalue="34"/>
+            <PROPERTY propname="receiptNumberOfLines" propvalue="10"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="10"/>
+            <PROPERTY propname="swipeAheadEnabled" propvalue="true" proptype="BOOLEAN"/>
+        </FORMATTER>
+
+        <FORMATTER name="CardTypeInquiryFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.CardTypeInquiryFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="CardAuthFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.CardAuthFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="OnePassCardAuthFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.OnePassCardAuthFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="CardReversalFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.CardReversalFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="SignatureCaptureFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.SignatureCaptureFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="AuthorizeCallReferralFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.AuthorizeCallReferralFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="AuthorizeCheckCallReferralFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.AuthorizeCheckCallReferralFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="GetCardTokenFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.GetCardTokenFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="AuthorizeCreditFloorLimitFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.AuthorizeCreditFloorLimitFormatter" >
+            <PROPERTY propname="location" propvalue="$PINCOMM_STORE_NUMBER"/>
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        END formatters for PINComm integration -->
+
+
+        <!-- FORMATTERS NOT USED BY AJB... YET! TODO: AJB: move these into the following section as they are supported 
+        <FORMATTER name="CheckFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.CheckFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="GiftCardFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.GiftCardFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="InstantCreditFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBInstantCreditFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="ScrollingReceiptFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.ScrollingReceiptFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="receiptLineWidth" propvalue="34"/>
+            <PROPERTY propname="receiptNumberOfLines" propvalue="10"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="10"/>
+            <PROPERTY propname="swipeAheadEnabled" propvalue="true" proptype="BOOLEAN"/>
+        </FORMATTER>
+
+        <FORMATTER name="CardTypeInquiryFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.CardTypeInquiryFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+                <FORMATTER name="OnePassCardAuthFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.OnePassCardAuthFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="SignatureCaptureFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.SignatureCaptureFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="AuthorizeCallReferralFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AuthorizeCallReferralFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="AuthorizeCheckCallReferralFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AuthorizeCheckCallReferralFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="GetCardTokenFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.GetCardTokenFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        <FORMATTER name="AuthorizeCreditFloorLimitFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AuthorizeCreditFloorLimitFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+        </FORMATTER>
+        -->
+
+        <!-- BEGIN formatters for AJB integration
+        <FORMATTER name="AJBCardAuthFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCardAuthFormatterEMV" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="60"/>
+        </FORMATTER>
+        <FORMATTER name="AJBCardAuthFormatterSAF"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCardAuthFormatterSAF" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="GiftCardFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBGiftCardFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="AJBCardReversalFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCardReversalFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="AJBCardRefundFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCardRefundFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="AJBCheckFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCheckFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="AJBAcceptECheckFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBAcceptECheckFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="InstantCreditFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBInstantCreditFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        <FORMATTER name="AJBScrollingReceiptFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBScrollingReceiptFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="receiptLineWidth" propvalue="55"/>
+            <PROPERTY propname="receiptNumberOfLines" propvalue="9"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="20"/>
+            <PROPERTY propname="swipeAheadEnabled" propvalue="true" proptype="BOOLEAN"/>
+        </FORMATTER>
+        <FORMATTER name="AJBSignatureCaptureFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBSignatureCaptureFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="120"/>
+            <PROPERTY propname="signatureFilePath" propvalue="c:\sigcap"/>
+        </FORMATTER>
+        <FORMATTER name="AJBCardAuthCallReferralFormatter"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCardAuthCallReferralFormatter" >
+            <PROPERTY propname="cardTypeRulesFile" propvalue="classpath://config/cardtyperules.xml"/>
+            <PROPERTY propname="timeOutInSeconds" propvalue="30"/>
+        </FORMATTER>
+        END formatters for AJB integration -->
+    </FORMATTERS>
+
+    <!-- Connectors to external systems are listed below. Connector classes must
+        implement oracle.retail.stores.commext.message.connector.ConnectorIfc -->
+    <CONNECTORS>
+        <CONNECTOR name="PassThruConnector"
+            javaclass="oracle.retail.stores.commext.connector.PassThruConnector"/>
+
+        <!-- BEGIN connectors for PINComm integration
+        <CONNECTOR name="StatusInquiryConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.StatusInquiryConnector"/>
+
+        <CONNECTOR name="CardAuthConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.CardAuthConnector"/>
+
+        <CONNECTOR name="CardReversalConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.CardReversalConnector"/>
+
+        <CONNECTOR name="OnePassCardAuthConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.OnePassCardAuthConnector"/>
+
+        <CONNECTOR name="PinCommConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.PinCommConnector"/>
+
+        <CHAINED_CONNECTOR name="PinCommCPOIConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.PinCommCPOIConnector" connector="PinCommConnector">
+            <PROPERTY propname="formatterName" propvalue="ScrollingReceiptFormatter"/>
+        </CHAINED_CONNECTOR>
+
+        <CONNECTOR name="PinCommCallReferralWithoutTokenConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.AuthorizeCallReferralWithoutTokenConnector"/>
+
+        <CHAINED_CONNECTOR name="PinCommCallReferralConnector" javaclass="oracle.retail.stores.commext.connector.queued.QueuedForwardConnector" connector="PinCommConnector">
+            <PROPERTY propname="formatterName"                 propvalue="AuthorizeCallReferralFormatter"/>
+            <PROPERTY propname="queueFileName"                 propvalue="AuthorizeCallReferralQueue"/>
+            <PROPERTY propname="queueMonitorInterval"          propvalue="10000"/>
+            <PROPERTY propname="executionInterval"             propvalue="1000"/>
+            <PROPERTY propname="loggerCategory"                propvalue="AuthorizeCallReferral"/>
+        </CHAINED_CONNECTOR>
+
+        <CHAINED_CONNECTOR name="PinCommCheckCallReferralConnector" javaclass="oracle.retail.stores.commext.connector.queued.QueuedForwardConnector" connector="PinCommConnector">
+            <PROPERTY propname="formatterName"                 propvalue="AuthorizeCheckCallReferralFormatter"/>
+            <PROPERTY propname="queueFileName"                 propvalue="AuthorizeCheckCallReferralQueue"/>
+            <PROPERTY propname="queueMonitorInterval"          propvalue="10000"/>
+            <PROPERTY propname="executionInterval"             propvalue="1000"/>
+            <PROPERTY propname="loggerCategory"                propvalue="AuthorizeCheckCallReferral"/>
+        </CHAINED_CONNECTOR>
+
+        <CHAINED_CONNECTOR name="PinCommGiftCardReversalConnector" javaclass="oracle.retail.stores.commext.connector.queued.QueuedForwardConnector" connector="PinCommConnector">
+            <PROPERTY propname="formatterName"                 propvalue="GiftCardFormatter"/>
+            <PROPERTY propname="queueFileName"                 propvalue="GiftCardReversalQueue"/>
+            <PROPERTY propname="queueMonitorInterval"          propvalue="10000"/>
+            <PROPERTY propname="executionInterval"             propvalue="1000"/>
+            <PROPERTY propname="loggerCategory"                propvalue="GiftCardReversal"/>
+        </CHAINED_CONNECTOR>
+
+        <CONNECTOR name="PinCommReentryAuthConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.ReentryAuthConnector" />
+
+        <CONNECTOR name="CardTokenInquiryConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.CardTokenInquiryConnector"/>
+
+        <CONNECTOR name="PinCommActivateGiftCardConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.PinCommActivateGiftCardConnector"/>
+
+        <CONNECTOR name="PinCommReloadGiftCardConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.pincomm.PinCommReloadGiftCardConnector"/>
+
+        END connectors for PINComm integration -->
+
+
+        <!-- TODO: AJB: the following connectors were, essentially, copied from pin comm for AJB.  These are not yet implemented.
+             move to following section as they are needed.  Remove those which are not appropriate for AJB.
+
+        <CONNECTOR name="StatusInquiryConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.StatusInquiryConnector"/>
+
+         <CONNECTOR name="OnePassCardAuthConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.OnePassCardAuthConnector"/>
+
+
+        <CONNECTOR name="AJBCallReferralWithoutTokenConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AuthorizeCallReferralWithoutTokenConnector"/>
+
+        <CHAINED_CONNECTOR name="AJBCallReferralConnector" javaclass="oracle.retail.stores.commext.connector.queued.QueuedForwardConnector" connector="AJBConnector">
+            <PROPERTY propname="formatterName"                 propvalue="AuthorizeCallReferralFormatter"/>
+            <PROPERTY propname="queueFileName"                 propvalue="AuthorizeCallReferralQueue"/>
+            <PROPERTY propname="queueMonitorInterval"          propvalue="10000"/>
+            <PROPERTY propname="executionInterval"             propvalue="1000"/>
+            <PROPERTY propname="loggerCategory"                propvalue="AuthorizeCallReferral"/>
+        </CHAINED_CONNECTOR>
+
+        <CHAINED_CONNECTOR name="AJBCheckCallReferralConnector" javaclass="oracle.retail.stores.commext.connector.queued.QueuedForwardConnector" connector="AJBConnector">
+            <PROPERTY propname="formatterName"                 propvalue="AuthorizeCheckCallReferralFormatter"/>
+            <PROPERTY propname="queueFileName"                 propvalue="AuthorizeCheckCallReferralQueue"/>
+            <PROPERTY propname="queueMonitorInterval"          propvalue="10000"/>
+            <PROPERTY propname="executionInterval"             propvalue="1000"/>
+            <PROPERTY propname="loggerCategory"                propvalue="AuthorizeCheckCallReferral"/>
+        </CHAINED_CONNECTOR>
+
+        <CONNECTOR name="AJBReentryAuthConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.ReentryAuthConnector" />
+
+        <CONNECTOR name="CardTokenInquiryConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.CardTokenInquiryConnector"/>
+  
+  
+          
+          -->
+          
+          
+        <!-- BEGIN connectors for AJB integration
+        
+        <CONNECTOR name="AJBReentryAuthConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBReentryAuthConnector" />
+
+        <CONNECTOR name="AJBConnector" javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBConnector">
+            <PROPERTY propname="additionalTimeOutInMilliseconds" propvalue="5000" proptype="INTEGER"/>
+        </CONNECTOR>
+
+        <CONNECTOR name="AJBCardAuthConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCardAuthConnector"/>
+
+        <CONNECTOR name="AJBInstantCreditConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBInstantCreditConnector"/>
+
+        <CONNECTOR name="AJBCheckConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCheckConnector"/>
+
+        <CHAINED_CONNECTOR name="AJBCPOIConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCPOIConnector" connector="AJBConnector">
+            <PROPERTY propname="formatterName" propvalue="AJBScrollingReceiptFormatter"/>
+        </CHAINED_CONNECTOR>
+        
+        <CONNECTOR name="AJBCardReversalConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCardReversalConnector"/>
+
+        <CONNECTOR name="AJBCardRefundConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCardRefundConnector"/>
+            
+        <CONNECTOR name="AJBCheckCallReferralConnector"
+            javaclass="oracle.retail.stores.domain.manager.payment.ajb.AJBCheckCallReferralConnector"/>
+            
+        <CHAINED_CONNECTOR name="AJBCardAuthCallReferralConnector" javaclass="oracle.retail.stores.commext.connector.queued.QueuedForwardConnector" connector="AJBConnector">
+            <PROPERTY propname="formatterName"                 propvalue="AJBCardAuthCallReferralFormatter"/>
+            <PROPERTY propname="queueFileName"                 propvalue="AuthorizeCallReferralQueue"/>
+            <PROPERTY propname="queueMonitorInterval"          propvalue="10000"/>
+            <PROPERTY propname="executionInterval"             propvalue="1000"/>
+            <PROPERTY propname="loggerCategory"                propvalue="AJBCardAuthCallReferral"/>
+        </CHAINED_CONNECTOR>
+
+      END connectors for AJB integration -->
+
+    </CONNECTORS>
+
+    <!-- Rules to determine actions to be performed after a route is run are
+        listed below. Rule classes must implement
+        oracle.retail.stores.commext.message.rule.SubsequentActionRuleIfc -->
+    <RULES>
+        <RULE name="RetryRule"
+            javaclass="oracle.retail.stores.commext.message.rule.RetryActionRule">
+            <PROPERTY propname="retries" propvalue="1" proptype="INTEGER" />
+            <PROPERTY propname="continue" propvalue="false" proptype="BOOLEAN" />
+        </RULE>
+        <RULE name="SendToAllRule"
+            javaclass="oracle.retail.stores.commext.message.rule.SendToAllActionRule">
+            <PROPERTY propname="continue" propvalue="true" proptype="BOOLEAN" />
+        </RULE>
+        <RULE name="StopOnErrorRule"
+            javaclass="oracle.retail.stores.commext.message.rule.StopOnErrorActionRule">
+        </RULE>
+        <RULE name="DefaultActionRule"
+            javaclass="oracle.retail.stores.commext.message.rule.DefaultActionRule" />
+        <RULE name="StopOnErrorForDefaultActionRule"
+            javaclass="oracle.retail.stores.commext.message.rule.StopOnErrorForDefaultActionRule" />
+    </RULES>
+
+    <!-- The actual routes that the message dispatcher can send messages to are
+        listed below. -->
+    <MSGROUTERS>
+        <DEFAULTROUTER rule="RetryRule">
+            <MSGCONNECTOR connector="PassThruConnector" formatter="PassThruFormatter" />
+        </DEFAULTROUTER>
+
+        <!-- BEGIN message routing for PINComm integration
+        <MSGROUTER type="AuthorizeCheck" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeCheckFilter" />
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CheckFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeECheck" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeCheckFilter" />
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CheckFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GiftCard" rule="StopOnErrorForDefaultActionRule">
+            <MSGCONNECTOR connector="PinCommActivateGiftCardConnector" formatter="PassThruFormatter"
+                          filter="ActivateGiftCardFilter" />
+            <MSGCONNECTOR connector="PinCommReloadGiftCardConnector" formatter="PassThruFormatter"
+                          filter="ReloadGiftCardFilter" />
+            <MSGCONNECTOR connector="PinCommConnector" formatter="GiftCardFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GiftCardActivation" rule="RetryRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="GiftCardFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GiftCardReload" rule="RetryRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="GiftCardFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditApplication" rule="RetryRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditApplicationInquiry" rule="RetryRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditInquiry" rule="RetryRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="CustomerInteraction" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="PinCommCPOIConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCard" rule="StopOnErrorForDefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="AuthorizeCreditFloorLimitFormatter"
+                          filter="CreditFloorLimitFilter" />
+            <MSGCONNECTOR connector="OnePassCardAuthConnector" formatter="PassThruFormatter"
+                          filter="POSGiftCardEntryRequiredFilter" />
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CardAuthFormatter"
+                          filter="HouseAccountFilter" />
+            <MSGCONNECTOR connector="CardAuthConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="CardTypeInquiry" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CardTypeInquiryFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GetSignature" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="SignatureCaptureFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="CardAuth" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeGiftCardFilter" />
+            <MSGCONNECTOR connector="PinCommReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeDebitCardFilter" />
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CardAuthFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="OnePassCardAuth" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeGiftCardFilter" />
+            <MSGCONNECTOR connector="PinCommReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeDebitCardFilter" />
+            <MSGCONNECTOR connector="PinCommConnector" formatter="OnePassCardAuthFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="CardTokenInquiry" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="CardTokenInquiryConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GetCardToken" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="GetCardTokenFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="StatusInquiry" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="StatusInquiryConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCallReferral" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommCallReferralWithoutTokenConnector" formatter="PassThruFormatter"
+                          filter="CallReferralWithoutTokenFilter"/>
+            <MSGCONNECTOR connector="PinCommCallReferralConnector" formatter="AuthorizeCallReferralFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCallReferralWithoutToken" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="AuthorizeCallReferralFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCheckCallReferral" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="AuthorizeCheckCallReferralFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="ReverseECheck" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CheckFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="ReverseGiftCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="GiftCardFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="ReverseCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="CardReversalConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="SendReverseCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CardReversalFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCardRefundWithToken" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CardAuthFormatter"/>
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCardRefund" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommConnector" formatter="CardAuthFormatter"/>
+        </MSGROUTER>
+
+        <MSGROUTER type="ReverseGiftCardActivation" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="PinCommGiftCardReversalConnector" formatter="GiftCardFormatter"/>
+        </MSGROUTER>
+
+        END message routing for PINComm integration -->
+
+
+        <!-- TODO: AJB: these rules are not implemented for AJB yet.  Move them into the next section as they are implemented.
+        <MSGROUTER type="AuthorizeCheck" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="CheckFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeECheck" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="CheckFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GiftCard" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="GiftCardFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditApplication" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditApplicationInquiry" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditInquiry" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="CustomerInteraction" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="AJBCPOIConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCard" rule="StopOnErrorForDefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AuthorizeCreditFloorLimitFormatter"
+                          filter="CreditFloorLimitFilter" />
+            <MSGCONNECTOR connector="OnePassCardAuthConnector" formatter="PassThruFormatter"
+                          filter="POSGiftCardEntryRequiredFilter" />
+            <MSGCONNECTOR connector="AJBConnector" formatter="CardAuthFormatter"
+                          filter="HouseAccountFilter" />
+            <MSGCONNECTOR connector="CardAuthConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="CardTypeInquiry" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="CardTypeInquiryFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GetSignature" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="SignatureCaptureFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="CardAuth" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeGiftCardFilter" />
+            <MSGCONNECTOR connector="AJBReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeDebitCardFilter" />
+            <MSGCONNECTOR connector="AJBConnector" formatter="CardAuthFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="OnePassCardAuth" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeGiftCardFilter" />
+            <MSGCONNECTOR connector="AJBReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeDebitCardFilter" />
+            <MSGCONNECTOR connector="AJBConnector" formatter="OnePassCardAuthFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="CardTokenInquiry" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="CardTokenInquiryConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GetCardToken" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="GetCardTokenFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="StatusInquiry" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="StatusInquiryConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCallReferral" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBCallReferralWithoutTokenConnector" formatter="PassThruFormatter"
+                          filter="CallReferralWithoutTokenFilter"/>
+            <MSGCONNECTOR connector="AJBCallReferralConnector" formatter="AuthorizeCallReferralFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCallReferralWithoutToken" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AuthorizeCallReferralFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCheckCallReferral" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AuthorizeCheckCallReferralFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="ReverseECheck" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="CheckFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="ReverseCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="CardReversalConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="SendReverseCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="CardReversalFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCardRefundWithToken" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="CardAuthFormatter"/>
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCardRefund" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="CardAuthFormatter"/>
+        </MSGROUTER>
+        
+        
+         -->
+
+        <!-- BEGIN message routing for AJB integration
+
+        <MSGROUTER type="AuthorizeCheck" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeCheckFilter" />
+            <MSGCONNECTOR connector="AJBCheckConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeECheck" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBReentryAuthConnector" formatter="PassThruFormatter"
+                          filter="TransReentryModeCheckFilter" />
+            <MSGCONNECTOR connector="AJBCheckConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCheckBoth" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AJBCheckFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AcceptECheck" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AJBAcceptECheckFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GiftCard" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="GiftCardFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="JustAuthorizeCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AJBCardAuthFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="JustReverseCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AJBCardReversalFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditApplication" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBInstantCreditConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditApplicationInquiry" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBInstantCreditConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="InstantCreditInquiry" rule="RetryRule">
+            <MSGCONNECTOR connector="AJBInstantCreditConnector" formatter="InstantCreditFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="JustRefundCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AJBCardRefundFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="StoreAndForwardCardAuth" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AJBCardAuthFormatterSAF" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCardRefundWithToken" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBCardRefundConnector" formatter="PassThruFormatter"/>
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCardRefund" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBCardRefundConnector" formatter="PassThruFormatter"/>
+        </MSGROUTER>
+
+        <MSGROUTER type="CustomerInteraction" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="AJBCPOIConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+        
+        <MSGROUTER type="AuthorizeCard" rule="StopOnErrorForDefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="GiftCardFormatter"
+                          filter="GiftCardFilter" />
+            <MSGCONNECTOR connector="AJBCardAuthConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="ReverseGiftCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="GiftCardFormatter" />
+        </MSGROUTER>
+    
+        <MSGROUTER type="ReverseCard" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBCardReversalConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="GetSignature" rule="StopOnErrorRule">
+            <MSGCONNECTOR connector="AJBConnector" formatter="AJBSignatureCaptureFormatter" />
+        </MSGROUTER>
+
+        <MSGROUTER type="AuthorizeCheckCallReferral" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBCheckCallReferralConnector" formatter="PassThruFormatter" />
+        </MSGROUTER>
+        
+        <MSGROUTER type="AuthorizeCallReferral" rule="DefaultActionRule">
+            <MSGCONNECTOR connector="AJBCardAuthCallReferralConnector" formatter="AJBCardAuthCallReferralFormatter"/>
+        </MSGROUTER>
+        
+
+        END message routing for AJB integration -->
+
+    </MSGROUTERS>
+
+</MSGDISP>

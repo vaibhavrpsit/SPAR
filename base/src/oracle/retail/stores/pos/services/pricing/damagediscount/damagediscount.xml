@@ -1,0 +1,250 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/pricing/damagediscount/damagediscount.xml /main/16 2012/09/12 11:57:10 blarsen Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   04/06/12 - initial implementation of damage discount
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="DamageDiscount"
+    package="oracle.retail.stores.pos.services.pricing.damagediscount"
+    tourcam="OFF">
+    <CARGO class="PricingCargo" package="oracle.retail.stores.pos.services.pricing">
+        <PROPERTY propname="accessFunctionID" propvalue="DISCOUNT"/>
+    </CARGO>
+    <SERVICECODE>
+        <LETTER name="Cancel"/>
+        <LETTER name="Next"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Override"/>
+        <LETTER name="Undo"/>
+                  
+        <SIGNAL class="IsAmountDiscountSignal" package="oracle.retail.stores.pos.services.pricing"/>
+        <SIGNAL class="IsPercentDiscountSignal" package="oracle.retail.stores.pos.services.pricing"/>
+    
+        <LANEACTION class="AmountEnteredAisle"/>
+        <LANEACTION class="PercentEnteredAisle"/>
+        
+        <LANEACTION class="AmountEnteredAisle"/>
+        <LANEACTION class="PercentEnteredAisle"/>
+        
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>    
+        <SITEACTION class="CheckDiscountAllowedSite"/>
+        <SITEACTION class="CheckDiscountAlreadyAppliedSite"/>
+        <SITEACTION class="ModifyItemDiscountSite"/>
+        <SITEACTION class="ApplyDiscountAmountSite"/>
+        <SITEACTION class="ApplyDiscountPercentSite"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckSecurityAccess">
+          <SITE name="CheckSecurityAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="CheckDamageDiscountAllowed">
+                </ROAD>
+          </SITE>
+          
+          <STATION 
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                
+                <ROAD 
+                    name="SecurityOverrideGranted"
+                    letter="Success"
+                    destination="CheckDamageDiscountAllowed">
+                </ROAD>
+                
+                <ROAD 
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final">
+                </ROAD>
+                
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+          </STATION>
+          
+          <SITE name="CheckDamageDiscountAllowed" siteaction="CheckDiscountAllowedSite">
+                <ROAD
+                    name="DamageDiscountSucceeded"
+                    letter="Next"
+                    destination="CheckDiscountAlreadyApplied">
+                </ROAD>
+                <ROAD
+                    name="DamageDiscountFailed"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+          </SITE>
+
+          <SITE name="CheckDiscountAlreadyApplied" siteaction="CheckDiscountAlreadyAppliedSite">
+                <ROAD
+                    name="CheckDiscountAlreadyAppliedContinue"
+                    letter="Continue"
+                    destination="ModifyItemDiscount">
+                </ROAD>
+                <ROAD
+                    name="CheckDiscountAlreadyAppliedCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+         </SITE>
+
+<!-- Modify Item Discount Site-->
+          <SITE name="ModifyItemDiscount" siteaction="ModifyItemDiscountSite">
+                <COMMENT>
+                    Modify the discount amount or percent for the selected item.
+                </COMMENT>
+                <AISLE
+                    name="AmountEntered"
+                    letter="Next"
+                    laneaction="AmountEnteredAisle">
+                    <LIGHT signal="IsAmountDiscountSignal"/>
+                </AISLE>
+                <AISLE
+                    name="PercentEntered"
+                    letter="Next"
+                    laneaction="PercentEnteredAisle">
+                    <LIGHT signal="IsPercentDiscountSignal"/>
+                </AISLE>
+                <ROAD
+                    name="MultiDiscountAmountInvalid"
+                    letter="No"
+                    destination="ModifyItemDiscount">
+                    <COMMENT>
+                        The discount was not valid. Return to the ModifyItemDiscountAmount
+                        site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SingleDiscountAmountInvalid"
+                    letter="Ok"
+                    destination="ModifyItemDiscount">
+                    <COMMENT>
+                        The discount was not valid. Return to the ModifyItemDiscountAmount
+                        site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ItemDiscountAmountModified"
+                    letter="Continue"
+                    destination="ApplyDiscountAmount">
+                     <LIGHT signal="IsAmountDiscountSignal"/>
+                    <COMMENT>
+                        The discount amount was entered. Apply it.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ItemDiscountPercentModified"
+                    letter="Continue"
+                    destination="ApplyDiscountPercent">
+                    <LIGHT signal="IsPercentDiscountSignal"/>
+                    <COMMENT>
+                        The discount percent was entered. Apply it.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MultipleInvalidItemDiscountAmountYesSelected"
+                    letter="Yes"
+                    destination="ApplyDiscountAmount">
+                     <LIGHT signal="IsAmountDiscountSignal"/>
+                    <COMMENT>
+                        One or more of multiple items selected for discount by amount
+                        is invalid for the discount. The operator has selected
+                        to continue and apply the discount only to the eligible
+                        item(s).
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MultipleInvalidItemDiscountPercentYesSelected"
+                    letter="Yes"
+                     destination="ApplyDiscountPercent">
+                    <LIGHT signal="IsPercentDiscountSignal"/>
+                    <COMMENT>
+                        One or more of multiple items selected for discount by percent
+                        is invalid for the discount. The operator has selected
+                        to continue and apply the discount only to the eligible
+                        item(s).
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelItemDiscount"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="UndoItemDiscount"
+                    letter="Undo"
+                    destination="Final">
+                </ROAD>
+                 <ROAD
+                    name="ClearItemDiscount"
+                    letter="Clear"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+<!-- Apply Discount Amounts site -->
+            <SITE name="ApplyDiscountAmount" siteaction="ApplyDiscountAmountSite">
+                <ROAD
+                    name="DiscountAmountValid"
+                    letter="Next"
+                    destination="Final">
+                    <COMMENT>
+                        The discount was applied, go on to the final site.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+<!-- Apply Discount Percent Site-->
+            <SITE name="ApplyDiscountPercent" siteaction="ApplyDiscountPercentSite">
+                <ROAD
+                    name="DiscountPercentValid"
+                    letter="Next"
+                    destination="Final">
+                    <COMMENT>
+                        The discount was applied, go on to the final site.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

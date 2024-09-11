@@ -1,0 +1,588 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/instantcredit/instantcredituicfg.xml /main/23 2013/10/15 14:16:21 asinton Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    asinton   10/10/13 - removed references to social security number and
+ *                         replaced with locale agnostic government id
+ *    cgreene   04/29/13 - convert house account menu to popup
+ *    mchellap  04/24/13 - Splitting DOB to birth date and birth year
+ *    cgreene   12/14/12 - Button image and plaf loading updates
+ *    mjwallac  11/12/12 - ui button changes
+ *    ohorne    08/12/11 - enabled Cancel button and disabled Next button on HA
+ *                         Payment screen
+ *    sgu       08/05/11 - fix the field names
+ *    cgreene   06/07/11 - update to first pass of removing pospal project
+ *    sgu       05/23/11 - move inquiry for payment into instantcredit service
+ *    sgu       05/20/11 - refactor instant credit inquiry flow
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   01/05/10 - implement parameter enabled bean spec
+ *    abondala  12/17/09 - Added ADE Header
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+   $Log:
+    5    360Commerce 1.4         5/29/2008 4:07:26 PM   Deepti Sharma
+         CR-31672 changes for instant credit enrollment. Code reviewed by Alan
+          Sinton
+    5    I18N_P2    1.3.1.0     2/6/2008 2:14:02 PM    Sandy Gu        Set
+         promps to optional take multi byte characters.
+    4    360Commerce 1.3         11/29/2007 5:15:58 PM  Alan N. Sinton  CR
+         29677: Protect user entry fields of PAN data.
+    3    360Commerce 1.2         3/31/2005 4:28:23 PM   Robert Pearse
+    2    360Commerce 1.1         3/10/2005 10:22:08 AM  Robert Pearse
+    1    360Commerce 1.0         2/11/2005 12:11:26 PM  Robert Pearse
+   $
+   Revision 1.5  2004/07/06 16:39:54  lzhao
+   @scr 5988: Delete button is disabled.
+
+   Revision 1.4  2004/07/02 16:22:12  lzhao
+   @scr 5943: make city, state, country fields required.
+
+   Revision 1.3  2004/03/16 18:42:43  cdb
+   @scr 0 Removed tabs from all java source code.
+
+   Revision 1.2  2004/02/12 16:50:40  mcs
+   Forcing head revision
+
+   Revision 1.1.1.1  2004/02/11 01:04:16  cschellenger
+   updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="InstantCreditOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+        <BUTTON
+            actionName="Inquiry"
+            keyName="F2"
+            enabled="true"
+            iconName="buttonIconInquiry"
+            labelTag="Inquiry"/>
+
+        <BUTTON
+            actionName="Enroll"
+            keyName="F3"
+            enabled="true"
+            iconName="buttonIconEnrollment"
+            labelTag="Enrollment"/>
+
+        <BUTTON
+            actionName="TempPass"
+            keyName="F4"
+            enabled="true"
+            iconName="buttonIconTempPass"
+            labelTag="TempPass"/>
+        <BUTTON
+            actionName="Reference"
+            keyName="F5"
+            enabled="true"
+            iconName="buttonIconRefNumInq"
+            labelTag="RefNumInq"/>
+        <BUTTON
+            actionName="Payment"
+            keyName="F6"
+            enabled="true"
+            iconName="buttonIconPayment"
+            labelTag="Payment"/>
+
+    </BEAN>
+
+
+    <BEAN
+        specName="CallCenterGlobalNavigationPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="GlobalNavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="Help"
+            keyName="F1"
+            enabled="true"
+            label="Help"
+            labelTag="Help"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.HelpAction"/>
+
+        <BUTTON
+            actionName="Clear"
+            keyName="F11"
+            enabled="false"
+            labelTag="Delete"
+            label="Delete"/>
+
+        <BUTTON
+            actionName="Cancel"
+            keyName="F12"
+            labelTag="Cancel"
+            enabled="true"
+            label="Cancel"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.ConfirmCancelAction"/>
+
+        <BUTTON
+            actionName="Undo"
+            keyName="Esc"
+            enabled="false"
+            labelTag="Undo"
+            label="Undo"/>
+
+        <BUTTON
+            actionName="Approve"
+            keyName="Enter"
+            enabled="true"
+            labelTag="Next"
+            label="Next"/>
+
+        <BUTTON
+            actionName="Keys"
+            keyName="Ctrl+K"
+            enabled="true"
+            labelTag="Keys"
+            label="Keys"
+            parameterName="OnScreenKeyboardEnabled"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.KeyDialogAction"/>
+    </BEAN>
+
+    <BEAN
+        specName="InstantCreditInquiryButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+        <BUTTON
+            actionName="Print"
+            keyName="F2"
+            enabled="true"
+            labelTag="Print"/>
+    </BEAN>
+
+
+     <BEAN
+        specName="InstantCreditCustInfoBeanSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="InstantCreditCustomerBean">
+    </BEAN>
+
+    <BEAN
+        specName="InstantCreditInfoBeanSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="InstantCreditBean">
+    </BEAN>
+
+    <BEAN
+        specName="InstantCreditInquiryCriteriaBeanSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="InstantCreditInquiryCriteriaBean">
+    </BEAN>
+
+    <BEAN
+        specName="InstantCreditInquiryBeanSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="InstantCreditInquiryBean">
+    </BEAN>
+
+    <BEAN
+        specName="InstantCreditCallCenterBeanSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="InstantCreditCallCenterBean">
+    </BEAN>
+
+    <BEAN
+        specName="AccountNumberSearchButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Search"
+            enabled="true"
+            keyName="F2"
+            labelTag="Search"/>
+    </BEAN>
+
+    <POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="INSTANT_CREDIT_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="InstantCreditOptionsButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="ENTER_CREDIT_INFO">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="CreditInfoPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="CreditInfoScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="InstantCreditInfoBeanSpec">
+        </ASSIGNMENT>
+        <CONNECTION
+            listenerInterfaceName="DocumentListener"
+            listenerPackage="javax.swing.event"
+            sourceBeanSpecName="InstantCreditInfoBeanSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"/>
+       <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="InstantCreditInfoBeanSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+    </OVERLAYSCREEN>
+
+
+      <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="INSTANT_CREDIT_CUSTOMER_INFO">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="InstantCreditCustInfoPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="InstantCreditCustInfoScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[false],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="WorkPanel"
+            beanSpecName="InstantCreditCustInfoBeanSpec">
+        	<BEANPROPERTY propName="OptionalValidatingFields"
+        		 propValue="street2Field,busTelField,appSignedField" />
+        	<BEANPROPERTY propName="RequiredValidatingFields"
+        		 propValue="firstNameField,lastNameField,street1Field,stateField,cityField,countryField,zipCodeField,birthdateField,birthyearField,governmentIdField,homeTelField,yearlyIncomeField,appReferenceNumberField" />
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="InstantCreditCustInfoBeanSpec"/>
+        <CONNECTION
+            listenerInterfaceName="DocumentListener"
+            listenerPackage="javax.swing.event"
+            sourceBeanSpecName="InstantCreditCustInfoBeanSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"/>
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="InstantCreditCustInfoBeanSpec"/>
+    </OVERLAYSCREEN>
+
+     <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="ENROLL_RESPONSE">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="EnrollResponsePrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="EnrollResponseScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+     <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="INSTANT_CREDIT_INQUIRY_INFO">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="InstantCreditInquiryPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="InstantCreditInquiryScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="InstantCreditInquiryButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="InstantCreditInquiryBeanSpec">
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+
+     <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="INSTANT_CREDIT_CALL_CENTER">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="InstantCreditCallCenterPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="InstantCreditCallCenterScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="CallCenterGlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="InstantCreditCallCenterBeanSpec">
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+<!-- New Sales Associate overlay screen for Instant Credit -->
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="modifyitemText"
+        specName="INSTANT_CREDIT_ITEM_SALES_ASSC">
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ItemSalesAssociateScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ItemSalesAssociatePrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY
+                propName="minLength" propValue= "1"/>
+            <BEANPROPERTY
+                propName="maxLength" propValue= "10"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="INSTANT_CREDIT_INQUIRY_CRITERIA">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="InstantCreditInquiryCriteriaPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="InstantCreditInquiryCriteriaScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="WorkPanel"
+            beanSpecName="InstantCreditInquiryCriteriaBeanSpec">
+        	<BEANPROPERTY propName="OptionalValidatingFields"
+        		 propValue="" />
+        	<BEANPROPERTY propName="RequiredValidatingFields"
+        		 propValue="countryField,postalCodeField,governmentIdField,homeTelField,referenceNumberField" />
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="InstantCreditInquiryCriteriaBeanSpec"/>
+        <CONNECTION
+            listenerInterfaceName="DocumentListener"
+            listenerPackage="javax.swing.event"
+            sourceBeanSpecName="InstantCreditInquiryCriteriaBeanSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"/>
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="InstantCreditInquiryCriteriaBeanSpec"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="payhouseaccountText"
+        specName="INSTANT_CREDIT_PAYMENT_ACCOUNT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="AccountInformationScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="AccountInformationPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.CurrencyTextField"/>
+            <BEANPROPERTY propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="maxLength" propValue="9"/>
+        </ASSIGNMENT>
+
+         <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="InstantCreditInquiryBeanSpec">
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="InstantCreditInquiryBeanSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="InstantCreditInquiryBeanSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="InstantCreditInquiryBeanSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+</UICFG>

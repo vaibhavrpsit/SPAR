@@ -1,0 +1,150 @@
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!--
+This context is for Device-specific configurations.
+-->
+<beans>
+
+    <!-- Implementation of ReceiptPrinterIfc using JavaPOS. Class must implement oracle.retail.stores.foundation.manager.ifc.device.ReceiptPrinterIfc -->
+    <!--  Begin Receipt Printer Configuration -->
+    <bean id="device_ReceiptPrinter" class="oracle.retail.stores.foundation.manager.device.ReceiptPrinter">
+        <property name="barcodeUtils">
+            <ref bean="device_BarcodeUtils"/>
+        </property>
+        <property name="printBufferingEnabled" value="true" />
+        <property name="printBufferSize" value="4000" />
+        <property name="receiptLineSize" value="60" />
+        <property name="slipLineSize" value="35" />
+        <property name="transactionalPrinting" value="true" />
+        <!-- POSPrinter code pages for printing text in different locales. 101-
+        199 are device specific. 400-990 are IBM (OEM) codes pages.
+        POSPrinterConsts#997-999 are UNICODE, ASCII and ANSI respectively.
+        PTR_CCS_KANA = 10; PTR_CCS_KANJI = 11. Locales not mapped here will use
+        the default "CapCharacterSet" value. Example mappings follow. Consult
+        your printer manufacturer and for more help on values.>
+        <property name="codePages">
+            <map>
+                <entry key="de" value="858" />
+                <entry key="fr" value="858" />
+                <entry key="es" value="858" />
+                <entry key="ja" value="932" />
+                <entry key="ko" value="949" />
+                <entry key="ru" value="866" />
+                <entry key="zh" value="936" />
+                <entry key="zh_TW" value="950" />
+                <entry key="pt" value="860" />
+                <entry key="it" value="858" />
+                <entry key="tr" value="857" />
+                <entry key="el" value="869" />
+                <entry key="pl" value="852" />
+            </map>
+        </property -->
+    </bean>
+    <!-- End Receipt Printer Configuration -->
+
+    <!-- Implementation of BarcodeUtilsIfc. Class must implement oracle.retail.stores.foundation.manager.ifc.device.BarcodeUtilsIfc -->
+    <bean id="device_BarcodeUtils" class="oracle.retail.stores.foundation.manager.device.BarcodeUtils">
+        <property name="barcode128ParsedAlphaPrefix" value="{B" />
+        <property name="barcode128ParsedNumericPrefix" value="{C" />
+        <property name="maxAlphaBarcodeLength" value="19" />
+        <property name="storeIdAlphaNumeric" value="false" />
+    </bean>    
+    
+    <!-- Implementation of FiscalReceiptPrinterIfc using JavaPOS. Class must implement oracle.retail.stores.foundation.manager.ifc.device.FiscalReceiptPrinterIfc -->
+    <!--  Begin Fiscal Receipt Printer Configuration
+    <bean id="device_ReceiptPrinter" class="oracle.retail.stores.foundation.manager.device.FiscalReceiptPrinter">
+        <property name="barcodeUtils">
+            <ref bean="device_BarcodeUtils"/>
+        </property>
+        <property name="receiptLineSize" value="40" />
+        <property name="barcodeDirectIO">
+            <map>
+                <entry key="command" value="1075" />
+                <entry key="parameters" value="010802075210073" />
+            </map>
+        </property> 
+        <property name="creditNoteDirectIO">
+            <map>
+                <entry key="command" value="1078" />
+                <entry key="parameters" value="0140001PRATICA DI RESO" />
+            </map>
+        </property>   
+    </bean>
+    End Fiscal Receipt Printer Configuration -->
+
+    <!-- Identify the default printer -->
+    <bean id="device_IppReceiptPrinterDefault" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="device_IppReceiptPrinter"/>
+    </bean>
+    
+    <!-- Implementation of ReceiptPrinterIfc using FOP. Class must extend oracle.retail.stores.manager.device.FoReceiptPrinter -->
+    <bean id="device_IppReceiptPrinter" class="oracle.retail.stores.manager.device.FoReceiptPrinter"
+        lazy-init="true">
+        <property name="receiptLineSize" value="60" />
+        <property name="deleteData" value="true" />
+        <property name="printRequestAttributes" ref="device_IppPrintRequestAttributes" />
+    </bean>
+
+    <!-- Implementation of ReceiptPrinterIfc using FOP. Class must extend oracle.retail.stores.manager.device.FoReceiptPrinter 
+         setting the cleanReceipt property to "true" prevents the FoReceiptPrinter printer class from trying to initialize
+         an actual printer. -->
+    <bean id="device_IppEmailReceiptPrinter" class="oracle.retail.stores.manager.device.FoReceiptPrinter"
+        lazy-init="true">
+        <property name="receiptLineSize" value="60" />
+        <property name="deleteData" value="true" />
+        <property name="cleanReceipt" value="true" />
+        <property name="printRequestAttributes" ref="device_IppPrintRequestAttributes" />
+    </bean>
+ 
+    <!-- Print settings for device_IppReceiptPrinter. Class must implement oracle.retail.stores.printing.PrintRequestAttributesIfc. -->
+    <bean id="device_IppPrintRequestAttributes" class="oracle.retail.stores.printing.PrintRequestAttributes"
+        lazy-init="true">
+        <property name="copies" value="1" />
+        <property name="mediaSize" value="$IPP_MEDIA_SIZE$" />
+        <property name="orientation" value="$IPP_ORIENTATION$" />
+        <property name="quality" value="$IPP_QUALITY$" />
+        <property name="sheetCollate" value="false" />
+        <property name="sides" value="single" />
+        <property name="locale" value="$IPP_NAME_LOCALE$" />
+        <property name="printMimeType" value="$IPP_PRINT_MIME$" />
+        <property name="foMimeType" value="$IPP_FOP_OUTPUT_MIME$" />
+        <property name="foFileExtension" value="$IPP_FOP_OUTPUT_EXTENSION$" />
+        <property name="printServiceName" value="$IPP_NAME$" />
+        <property name="dataLocation" value="../receipts/printing/ipp/data" />
+        <property name="factoryInstance" ref="device_IppFactory" />
+    </bean>
+
+    <!-- Implementation of ReceiptPrinterIfc using FOP. Class must extend oracle.retail.stores.manager.device.FoReceiptPrinter -->
+    <bean id="device_EReceiptPrinter" class="oracle.retail.stores.manager.device.FoReceiptPrinter"
+        lazy-init="true">
+        <property name="cleanReceipt" value="true" />
+        <property name="deleteData" value="true" />
+        <property name="receiptLineSize" value="60" />
+        <property name="renderAtEnd" value="true" />
+        <property name="printRequestAttributes" ref="device_EReceiptPrintRequestAttributes" />
+    </bean>
+
+    <!-- Print settings for device_EReceiptPrinter. Class must implement oracle.retail.stores.printing.PrintRequestAttributesIfc. -->
+    <bean id="device_EReceiptPrintRequestAttributes" class="oracle.retail.stores.printing.PrintRequestAttributes"
+        lazy-init="true">
+        <property name="dataLocation" value="../receipts/printing/ipp/data" />
+        <property name="foMimeType" value="application/pdf" />
+        <property name="foFileExtension" value="pdf" />
+        <property name="factoryInstance" ref="device_IppFactory" />
+    </bean>
+
+    <!-- Implementation of IppFactoryIfc for network printing. Class must implement oracle.retail.stores.printing.IppFactoryIfc -->
+    <bean id="device_IppFactory" class="oracle.retail.stores.printing.DefaultIppFactory"
+        lazy-init="true">
+        <property name="fontConfig" value="../receipts/printing/templates/fonts/FopFontConfig.xml" />
+    </bean>
+
+    <!-- Implementation of jpos.POSPrinter that writes to standard out. Class must extend jpos.POSPrinter -->
+    <bean id="device_SimulatedPOSPrinter" class="oracle.retail.stores.foundation.manager.device.SimulatedPOSPrinter"
+        lazy-init="true">
+        <property name="receiptLineSize" value="60" />
+        <property name="enabled" value="true" />
+    </bean>
+
+</beans>

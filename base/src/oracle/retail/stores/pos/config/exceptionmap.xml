@@ -1,0 +1,44 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/config/exceptionmap.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:31 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE JDBCEXCEPTIONMAPPING SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/jdbcexceptionmapping.dtd">
+
+<JDBCEXCEPTIONMAPPING>
+    <COMMENT>
+              SQLAnywhere specific exceptions.
+    </COMMENT>
+
+    <ADDMAPPING
+        sqlstate="JZ006"
+        description="Error generated when SQL Anywhere: fails to connect"
+        crsexception="CONNECTION_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="52W02"
+        description="Error generated from SQL Anywhere: Correlation name 'name' not found"
+        crsexception="SQL_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="23W01"
+        description="Error generated from SQL Anywhere: Primary key is not unique"
+        crsexception="REFERENTIAL_INTEGRITY_ERROR"
+    />
+
+
+</JDBCEXCEPTIONMAPPING>
+

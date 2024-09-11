@@ -1,0 +1,444 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/inquiry/iteminquiry/itemcheck/itemcheck.xml /rgbustores_13.4x_generic_branch/3 2011/08/09 09:44:42 tksharma Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    tksharma  08/09/11 - Introducing dialog box for age restriction site
+ *    rrkohli   06/08/11 - Quickwin -Add multqty for below items, system needs
+ *                         to display ITEM_NOT_ALLOWED_W_MLTY_QTY dialog
+ *    nkgautam  11/16/10 - AgeRestriction DOB not getting captured fix
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+     $Log:
+      6    360Commerce 1.5         12/19/2007 8:18:47 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      5    360Commerce 1.4         1/25/2006 4:11:05 PM   Brett J. Larsen merge
+            7.1.1 changes (aka. 7.0.3 fixes) into 360Commerce view
+      4    360Commerce 1.3         12/13/2005 4:42:42 PM  Barry A. Pape
+           Base-lining of 7.1_LA
+      3    360Commerce 1.2         3/31/2005 4:28:30 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:22:22 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:11:36 PM  Robert Pearse
+     $
+     Revision 1.8  2004/08/05 22:17:54  dcobb
+     @scr 6655 Remove letter checks from shuttles.
+     Modified itemcheck service to initialize the modifyFlag to false and set to true when the item is ready to add to the sale.
+
+     Revision 1.7  2004/07/30 22:02:55  aschenk
+     @scr 4960 - Selling a kit with a UOM item now asks for the qty.
+
+     Revision 1.6  2004/06/23 14:54:57  awilliam
+     @scr 5668 fix for cannot escape from cust options after entering alteration item
+
+     Revision 1.5  2004/04/29 02:17:01  tfritz
+     @scr 4557 - ESC from UOM now works
+
+     Revision 1.4  2004/03/26 00:24:16  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.3  2004/02/20 19:51:59  epd
+     @scr 3561 Updates to prompt for item size if the item requires a size
+
+     Revision 1.2  2004/02/12 16:50:36  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:16  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ItemCheck"
+    package="oracle.retail.stores.pos.services.inquiry.iteminquiry.itemcheck"
+    tourcam="ON">
+    <CARGO  class="ItemInquiryCargo" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+    <SERVICECODE >
+
+        <LETTER name="Add"/>
+        <LETTER name="Alterations"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="GiftCard"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="IssueGiftCardUndo"/>
+        <LETTER name="Loop"/>
+        <LETTER name="Next"/>
+        <LETTER name="NextItem"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="PredeterminedAmountUndo"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Skip"/>
+
+        <SITEACTION class="CheckItemTypeSite"/>
+        <SITEACTION class="SelectItemSite"/>
+        <SITEACTION class="CheckPriceEntrySite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="CheckUnitOfMeasureSite"/>
+        <SITEACTION class="GetGiftCardAmountSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="GetGiftCardInfoSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="GetAgeRestrictionDOBSite" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+        <SITEACTION class="ValidateAgeRestrictedDOBSite" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+
+        <LANEACTION class="PriceEnteredAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="UndoLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="UnitOfMeasureEnteredAisle"/>
+        <LANEACTION class="AddItemAisle"/>
+        <LANEACTION class="ItemSelectedRoad"/>
+        <LANEACTION class="CreateTransactionRoad" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+
+        <SHUTTLE class="AlterationsLaunchShuttle"/>
+        <SHUTTLE class="AlterationsReturnShuttle"/>
+        <SHUTTLE class="GiftCardIssueLaunchShuttle" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+        <SHUTTLE class="GiftCardIssueReturnShuttle" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="GetAgeRestrictedDOB">
+            <SITE  name="GetAgeRestrictedDOB" siteaction="GetAgeRestrictionDOBSite">
+                <ROAD
+                    name="DOBNotNeeded"
+                    letter="Continue"
+                    destination="CheckItemType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DOBNeeded"
+                    letter="Next"
+                    destination="ValidateAgeRestrictedDOB"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DOBSkip"
+                    letter="Skip"
+                    destination="CheckItemType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DOBCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DOBUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DOBInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="ValidateAgeRestrictedDOB" siteaction="ValidateAgeRestrictedDOBSite">
+                 <ROAD
+                    name="OldEnough"
+                    letter="Continue"
+                    destination="CheckItemType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="NotOldEnough"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckItemType" siteaction="CheckItemTypeSite">
+                <ROAD
+                    name="MultipleItemsFound"
+                    letter="MultipleItemsFound"
+                    destination="SelectItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemType"
+                    letter="Add"
+                    laneaction="CreateTransactionRoad"
+                    destination="CheckPriceEntry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardType"
+                    letter="GiftCard"
+                    destination="IssueGiftCardStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemNotAllowedWithMultipleQuantity"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+<!-- IssueGiftCardUndo letter is not mailed from this site
+                <ROAD
+                    name="UndoGiftCardIssue"
+                    letter="IssueGiftCardUndo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+-->
+                <ROAD
+                    name="AlterationType"
+                    letter="Alterations"
+                    destination="AlterationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed when an alteration item is
+                        entered in the showsalescreen
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckPriceEntry" siteaction="CheckPriceEntrySite">
+                <AISLE
+                    name="PriceEntered"
+                    letter="Next"
+                    laneaction="PriceEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="CheckGiftCardUOM"
+                    letter="GiftCard"
+                    destination="IssueGiftCardStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+<!-- IssueGiftCardUndo letter is not issued from this site
+                <ROAD
+                    name="UndoGiftCardIssue"
+                    letter="IssueGiftCardUndo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+-->
+                <ROAD
+                    name="CheckUOM"
+                    letter="Continue"
+                    destination="CheckUnitOfMeasure"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoPriceEntry"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PriceEntryCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckUnitOfMeasure" siteaction="CheckUnitOfMeasureSite">
+                <MOCKUP
+                    image=""/>
+                <AISLE
+                    name="UOMEntered"
+                    letter="Next"
+                    laneaction="UnitOfMeasureEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="UOMRetry"
+                    letter="Loop"
+                    destination="CheckUnitOfMeasure"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NextUOMItem"
+                    letter="NextItem"
+                    destination="CheckUnitOfMeasure"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UOMItemAdd"
+                    letter="Continue"
+                    laneaction="AddItemAisle"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoUOM"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UnitOfMeasureCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemGiftCard"
+                    letter="GiftCard"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="SelectItem" siteaction="SelectItemSite">
+                <ROAD
+                    name="ItemSelected"
+                    letter="Next"
+                    laneaction="ItemSelectedRoad"
+                    destination="CheckItemType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemNotSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="IssueGiftCardStation"
+                servicename="giftcard.issue.issue"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardIssueLaunchShuttle"
+                returnshuttle="GiftCardIssueReturnShuttle">
+                <ROAD
+                    name="ContinueIssueCard"
+                    letter="Continue"
+                    laneaction="AddItemAisle"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="AlterationStation"
+                servicename="services.alterations.alterations"
+                targettier="CURRENTTIER"
+                launchshuttle="AlterationsLaunchShuttle"
+                returnshuttle="AlterationsReturnShuttle">
+                <ROAD
+                    name="AlterationsCompleted"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoAlterations"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelAlterations"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelAlterationsNoCustomer"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

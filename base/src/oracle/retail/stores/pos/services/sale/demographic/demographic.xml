@@ -1,0 +1,102 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/sale/demographic/demographic.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 7:49:26 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:27:43 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:20:54 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:10:33 PM  Robert Pearse
+     $
+     Revision 1.3  2004/07/14 15:46:39  aachinfiev
+     @scr 4859 - Fixed prompt text & removed Skip button from the screen
+
+     Revision 1.2  2004/02/12 16:48:19  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:11  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Demographics"
+    package="oracle.retail.stores.pos.services.sale.demographic"
+    tourcam="OFF">
+    <CARGO  class="SaleCargo" package="oracle.retail.stores.pos.services.sale"/>
+    <SERVICECODE >
+        <LANEACTION class="SkipInfoEnteredRoad"/>
+        <LANEACTION class="ValidateCustomerInfoAisle"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Next"/>
+        <LETTER name="Skip"/>
+        <LETTER name="Undo"/>
+        <SITEACTION class="EnterCustomerInfoSite"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="EnterCustomerInformation">
+            <SITE  name="EnterCustomerInformation" siteaction="EnterCustomerInfoSite">
+                <COMMENT >
+                    This site checks the prompt for customer information
+                    parameter.
+                </COMMENT>
+                <AISLE
+                    name="ValidateCustomerInfo"
+                    letter="Next"
+                    laneaction="ValidateCustomerInfoAisle">
+                    <COMMENT >
+                        This Aisle is traversed after the user enters customer
+                        information.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="ValidInfoEntered"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed when the operator has entered
+                        valid customer info, or no customer info is required.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoCustomerInfoRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Leaves the service
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

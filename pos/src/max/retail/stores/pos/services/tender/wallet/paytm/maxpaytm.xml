@@ -1,0 +1,116 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2017 - 2018 MAX Hypermarket, Inc.    All Rights Reserved.
+ *	
+ *	Rev 1.0     Oct 12, 2017		Atul Shukla		Paytm Integration FES
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Tender"
+	package="oracle.retail.stores.pos.services.tender.wallet.paytm" tourcam="ON">
+	<COMMENT>
+		This service implements the Tender Use Case of the
+		Tender Package.
+    </COMMENT>
+	<CARGO class="MAXTenderCargo" package="max.retail.stores.pos.services.tender" />
+
+	<SERVICECODE>
+		<LETTER name="Next" /> 
+		<LETTER name="TotpSuccess" /> 
+		<LETTER name="PaytmReentry" /> 
+		<LETTER name="Ok" />
+		
+		<LANEACTION class="MAXPaytmRequestInfoAisle" package="max.retail.stores.pos.services.tender.wallet.paytm"/>
+	    <LANEACTION class="MAXPaytmWebRequestResponseAisle" package="max.retail.stores.pos.services.tender.wallet.paytm"/>
+	    
+		<SITEACTION class="MAXEnterPaytmMobileNumberTotpSite" package="max.retail.stores.pos.services.tender.wallet.paytm"/>
+		<SITEACTION class="MAXPaytmTenderActionSite" package="max.retail.stores.pos.services.tender.wallet.paytm"/>
+		<SITEACTION class="MAXPaytmWithdrawPrintSite" package="max.retail.stores.pos.services.tender.wallet.paytm"/>
+		
+	</SERVICECODE>
+
+	<MAP>
+		<REGION region="SERVICE" startsite="EnterPaytmMobileTotp">
+			<SITE name="EnterPaytmMobileTotp" siteaction="MAXEnterPaytmMobileNumberTotpSite">
+			<!-- Changes starts for Rev 1.0 -->
+			    <AISLE
+                    name="ValidateOtp"
+                    letter="Next"   
+                    laneaction="MAXPaytmRequestInfoAisle">  
+                  
+                </AISLE>
+                 
+                   <AISLE
+                    name="TotpSuccess"
+                    letter="TotpSuccess"
+                    laneaction="MAXPaytmWebRequestResponseAisle">  
+                </AISLE>  
+                 
+			     <ROAD name="PaytmSuccess" letter="Success" destination="PaytmTenderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			 
+				<ROAD name="paytmError" letter="Ok" destination="EnterPaytmMobileTotp"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<!-- 
+				<ROAD name="paytmTotpCountError" letter="Yes" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>   -->
+				<ROAD name="PaytmFailure" letter="Failure" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+							<ROAD name="PaytmUndo" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<!-- 
+				<ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="Final" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>  -->
+			</SITE>		
+			 <SITE  name="PaytmTenderAction" siteaction="MAXPaytmTenderActionSite">
+                <ROAD 
+                    name="PaytmTenderSuccess"
+                    letter="Success"
+                    destination="PrintPaytmWithdraw"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                  <ROAD 
+                    name="PaytmReentryTenderSuccess"
+                    letter="PaytmReentry"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>	
+                <SITE name="PrintPaytmWithdraw" siteaction="MAXPaytmWithdrawPrintSite">
+				<ROAD 
+				name="PaytmWithdrawPrintContinue" 
+				letter="Success" 
+				destination="Final"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+				<ROAD 
+				name="PaytmWithdrawPrintRetry" 
+				letter="Retry" 
+				destination="PrintPaytmWithdraw"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+			</SITE>
+
+            
+            
+			<SYSTEMSITE name="Final" action="RETURN" />
+		</REGION>
+	</MAP>
+</SERVICE>

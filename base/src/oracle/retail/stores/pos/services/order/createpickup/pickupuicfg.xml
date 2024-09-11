@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/createpickup/pickupuicfg.xml /main/12 2013/03/18 14:47:13 abhinavs Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhinavs  03/18/13 - Fix to enable delete button for xchannel item
+ *                         pickup date field
+ *    jswan     04/13/12 - Moved to the order package during the cross
+ *                         channel project to provide better organization for
+ *                         the order create process.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/17/09 - Added ADE Header
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+	<BEAN specName="GetPickupDateSpec"
+		 configuratorPackage="oracle.retail.stores.pos.ui"
+		 configuratorClassName="POSBeanConfigurator"
+		 beanPackage="oracle.retail.stores.pos.ui.beans"
+		 beanClassName="GetPickupDateBean">
+	</BEAN>
+
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		 resourceBundleFilename="pickupText" specName="GET_PICKUP_DATE_SCREEN">
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel"
+			 beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="buttonStates"
+				 propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[true],Keys[true]" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="WorkPanel"
+			 beanSpecName="GetPickupDateSpec">
+			<BEANPROPERTY propName="RequiredValidatingFields"
+				 propValue="pickupDateField" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel"
+			 beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag"
+				 propValue="pickupDateStatus" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel"
+			 beanSpecName="PromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag"
+				 propValue="PromptForPickupDate" />
+		</ASSIGNMENT>
+		<CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="GetPickupDateSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="GetPickupDateSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="GetPickupDateSpec"/>
+
+
+	</OVERLAYSCREEN>
+
+</UICFG>

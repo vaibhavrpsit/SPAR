@@ -1,0 +1,824 @@
+<?xml version="1.0"?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*  Copyright (c) 2016 - 2017 MAX Hypermarket, Inc.    All Rights Reserved.
+*	Rev 1.1     April 23, 2018		Atul Shukla			Changes for Employee Discount FES UI Changes
+*	Rev 1.0     Nov 23, 2016		Ashish Yadav			Changes for Employee Discount FES
+*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="PricingOptionsPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ListBean">
+
+        <BEANPROPERTY propName="focused" propValue="false"/>
+        <BEANPROPERTY propName="selectionMode" propValue="none"/>
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.LineItemRenderer"/>
+        <BEANPROPERTY propName="labelTags"
+                      propValue="ItemLabel,QuantityLabel,PriceLabel,DiscountLabel,ExtendedPriceLabel"/>
+        <BEANPROPERTY propName="labelWeights"
+                      propValue="24,13,23,19,21"/>
+    </BEAN>
+
+    <BEAN
+        specName="PricingOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="PriceOverride"
+            keyName="F2"
+            enabled="true"
+            iconName="buttonIconPriceOverride"
+            labelTag="PriceOverride"/>
+
+        <BUTTON
+            actionName="Markdown"
+            keyName="F3"
+            enabled="false"
+            iconName="buttonIconMarkdown"
+            labelTag="MarkdownBtn"/>
+
+        <BUTTON
+            actionName="Discount"
+            keyName="F4"
+            enabled="true"
+            iconName="buttonIconDiscount"
+            labelTag="DiscountBtn"/>
+
+        <BUTTON
+            actionName="Employee"
+            keyName="F5"
+            enabled="true"
+            iconName="buttonIconEmployeeDiscount"
+            labelTag="EmployeeBtn"/>
+<!-- chnages start for Rev 1.0 (Ashish : Employee Discount)-->
+<BUTTON
+            actionName="RemoveEmployee"
+            keyName="F6"
+            enabled="true"
+            iconName="buttonIconEmployeeDiscount"
+            labelTag="RemoveEmployeeBtn"/>
+<!-- chnages start for Rev 1.0 (Ashish : Employee Discount)-->
+        <BUTTON
+            actionName="Damage"
+            keyName="F7"
+            enabled="false"
+            iconName="buttonIconDamageDiscount"
+            labelTag="DamageBtn"/>
+<!-- Changes start for code merging-->
+<BUTTON
+            labelTag="GCDiscountBtn"
+            actionName="GCDiscount"
+            enabled="false"
+            keyName="F8" />  
+         <!--<BUTTON
+            labelTag="PriceAdjustment"
+            actionName="PriceAdjustment"
+            enabled="false"
+            iconName="buttonIconPriceAdjustment"
+            keyName="F7" />-->
+<!-- Chnages ends for code merging-->
+    </BEAN>
+
+    <BEAN
+        specName="MarkdownOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="MarkdownPer"
+            keyName="F2"
+            enabled="true"
+            labelTag="MarkdownPer"/>
+
+        <BUTTON
+            actionName="MarkdownAmt"
+            keyName="F3"
+            enabled="true"
+            labelTag="MarkdownAmt"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="DiscountOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="TransDiscPer"
+            keyName="F2"
+            enabled="true"
+            labelTag="TransDiscPer"/>
+        <BUTTON
+            actionName="TransDiscAmt"
+            keyName="F3"
+            enabled="true"
+            labelTag="TransDiscAmt"/>
+        <BUTTON
+            actionName="ItemDiscPer"
+            keyName="F4"
+            enabled="true"
+            labelTag="ItemDiscPer"/>
+        <BUTTON
+            actionName="ItemDiscAmt"
+            keyName="F5"
+            enabled="true"
+            labelTag="ItemDiscAmt"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="ReturnTransDiscountOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="TransDiscPer"
+            keyName="F2"
+            enabled="true"
+            labelTag="TransDiscPer"/>
+        <BUTTON
+            actionName="TransDiscAmt"
+            keyName="F3"
+            enabled="true"
+            labelTag="TransDiscAmt"/>
+        <BUTTON
+            actionName="ItemDiscPer"
+            keyName="F4"
+            enabled="true"
+            labelTag="ItemDiscPer"/>
+        <BUTTON
+            actionName="ItemDiscAmt"
+            keyName="F5"
+            enabled="true"
+            labelTag="ItemDiscAmt"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="EmployeeDiscountOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="TransDiscPer"
+            keyName="F2"
+            enabled="true"
+            labelTag="TransDiscPer"/>
+        <BUTTON
+            actionName="TransDiscAmt"
+            keyName="F3"
+            enabled="true"
+            labelTag="TransDiscAmt"/>
+        <BUTTON
+            actionName="ItemDiscPer"
+            keyName="F4"
+            enabled="true"
+            labelTag="ItemDiscPer"/>
+        <BUTTON
+            actionName="ItemDiscAmt"
+            keyName="F5"
+            enabled="true"
+            labelTag="ItemDiscAmt"/>
+
+    </BEAN>
+
+	<BEAN
+        specName="ReturnTransEmployeeDiscountOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="TransDiscPer"
+            keyName="F2"
+            enabled="true"
+            labelTag="TransDiscPer"/>
+        <BUTTON
+            actionName="TransDiscAmt"
+            keyName="F3"
+            enabled="true"
+            labelTag="TransDiscAmt"/>
+        <BUTTON
+            actionName="ItemDiscPer"
+            keyName="F4"
+            enabled="true"
+            labelTag="ItemDiscPer"/>
+        <BUTTON
+            actionName="ItemDiscAmt"
+            keyName="F5"
+            enabled="true"
+            labelTag="ItemDiscAmt"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="DamageDiscountOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="ItemDiscPer"
+            keyName="F2"
+            enabled="true"
+            labelTag="ItemDiscPer"/>
+        <BUTTON
+            actionName="ItemDiscAmt"
+            keyName="F3"
+            enabled="true"
+            labelTag="ItemDiscAmt"/>
+    </BEAN>
+
+    <BEAN
+        specName="MarkdownPercentEntrySpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DiscPercentEntryBean">
+    </BEAN>
+
+    <BEAN
+        specName="MarkdownAmountEntrySpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DiscAmountEntryBean">
+    </BEAN>
+
+<!-- below code is added by atul shukla for screen addition  -->
+<BEAN
+        specName="EmployeeDiscountEntrySpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="max.retail.stores.pos.ui.beans"
+        beanClassName="MAXEmployeeDiscountBean">
+    </BEAN>
+
+    <POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="pricingText"
+        specName="PRICING_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="PricingOptionsButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+    <POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="pricingText"
+        specName="MARKDOWN_OPTIONS">
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="MarkdownOptionsButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+    <POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="pricingText"
+        specName="DISCOUNT_OPTIONS">
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="DiscountOptionsButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+	 <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="pricingText"
+        specName="RETURN_TRANS_DISCOUNT_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="DiscountOptionsPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="PricingOptionsPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ReturnTransDiscountOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ReturnTransDiscountOptionsButtonSpec">
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="pricingText"
+        specName="EMPLOYEE_DISCOUNT_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="EmployeeDiscountOptionsPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="PricingOptionsPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="EmployeeDiscountOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="EmployeeDiscountOptionsButtonSpec">
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+	<OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="pricingText"
+        specName="RETURN_TRANS_EMPLOYEE_DISCOUNT_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="EmployeeDiscountOptionsPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="PricingOptionsPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ReturnTransEmployeeDiscountOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ReturnTransEmployeeDiscountOptionsButtonSpec">
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="pricingText"
+        specName="ENTER_EMPLOYEE_AMOUNT_DISCOUNT">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.CurrencyTextField"/>
+            <BEANPROPERTY propName="promptTextTag" propValue="EnterEmployeeDiscountAmountPrompt"/>
+            <BEANPROPERTY propName="minLength" propValue="1"/>
+            <BEANPROPERTY propName="maxLength" propValue="10"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="EnterEmployeeDiscountScreenName"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="pricingText"
+        specName="ENTER_EMPLOYEE_PERCENT_DISCOUNT">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.PercentageTextField"/>
+            <BEANPROPERTY propName="promptTextTag" propValue="EnterEmployeeDiscountPercentPrompt"/>
+            <BEANPROPERTY propName="zeroAllowed" propValue="true"/>
+            <BEANPROPERTY propName="minLength" propValue="1"/>
+            <BEANPROPERTY propName="maxLength" propValue="10"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="EnterEmployeeDiscountScreenName"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="pricingText"
+        specName="DAMAGE_DISCOUNT_OPTIONS">
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="DamageDiscountOptionsButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="pricingText"
+        specName="DAMAGE_AMOUNT">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.CurrencyTextField"/>
+            <BEANPROPERTY propName="promptTextTag" propValue="EnterDamageDiscountAmountPrompt"/>
+            <BEANPROPERTY propName="minLength" propValue="1"/>
+            <BEANPROPERTY propName="maxLength" propValue="10"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="EnterDamageAmountScreenName"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="pricingText"
+        specName="DAMAGE_PERCENT">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.PercentageTextField"/>
+            <BEANPROPERTY propName="promptTextTag" propValue="EnterDamageDiscountPercentPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="EnterDamagePercentScreenName"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="pricingText"
+        specName="MARKDOWN_AMOUNT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="MarkdownAmountEntrySpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="DiscAmountField,ReasonCodeField"/>
+            <!-- CR 30792 EditableList must be editable (by definition)
+                 so that users can enter reason codes manually knowing that
+                 they will be validated before proceeding -->
+            <BEANPROPERTY
+                propName="EditableList" propValue="false"/>
+            <BEANPROPERTY
+                propName="PrependCodeID" propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ItemMarkdownAmountScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="ItemMarkdownAmountPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="MarkdownAmountEntrySpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="MarkdownAmountEntrySpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="MarkdownAmountEntrySpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="pricingText"
+        specName="MARKDOWN_PERCENT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="MarkdownPercentEntrySpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="DiscPercentField,ReasonCodeField"/>
+            <!-- CR 30792 EditableList must be editable (by definition)
+                 so that users can enter reason codes manually knowing that
+                 they will be validated before proceeding -->
+            <BEANPROPERTY
+                propName="EditableList" propValue="false"/>
+            <BEANPROPERTY
+                propName="PrependCodeID" propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ItemMarkdownPercentScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="ItemMarkdownPercentPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="MarkdownPercentEntrySpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="MarkdownPercentEntrySpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="MarkdownPercentEntrySpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+   <!-- 
+    
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="pricingText"
+        specName="EMPLOYEE_NUMBER1">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+        
+        
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="EmployeeNumberPrompt1"/>
+            
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="EmployeeDiscountEntrySpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="employeeIdField,CompanyNameField"/>
+                  -->
+            <!-- CR 30792 EditableList must be editable (by definition)
+                 so that users can enter reason codes manually knowing that
+                 they will be validated before proceeding 
+            <BEANPROPERTY
+                propName="EditableList" propValue="false"/>
+            <BEANPROPERTY
+                propName="PrependCodeID" propValue="true"/>
+                -->
+                 <!--
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="EmployeeNumberScreenName"/>
+        </ASSIGNMENT>
+        
+        
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EmployeeDiscountEntrySpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EmployeeDiscountEntrySpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="EmployeeDiscountEntrySpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+        
+
+           <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRDataEmployee"
+            activateMode="MODE_DECODESCAN"/>
+             
+
+    </OVERLAYSCREEN>
+    -->
+     
+<!-- chnages start for Rev 1.1 (Atul Shukla : Employee Discount UI changes)-->
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="pricingText"
+        specName="EMPLOYEE_NUMBER">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+ 
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="EmployeeNumberPrompt1"/>
+            
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="EmployeeDiscountEntrySpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="employeeIdField,cmompanyNameList"/>
+                
+                
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="EmployeeNumberScreenName"/>
+        </ASSIGNMENT>
+
+           <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EmployeeDiscountEntrySpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EmployeeDiscountEntrySpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="EmployeeDiscountEntrySpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+    
+    <!-- chnages End for Rev 1.1 (Atul Shukla : Employee Discount UI Changes)-->
+
+</UICFG>

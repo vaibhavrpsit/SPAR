@@ -1,0 +1,19 @@
+<?xml version='1.0' ?>
+
+<!--
+    NOTE: Replace data_server_host_name and store_server_host_name with host
+    names.  Try DNS name first; if that fails, use numeric IP address.
+
+    Replace data_server_port_number and store_server_port_number with
+    port numbers.
+
+    Replace data_server_name with server name (CORPORATESERVER
+    or STORESERVER).
+-->
+<!DOCTYPE CRFHOSTS SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/crfhost.dtd" [
+]>
+
+<CRFHOSTS transport="RMI">
+    <!-- <URL name="data_server_host_name" port="data_server_port_number" tier="data_server_name"/> -->
+    <URL name="WIN-4USHCHP4J7T" port="1300" tier="STORESERVER"/>
+</CRFHOSTS>

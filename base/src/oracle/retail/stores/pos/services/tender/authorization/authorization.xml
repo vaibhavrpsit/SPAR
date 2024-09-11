@@ -1,0 +1,312 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/authorization/authorization.xml /main/6 2014/01/28 09:08:59 asinton Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    asinton   01/23/14 - fixed handling of approvals for gift card tender for
+ *                         zero amount and calcalation of remaining balance
+ *    icole     09/27/13 - Allow transaction to timeout when setting on the
+ *                         Authorization Failed dialog, within
+ *                         AuthorizationSite. Changed letter from Timeout to
+ *                         AuthTimeout.
+ *    cgreene   03/21/12 - refactor referral into separate tour
+ *    asinton   02/02/12 - removed access role function for call referral using
+ *                         specific tenders
+ *    asinton   01/30/12 - Changed tour to check for signature capture required
+ *                         if floor limit approved.
+ *    asinton   11/02/11 - reverting back to synchronous call referral flow
+ *    ohorne    10/07/11 - Added flow to handling for missing token prior
+ *                         do display of Call Referral screen.
+ *    jswan     09/22/11 - Fixed routing for Call Referral to prompt for
+ *                         signature capture if necessary.
+ *    cgreene   08/23/11 - rolled back ability to override declines
+ *    sgu       08/12/11 - fix manager override case
+ *    asinton   07/29/11 - fix flow so Cancel letter is handled from Call
+ *                         Referral Screen.
+ *    cgreene   07/28/11 - added support for manager override for card decline
+ *    blarsen   07/22/11 - When operator rejects an ID or SigCap, the reversal
+ *                         now uses the reversal service.
+ *    jswan     06/22/11 - Modified to support signature capture in APF.
+ *    asinton   06/27/11 - Added Call Referral UI and flow to the tender
+ *                         authorization tour
+ *    blarsen   06/21/11 - Added catch-all unknown error route.
+ *    blarsen   06/21/11 - Added route for general-purpose configuration error
+ *                         dialog.
+ *    blarsen   06/06/11 - Added cancel-card-inquiry-by-customer dialog flow.
+ *    ohorne    05/12/11 - added AuthorizeFloorLimitSite
+ *    asinton   03/21/11 - new tender authorization service
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Authorization"
+         package="oracle.retail.stores.pos.services.tender.authorization"
+         tourcam="ON">
+    <CARGO class="AuthorizationCargo"/>
+    <SERVICECODE>
+        <LETTER name="Approved"/>
+        <LETTER name="ApprovedZeroAmount"/>
+        <LETTER name="Authorize"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="CanceledByCustomer"/>
+        <LETTER name="ConfigurationError"/>
+        <LETTER name="Declined"/>
+        <LETTER name="Failure"/>
+        <LETTER name="FloorLimit"/>
+        <LETTER name="Offline"/>
+        <LETTER name="AuthTimeout"/>
+        <LETTER name="Override"/>
+        <LETTER name="PartiallyApproved"/>
+        <LETTER name="PositiveID"/>
+        <LETTER name="Referral"/>
+        <LETTER name="Required"/>
+        <LETTER name="Skip"/>
+        <LETTER name="Success"/>
+        <LETTER name="Error"/>
+
+        <LANEACTION class="ApprovedZeroAmountAisle"/>
+        <LANEACTION class="AuthorizationDeclinedAisle"/>
+        <LANEACTION class="AuthorizationCanceledByCustomerAisle"/>
+        <LANEACTION class="AuthorizationOfflineAisle"/>
+        <LANEACTION class="AuthorizationPartiallyApprovedAisle"/>
+        <LANEACTION class="ConfigurationErrorAisle"/>
+        <LANEACTION class="PositiveIDDeclinedAisle"/>
+        <LANEACTION class="OperatorDeclinedAisle"/>
+        <LANEACTION class="TimeoutOccurredAisle"/>
+        <LANEACTION class="AuthorizationErrorAisle"/>
+
+        <SITEACTION class="AuthorizationSite"/>
+        <SITEACTION class="AuthorizeFloorLimitSite"/>
+        <SITEACTION class="CheckForSignatureCaptureSite"/>
+        <SITEACTION class="EvaluateRequestListSite"/>
+        <SITEACTION class="RetryCaptureUISite"/>
+        <SITEACTION class="VerifyCustomerIDSite"/>
+
+        <SHUTTLE class="AuthorizationLaunchShuttle" />
+        <SHUTTLE class="AuthorizationReturnShuttle" />
+        <SHUTTLE class="ReversalLaunchShuttle" />
+        <SHUTTLE class="ReversalReturnShuttle" />
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="SignatureCaptureLaunchShuttle" />
+        <SHUTTLE class="SignatureCaptureReturnShuttle" />
+
+        <SIGNAL class="IsCheckLessThanFloorLimitSignal" />
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="EvaluateRequestList">
+
+            <SITE name="EvaluateRequestList" siteaction="EvaluateRequestListSite">
+                <ROAD name="AuthorizationsSucceeded"
+                      letter="Success"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="CallAuthorizer"
+                      letter="Authorize"
+                      destination="Authorization"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="Authorization" siteaction="AuthorizationSite">
+                <AISLE name="AuthorizationDeclined"
+                      letter="Declined"
+                      laneaction="AuthorizationDeclinedAisle">
+                </AISLE>
+                <AISLE name="AuthorizationCanceledByCustomer"
+                      letter="CanceledByCustomer"
+                      laneaction="AuthorizationCanceledByCustomerAisle">
+                </AISLE>
+                <AISLE name="ConfigurationError"
+                      letter="ConfigurationError"
+                      laneaction="ConfigurationErrorAisle">
+                </AISLE>
+                <AISLE name="TimeoutOccurred"
+                      letter="AuthTimeout"
+                      laneaction="TimeoutOccurredAisle">
+                </AISLE>
+                <AISLE name="Error"
+                      letter="Error"
+                      laneaction="AuthorizationErrorAisle">
+                </AISLE>
+                <AISLE name="AuthorizationPartiallyApproved"
+                      letter="PartiallyApproved"
+                      laneaction="AuthorizationPartiallyApprovedAisle">
+                </AISLE>
+                <AISLE name="AuthorizationOffline"
+                      letter="Offline"
+                      laneaction="AuthorizationOfflineAisle">
+                </AISLE>
+                <AISLE name="ApprovedZeroAmount"
+                      letter="ApprovedZeroAmount"
+                      laneaction="ApprovedZeroAmountAisle">
+                </AISLE>
+                <ROAD name="ReferralStation"
+                      letter="Referral"
+                      destination="ReferralStation"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="AuthorizationFloorLimit"
+                      letter="FloorLimit"
+                      destination="AuthorizeFloorLimit"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="AuthorizationApproved"
+                      letter="Approved"
+                      destination="CheckForSignatureCapture"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="VerifyCustomerID"
+                      letter="PositiveID"
+                      destination="VerifyCustomerID"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="RetryAuthorization"
+                      letter="Retry"
+                      destination="Authorization"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                      <LIGHT signal="IsCheckLessThanFloorLimitSignal" negate="Y"/>
+                </ROAD>
+                <ROAD name="AuthorizationFloorLimitForCheckTimeoutRetry"
+                      letter="Retry"
+                      destination="AuthorizeFloorLimit"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                      <LIGHT signal="IsCheckLessThanFloorLimitSignal"/>
+                </ROAD>
+                <ROAD name="AuthorizationFailed"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <STATION name="ReferralStation"
+                     launchshuttle="AuthorizationLaunchShuttle"
+                     returnshuttle="AuthorizationReturnShuttle"
+                     servicename="tender.authorization.referral"
+                     targettier="APPLICATIONTIER">
+                <ROAD 
+                    name="ReferralFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="ReferralSuccess"
+                    letter="Success"
+                    destination="CheckForSignatureCapture"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SITE name="VerifyCustomerID" siteaction="VerifyCustomerIDSite">
+                <ROAD name="IDNotVerified"
+                      letter="No"
+                      destination="ReverseCurrentTender"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="CreditIDConfirmed"
+                      letter="Yes"
+                      destination="CheckForSignatureCapture"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="CheckForSignatureCapture" siteaction="CheckForSignatureCaptureSite">
+                <ROAD name="SkipSignatureCapture"
+                      letter="Skip"
+                      destination="EvaluateRequestList"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SignatureCaptureRequired"
+                      letter="Required"
+                      destination="SignatureCaptureStation"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="RetryCapture" siteaction="RetryCaptureUISite">
+                <ROAD
+                       name="RetryCancelled"
+                       letter="No"
+                       destination="EvaluateRequestList"
+                       tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD  name="RetryRequested"
+                       letter="Yes"
+                       destination="SignatureCaptureStation"
+                       tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="AuthorizeFloorLimit" siteaction="AuthorizeFloorLimitSite">
+                <ROAD name="AuthorizationApproved"
+                      letter="Success"
+                      destination="CheckForSignatureCapture"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="AuthorizationFailed"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <STATION name="SignatureCaptureStation"
+                     launchshuttle="SignatureCaptureLaunchShuttle"
+                     returnshuttle="SignatureCaptureReturnShuttle"
+                     servicename="services.signaturecapture.signaturecapture" targettier="APPLICATIONTIER">
+                <ROAD name="SignatureNotVerified"
+                      letter="No"
+                      destination="ReverseCurrentTender"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SignatureCaptured"
+                      letter="Success"
+                      destination="EvaluateRequestList"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SignatureNotCaptured"
+                      letter="Failure"
+                      destination="RetryCapture"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SignatureVerified"
+                      letter="Yes"
+                      destination="EvaluateRequestList"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+
+            <STATION
+                    name="ReverseCurrentTender"
+                    servicename="tender.reversal.reversal"
+                    targettier="CURRENTTIER"
+                    launchshuttle="ReversalLaunchShuttle"
+                    returnshuttle="ReversalReturnShuttle">
+                <AISLE name="OperatorDeclined"
+                       letter="Success"
+                       laneaction="OperatorDeclinedAisle">
+                </AISLE>
+                <ROAD name="TenderReversedTreatAsDeclinedAuth"
+                      letter="Declined"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+            <SYSTEMSITE name="Final" action="RETURN"/>
+
+        </REGION>
+    </MAP>
+</SERVICE>

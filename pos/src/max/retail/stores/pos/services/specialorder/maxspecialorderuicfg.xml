@@ -1,0 +1,383 @@
+<?xml version="1.0"?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012-2013 MAXHyperMarket, Inc.    All Rights Reserved.
+  Rev 1.0	1/May/2013	  	Tanmaya, Home Delivery Special Order
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="SpecialOrderOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="New"
+            enabled="true"
+            keyName="F2"
+            labelTag="New"/>
+
+        <BUTTON
+            actionName="Modify"
+            enabled="true"
+            keyName="F3"
+            labelTag="Modify"/>
+    </BEAN>
+
+    <BEAN
+        specName="CustomerSpecialOrderSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="CustomerInfoBean">
+    </BEAN>
+
+    <BEAN
+        specName="CustomerSpecialOrderButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+    </BEAN>
+
+    <BEAN
+        specName="SpecialOrderDepositSpec"
+        beanClassName="MAXSpecialOrderDepositBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="max.retail.stores.pos.ui.beans">
+    </BEAN>
+
+    <BEAN
+        specName="SpecialOrderSearchButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Customer"
+            enabled="true"
+            keyName="F2"
+            labelTag="Customer"/>
+
+        <BUTTON
+            actionName="Active"
+            enabled="true"
+            keyName="F3"
+            labelTag="Active"/>
+
+        <BUTTON
+            actionName="Completed"
+            enabled="true"
+            keyName="F4"
+            labelTag="Completed"/>
+
+        <BUTTON
+            actionName="Canceled"
+            enabled="true"
+            keyName="F5"
+            labelTag="Canceled"/>
+    </BEAN>
+
+    <BEAN
+        specName="SpecialOrderListSpec"
+        beanClassName="ListBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.SpecialOrderListRenderer"/>
+
+        <BEANPROPERTY propName="labelTags"
+                      propValue="OrderNumberLabel,CustomerLabel,OrderedLabel,StatusLabel,UpdatedLabel,TotalLabel"/>
+
+        <BEANPROPERTY propName="labelWeights" propValue="29,24,12,12,12,11"/>
+    </BEAN>
+
+    <BEAN
+        specName="SpecialOrderDetailButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Completed"
+            enabled="false"
+            keyName="F2"
+            labelTag="CompleteOrder"/>
+
+        <BUTTON
+            actionName="Canceled"
+            enabled="false"
+            keyName="F3"
+            labelTag="CancelOrder"/>
+
+        <BUTTON
+            actionName="Done"
+            enabled="false"
+            keyName="F4"
+            labelTag="Done"/>
+    </BEAN>
+
+    <BEAN
+        specName="SpecialOrderDetailSpec"
+        beanClassName="ListBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.SpecialOrderDetailListRenderer"/>
+        <BEANPROPERTY propName="labelTags"
+                      propValue="ItemLabel,QuantityLabel,PriceLabel,DiscountLabel,ExtendedPriceLabel"/>
+        <BEANPROPERTY propName="labelWeights"
+                      propValue="24,13,23,19,21"/>
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="orderText"
+        specName="CUSTOMER_SPECIAL_ORDER">
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="CustomerSpecialOrderSpec">
+            <BEANPROPERTY
+                propName="OptionalValidatingFields"
+                propValue="firstNameField,lastNameField,customerNameField,addressLine2Field,extPostalCodeField"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+                propValue="addressLine1Field,cityField,postalCodeField,telephoneField"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="CustomerSpecialOrderScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="CustomerSpecialOrderPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="CustomerSpecialOrderButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CustomerSpecialOrderSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CustomerSpecialOrderSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="CustomerSpecialOrderSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+
+    <POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText"
+        specName="SPECIAL_ORDER_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SpecialOrderOptionsButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        specName="SPECIAL_ORDER_DEPOSIT"
+        resourceBundleFilename="orderText"
+        modelPackage="max.retail.stores.pos.ui.beans"
+        modelClassName="MAXSpecialOrderDepositBeanModel">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SpecialOrderDepositScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SpecialOrderDepositPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SpecialOrderDepositSpec">
+            <BEANPROPERTY propName="RequiredValidatingFields" propValue="DepositAmountField,ExpectedDeliveryDateField,ExpectedDeliveryTimeField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="SpecialOrderDepositSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="SpecialOrderDepositSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="SpecialOrderDepositSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="orderText"
+        specName="SPECIAL_ORDER_SEARCH">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OrderSearchScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="OrderSearchPromptText"/>
+            <BEANPROPERTY
+                propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="14"/>
+            <BEANPROPERTY propName="maxLength" propValue="14"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SpecialOrderSearchButtonSpec">
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText"
+        specName="SELECT_SPECIAL_ORDER"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="ListBeanModel">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SelectOrderScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SelectOrderPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SpecialOrderListSpec"/>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        specName="VIEW_SPECIAL_ORDER"
+        resourceBundleFilename="orderText"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="ListBeanModel">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SpecialOrderDetailButtonSpec"/>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ViewOrderScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ViewOrderPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SpecialOrderDetailSpec"/>
+    </OVERLAYSCREEN>
+
+</UICFG>

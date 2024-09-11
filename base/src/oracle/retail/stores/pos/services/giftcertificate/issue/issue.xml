@@ -1,0 +1,204 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/giftcertificate/issue/issue.xml /main/14 2013/01/04 16:42:28 asinton Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    asinton   01/04/13 - Fixed problem with pricing of a gift certificate
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="GiftCertificateIssue"
+    package="oracle.retail.stores.pos.services.giftcertificate.issue"
+    tourcam="ON">
+    <CARGO  class="SaleCargo" package="oracle.retail.stores.pos.services.sale"/>
+    <SERVICECODE >
+        <LETTER name="Cancel"/>
+        <LETTER name="Next"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Undo"/>
+
+        <LETTER name="First"/>
+        <LETTER name="Second"/>
+        <LETTER name="Third"/>
+        <LETTER name="Fourth"/>
+        <LETTER name="Fifth"/>
+        <LETTER name="Sixth"/>
+        <LETTER name="Seventh"/>
+
+        <SITEACTION class="GetAmountForGiftCertificateIssueSite"/>
+        <SITEACTION class="GetCardNumForGiftCertificateIssueSite"/>
+        <SITEACTION class="GiftCertificateIssueActionSite"/>
+
+        <LANEACTION class="CardNumberEnteredAisle"/>
+        <LANEACTION class="GetGiftCertificateAmountRoad"/>
+
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="GetCardNumForGiftCertificateIssue">
+            <SITE  name="GetCardNumForGiftCertificateIssue" siteaction="GetCardNumForGiftCertificateIssueSite">
+                <COMMENT >
+                    This site displays the GET_CARD_NUM_FOR_GIFT_CARD_RELOAD
+                    from GiftCertificateNumIssue to ask the user to enter gift
+                    card number item.
+                </COMMENT>
+                <AISLE
+                    name="GiftCertificateItemAddedAisle"
+                    letter="Next"
+                    laneaction="CardNumberEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="CardNumberValidRoad"
+                    letter="Continue"
+                    destination="GetAmountForGiftCertificateIssue"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidGiftCertificateNumber"
+                    letter="Ok"
+                    destination="GetCardNumForGiftCertificateIssue"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetAmountForGiftCertificateIssue" siteaction="GetAmountForGiftCertificateIssueSite">
+                <ROAD
+                    name="FirstSelected"
+                    letter="First"
+                    destination="GiftCertificateIssueAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SecondSelected"
+                    letter="Second"
+                    destination="GiftCertificateIssueAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ThirdSelected"
+                    letter="Third"
+                    destination="GiftCertificateIssueAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FourthSelected"
+                    letter="Fourth"
+                    destination="GiftCertificateIssueAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FifthSelected"
+                    letter="Fifth"
+                    destination="GiftCertificateIssueAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SixthSelected"
+                    letter="Sixth"
+                    destination="GiftCertificateIssueAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SeventhSelected"
+                    letter="Seventh"
+                    destination="GiftCertificateIssueAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AmountValidatedRoad"
+                    letter="Next"
+                    destination="GiftCertificateIssueAction"
+                    laneaction="GetGiftCertificateAmountRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="GiftCertificateIssueAction" siteaction="GiftCertificateIssueActionSite">
+                <ROAD
+                    name="GiftCertificateAddedRoad"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InvalidAmountEntered"
+                    letter="Ok"
+                    destination="GetAmountForGiftCertificateIssue"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

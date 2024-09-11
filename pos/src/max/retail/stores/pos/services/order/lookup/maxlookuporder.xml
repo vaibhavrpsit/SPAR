@@ -1,0 +1,140 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012-2013 MAXHyperMarket, Inc.    All Rights Reserved.
+  Rev 1.0	1/May/2013	  	Tanmaya, Home Delivery Special Order
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="OrderLookup" package="oracle.retail.stores.pos.services.order.lookup" tourcam="OFF">
+     <COMMENT>
+          Retrieves order summaries and orders from the database or Conductor.
+     </COMMENT>
+<!-- cargo -->
+<CARGO class="MAXOrderCargo" package="max.retail.stores.pos.services.order.common"/>
+
+<SERVICECODE>
+<!-- sites -->
+     <SITEACTION class="StatusSearchSite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl">
+     </SITEACTION>
+     <SITEACTION class="NarrowSearchSite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl">
+     </SITEACTION>
+      <SITEACTION class="LookupSummarySite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl">
+     </SITEACTION>
+     <SITEACTION class="LookupTooManySite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl">
+     </SITEACTION>
+     <SITEACTION class="DisplayNoMatchSite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl">
+     </SITEACTION>
+<!-- letters -->
+     <LETTER name="Success"/>
+     <LETTER name="TooMany"/>
+     <LETTER name="Next"/>
+     <LETTER name="Status"/>
+     <LETTER name="DateRange"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Ok"/>
+     <LETTER name="DbError"/>
+     <LETTER name="NoMatch"/>
+     <LETTER name="NotFound"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Continue"/>
+<!-- aisles/roads -->
+     <LANEACTION class="NoMatchConversionAisle" package="oracle.retail.stores.pos.services.order.lookup" template="laneaction.tpl"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="NarrowSearchAisle" package="oracle.retail.stores.pos.services.order.lookup" template="laneaction.tpl"/>
+     <LANEACTION class="ValidateDateRangeAisle" package="oracle.retail.stores.pos.services.order.lookup" template="laneaction.tpl"/>
+     <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+<!-- shuttles -->
+     <SHUTTLE class="OrderShuttle" package="oracle.retail.stores.pos.services.order.common"/>
+ </SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="StatusSearch">
+          <SITE name="StatusSearch" siteaction="StatusSearchSite">
+               <COMMENT>
+                    search for order to fill by status
+               </COMMENT>
+               <AISLE name="StatusSearchOkContinue" letter="Ok" laneaction="ContinueConversionAisle">
+               </AISLE>
+               <AISLE name="StatusSearchValidateDateRange" letter="Search" laneaction="ValidateDateRangeAisle">
+               </AISLE>
+               <AISLE name="StatusSearchCancelFailure" letter="Cancel" laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="StatusSearchUndo" letter="Undo" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="StatusSearchFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="StatusSearchSuccess" letter="Success" destination="LookupSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="StatusSearchContinue" letter="Continue" destination="StatusSearch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="LookupSummary" siteaction="LookupSummarySite">
+               <COMMENT>
+                  lookup the orders
+               </COMMENT>
+               <AISLE name="LookupSummaryOkFailure" letter="Ok" laneaction="FailureConversionAisle">
+               </AISLE>
+               <AISLE name="LookupSummaryDBError" letter="DbError" laneaction="DataBaseErrorAisle">
+               </AISLE>
+               <ROAD name="LookupSummaryNoMatch" letter="NotFound" destination="DisplayNoMatch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LookupSummarySuccess" letter="Success" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LookupSummaryFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LookupSummaryTooMany" letter="TooMany" destination="LookupTooMany" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="NarrowSearch" siteaction="NarrowSearchSite">
+               <COMMENT>
+                    date range order search
+               </COMMENT>
+               <AISLE name="NarrowSearchOkContinue" letter="Ok" laneaction="ContinueConversionAisle">
+               </AISLE>
+               <AISLE name="NarrowSearchValidateDateRange" letter="Next" laneaction="ValidateDateRangeAisle">
+               </AISLE>
+               <AISLE name="NarrowSearchCancelFailure" letter="Cancel" laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="NarrowSearchUndo" letter="Undo" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NarrowSearchFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NarrowSearchSuccess" letter="Success" destination="LookupSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NarrowSearchContinue" letter="Continue" destination="NarrowSearch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="LookupTooMany" siteaction="LookupTooManySite">
+               <COMMENT>
+                    displays errortoomanymatches dialog screen
+               </COMMENT>
+               <AISLE name="LookupTooManyOk" letter="Ok" laneaction="NarrowSearchAisle">
+                    <COMMENT>
+                        determines whether to continue with status or date range search
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="LookupTooManyStatus" letter="Status" destination="StatusSearch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LookupTooManyDateRange" letter="DateRange" destination="NarrowSearch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="DisplayNoMatch" siteaction="DisplayNoMatchSite">
+               <COMMENT>
+                  Displays the no match screen mails NoMatch letter to calling service
+               </COMMENT>
+               <AISLE name="DisplayNoMatchOkNoMatch" letter="Ok" laneaction="NoMatchConversionAisle">
+               </AISLE>
+               <ROAD name="DisplayNoMatchStatusSearch" letter="Status" destination="StatusSearch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DisplayNoMatchDateRange" letter="DateRange" destination="NarrowSearch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DisplayNoMatchNoMatch" letter="NoMatch" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+     </REGION>
+</MAP>
+</SERVICE>

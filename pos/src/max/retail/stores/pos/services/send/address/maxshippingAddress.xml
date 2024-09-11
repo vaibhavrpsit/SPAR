@@ -1,0 +1,181 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  
+Copyright (c) 2012 - 2013 MAX, Inc.    All Rights Reserved.
+  
+  Rev 1.1 			Abhishek Goyal		Initial Draft: Changes for CR
+  Rev 1.0	Tanmaya		 19/06/2013		Initial Draft: Bug 6516 - Transaction Send: Pos is getting hang
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="shippingaddress"
+    package="oracle.retail.stores.pos.services.send.address"
+    tourcam="ON">
+    <COMMENT>
+        This services displays the linked customer's address
+        and allows update. Once the customer's send address
+        is confirmed, the service will let the operator to
+        choose one shipping method, and then the shipping
+        charges are calculated.
+    </COMMENT>
+    <CARGO class="SendCargo" package="oracle.retail.stores.pos.services.send.address"/>
+
+    <SERVICECODE>
+    <!-- Sites -->
+        <SITEACTION class="DisplayShippingAddressSite"/>
+        <SITEACTION class="CheckShippingAddressSite"/>
+
+    <!-- Letters -->
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Done"/>
+        <LETTER name="Next"/>
+        <LETTER name="Retry"/>
+
+    <!-- Roads and Aisles -->
+
+    <!-- Shuttle -->
+    <SHUTTLE class="DisplaySendMethodLaunchShuttle"/>
+    <SHUTTLE class="DisplaySendMethodReturnShuttle"/>
+  <!-- Changes done for Rev 1.1 Starts -->
+           <SITEACTION class="MAXDisplayEComOrderDetailsSite" package="max.retail.stores.pos.services.send"/> 
+           <SIGNAL  class="IsMAXTransactionLevelSendInProgressSignal" package="max.retail.stores.pos.services.send"/>
+        <!-- Changes done for Rev 1.1 Ends -->
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="DisplayShippingAddress">
+            <SITE name="DisplayShippingAddress" siteaction="DisplayShippingAddressSite">
+                <ROAD
+                    name="ShippingAddressEntered"
+                    letter="Next"
+                    destination="CheckShippingAddress"
+                    tape="ADVANCE"     record="OFF"   index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoShippingAddress"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"     record="OFF"      index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelShippingAddress"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckShippingAddress" siteaction="CheckShippingAddressSite">
+                <ROAD
+                    name="RetryShippingAddress"
+                    letter="Retry"
+                    destination="DisplayShippingAddress"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <!-- Changes done for Rev 1.1 Starts -->
+<!--                <ROAD-->
+<!--                    name="ShippingAddressEntered"-->
+<!--                    letter="Next"-->
+<!--                    destination="DisplaySendMethodStation"-->
+<!--                    tape="ADVANCE"     record="OFF"   index="ON">-->
+<!--                </ROAD>-->
+
+ 				<ROAD
+                    name="ShippingAddressEntered"
+                    letter="Next"
+                    destination="DisplayEComOrderDetails"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsMAXTransactionLevelSendInProgressSignal" />
+                </ROAD>
+                
+                 <ROAD
+                    name="ShippingAddressEnteredItemLevelSend"
+                    letter="Next"
+                    destination="DisplaySendMethodStation"
+                    tape="ADVANCE"     record="OFF"   index="ON">
+                </ROAD>
+                <!-- Changes done for Rev 1.1 Ends -->
+            </SITE>
+            
+              <!-- Changes done for Rev 1.1 Starts -->
+            <SITE name="DisplayEComOrderDetails" siteaction="MAXDisplayEComOrderDetailsSite">
+               
+                 <ROAD
+                    name="EnteredEComOrderDetailsRoad"
+                    letter="Next"
+                    destination="DisplaySendMethodStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+            </SITE>
+              <!-- Changes done for Rev 1.1 Ends -->
+            <STATION
+                name="DisplaySendMethodStation"
+                servicename="send.displaysendmethod.displaysendmethod"
+                targettier="CURRENTTIER"
+                launchshuttle="DisplaySendMethodLaunchShuttle"
+                returnshuttle="DisplaySendMethodReturnShuttle">
+                <COMMENT>
+                    This station goes to check address station.
+                </COMMENT>
+                <ROAD
+                    name="DoneSelectedRoad"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+				<ROAD
+                    name="SuccessSelectedRoad"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoSelectedRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelSelectedRoad"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

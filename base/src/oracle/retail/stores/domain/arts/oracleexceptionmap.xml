@@ -1,0 +1,125 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/modules/domain/src/oracle/retail/stores/domain/arts/oracleexceptionmap.xml /main/15 2014/07/07 10:43:49 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   06/27/14 - converted 12505 to a DATABASE_CONNECTION_ERROR
+ *    rabhawsa  03/28/13 - Added specific error code and sql state combination
+ *    cgreene   06/15/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *    ranojha   02/10/09 - Forward ported defect if
+ *                         (errorCodeMappings.get(errorCode) != null)
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE JDBCEXCEPTIONMAPPING SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/jdbcexceptionmapping.dtd">
+
+<JDBCEXCEPTIONMAPPING>
+    <COMMENT>
+              Oracle specific exceptions.
+    </COMMENT>
+
+    <!-- Mapped SQLState Codes. -->
+    <ADDMAPPING
+        sqlstate="UNKNOWN"
+        description="Error generated from Oracle: Unknown"
+        crsexception="CONNECTION_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="00107"
+        description="Error generated from Oracle: fails to connect"
+        crsexception="CONNECTION_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="17002"
+        description="Error generated from Oracle: Bad packet type"
+        crsexception="CONNECTION_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="17410"
+        description="Error generated from Oracle: No more data to read from socket"
+        crsexception="CONNECTION_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="19632"
+        description="Error generated from Oracle: Name not found in controlfile"
+        crsexception="SQL_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="02259"
+        description="Error generated from Oracle: Duplicate entry"
+        crsexception="REFERENTIAL_INTEGRITY_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="02261"
+        description="Error generated from Oracle: Duplicate entry"
+        crsexception="REFERENTIAL_INTEGRITY_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="02317"
+        description="The data types of the operands for the operation '=' are not compatible."
+        crsexception="SQL_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="16945"
+        description="Error generated from Oracle: Syntax error at 'string'"
+        crsexception="SQL_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="72000"
+        description="Error generated from Oracle: user requested cancel of current operation"
+        crsexception="UNEXPECTED_ERROR"
+    />
+    
+    <ADDMAPPING
+        sqlstate="72000"
+        errorcode="12899"
+        description="Error generated from Oracle: value too large for column"
+        crsexception="SQL_ERROR"
+    />
+
+    <!-- Mapped SQLError Codes. -->
+    <ADDERRORCODE
+        errorcode="12505"
+        description="Error generated from Oracle: database not found"
+        crsexception="DATABASE_CONNECTION_ERROR"
+    />
+
+    <ADDERRORCODE
+        errorcode="12528"
+        description="Error generated from Oracle: fails to connect"
+        crsexception="CONNECTION_ERROR"
+    />
+
+    <ADDERRORCODE
+        errorcode="17002"
+        description="Error generated from Oracle: fails to connect"
+        crsexception="CONNECTION_ERROR"
+    />
+
+    <ADDERRORCODE
+        errorcode="17008"
+        description="Error generated from Oracle: fails to connect"
+        crsexception="CONNECTION_ERROR"
+    />
+
+    <ADDERRORCODE
+        errorcode="17410"
+        description="Error generated from Oracle: fails to connect"
+        crsexception="CONNECTION_ERROR"
+    />
+
+</JDBCEXCEPTIONMAPPING>
+

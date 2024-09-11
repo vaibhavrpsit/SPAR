@@ -1,0 +1,758 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/employee/employeefind/employeefind.xml /main/21 2012/10/03 14:27:31 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  09/28/12 - Road to add another fingerprint
+ *    icole     07/01/11 - Added road to handle database update error saving
+ *                         temporary password. Bug_ID 163.
+ *    blarsen   02/23/11 - cleaned up flows for enroll and verify fingerprint
+ *    blarsen   02/15/11 - Added support for verifying a fingerprint enrollment
+ *                         and checking fingerprint against other enrolled
+ *                         fingerprints in database.
+ *    hyin      02/16/11 - fix fingerprint hang problem after read failure
+ *    blarsen   05/26/10 - Added support for new fingerprint enrollment as part
+ *                         of the modify employee flows.
+ *    blarsen   06/09/10 - XbranchMerge blarsen_biometrics-poc from
+ *                         st_rgbustores_techissueseatel_generic_branch
+ *    rsnayak   07/19/10 - Employee Edit Fix
+ *    rsnayak   07/19/10 - Employee Edit fix
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   05/14/10 - readd missing sites
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="EmployeeFind"
+    package="oracle.retail.stores.pos.services.employee.employeefind"
+    tourcam="ON">
+    <COMMENT>
+        This service provides the user with the ability to find and
+        optionally modify an employee.
+    </COMMENT>
+    <CARGO class="EmployeeCargo" package="oracle.retail.stores.pos.services.employee.employeemain"/>
+    <SERVICECODE>
+
+        <!-- Letters -->
+        <LETTER name="Cancel" />
+        <LETTER name="UpdateHardTotals" />
+        <LETTER name="Success" />
+        <LETTER name="Undo" />
+        <LETTER name="Ok" />
+        <LETTER name="DbError" />
+        <LETTER name="TooMany" />
+        <LETTER name="Next" />
+        <LETTER name="PossibleMatches" />
+        <LETTER name="SaveChanges" />
+        <LETTER name="Exit" />
+        <LETTER name="DuplicateName" />
+        <LETTER name="No" />
+        <LETTER name="Yes" />
+        <LETTER name="Failure" />
+        <LETTER name="NotFatal" />
+        <LETTER name="NoMatch" />
+        <LETTER name="Continue" />
+        <LETTER name="EmpID" />
+        <LETTER name="EmpName" />
+        <LETTER name="EmpRole" />
+        <LETTER name="StatusChange" />
+        <LETTER name="DuplicateID" />
+        
+        <!-- Site Actions -->
+        <SITEACTION class="WriteHardTotalsSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="CheckDuplicateIDSite" package="oracle.retail.stores.pos.services.employee.employeeadd"/>
+        <SITEACTION class="DisplayPossibleMatchesSite"/>
+        <SITEACTION class="DisplayTemporaryPasswordSite"/>
+        <SITEACTION class="EditSelectedEmployeeSite"/>
+        <SITEACTION class="SaveEmployeeChangesSite"/>
+        <SITEACTION class="EnteredDuplicateNameSite"/>
+        <SITEACTION class="SelectFindOptionSite"/>
+        <SITEACTION class="LookupEmployeeIDSite"/>
+        <SITEACTION class="LookupEmployeeNameSite"/>
+        <SITEACTION class="LookupEmployeeRoleSite"/>
+        <SITEACTION class="EmployeeFindNameInformationSite"/>
+        <SITEACTION class="EmployeeFindIDInformationSite"/>
+        <SITEACTION class="EmployeeFindRoleInformationSite"/>
+        <SITEACTION class="ShowStatusChangeDialogSite"/>
+        <SITEACTION class="ShowResetPasswordDialogSite"/>
+        <SITEACTION class="FingerprintEnrollSite"/>
+        <SITEACTION class="FingerprintVerifySite"/>
+		
+
+        <!-- Lane Actions -->
+        <LANEACTION class="WriteHardTotalsErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="TooManyMatchesFoundAisle"/>
+        <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="NameInformationEnteredAisle"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="DefaultRoad" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ProcessOkAisle" template="laneaction.tpl" />
+        <LANEACTION class="DisplayPossibleMatchesAcceptAisle"/>
+        <LANEACTION class="EditCheckAisle" template="laneaction.tpl" />
+        <LANEACTION class="FingerprintEnrollAisle" template="laneaction.tpl" />
+        <LANEACTION class="FingerprintVerifyAisle" template="laneaction.tpl" />
+        <LANEACTION class="IDInformationEnteredAisle"/>
+        <LANEACTION class="RoleInformationEnteredAisle"/>
+        <LANEACTION class="LookupEmployeeMatchNotFoundAisle"/>
+        <LANEACTION class="TerminateServiceAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="DuplicateIDFoundAisle" package="oracle.retail.stores.pos.services.employee.employeeadd"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="SelectFindOption">
+            <SITE name="SelectFindOption"
+                siteaction="SelectFindOptionSite">
+                <COMMENT>
+                    The SelectFindOption site is the start site for the
+                    EmployeeFind service. This site allows the user to
+                    select what type of find, name or ID, she wishes to
+                    use.
+                </COMMENT>
+                <AISLE name="SelectFindOptionUndo"
+                    letter="Undo"
+                    laneaction="TerminateServiceAisle">
+                </AISLE>
+                <ROAD name="SelectFindOptionCancel"
+                    letter="Cancel"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="NameSelected"
+                    letter="EmpName"
+                    laneaction="DefaultRoad" destination="EmployeeFindNameInformation"
+                    tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+                <ROAD name="IDSelected"
+                    letter="EmpID"
+                    laneaction="DefaultRoad" destination="EmployeeFindIDInformation"
+                    tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+                <ROAD name="RoleSelected"
+                    letter="EmpRole"
+                    laneaction="DefaultRoad" destination="EmployeeFindRoleInformation"
+                    tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+                <ROAD name="SelectFindTerminate"
+                    letter="Continue"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="LookupEmployeeID"
+                siteaction="LookupEmployeeIDSite">
+                <COMMENT>
+                    The LookupEmployee site looks up the employee based
+                    on the information returned by the UI from the
+                    FindEmployeeID site. The database lookup done on the
+                    employee ID. If there was no match for the id, an
+                    appropriate error message is displayed, and the user
+                    is returned to the FindEmployeeInformation site to
+                    modify the search information. If there was a
+                    database error, that message is displayed.
+                </COMMENT>
+                <MOCKUP image="" />
+                <AISLE name="LookupEmployeeIDDatabaseError"
+                    letter="DbError" laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE name="LookupEmployeeIDProcessOk"
+                    letter="Ok"
+                    laneaction="ProcessOkAisle">
+                </AISLE>
+                <AISLE name="LookupEmployeeIDMatchNotFound"
+                    letter="NoMatch" laneaction="LookupEmployeeMatchNotFoundAisle">
+                </AISLE>
+                <ROAD name="MatchFound"
+                    letter="Continue"
+                    destination="EditSelectedEmployee" tape="ADVANCE" record="ON"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="LookupEmployeeIDFatalError"
+                    letter="Failure"
+                    destination="LastIndexed" tape="REWIND" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="LookupEmployeeIDNonFatalError"
+                    letter="NotFatal" destination="LastIndexed" tape="REWIND"
+                    record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="EmployeeFindIDInformation"
+                siteaction="EmployeeFindIDInformationSite">
+                <COMMENT>
+                    This site is used to enter employee ID information
+                    which will be used to find the employee.
+                </COMMENT>
+                <AISLE name="IDInformationEntered"
+                    letter="Next"
+                    laneaction="IDInformationEnteredAisle">
+                </AISLE>
+                <ROAD name="EmployeeFindIDInformationUndo"
+                    letter="Undo"
+                    destination="LastIndexed" tape="REWIND" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="EmployeeFindIDInformationCancel"
+                    letter="Cancel"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="IDInformationEnteredContinue"
+                    laneaction="DefaultRoad"
+                    letter="Continue"
+                    destination="LookupEmployeeID" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="EmployeeFindNameInformation"
+                siteaction="EmployeeFindNameInformationSite">
+                <COMMENT>
+                    This site is used to enter employee name information
+                    which will be used to find the employee.
+                </COMMENT>
+                <AISLE name="NameInformationEntered"
+                    letter="Next"
+                    laneaction="NameInformationEnteredAisle">
+                </AISLE>
+                <ROAD name="EmployeeFindNameInformationUndo"
+                    letter="Undo" destination="LastIndexed" tape="REWIND" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="NameInformationEnteredContinue"
+                    laneaction="DefaultRoad"
+                    letter="Continue"
+                    destination="LookupEmployeeName" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD name="EmployeeFindNameInformationCancel"
+                    letter="Cancel"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="EmployeeFindRoleInformation"
+                siteaction="EmployeeFindRoleInformationSite">
+                <COMMENT>
+                    This site is used to enter employee role information
+                    which will be used to find the employee.
+                </COMMENT>
+                <AISLE name="RoleInformationEntered"
+                    letter="Next"
+                    laneaction="RoleInformationEnteredAisle">
+                </AISLE>
+                <ROAD name="EmployeeFindRoleInformationUndo"
+                    letter="Undo" destination="LastIndexed" tape="REWIND" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="RoleInformationEnteredContinue"
+                    laneaction="DefaultRoad"
+                    letter="Continue"
+                    destination="LookupEmployeeRole" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD name="EmployeeFindRoleInformationCancel"
+                    letter="Cancel"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                </ROAD>
+                <AISLE name="EmployeeFindRoleInformationDatabaseError"
+                    letter="DbError" laneaction="DataBaseErrorAisle">
+                </AISLE>
+            </SITE>
+            <SITE name="LookupEmployeeName"
+                siteaction="LookupEmployeeNameSite">
+                <COMMENT>
+                    The LookupNameEmployee site looks up the employee
+                    based on the information returned by the UI from the
+                    FindEmployeeName site. The database lookup done on
+                    the Employee name. If one or more matches is found,
+                    but fewer than the Maximum number parameter, the
+                    system will send a PossibleMatches letter. If too
+                    many matches were found, or there was no match for
+                    the id or name (depending on which was searched) or
+                    there were no matches, an appropriate error message
+                    is displayed, and the user is returned to the
+                    FindEmployeeNameInformation site to modify the
+                    search information.
+                </COMMENT>
+                <AISLE name="LookupEmployeeNameDatabaseError"
+                    letter="DbError" laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE name="LookupEmployeeNameProcessOk"
+                    letter="Ok"
+                    laneaction="ProcessOkAisle">
+                </AISLE>
+                <AISLE name="LookupEmployeeNameMatchNotFound"
+                    letter="NoMatch" laneaction="LookupEmployeeMatchNotFoundAisle">
+                </AISLE>
+                <AISLE name="TooManyMatchesFound"
+                    letter="TooMany"
+                    laneaction="TooManyMatchesFoundAisle">
+                </AISLE>
+                <ROAD name="SingleMatchFound"
+                    letter="Continue"
+                    laneaction="DefaultRoad" destination="EditSelectedEmployee"
+                    tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="TooManyMatchesFoundPressOk"
+                    letter="Undo"
+                    destination="LastIndexed" tape="REWIND" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="PossibleMatchesFound"
+                    letter="PossibleMatches"
+                    destination="DisplayPossibleMatches" tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="LookupEmployeeNameFatalError"
+                    letter="Failure"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="LookupEmployeeNameNotFatalError"
+                    letter="NotFatal" destination="EmployeeFindNameInformation"
+                    tape="REWIND" record="ON" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="LookupEmployeeRole"
+                siteaction="LookupEmployeeRoleSite">
+                <COMMENT>
+                    The LookupEmployeeRole site looks up the employee
+                    based on the information returned by the UI from the
+                    FindEmployeeID site. The database lookup done on the
+                    employee ID. If there was no match for the id, an
+                    appropriate error message is displayed, and the user
+                    is returned to the FindEmployeeInformation site to
+                    modify the search information. If there was a
+                    database error, that message is displayed.
+                </COMMENT>
+                <MOCKUP image="" />
+                <AISLE name="LookupEmployeeRoleDatabaseError"
+                    letter="DbError" laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE name="LookupEmployeeRoleProcessOk"
+                    letter="Ok"
+                    laneaction="ProcessOkAisle">
+                </AISLE>
+                <AISLE name="LookupEmployeeRoleMatchNotFound"
+                    letter="NoMatch" laneaction="LookupEmployeeMatchNotFoundAisle">
+                </AISLE>
+                <AISLE name="TooManyMatchesFound"
+                    letter="TooMany"
+                    laneaction="TooManyMatchesFoundAisle">
+                </AISLE>
+                <ROAD name="SingleMatchFound"
+                    letter="Continue"
+                    laneaction="DefaultRoad" destination="EditSelectedEmployee"
+                    tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="TooManyMatchesFoundPressOk"
+                    letter="Undo"
+                    destination="LastIndexed" tape="REWIND" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="PossibleMatchesFound"
+                    letter="PossibleMatches" destination="DisplayPossibleMatches"
+                    tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="LookupEmployeeRoleFatalError"
+                    letter="Failure" destination="LastIndexed" tape="REWIND"
+                    record="OFF" index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="LookupEmployeeRoleNonFatalError"
+                    letter="NotFatal" destination="LastIndexed" tape="REWIND"
+                    record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayPossibleMatches"
+                siteaction="DisplayPossibleMatchesSite">
+                <COMMENT>
+                    The DisplayPossibleMatches site displays one or more
+                    matches to allow the user to select or confirm the
+                    employee.
+                </COMMENT>
+                <AISLE name="DisplayPossibleMatchesAccept"
+                    letter="Next"
+                    laneaction="DisplayPossibleMatchesAcceptAisle">
+                </AISLE>
+                <AISLE name="TooManyMatchesFound"
+                    letter="TooMany"
+                    laneaction="TooManyMatchesFoundAisle">
+                </AISLE>
+                <ROAD name="MatchesDisplayedUndo"
+                    letter="Undo"
+                    destination="LastIndexed" tape="REWIND" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DisplayPossibleMatchesCancel"
+                    letter="Cancel"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DisplayPossibleMatchesContinue"
+                    letter="Continue"
+                    destination="EditSelectedEmployee" tape="ADVANCE"
+                    record="ON" index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayTemporaryPassword"
+                siteaction="DisplayTemporaryPasswordSite">
+                <COMMENT>
+                    The DisplayTemporaryPassword site displays the temporary 
+                    password that was reset for an employee.
+                </COMMENT>
+                <ROAD name="DisplayTemporaryPasswordUpdateFailed"
+                    letter="Ok"
+                    destination="LastIndexed" tape="REWIND" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DisplayTemporaryPasswordContinue"
+                    letter="Continue"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            
+        
+            
+             <SITE name="CheckDuplicateID"
+                siteaction="CheckDuplicateIDSite">
+                <COMMENT>
+                    The CheckDuplicateID site checks to see if the
+                    Employee Login Id entered duplicates one already in
+                    the system. If so, the user will be informed and
+                    returned to EmployeeMaster. Otherwise the flow
+                    continues to EmployeeAddLookup.
+                </COMMENT>
+                <MOCKUP image="" />
+                <AISLE name="CheckDuplicateIDProcessOk"
+                    letter="Ok"
+                    laneaction="ProcessOkAisle">
+                    <COMMENT>
+                        The CheckDuplicateIDProcessOk aisle is traversed
+                        when an Ok letter is received. The letter is
+                        checked to see if it is a fatal or non-fatal
+                        error and the appropriate letter is mailed.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="CheckDuplicateIDDBErrorAisle"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        The CheckDuplicateIDDBErrorAisle is traversed
+                        when a database error is encountered.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DuplicateIDFound"
+                    letter="DuplicateID"
+                    laneaction="DuplicateIDFoundAisle">
+                    <COMMENT>
+                        The DuplicateIDFound aisle is traversed when a
+                        duplicate ID is found.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="CheckDuplicateFatalError"
+                    letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        The CheckDuplicateFatalError road is traversed
+                        when a fatal error has been detected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CheckDuplicateIDNonFatalRoad"
+                    letter="NotFatal" 
+                    destination="EditSelectedEmployee" tape="ADVANCE"
+                    record="OFF" index="OFF">
+                    <COMMENT>
+                        The CheckDuplicateIDNonFatalRoad is traversed
+                        when a non-fatal error was encountered.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CheckName"
+                    letter="Save"
+                    destination="SaveEmployeeChanges" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            
+            
+          <SITE name="EditSelectedEmployee"
+                siteaction="EditSelectedEmployeeSite">
+                <COMMENT>
+                    The EditSelectedEmployee site displays the Employee
+                    Master screen where the use can edit or view the
+                    selected employee.
+                </COMMENT>
+                
+                <AISLE name="EditCheck"
+                    letter="Next"
+                    laneaction="EditCheckAisle">
+                    <COMMENT>
+                        The EditCheckAisle is traversed when an Accept
+                        letter is received. This aisle checks to see if
+                        the accepted employee was edited. If so it mails
+                        a Continue letter so the name can be checked. If
+                        not it mails an Exit letter since the service is
+                        finished.
+                    </COMMENT> 
+                </AISLE>
+                
+                <ROAD name="CheckName"
+                    letter="Continue"
+                    destination="CheckDuplicateID" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+     	        
+               <AISLE name="GetEmployeeNameDatabaseError"
+                    letter="DbError" laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE name="GetEmployeeNameProcessOk"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD name="ConfirmStatus"
+                    letter="StatusChange"
+                    destination="ShowStatusChangeDialog" tape="ADVANCE" record="ON"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="ConfirmResetPassword"
+                    letter="ResetPassword"
+                    destination="ShowResetPasswordDialog" tape="ADVANCE" record="ON"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="SetFingerprint"
+                    letter="SetFingerprint"
+                    destination="SetFingerprintDialog" tape="ADVANCE" record="ON"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="EditSelectedDuplicate"
+                    letter="DuplicateName" destination="EnteredDuplicateName"
+                    tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        The EditSelectedDuplicate road is traversed when
+                        name is identical after editing.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="GetEmployeeNameFatalError"
+                    letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        The GetEmployeeNameFatalError road is traversed
+                        when a Failure letter is received indicating the
+                        service cannot continue.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CheckName"
+                    letter="Continue"
+                    destination="SaveEmployeeChanges" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD name="EditSelectedEmployeeUndo"
+                    letter="Undo"
+                    destination="LastIndexed" tape="REWIND" record="OFF" index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="EditSelectedEmployeeCancel"
+                    letter="Cancel"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="EditSelectedExit"
+                    letter="Exit"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            
+          
+            <SITE name="SaveEmployeeChanges"
+                siteaction="SaveEmployeeChangesSite">
+                <COMMENT>
+                    The SaveEmployeeChanges site saves to the database
+                    any changes made by the user.
+                </COMMENT>
+                <AISLE name="SaveDatabaseError"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE name="SaveEmployeeOktoFailure"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE name="SaveEmployeeChangesFinished"
+                    letter="Exit"
+                    laneaction="TerminateServiceAisle">
+                </AISLE>
+                <ROAD name="SaveChangesFailed"
+                    letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SaveEmployeeChangesContinue"
+                    letter="Continue"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SaveEmployeeChangesWriteHardTotals"
+                    letter="UpdateHardTotals" destination="WriteHardTotals"
+                    tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="WriteHardTotals"
+                siteaction="WriteHardTotalsSite">
+                <AISLE name="WriteHardTotalsError"
+                    letter="Failure"
+                    laneaction="WriteHardTotalsErrorAisle">
+                </AISLE>
+                <AISLE name="WriteHardTotalsErrorOk"
+                    letter="Ok"
+                    laneaction="ContinueConversionAisle">
+                </AISLE>
+                <AISLE name="WriteHardTotalsSucceeded"
+                    letter="Success"
+                    laneaction="ContinueConversionAisle">
+                </AISLE>
+                <ROAD name="WriteHardTotalsContinue"
+                    letter="Continue"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="EnteredDuplicateName"
+                siteaction="EnteredDuplicateNameSite">
+                <COMMENT>
+                    The EnteredDuplicateName site presents a
+                    confirmation dialog to allow the user to continue or
+                    not with a duplicate name.
+                </COMMENT>
+                <ROAD name="DuplicateNameNotWanted"
+                    letter="No"
+                    destination="EditSelectedEmployee" tape="SPLICE" record="OFF"
+                    index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="DuplicateNameContinue"
+                    letter="Yes"
+                    destination="SaveEmployeeChanges" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="ShowStatusChangeDialog"
+                siteaction="ShowStatusChangeDialogSite">
+                <COMMENT>
+                    The ShowStatusChangedDialog site presents a
+                    confirmation dialog to allow the user to continue or
+                    not with a status change.
+                </COMMENT>
+                <ROAD name="StatusChangeNo"
+                    letter="No"
+                    destination="EditSelectedEmployee" tape="SPLICE" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="StatusChangeYes"
+                    letter="Yes"
+                    destination="SaveEmployeeChanges" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="ShowResetPasswordDialog"
+                siteaction="ShowResetPasswordDialogSite">
+                <COMMENT>
+                    The ShowStatusPasswordDialog site presents a
+                    confirmation dialog to allow the user to continue or
+                    not with resetting an employee's password.
+                </COMMENT>
+                <ROAD name="ResetPassword"
+                    letter="Yes"
+                    destination="DisplayTemporaryPassword" 
+                    tape="ADVANCE" record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="DonotResetPassword"
+                    letter="No"
+                    destination="EditSelectedEmployee" tape="SPLICE" record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+
+
+            <SITE name="SetFingerprintDialog"
+                siteaction="FingerprintEnrollSite">
+                <COMMENT>
+                    The SetFingerprintDialog prompts the user to submit 4 fingerprint reads
+                    to associate the fingerprint biometrics with the employee being edited
+                </COMMENT>
+                <ROAD name="SetFingerprint"
+                    letter="Yes"
+                    destination="SetFingerprintDialog" 
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DoNotTryFingerprintEnrollAgain"
+                    letter="No"
+                    destination="EditSelectedEmployee"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <AISLE name="FingerprintEnroll"
+                    letter="Next"
+                    laneaction="FingerprintEnrollAisle">
+                    <COMMENT>
+                        Fingerprint enroll data is available, save it to the employee
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="SetFingerprintUndo"
+                    letter="Undo"
+                    destination="EditSelectedEmployee"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FingerprintEnrollDataRetrieved"
+                    letter="Continue"
+                    destination="VerifyFingerprintDialog"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="VerifyFingerprintDialog"
+                siteaction="FingerprintVerifySite">
+                <COMMENT>
+                    The VerifyFingerprintDialog prompts the user to verify a fingerprint against
+                    to associate the fingerprint biometrics with the employee being edited
+                </COMMENT>
+                <ROAD name="AddAnotherFingerprint"
+                    letter="Add"
+                    destination="SetFingerprintDialog" 
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="TryFingerprintVerifyAgain"
+                    letter="Yes"
+                    destination="VerifyFingerprintDialog" 
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DoNotTryFingerprintVerifyAgain"
+                    letter="No"
+                    destination="EditSelectedEmployee"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <AISLE name="FingerprintVerify"
+                    letter="Next"
+                    laneaction="FingerprintVerifyAisle">
+                    <COMMENT>
+                        Fingerprint verify data is available, check against database and 
+                        verify it works with the enrollment data from previous step 
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="VerifyFingerprintUndo"
+                    letter="Undo"
+                    destination="SetFingerprintDialog"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FingerprintVerifyComplete"
+                    letter="Continue"
+                    destination="EditSelectedEmployee"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DoNotTryFingerprintVerifyAgain"
+                    letter="No"
+                    destination="EditSelectedEmployee" 
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+            <SYSTEMSITE name="Final" action="RETURN" />
+
+        </REGION>
+    </MAP>
+</SERVICE>

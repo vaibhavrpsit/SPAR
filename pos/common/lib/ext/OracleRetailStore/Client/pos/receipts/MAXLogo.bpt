@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/********************************************************************************
+*   
+*  Copyright (c) 2016 MAX Hyper Market Inc.    All Rights Reserved.
+*	Rev	1.1 	25May,2017  Kritica Agarwal		GST Changes
+*	Rev	1.0 	15dec,2016	Hitesh.Dua			Receipt Changes FES
+*
+********************************************************************************/
+-->
+<blueprint id="Logo" copies="1">
+    <report name="LogoReport" id="1" cutPaper="true">
+        <group id="1">
+            <line id="2804823" >
+                <imageElement fileName="ReceiptLogo.bmp" idePath="/pos/deploy/client/bin/ReceiptLogo.bmp" id="27819165" />
+            </line>
+            <line id="17876505">
+                <element text="MAX HYPERMARKET INDIA PVT LTD" id="1070095" justified="left"/>
+            </line>
+            <line id="30238442">
+			<element text="--------------------------------------------------------------" id="26064747" justified="left"/>
+                <!--element text="" id="26064747" fillChar="-" justified="left" stretch="true" fixedWidth="4"/-->
+				</line>
+			<line id="2080726">
+                <element text="NO. 39/4, 44 Banneraghtta Road Bengaluru - 560029" id="4523363" justified="left" />
+            </line>
+			<!--line id="401932414">
+                <element text="Banneraghtta Road" id="1399439048" justified="center" stretch="true" />
+            </line-->
+            <!--line id="1668121369">
+                <element text="Bengaluru - 560029" id="4523363" justified="center" stretch="true" />
+            </line-->
+            <line id="7052420">           
+	    <!--Change for Rev 1.1 : starts -->
+                <methodElement printedWhenLengthZero="false" valuePrintedWhenFalse="TIN    298804622412" valuePrintedWhenTrue="GSTIN/TIN: 29AAECM0847J1Z8/298804622412" id="23321144" justified="center">
+                    <method returns="boolean" name="isGSTEnabled" class="max.retail.stores.pos.receipt.MAXReceiptParameterBeanIfc" />
+                </methodElement> 
+				<!--<element text="TIN    298804622412" id="23321144" justified="center" stretch="true" />-->
+            <!--Change for Rev 1.1 : starts -->
+                
+            </line>
+			 <!--line id="54290678672">
+                <element text="TIN    298804622412" id="23321144" justified="center" stretch="true" />
+            </line-->
+			<!-- line id="542905872">
+                <element text="Helpline - 08095285566" id="4523363" justified="center" stretch="true" />
+            </line-->
+			<line id="542905872">
+                <element text="Helpline/Email - 9590296141/customer@sparindia.com" id="4523363" justified="center" />
+            </line>
+			<line id="542905872">
+                <element text="Store Timing - 9 AM To 10 PM" id="4523363" justified="center" />
+            </line>
+			 
+            <line id="16865315">
+			<element text="--------------------------------------------------------------" id="23518907" justified="left"/>
+            </line>
+        </group>
+    </report>
+</blueprint>
+

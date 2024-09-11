@@ -1,0 +1,309 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/returns/returnfindorder/returnfindorder.xml /main/3 2013/05/01 10:33:34 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     04/29/13 - When transaction lookup for returns (by trans id,
+ *                         customer number, etc.) fails to find a match, the
+ *                         application gives the user the options to return by
+ *                         item. The modification supports the same behavior
+ *                         for lookup by Order.
+ *    sgu       03/13/13 - add support to display order summary list in order
+ *                         based return
+ *    sgu       03/07/13 - handle multiple return orders
+ *    jswan     10/25/12 - Added to support returns by order.
+ * ===========================================================================
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="returnfindorder"
+    package="oracle.retail.stores.pos.services.returns.returnfindorder"
+    tourcam="ON">
+    <COMMENT >
+        This services routes the user to the various services
+        available through the Return Options screen.
+    </COMMENT>
+    <CARGO  
+        class="ReturnFindTransCargo"
+        package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+    <SERVICECODE>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="UndoCustomerRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION class="GetSelectedOrderRoad"/>
+        
+        <LETTER name="Cancel"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="ReturnItem"/>
+        <LETTER name="Retry"/>
+
+        <SHUTTLE class="ReturnTransactionLaunchShuttle"/>
+        <SHUTTLE class="ReturnTransactionReturnShuttle"/>
+        <SHUTTLE class="OrderSearchLaunchShuttle"/>
+        <SHUTTLE class="OrderSearchReturnShuttle"/>
+        <SHUTTLE class="CBRLaunchShuttle" package="oracle.retail.stores.pos.services.returns.returnfindtrans.crossborderreturn"/>
+        <SHUTTLE class="CBRReturnShuttle" package="oracle.retail.stores.pos.services.returns.returnfindtrans.crossborderreturn"/>
+
+        <SITEACTION class="CheckForReturnableItemSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION class="CBRCheckSite" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <SITEACTION class="SelectOrderSite"/>
+        <SITEACTION class="LookupReturnOrderSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+      
+        <!-- Signals -->
+        <SIGNAL class="IsReturnTransactionFoundSignal"
+            package="oracle.retail.stores.pos.services.returns.returncommon" />
+            
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="OrderSearchStation">
+            <STATION
+                name="OrderSearchStation"
+                servicename="order.search.searchorder"
+                targettier="CURRENTTIER"
+                launchshuttle="OrderSearchLaunchShuttle"
+                returnshuttle="OrderSearchReturnShuttle">
+                <ROAD
+                    name="SuccessOrderSearch"
+                    letter="Success"
+                    destination="SelectOrder"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <LIGHT signal="IsReturnTransactionFoundSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="SuccessOrderSearch"
+                    letter="Success"
+                    destination="CheckForReturnableItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <LIGHT signal="IsReturnTransactionFoundSignal"/>
+                </ROAD>
+                <ROAD
+                    name="FailureOrderSearch"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelOrderSearch"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoOrderSearch"
+                    letter="Undo"
+                    destination="Final"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="ReturnItemOrderSearch"
+                    letter="ReturnItem"
+                    destination="Final"
+                    tape="ADVANCE" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            
+            <SITE  name="SelectOrder" siteaction="SelectOrderSite">
+                <ROAD
+                    name="AcceptSelectOrder"
+                    letter="Next"
+                    laneaction="GetSelectedOrderRoad"
+                    destination="LookupReturnOrder"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelectOrder"
+                    letter="Undo"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelectOrder"
+                    letter="Cancel"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="LookupReturnOrder" siteaction="LookupReturnOrderSite">
+                <AISLE 
+                    name="LookupOrderOkFailure" 
+                    letter="Ok" 
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE 
+                    name="LookupOrderDBError" 
+                    letter="DbError" 
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <ROAD 
+                    name="LookupOrderFailure" 
+                    letter="Failure" 
+                    destination="Final" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LookupOrderSuccess" 
+                    letter="Success" 
+                    destination="CheckForReturnableItem" 
+                    record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="CheckForReturnableItem" siteaction="CheckForReturnableItemSite">
+                <AISLE
+                    name="OkNoReturnableItemsError"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE
+                    name="Failure2Conversion"
+                    letter="Failure2"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="SuccessCheckForReturnableItem"
+                    letter="Success"
+                    destination="CBRCheck"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureCheckForReturnableItem"
+                    letter="Failure"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="CBRCheck" siteaction="CBRCheckSite">
+                 <ROAD
+                    name="CBRSuccess"
+                    letter="crossborderreturn"
+                    destination="CrossBorderReturnStation"  
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CBRFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotCBRReturn"
+                    letter="NotCBRReturn"
+                    destination="ReturnTransactionStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+            </SITE>
+            
+            <STATION
+                name="CrossBorderReturnStation"
+                servicename="returns.returnsfindtrans.crossborderreturn"
+                targettier="CURRENTTIER"
+                launchshuttle="CBRLaunchShuttle"
+                returnshuttle="CBRReturnShuttle">
+
+                <ROAD
+                    name="ReturnSuccess"
+                    letter="Success"
+                    destination="ReturnTransactionStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+            </STATION>
+
+            <STATION
+                name="ReturnTransactionStation"
+                servicename="returns.returntransaction.returntransaction"
+                targettier="CURRENTTIER"
+                launchshuttle="ReturnTransactionLaunchShuttle"
+                returnshuttle="ReturnTransactionReturnShuttle">
+
+                <ROAD
+                    name="UndoTransactionStationOne"
+                    letter="Undo"
+                    laneaction="UndoCustomerRoad"
+                    destination="OrderSearchStation"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="SuccessReturnTransaction"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="FailureReturnTransaction"
+                    letter="Failure"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="CancelReturnTransaction"
+                    letter="Cancel"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+            </STATION>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

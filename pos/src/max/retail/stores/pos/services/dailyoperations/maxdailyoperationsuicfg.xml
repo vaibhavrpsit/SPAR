@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+	<BEAN specName="DailyOpsButtonSpec" configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="oracle.retail.stores.pos.ui.beans"
+		beanClassName="NavigationButtonBean">
+
+		<!-- Changes starts for rev 1.0 -->
+		<!-- enabled="true" -->
+		<BUTTON actionName="StartOfDay" enabled="false" keyName="F2"
+			iconName="buttonIconStartOfDay" labelTag="StartOfDay" />
+		<!-- Changes ends for rev 1.0 -->
+		<!-- Changes starts for rev 1.0 -->
+		<BUTTON actionName="RegisterOpen" enabled="false" keyName="F3"
+			iconName="buttonIconRegisterOpen" labelTag="RegisterOpen"/>
+		<!-- Changes ends for rev 1.0 -->
+		<BUTTON actionName="TillOptions" enabled="true" keyName="F4"
+			iconName="buttonIconTillOptions" labelTag="TillOptions" />
+		<!-- Changes starts for rev 1.0 -->
+		<BUTTON actionName="RegisterClose" enabled="false" keyName="F5"
+			iconName="buttonIconRegisterClose" labelTag="RegisterClose" />
+		<!-- Changes ends for rev 1.0 -->
+		<!-- Changes starts for rev 1.0 -->
+		<BUTTON actionName="EndOfDay" enabled="false" keyName="F6"
+			iconName="buttonIconEndOfDay" labelTag="EndOfDay" />
+		<!-- Changes ends for rev 1.0 -->
+	</BEAN>
+
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		resourceBundleFilename="dailyoperationsText" specName="DAILY_OPS_OPTIONS">
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+
+			<BEANPROPERTY propName="screenNameTag" propValue="DailyOpsOptionsScreenName" />
+
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+
+			<BEANPROPERTY propName="promptTextTag" propValue="ChooseOptionPrompt" />
+			<BEANPROPERTY propName="enterData" propValue="false" />
+			<BEANPROPERTY propName="responseField" propValue="javax.swing.JTextField" />
+
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="LocalNavigationPanel" beanSpecName="DailyOpsButtonSpec" />
+
+	</OVERLAYSCREEN>
+
+	<BEAN specName="FinancialTotalsSummarySpec" configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="oracle.retail.stores.pos.ui.beans"
+		beanClassName="ListBean">
+
+		<BEANPROPERTY propName="focused" propValue="true" />
+
+		<BEANPROPERTY propName="renderer"
+			propValue="oracle.retail.stores.pos.ui.beans.FinancialTotalsSummaryRenderer" />
+
+		<BEANPROPERTY propName="labelTags"
+			propValue="TypeLabel,EnteredLabel,ExpectedLabel" />
+
+		<BEANPROPERTY propName="labelWeights" propValue="50,25,25" />
+		<BEANPROPERTY propName="selectionMode" propValue="none" />
+	</BEAN>
+
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		resourceBundleFilename="dailyoperationsText" specName="STORE_FINANCIAL_TOTALS_SUMMARY">
+
+		<ASSIGNMENT areaName="WorkPanel" beanSpecName="FinancialTotalsSummarySpec" />
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+
+			<BEANPROPERTY propName="screenNameTag"
+				propValue="StoreFinancialTotalsSummaryScreenName" />
+
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+
+			<BEANPROPERTY propName="promptTextTag"
+				propValue="StoreFinancialTotalsSummaryPrompt" />
+
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true],Keys[true]" />
+		</ASSIGNMENT>
+
+	</OVERLAYSCREEN>
+
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		resourceBundleFilename="dailyoperationsText" specName="REPORT_PRINTING">
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[false],Cancel[false],Undo[false],Clear[false],Next[false],Keys[true]" />
+
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag"
+				propValue="DailyOpsSuccessfulCloseScreenName" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+
+			<BEANPROPERTY propName="promptTextTag" propValue="DailyOpsReportPrintingPrompt" />
+			<BEANPROPERTY propName="enterData" propValue="false" />
+			<BEANPROPERTY propName="responseField" propValue="javax.swing.JTextField" />
+
+		</ASSIGNMENT>
+
+	</OVERLAYSCREEN>
+</UICFG>
+
+

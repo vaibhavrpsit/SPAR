@@ -1,0 +1,136 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Rev 1.0  11/Jun/2013               Tanmaya            Bug 6093 - Incorrect marking of the not send status.
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="TransactionLevelSend"
+    package="oracle.retail.stores.pos.services.send.transactionlevel"
+    tourcam="OFF">
+    <CARGO class="MAXModifyTransactionCargo" package="max.retail.stores.pos.services.modifytransaction"/>
+    <SERVICECODE>
+
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Done"/>
+        <LETTER name="Success"/>
+        <LETTER name="ItemsInTransaction"/>
+        <LETTER name="Ok"/>
+		<LANEACTION class="MAXClearSendLabelRoad" package="max.retail.stores.pos.services.send.transactionlevel"/>
+        <SHUTTLE class="ModifyValidItemSendLaunchShuttle"/>
+        <SHUTTLE class="ModifyValidItemSendReturnShuttle"/>
+        
+        <SITEACTION class="MAXFilterTransactionLevelSendSelectionSite" package="max.retail.stores.pos.services.send.transactionlevel"/>
+        <SHUTTLE  class="ShippingAddressLaunchShuttle" package="oracle.retail.stores.pos.services.send"/>
+        <SHUTTLE  class="ShippingAddressReturnShuttle" package="oracle.retail.stores.pos.services.send"/>
+        
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="FilterTransactionLevelSendSelection">
+            <SITE name="FilterTransactionLevelSendSelection" siteaction="MAXFilterTransactionLevelSendSelectionSite">
+                <ROAD
+                    name="ItemsPresentInTransaction"
+                    letter="ItemsInTransaction"
+                    destination="ModifyItemSendStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>   
+                <ROAD
+                    name="AllItemNotEligibleRoad"
+                    letter="AllItemNotEligible"
+					laneaction="MAXClearSendLabelRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>              
+            </SITE>
+            
+            <STATION
+                 name="ModifyItemSendStation"
+                 servicename="services.send.send"
+                 targettier="CURRENTTIER"
+                 launchshuttle="ModifyValidItemSendLaunchShuttle"
+                 returnshuttle="ModifyValidItemSendReturnShuttle">
+                 <COMMENT>
+                      This station is the transfer point for the send
+                      service.
+                 </COMMENT>
+                 <ROAD
+                    name="TransactionLevelSendStarts"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>           
+                 <ROAD
+                    name="NonMerchandiseItemFound"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoPressedDuringCutomerLink"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelPressedDuringCutomerLink"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDEnteredDuringCutomerLink"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerAlreadyLinked"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerNotLinked"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="NoSelected"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

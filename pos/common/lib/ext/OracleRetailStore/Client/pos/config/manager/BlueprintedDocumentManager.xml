@@ -1,0 +1,593 @@
+<?xml version='1.0' ?>
+
+<!DOCTYPE BPTDOCMGRCONFIG SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/bptdocmgrcfg.dtd">
+
+<BPTDOCMGRCONFIG>
+    <COMMENT>
+       This is a the configuration script for the BlueprintedDocumentManager.
+       It defines basic properties as well as override for blueprint filenames
+    </COMMENT>
+
+    <!-- Configure whether the manager should be persisting beans passed to the
+        manager for printing as serialized objects (*.ser). The serialized files
+        are used for sample data when designing/editing receipt blueprint
+        (*.bpt) files. Switch to true when designing blueprints, and false when
+        in production. -->
+	<PROPERTY propname="persistBeansAsDataObject"
+	          propvalue="false"
+	          proptype="Boolean"/>
+
+    <!-- Configure a semicolon delimited list of paths (relative to pos/bin/)
+        where receipt blueprints (*.bpt) can be found. If archive files (*.jar
+        or *.zip) are found, their contents will be searched.
+        When persistBeansAsDataObject is set to true, serialized beans (*.ser)
+        will be persisted into the first actual directory found.
+        E.g. "../receipts". -->
+    <PROPERTY propname="receiptsPath"
+              propvalue="../receipts;../receipts/blueprints.jar"
+              proptype="String" />
+
+    <!-- Configure a directory path (relative to /pos/bin/) where FOP templates
+         (*.xml) will be found . E.g. "../receipts/printing/templates/xsl". -->
+    <PROPERTY propname="templatesPathFOP"
+              propvalue="../receipts/printing/templates/xsl"
+              proptype="String" />
+
+    <!-- Configure a directory path (relative to pos/bin/) where XML templates
+         (*.xml) will be found . E.g. "../receipts/printing/templates/xml". -->
+    <PROPERTY propname="templatesPathXML"
+              propvalue="../receipts/printing/templates/xml"
+              proptype="String" />
+
+    <!-- Properties for fixed length receipt printing -->
+    <!-- Flag for repeating header on every receipt page -->
+    <PROPERTY propname="repeatHeader"
+              propvalue="true"
+              proptype="Boolean" />
+    <!-- Blueprints that contain the header information for receipts -->
+    <PROPERTY propname="headerBlueprints"
+              propvalue="logo,header"
+              proptype="String" />
+
+    <!-- Flag for repeating footer on every receipt page -->
+    <PROPERTY propname="repeatFooter"
+              propvalue="true"
+              proptype="Boolean" />
+
+    <!-- Blueprints that contain footer header information for receipts -->
+    <PROPERTY propname="footerBlueprints"
+              propvalue="footer"
+              proptype="String" />
+
+
+    <!-- The following list is all the receipt document types and their
+        configurations for which blueprint should be used for formatting the
+        output, which Internet Printing Protocol (IPP) template to use when
+        printing to a network printer,
+
+        the receipt files names that match the receipt
+        document types. See PrintableDocumentParameterBeanIfc#getDocumentType().
+        <p>
+        The document type of the receipt that prints after a sale
+        is completed is called "SaleReceipt". The matching file name in this
+        list is "SaleReceipt.bpt". If it is desired to print from a different
+        file name, change the file name to match your desired file. E.g.
+        "MySaleReceipt.bpt".
+        <p>
+        For an example of locale-specific blueprint searching in base locale
+        United States English with ORPOS installed with base values and property
+        configurations, the system will look for your file first at
+        "C:\OracleRetailStore\Client\pos\receipts\MySaleReceipt_en_US.bpt"
+        then
+        "C:\OracleRetailStore\Client\pos\receipts\MySaleReceipt_en.bpt"
+        then
+        "C:\OracleRetailStore\Client\pos\receipts\MySaleReceipt.bpt".
+        -->
+    <!-- This is the setting for the default templates. -->
+    <RECEIPT type="Default"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <!-- The following are actual receipt document types in alphabetical order. -->
+    <RECEIPT type="AlterationReceipt"
+             blueprintFileName="AlterationReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Ankle"
+             blueprintFileName="Ankle.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="AssociateProductivityReport"
+             blueprintFileName="AssociateProductivityReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    
+    <RECEIPT type="AvailableToPromiseInventorySlip"
+             blueprintFileName="AvailableToPromiseInventorySlip.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="BillPayFooter"
+             blueprintFileName="BillPayFooter.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="BillPayHeader"
+             blueprintFileName="BillPayHeader.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="BillPayReceipt"
+             blueprintFileName="BillPayReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="BillPaymentReport"
+             blueprintFileName="BillPaymentReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="CanceledReceipt"
+             blueprintFileName="CanceledReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="CashRounding"
+             blueprintFileName="CashRounding.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="CustomerSendInfo"
+             blueprintFileName="CustomerSendInfo.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="CreditCardPromotionDisclosure"
+             blueprintFileName="CreditCardPromotionDisclosure.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="CreditSignatureSlipReceipt"
+             blueprintFileName="CreditSignatureSlipReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="DebitSlipReceipt"
+             blueprintFileName="DebitSlipReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="DepartmentSalesReport"
+             blueprintFileName="DepartmentSalesReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="ECheckSignatureSlipReceipt"
+             blueprintFileName="ECheckSignatureSlipReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="ECheckAuthorizationApproval"
+             blueprintFileName="ECheckAuthorizationApproval.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />    
+    <RECEIPT type="EmployeeDiscountReceipt"
+             blueprintFileName="EmployeeDiscountReceipt.bpt"
+             fiscalBlueprintFileName="FiscalEmployeeDiscountReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="ExchangeReceipt"
+             blueprintFileName="ExchangeReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Footer"
+             blueprintFileName="Footer.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="GiftCardInquirySlip"
+             blueprintFileName="GiftCardInquirySlip.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="GiftReceipt"
+             blueprintFileName="GiftReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Header"
+             blueprintFileName="Header.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="HourlyProductivityReport"
+             blueprintFileName="HourlyProductivityReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="HousePaymentReceipt"
+             blueprintFileName="HousePaymentReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="ICCDetails"
+             blueprintFileName="ICCDetails.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="InstantCreditInquiryInfoSlip"
+             blueprintFileName="InstantCreditInquiryInfoSlip.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="InventoryInquirySlip"
+             blueprintFileName="InventoryInquirySlip.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Items"
+             blueprintFileName="Items.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="LayawayDeleteReceipt"
+             fiscalBlueprintFileName="FiscalLayawayDeleteReceipt.bpt"
+             blueprintFileName="LayawayDeleteReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="LayawayPaymentReceipt"
+             blueprintFileName="LayawayPaymentReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="LayawayPickupReceipt"
+             fiscalBlueprintFileName="FiscalLayawayPickupReceipt.bpt"
+             blueprintFileName="LayawayPickupReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="LayawayReceipt"
+             fiscalBlueprintFileName="FiscalLayawayReceipt.bpt"
+             blueprintFileName="LayawayReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Logo"
+             blueprintFileName="Logo.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="MailBankCheck"
+             blueprintFileName="MailBankCheck.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="NameVerificationSlip"
+             blueprintFileName="NameVerificationSlip.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="NoSaleSlip"
+             blueprintFileName="NoSaleSlip.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="OrderReceipt"
+             blueprintFileName="OrderReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="OrdersSummaryReport"
+             blueprintFileName="OrdersSummaryReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="OrderStatusReport"
+             blueprintFileName="OrderStatusReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="PickupDeliveryOrderReceipt"
+             fiscalBlueprintFileName="FiscalPickupDeliveryOrderReceipt.bpt"
+             blueprintFileName="PickupDeliveryOrderReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="PAT"
+             blueprintFileName="PAT.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="QueuedTransactionsReport"
+             blueprintFileName="QueuedTransactionsReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="RebateReceipt"
+             blueprintFileName="RebateReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="RedeemReceipt"
+             blueprintFileName="RedeemReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="ReturnReceipt"
+             blueprintFileName="ReturnReceipt.bpt"
+             fiscalBlueprintFileName="FiscalReturnReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="ReturnDeniedReceipt"
+             blueprintFileName="ReturnDeniedReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="SaleReceipt"
+             blueprintFileName="SaleReceipt.bpt"
+             fiscalBlueprintFileName="FiscalSaleReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="ShippingSlip"
+             blueprintFileName="ShippingSlip.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="SpecialOrderReceipt"
+             fiscalBlueprintFileName="FiscalSpecialOrderReceipt.bpt"
+             blueprintFileName="SpecialOrderReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="StoreCreditReceipt"
+             blueprintFileName="StoreCreditReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="SpecialOrderCancelReceipt"
+             blueprintFileName="SpecialOrderCancelReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="SpecialOrderCompleteReceipt"
+             blueprintFileName="SpecialOrderCompleteReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="SummaryReport"
+             blueprintFileName="SummaryReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Survey"
+             blueprintFileName="Survey.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="SuspendedTransactionsReport"
+             blueprintFileName="SuspendedTransactionsReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="SuspendReceipt"
+             blueprintFileName="SuspendReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TaxExemptReceipt"
+             blueprintFileName="TaxExemptReceipt.bpt"
+             fiscalBlueprintFileName="FiscalTaxExemptReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+             eReceiptTemplateFileNameFOP="ipp_image_receipt.xsl"
+             eReceiptTemplateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TempShoppingPass"
+             blueprintFileName="TempShoppingPass.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Tenders"
+             blueprintFileName="Tenders.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TillCountReport"
+             blueprintFileName="TillCountReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TillLoanReceipt"
+             blueprintFileName="TillLoanReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TillPayInReceipt"
+             blueprintFileName="TillPayInReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TillPayOutReceipt"
+             blueprintFileName="TillPayOutReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TillPayrollPayOutReceipt"
+             blueprintFileName="TillPayrollPayOutReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TillPickupReceipt"
+             blueprintFileName="TillPickupReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="TillSummaryReport"
+             blueprintFileName="TillSummaryReport.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Totals"
+             blueprintFileName="Totals.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VATSummary"
+             blueprintFileName="VATSummary.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VoidHousePaymentReceipt"
+             blueprintFileName="VoidHousePaymentReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VoidLayawayReceipt"
+             blueprintFileName="VoidLayawayReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VoidRedeemReceipt"
+             blueprintFileName="VoidRedeemReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VoidSaleReceipt"
+             blueprintFileName="VoidSaleReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VoidSpecialOrderReceipt"
+             blueprintFileName="VoidSpecialOrderReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VoidTillAdjustmentsReceipt"
+             blueprintFileName="VoidTillAdjustmentsReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VoidBillPayReceipt"
+             blueprintFileName="VoidBillPayReceipt.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="VoidCashRounding"
+             blueprintFileName="VoidCashRounding.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    <RECEIPT type="Franking"
+             blueprintFileName="Franking.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+
+    <RECEIPT type="MoneyOrder"
+             blueprintFileName="MoneyOrder.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+
+	<RECEIPT type="PurchaseOrder"
+             blueprintFileName="PurchaseOrder.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+
+    <RECEIPT type="ECheck"
+             blueprintFileName="ECheck.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+
+    <RECEIPT type="ExternalOrder"
+             blueprintFileName="ExternalOrder.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+
+    <RECEIPT type="InstantCredit"
+             blueprintFileName="InstantCredit.bpt"
+             templateFileNameFOP="$IPP_DEFAULT_XSL$"
+             templateFileNameXML="ipp_default.xml"
+    />
+    
+    <!-- Fiscal Blueprints -->
+    <RECEIPT type="FiscalHeader"
+             blueprintFileName="FiscalHeader.bpt"
+    />
+    <RECEIPT type="FiscalItems"
+             blueprintFileName="FiscalItems.bpt"
+    />
+    <RECEIPT type="FiscalTotals"
+             blueprintFileName="FiscalTotals.bpt"
+    />
+    <RECEIPT type="FiscalFooter"
+             blueprintFileName="FiscalFooter.bpt"
+    />
+    <RECEIPT type="FiscalAnkle"
+             blueprintFileName="FiscalAnkle.bpt"
+    />
+    <RECEIPT type="FiscalReceiptMessages"
+             blueprintFileName="FiscalReceiptMessages.bpt"
+    />
+    
+    <RECEIPT type="FiscalLayawayReceiptMessages"
+             blueprintFileName="FiscalLayawayReceiptMessages.bpt"
+    />
+    
+    <RECEIPT type="FiscalLayawayPickupReceiptMessages"
+             blueprintFileName="FiscalLayawayPickupReceiptMessages.bpt"
+    />
+    
+    <RECEIPT type="FiscalLayawayDeleteReceiptMessages"
+             blueprintFileName="FiscalLayawayDeleteReceiptMessages.bpt"
+    />
+        
+    <RECEIPT type="FiscalSpecialOrderReceiptMessages"
+             blueprintFileName="FiscalSpecialOrderReceiptMessages.bpt"
+    />
+    
+    <RECEIPT type="FiscalPDOReceiptMessages"
+             blueprintFileName="FiscalPDOReceiptMessages.bpt"
+    />
+    <RECEIPT type="FiscalEmployeeDiscountReceiptMessages"
+             blueprintFileName="FiscalEmployeeDiscountReceiptMessages.bpt"
+    />   
+    
+       
+</BPTDOCMGRCONFIG>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="DualDisplay"
+    package="oracle.retail.stores.pos.services.dualdisplay"
+    tourcam="OFF">
+    <CARGO class="MainCargo" package="oracle.retail.stores.pos.services.main"/>
+    <SERVICECODE>
+        <!-- Letters -->
+        <LETTER name="DualScreen"/>
+        <LETTER name="SaleScreen"/>
+        <LETTER name="Undo"/>
+        
+        <!--  Sites -->
+        <SITEACTION class="DualDisplayMainSite"/>
+        <SITEACTION class="DualDisplaySaleScreenSite"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="DualDisplayMain">
+        
+            <SITE name="DualDisplayMain" siteaction="DualDisplayMainSite">
+                <COMMENT>
+                    This site will display main screen on dual display
+                </COMMENT>  
+                <ROAD
+                    name="MainScreenDisplayed"
+                    letter="SaleScreen"
+                    destination="DisplaySaleScreen"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplaySaleScreen" siteaction="DualDisplaySaleScreenSite">
+                <ROAD
+                    name="RefreshSaleScreen"
+                    letter="SaleScreen"
+                    destination="DisplaySaleScreen"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SaleScreenDisplayed"
+                    letter="Undo"
+                    destination="DualDisplayMain"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+        </REGION>
+    </MAP>
+</SERVICE>

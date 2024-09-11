@@ -1,0 +1,374 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/order.xml /main/29 2014/05/09 13:15:48 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   05/07/14 - Change cancel order flow.
+ *    yiqzhao   05/02/14 - Set order transaction in cargo for later to use.
+ *                         Replace OrderReturnShuttle by
+ *                         OrderPickupReturnShuttle.
+ *    yiqzhao   06/10/13 - Avoid sliding buttons come out again when clicking
+ *                         on Enter on an Error Dialog or Cancel on Search
+ *                         Order Screen.
+ *    yiqzhao   06/05/13 - To avoid infinite security override.
+ *    jswan     05/15/13 - Modified to fix sliding menu issue.
+ *    yiqzhao   04/29/13 - Change the destination to the site name.
+ *    cgreene   04/26/13 - make xc_display_options a popup menu
+ *    mkutiana  03/05/13 - Cancel from view order takes you back to display
+ *                         order options
+ *    sgu       01/03/13 - rename the class for xc only
+ *    yiqzhao   07/27/12 - modify order search flow and populate order cargo
+ *                         for searching
+ *    yiqzhao   07/23/12 - modify order search flow for xchannel order and
+ *                         special order
+ *    sgu       05/22/12 - remove order filled status
+ *    sgu       05/18/12 - remove order picklist
+ *    hyin      09/08/11 - fixed POS hang problem.
+ *    cgreene   08/29/11 - set function id in shuttle, not its own site
+ *    cgreene   08/26/11 - set access function in shuttle unload
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="OrderOptions" package="oracle.retail.stores.pos.services.order" tourcam="OFF">
+<CARGO class="OrderCargo" package="oracle.retail.stores.pos.services.order.common"/>
+<SERVICECODE>
+
+     <!-- Letters -->
+     <LETTER name="Failure"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="CancelOrder"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Success"/>
+     <LETTER name="Fill"/>
+     <LETTER name="Pickup"/>
+     <LETTER name="ViewOrder"/>
+     <LETTER name="Next"/>
+     <LETTER name="PickList"/>
+     <LETTER name="Override"/>
+     <LETTER name="Continue"/>
+     <LETTER name="QueueFull"/>
+     <LETTER name="ExitSpecialOrder"/>
+
+     <!-- Lanes -->
+     <LANEACTION class="PickListEnteredRoad"/>
+     <LANEACTION class="FillEnteredRoad"/>
+     <LANEACTION class="PickupEnteredRoad"/>
+     <LANEACTION class="CancelEnteredRoad"/>
+     <LANEACTION class="SetPopupMenuFalseRoad" package="oracle.retail.stores.pos.services.order.common"/>
+     <LANEACTION class="ViewEnteredRoad"/>
+
+     <!-- Shuttles -->
+     <SHUTTLE class="OrderShuttle" package="oracle.retail.stores.pos.services.order.common"/>
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SHUTTLE class="OrderPickupReturnShuttle"/>
+
+     <!-- Signals -->
+     <SIGNAL class="IsXChannelOrderSignal" package="oracle.retail.stores.pos.services.common"/>
+
+     <!-- Sites -->
+     <SITEACTION class="DisplayOrderOptionsSite" package="oracle.retail.stores.pos.services.order" template="siteaction.tpl"/>
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+</SERVICECODE>
+<MAP>
+    <REGION region="SERVICE" startsite="CheckAccess">
+        <SITE name="CheckAccess"  siteaction="CheckAccessSite">
+            <ROAD
+                name="CheckAccessContinue"
+                letter="Continue"
+                destination="DisplayOrderOptions"
+                tape="ADVANCE"
+                record="OFF"
+                index="OFF">
+            </ROAD>
+            <ROAD
+                name="CheckAccessOverride"
+                letter="Override"
+                destination="SecurityOverrideStation"
+                tape="ADVANCE"
+                record="OFF"
+                index="OFF">
+            </ROAD>
+        </SITE>
+
+        <SITE name="DisplayOrderOptions" siteaction="DisplayOrderOptionsSite">
+            <ROAD name="OrderPrint"
+                letter="PickList"
+                laneaction="PickListEnteredRoad"
+                destination="PrintOrderStation"
+                tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="OrderFill"
+                letter="Fill"
+                laneaction="FillEnteredRoad"
+                destination="FillOrderStation"
+                tape="ADVANCE" record="ON" index="ON"></ROAD>
+          
+            <ROAD name="OrderPickup"
+                letter="Pickup"
+                laneaction="PickupEnteredRoad"
+                destination="PickupOrderStation"
+                tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="OrderCancel"
+                letter="CancelOrder"
+                laneaction="CancelEnteredRoad"
+                destination="CancelOrderStation"
+                tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="OrderView"
+                 letter="ViewOrder"
+                 laneaction="ViewEnteredRoad"
+                 destination="ViewOrderStation"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="OrderUndo"
+                 letter="Undo"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="OrderFailure"
+                 letter="Failure"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="UserCanceled"
+                 letter="Cancel"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+          </SITE>
+          
+          <STATION name="PrintOrderStation"
+                 launchshuttle="OrderShuttle"
+                 servicename="order.picklist.picklist"
+                 targettier="APPLICATIONTIER">
+
+            <ROAD name="PrintOrderStationFailure"
+                 letter="Failure"
+                 destination="DisplayOrderOptions"
+                 tape="ADVANCE"
+                 record="ON" index="ON"></ROAD>
+
+            <ROAD name="PrintOrderStationCancel"
+                 letter="Cancel"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="PrintOrderStationUndo"
+                 letter="Undo"
+                 destination="DisplayOrderOptions"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+            <ROAD name="PrintOrderStationSuccess"
+                 letter="Success"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+          </STATION>
+
+          <STATION name="FillOrderStation"
+                 launchshuttle="OrderShuttle"
+                 returnshuttle="OrderShuttle"
+                 servicename="order.fill.fillorder"
+                 targettier="APPLICATIONTIER">
+
+            <ROAD name="FillOrderStationFailure"
+                 letter="Failure"
+                 destination="DisplayOrderOptions"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="FillOrderStationCancel"
+                 letter="Cancel"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="FillOrderStationUndo"
+                 letter="Undo"
+                 destination="DisplayOrderOptions"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="FillOrderStationSuccess"
+                 letter="Success"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+          </STATION>
+
+          <STATION name="PickupOrderStation"
+                 launchshuttle="OrderShuttle"
+                 returnshuttle="OrderPickupReturnShuttle"
+                 servicename="order.pickup.pickuporder"
+                 targettier="APPLICATIONTIER">
+
+            <ROAD name="PickupOrderStationFailure"
+                 letter="Failure"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="PickupOrderStationCancel"
+                 letter="Cancel"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="PickupOrderStationUndo"
+                 letter="Undo"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON">
+                 <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+            </ROAD>
+
+            <ROAD name="XChannelPickupOrderStationUndo"
+                 letter="Undo"
+                 laneaction="SetPopupMenuFalseRoad"
+                 destination="DisplayOrderOptions"
+                 tape="ADVANCE" record="ON" index="ON">
+                 <LIGHT signal="IsXChannelOrderSignal"/>
+                 <COMMENT>
+                     We're undoing in the pickup order tour so we go back to the
+                     order options for XC, otherwise it's the fulfillment options.
+                 </COMMENT>
+            </ROAD>
+
+            <ROAD name="PickupOrderStationSuccess"
+                 letter="Success"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="PickupOrderStationExit"
+                 letter="ExitSpecialOrder"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD
+                 name="PickUpOrderQueueFull"
+                 letter="QueueFull"
+                 destination="Final"
+                 tape="ADVANCE"
+                 record="OFF"
+                 index="OFF">
+            </ROAD>
+        </STATION>
+
+        <STATION name="CancelOrderStation"
+                 launchshuttle="OrderShuttle"
+                 returnshuttle="OrderPickupReturnShuttle"
+                 servicename="order.cancel.cancelorder" targettier="APPLICATIONTIER">
+
+            <ROAD name="CancelOrderStationFailure"
+                 letter="Failure"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="CancelOrderStationCancel"
+                 letter="Cancel"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="CancelOrderStationUndo"
+                 letter="Undo"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON">
+                 <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+            </ROAD>
+
+            <ROAD name="XChannelCancelOrderStationUndo"
+                 letter="Undo"
+                 laneaction="SetPopupMenuFalseRoad"
+                 destination="DisplayOrderOptions"
+                 tape="ADVANCE" record="ON" index="ON">
+                 <LIGHT signal="IsXChannelOrderSignal"/>
+            </ROAD>
+
+            <ROAD name="CancelOrderStationSuccess"
+                 letter="Success"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+            <ROAD name="CancelOrderStationExit"
+                 letter="ExitSpecialOrder"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON"></ROAD>
+            <ROAD
+                 name="CancelOrderQueueFull"
+                 letter="QueueFull"
+                 destination="Final"
+                 tape="ADVANCE"
+                 record="OFF"
+                 index="OFF">
+             </ROAD>
+          </STATION>
+
+          <STATION name="ViewOrderStation"
+                  launchshuttle="OrderShuttle"
+                  returnshuttle="OrderShuttle"
+                  servicename="order.view.vieworder"
+                  targettier="APPLICATIONTIER">
+
+              <ROAD name="ViewOrderStationFailure"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+              <ROAD name="ViewOrderStationCancel"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+              <ROAD name="ViewOrderStationUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+              </ROAD>
+
+              <ROAD name="XChannelViewOrderStationUndo"
+                  letter="Undo"
+                  laneaction="SetPopupMenuFalseRoad"
+                  destination="DisplayOrderOptions"
+                  tape="ADVANCE" record="ON" index="ON">
+                  <LIGHT signal="IsXChannelOrderSignal"/>
+              </ROAD>
+
+              <ROAD name="ViewOrderStationSuccess"
+                  letter="Success"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON"></ROAD>
+
+              <ROAD name="ViewOrderStationNext"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON"></ROAD>
+          </STATION>
+          
+          <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD
+                    name="SuccessSecurityOverride"
+                    letter="Success"
+                    destination="DisplayOrderOptions"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureSecurityOverride"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+        <SYSTEMSITE name="Final" action="RETURN"/>
+    </REGION>
+</MAP>
+</SERVICE>

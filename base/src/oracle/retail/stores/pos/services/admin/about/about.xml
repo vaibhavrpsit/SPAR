@@ -1,0 +1,64 @@
+<?xml version='1.0' ?>
+<!--
+/**===========================================================================
+* Copyright (c) 2006, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Log:
+ *  2    360Commerce 1.1         12/19/2007 7:55:53 AM  Manikandan Chellapan
+ *       PAPB FR27 Bulk Checkin - 1
+ *  1    360Commerce 1.0         11/8/2006 8:53:28 AM   Keith L. Lesikar 
+ * $
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="SendMain"
+    package="oracle.retail.stores.pos.services.admin.about"
+    tourcam="OFF">
+    <CARGO class="AdminCargo" package="oracle.retail.stores.pos.services.admin"/>
+    <SERVICECODE>
+
+        <!-- Letters -->
+        <LETTER name="Version"/>
+        <LETTER name="Continue"/>
+
+        <!--  Shuttles -->
+
+        <!--  Sites -->
+        <SITEACTION class="DisplayAboutVersionSite"/>
+
+        <!--  Lanes -->
+        <LANEACTION class="DisplayVersionAisle"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="DisplayAboutVersion">
+        
+            <SITE name="DisplayAboutVersion" siteaction="DisplayAboutVersionSite">
+                <COMMENT>
+                    This site will display About information.
+                </COMMENT>
+                <AISLE
+                    name="DisplayVersion"
+                    letter="Version"
+                    laneaction="DisplayVersionAisle">
+                    <COMMENT>
+                        This aisle will display version information.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="VersionInformationComplete"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

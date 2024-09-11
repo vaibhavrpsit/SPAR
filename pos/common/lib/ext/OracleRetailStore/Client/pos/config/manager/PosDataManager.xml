@@ -1,0 +1,515 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE DATAMGRCONFIG SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/datamgrcfg.dtd">
+
+<DATAMGRCONFIG>
+    <COMMENT>
+       This is a the client's DataManager configuration script.
+       It defines a &lt;QUEUE&gt; for store and forward and all data
+       transactions mapped to the technicians which will perform them.
+
+       &lt;TRANSACTION&gt; elements with more than one &lt;DATATECHREF&gt; may
+       optionally specify one or more &lt;CONTINUATION&gt; elements that will determine
+       under what failure conditions a "failover" to the subsequent technician
+       will occur. See oracle.retail.stores.foundation.tour.dtd.DataMgrCfgIfc for
+       valid values. If not specified, the behavior for continuation is like
+       continueon="CONNECTION_ERROR".
+
+       &lt;DATATECHREF&gt; which are configured as offline="true" indicate that
+       when the transaction uses this technician to retrieve results, the client
+       should consider itself offline.
+    </COMMENT>
+
+
+    <!-- True if DataManager should retry sending transactions upon CommExceptions.
+         If false, client will switch offline quicker. If true, remote calls are
+         more likely to succeed since they are retried upon exception. -->
+    <PROPERTY propname="retrySendTransactionEnabled"
+              propvalue="false"
+              proptype="Boolean"/>
+    <!-- If the number of queued transactions is this or greater, implement a delay. Default is 2. -->
+    <PROPERTY propname="queueIntervalDelayThreshold"
+              propvalue="2"
+              proptype="Integer"/>
+    <!-- The minimum delay in milliseconds to wait between queued transactions. Default is 2000. -->
+    <PROPERTY propname="queueIntervalDelayMinimum"
+              propvalue="2000"
+              proptype="Integer"/>
+    <!-- The maximum delay in milliseconds to wait between queued transactions. Default is 5000. -->
+    <PROPERTY propname="queueIntervalDelayMaximum"
+              propvalue="5000"
+              proptype="Integer"/>
+    <!-- The normal delay in milliseconds to wait between queued transactions when queueIntervalDelayThreshold is not exceeded.  Default is 100. -->
+    <PROPERTY propname="queueNormalDelay"
+              propvalue="100"
+              proptype="Integer"/>
+
+
+    <!-- Reference to Remote Data Technician -->
+    <DATATECH name="RemoteDT" default="true" checkDatabaseState="true" />
+    <!-- Reference to Local Data Technician -->
+    <DATATECH name="LocalDT"/>
+    <!-- Reference to Remote - Retail Transaction Technician -->
+    <DATATECH name="RemoteTT"/>
+    <!-- Datatech EnterpriseDataTechnician BEGIN -->
+    <DATATECH name="EnterpriseDT"/>
+    <!-- Datatech EnterpriseDataTechnician END -->
+
+
+    <QUEUE name="TransactionQueue"
+           encryptBuffer="true"
+           class="DataTransactionDirectoryQueue"
+           package="oracle.retail.stores.foundation.manager.data">
+           <!-- This handler will remove head element from the queue except upon
+                DataException.CONNECTION_ERROR or DataException.UNEXPECTED_ERROR. -->
+           <EXCEPTIONHANDLER class="TransactionQueueSQLExceptionHandler"
+                              package="oracle.retail.stores.domain.manager.data"/>
+    </QUEUE>
+
+
+    <!-- Below is a list of transaction names and how they should be handled by
+    this manager in respect to which technicians should receive them and whether
+    they should be queued. An actual list of DataTransaction class names can be
+    found in config/context/PersistenceContext.xml. -->
+
+    <TRANSACTION name="AdvancedInquiryDataTransaction"
+                 pollinterval="20"
+                 timeout="19" >
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="BusinessReadDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+
+    <TRANSACTION name="CalendarDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="CaptureCustomerReadDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="CaptureCustomerWriteDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="CertificateTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+
+    <TRANSACTION name="CodeListDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="LocalDT"/>
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <CONTINUATION continueon="NO_DATA"/></TRANSACTION>
+
+    <TRANSACTION name="CurrencyDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+                 
+    <TRANSACTION name="CurrencyRoundingRuleDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="CustomerAddTransactionNotQueued"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+
+    <TRANSACTION name="CustomerReadCustomerGroupsDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="CustomerReadDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+
+    <TRANSACTION name="CustomerReadGroupDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+
+    <TRANSACTION name="CustomerReadPricingGroupTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="CustomerWriteDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="EMessageReadDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+
+    <TRANSACTION name="EMessageWriteDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="EmployeeFindForLoginTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="EmployeeFindForUpdateTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="EmployeeTimeClockDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="EmployeeWriteTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="FinancialTotalsDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="GiftCardTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="JournalReadTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="LayawayDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="MerchandiseHierarchyDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="NotQueuedFinancialTotalsDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="NotQueuedStoreDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="NotQueuedTransactionWriteDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 
+    <TRANSACTION name="NotificationsDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>                  
+
+    <TRANSACTION name="OrderDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="OrderHistoryReadDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="OrderReadDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+    
+      <TRANSACTION name="OrderSummaryReadDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->             	              
+
+    <TRANSACTION name="PLUTransaction"
+                 pollinterval="20"
+                 timeout="19" >
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="PricingTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="ReadNewTaxRuleTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="ReadShippingMethodTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="ReadTaxRuleTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="ReadTransactionsByIDDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="ReadTransactionsForReturn"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+
+    <TRANSACTION name="RegisterIDDIVersionTransaction"
+                 pollinterval="20"
+                 timeout="19" >
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="RegisterMetaDataLookupTransaction"
+                 pollinterval="20"
+                 timeout="19" >
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="RoleTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/>
+                 <DATATECHREF datatech="LocalDT" offline="true"/></TRANSACTION>
+
+    <TRANSACTION name="SaveFinancialTotalsDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="SaveStoreDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="ScanSheetTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="StoreDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="StoreOrderReadDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="StoreSafeWriteDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="TenderDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="TillChecksDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+    <TRANSACTION name="TransactionHistoryDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <!-- Store DB Begin
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                 Store DB End -->
+                 <!-- Enterprise DB
+                 <DATATECHREF datatech="EnterpriseDT"/></TRANSACTION>
+                 Enterprise DB End -->
+                 <!-- Failover Begin -->
+                 <DATATECHREF datatech="EnterpriseDT"/>
+                 <DATATECHREF datatech="RemoteDT" offline="true"/>
+                 <CONTINUATION continueon="CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="DATABASE_CONNECTION_ERROR"/>
+                 <CONTINUATION continueon="NO_DATA"/>
+                 <CONTINUATION continueon="UNKNOWN"/></TRANSACTION>
+                 <!-- Failover End -->
+
+    <TRANSACTION name="TransactionReadDataTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+                
+    <TRANSACTION name="TransactionWriteDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteTT"/></TRANSACTION>
+
+    <TRANSACTION name="UpdateReturnedItemsDataTransaction"
+                 queue="TransactionQueue"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+   
+    <TRANSACTION name="VerificationTransaction"
+                 pollinterval="20"
+                 timeout="19">
+                 <DATATECHREF datatech="RemoteDT"/></TRANSACTION>
+
+</DATAMGRCONFIG>

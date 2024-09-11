@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/about/aboutuicfg.xml /main/11 2013/10/10 12:22:14 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  10/10/13 - Added close button to AboutVersion site
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/16/09 - add Keys button
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<UICFG>
+
+    <BEAN
+        specName="AboutOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Version"
+            enabled="true"
+            keyName="F2"
+            labelTag="Version"/>
+            
+        <BUTTON
+            actionName="Continue"
+            enabled="true"
+            keyName="F3"
+            labelTag="Close"/>
+        
+    </BEAN>
+    
+    <BEAN
+        specName="AboutSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="AboutBean">
+    </BEAN>
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="adminText"
+        specName="ABOUT_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="AboutOptionsButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="AboutOptionsScreenName"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="AboutSpec">
+        </ASSIGNMENT> 
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[false],Cancel[false],Undo[false],Clear[false],Next[false],Keys[false]"/>
+        </ASSIGNMENT> 
+
+    </OVERLAYSCREEN>
+
+</UICFG>

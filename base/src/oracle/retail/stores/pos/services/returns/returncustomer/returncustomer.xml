@@ -1,0 +1,424 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/returns/returncustomer/returncustomer.xml /main/22 2013/10/18 15:39:55 asinton Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    asinton   10/18/13 - when too many matches dialog shows redirect operator
+ *                         to the return options screen
+ *    jswan     10/25/12 - Modified to support returns by order.
+ *    rsnayak   04/11/12 - Normal return fix
+ *    rsnayak   03/27/12 - Cross Border Returns
+ *    npoola    12/07/10 - Added the missing road for the letter Cancel
+ *    npoola    12/07/10 - Added the missing road for the letter Cancel
+ *    jswan     06/30/10 - Checkin for first promotion of External Order
+ *                         integration.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="returncustomer"
+         package="oracle.retail.stores.pos.services.returns.returncustomer"
+         tourcam="OFF">
+    <COMMENT>
+         This service routes the user through the business flow of Return by Customer.
+    </COMMENT>
+    <CARGO class="ReturnCustomerCargo"/>
+    <SERVICECODE>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="DbError"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Failure2"/>
+        <LETTER name="Next"/>
+        <LETTER name="FindCustomer"/>
+        <LETTER name="ReadTrans"/>
+        <LETTER name="TooMany"/>
+        <LETTER name="ReturnItem"/>
+        <LETTER name="OneTrans"/>
+        <LETTER name="MultipleTrans"/>
+        <LETTER name="crossborderreturn"/>
+         <LETTER name="NotCBRReturn" />
+        <LETTER name="TransactionHasOrder"/>
+         
+        <SHUTTLE class="FindCustomerLaunchShuttle"/>
+        <SHUTTLE class="FindCustomerReturnShuttle"/>
+        <SHUTTLE class="ReturnTransactionLaunchShuttle"/>
+        <SHUTTLE class="ReturnTransactionReturnShuttle"/>
+        <SHUTTLE class="CBRLaunchShuttle" package="oracle.retail.stores.pos.services.returns.returnfindtrans.crossborderreturn"/>
+        <SHUTTLE class="CBRReturnShuttle" package="oracle.retail.stores.pos.services.returns.returnfindtrans.crossborderreturn"/>
+
+        <SIGNAL class="IsDBErrorSignal"
+                package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SIGNAL class="IsNotDBErrorSignal"
+                package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SIGNAL class="IsStartedWithCustomerSignal"/>
+        <SIGNAL class="IsNotStartedWithCustomerSignal"/>
+        <SIGNAL class="IsCustomerAvailableSignal"/>
+        <SIGNAL class="IsCustomerNotAvailableSignal"/>
+
+        <SITEACTION class="CheckForCustomerSite"/>
+        <SITEACTION class="ReadCustomerTransactionsSite"/>
+        <SITEACTION class="SelectTransactionSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION class="ReadSelectedTransactionSite" />
+        <SITEACTION class="CheckForReturnableItemSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION class="CBRCheckSite" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <SITEACTION class="LookupReturnOrderSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION class="CheckForOrderIDSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        
+        <LANEACTION class="UndoCustomerRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="GetSelectedIndexRoad" />
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="RetryConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="TooManyTransactionsErrorAisle" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+    
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckForCustomer">
+            
+            <SITE name="CheckForCustomer"
+                  siteaction="CheckForCustomerSite">
+                <ROAD name="CheckForCustomerFindCustomer"
+                      letter="FindCustomer"
+                      destination="FindCustomerStation" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="CheckForCustomerReadTrans"
+                      letter="ReadTrans"
+                      destination="ReadCustomerTransactions" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <STATION name="FindCustomerStation"
+                     servicename="customer.main.customermain"
+                     targettier="APPLICATIONTIER"
+                     launchshuttle="FindCustomerLaunchShuttle"
+                     returnshuttle="FindCustomerReturnShuttle">
+                <ROAD name="CustomerFound"
+                      letter="Continue"
+                      destination="ReadCustomerTransactions"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                     <LIGHT signal="IsCustomerAvailableSignal"/>
+                </ROAD>
+                <ROAD name="CustomerlServiceOffline"
+                      letter="Offline"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                     <LIGHT signal="IsCustomerNotAvailableSignal"/>
+                </ROAD>
+                <ROAD name="CustomerNotFound"
+                      letter="Continue"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                     <LIGHT signal="IsCustomerNotAvailableSignal"/>
+                </ROAD>
+                <ROAD name="UndoFindSelected"
+                      letter="Undo"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FindCustomerCancel"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+            
+            <SITE name="ReadCustomerTransactions"
+                  siteaction="ReadCustomerTransactionsSite">
+                <AISLE name="DBErrorReadCustomerTransactions"
+                       letter="DbError"
+                       laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE name="TooManyReadCustomerTransactions"
+                       letter="TooMany"
+                       laneaction="TooManyTransactionsErrorAisle">
+                </AISLE>
+                <AISLE name="OkReadCustomerTransactionsError"
+                       letter="Ok"
+                       laneaction="FailureConversionAisle">
+                    <LIGHT signal="IsDBErrorSignal"/>
+                </AISLE>
+                <AISLE name="OkTooManyReadTransaction"
+                       letter="Ok"
+                       laneaction="RetryConversionAisle">
+                    <LIGHT signal="IsNotDBErrorSignal"/>
+                </AISLE>
+                <ROAD name="RetryTooManyReadTransactionRoad"
+                      letter="Retry"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                      <COMMENT>
+                            The tour calling this returncustomer tour will handle the Retry letter.
+                      </COMMENT>
+                </ROAD>
+                <ROAD name="ReadCustomerTransactionsOneTrans"
+                      letter="OneTrans"
+                      destination="ReadSelectedTransaction"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ReadCustomerTransactionsOneTransWithOrder"
+                      letter="TransactionHasOrder"
+                      destination="LookupOrderFromTransaction"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="ReadCustomerTransactionsMultipleTrans"
+                      letter="MultipleTrans"
+                      destination="SelectCustomerTransaction"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ReadCustomerTransactionsFailure"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ReadCustomerTransactionsItemRetrun"
+                      letter="ReturnItem"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="SelectCustomerTransaction"
+                  siteaction="SelectTransactionSite">
+                <ROAD name="AcceptSelectCustomerTransaction"
+                      letter="Next"
+                      laneaction="GetSelectedIndexRoad"
+                      destination="CheckForOrderID"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="UndoServiceNoCustomer"
+                      letter="Undo"
+                      laneaction="UndoCustomerRoad"
+                      destination="FindCustomerStation"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="IsNotStartedWithCustomerSignal"/>
+                </ROAD>
+                <ROAD name="UndoService"
+                      letter="Undo"
+                      laneaction="UndoCustomerRoad"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="IsStartedWithCustomerSignal"/>
+                </ROAD>
+                <ROAD name="CancelSelectCustomerTransaction"
+                      letter="Cancel"
+                      laneaction="UndoCustomerRoad"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="CheckForOrderID" siteaction="CheckForOrderIDSite">
+                <ROAD
+                    name="LookupOrder"
+                    letter="TransactionHasOrder"
+                    destination="LookupOrderFromTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinueWithTransaction"
+                    letter="Continue"
+                    destination="ReadSelectedTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="LookupOrderFromTransaction" siteaction="LookupReturnOrderSite">
+                <AISLE 
+                    name="LookupOrderOkFailure" 
+                    letter="Ok" 
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE 
+                    name="LookupOrderDBError" 
+                    letter="DbError" 
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <ROAD 
+                    name="LookupOrderFailure" 
+                    letter="Failure" 
+                    destination="Final" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LookupOrderSuccess" 
+                    letter="Success" 
+                    destination="CheckForReturnableItem" 
+                    record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="ReadSelectedTransaction"
+                  siteaction="ReadSelectedTransactionSite">
+                <AISLE name="DBErrorReadSelectedTransaction"
+                       letter="DbError"
+                       laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE name="OkReadSelectedTransaction"
+                       letter="Ok"
+                       laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD name="SuccessReadSelectedTransaction"
+                      letter="Success"
+                      destination="CheckForReturnableItem"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FailureReadSelectedTransaction"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OkReadTransactionInvalidTransEntry"
+                    letter="Retry"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ReturnItemReadTransactions"
+                    letter="ReturnItem"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="CheckForReturnableItem"
+                  siteaction="CheckForReturnableItemSite">
+                <AISLE name="OkNoReturnableItemsError"
+                       letter="Ok"
+                       laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="SuccessCheckForReturnableItem"
+                    letter="Success"
+                    destination="CBRCheck"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="FailureCheckForReturnableItem"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FailureCheckForReturnableItem2"
+                      letter="Failure2"
+                      destination="ReadCustomerTransactions"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                
+               
+            </SITE>
+            
+            <SITE  name="CBRCheck" siteaction="CBRCheckSite">
+                 <ROAD
+                    name="CBRSuccess"
+                    letter="crossborderreturn"
+                    destination="CrossBorderReturnStation"    
+                    tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+                 <ROAD
+                     name="CBRFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+                 <ROAD
+                     name="NotCBRReturn"
+                     letter="NotCBRReturn"
+                     destination="TransactionReturnStation"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+            </SITE>
+             <STATION
+                name="CrossBorderReturnStation"
+                servicename="returns.returnsfindtrans.crossborderreturn"
+                targettier="CURRENTTIER"
+                launchshuttle="CBRLaunchShuttle"
+                returnshuttle="CBRReturnShuttle">
+                <ROAD
+                    name="ReturnSuccess"
+                    letter="Success"
+                    destination="TransactionReturnStation" 
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             </STATION>
+             
+            <STATION name="TransactionReturnStation"
+                     servicename="returns.returntransaction.returntransaction"
+                     targettier="CURRENTTIER"
+                     launchshuttle="ReturnTransactionLaunchShuttle"
+                     returnshuttle="ReturnTransactionReturnShuttle">
+                <ROAD name="UndoTransactionReturn"
+                      letter="Undo"
+                      destination="SelectCustomerTransaction"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        This road is taken when the till has been opened.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="SuccessTransactionReturn"
+                      letter="Success"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        This road is taken when the till has been opened.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="FailureTransactionReturn"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        This road is taken when the till was not opened successfully.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CancelTransactionReturn"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        This road is taken when the transaction selected was cancelled in return.
+                    </COMMENT>
+                </ROAD>               
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

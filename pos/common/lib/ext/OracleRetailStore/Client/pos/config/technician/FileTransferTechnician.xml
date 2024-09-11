@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+
+<!DOCTYPE FILETRANSFERTECHNICIAN SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/filetransferscript.dtd">
+<FILETRANSFERTECHNICIAN
+           package="oracle.retail.stores.foundation.manager.filetransfer">
+
+	<!-- "filenamepatterns" are Java-based regular expressions like, i.e. Perl expressions.
+		 See http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html
+		 The "class" is the name of the class that implements
+		 oracle.retail.stores.foundation.manager.filetransfer.FileTransferHandlerIfc
+		 and knows what to do with the contents of the file being handled. The
+		 default handler saves files to the present working directory, i.e. bin/. -->
+    <HANDLERS>
+        <HANDLER filenamepattern=".*\.bpt" class="oracle.retail.stores.pos.receipt.blueprint.BlueprintFileTransferHandler" />
+        <HANDLER filenamepattern=".*" class="oracle.retail.stores.foundation.manager.filetransfer.DefaultFileTransferHandler" />
+    </HANDLERS>
+
+</FILETRANSFERTECHNICIAN>

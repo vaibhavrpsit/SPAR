@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/parametervaluelisteditor/parametervaluelisteditoruicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/16/09 - add Keys button
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="ParameterValueListSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ParameterValueListBean">
+    </BEAN>
+
+    <BEAN
+        specName="ParameterValueSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ParameterValueBean">
+    </BEAN>
+
+    <BEAN
+        specName="ParameterListButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Add"
+            enabled="true"
+            keyName="F2"
+            labelTag="Add"/>
+
+        <BUTTON
+            actionName="Edit"
+            enabled="true"
+            keyName="F3"
+            labelTag="Edit"/>
+
+        <BUTTON
+            actionName="Delete"
+            enabled="true"
+            keyName="F4"
+            labelTag="Delete"/>
+
+        <BUTTON
+            actionName="MoveUp"
+            enabled="true"
+            keyName="F5"
+            labelTag="MoveUp"/>
+
+        <BUTTON
+            actionName="MoveDown"
+            enabled="true"
+            keyName="F6"
+            labelTag="MoveDown"/>
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="parameterText"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="DataInputBeanModel"
+        specName="PARAM_VALUE_LIST">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ParameterValueListSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="EditParameterScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ParameterListTag"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ParameterListButtonSpec">
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="parameterText"
+        specName="PARAMETER_VALUE_EDIT">
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+               propName="screenNameTag" propValue="ParameterValueEditScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ParameterValueEditPrompt"/>
+        </ASSIGNMENT>
+
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ParameterValueSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="parameterValueField"/>               
+        </ASSIGNMENT>
+    
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="ParameterValueSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="ParameterValueSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="ParameterValueSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    
+    </OVERLAYSCREEN>
+
+</UICFG>

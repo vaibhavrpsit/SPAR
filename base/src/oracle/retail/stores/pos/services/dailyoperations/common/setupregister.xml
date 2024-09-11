@@ -1,0 +1,216 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/common/setupregister.xml /main/16 2014/07/09 13:10:48 icole Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole     06/26/14 - Forward port fix for handling the condition of two
+ *                         registers opened with same till with one or both
+ *                         offline at time of open.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         7/12/2007 5:46:55 PM   Alan N. Sinton  CR
+           27494 Enhanced initialization failure conditions.
+      3    360Commerce 1.2         3/31/2005 4:29:57 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:25:16 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:14:12 PM  Robert Pearse
+     $
+     Revision 1.3  2004/03/26 00:24:13  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:49:36  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:15  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="SetupRegister"
+    package="oracle.retail.stores.pos.services.dailyoperations.common"
+    tourcam="OFF">
+    <COMMENT >
+        This service handles the Application Startup and
+        Main Menu use cases.
+    </COMMENT>
+    <CARGO class="StoreStatusCargo" package="oracle.retail.stores.pos.services.common"/>
+    <SERVICECODE >
+        <LANEACTION class="LookupRegisterParameterErrorAisle">
+            <TRAVERSE >
+                <COMMENT >
+                    This aisle displays a parameter error message.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="InvalidTillRegisterErrorAisle" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+        <LANEACTION class="LookupStoreStatusErrorAisle" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="InvalidRegister"/>
+        <LETTER name="Ok"/>
+        <LETTER name="ParameterError"/>
+        <LETTER name="ResetHardTotals"/>
+        <LETTER name="TillNotOwned"/>
+        <SHUTTLE class="ResetHardTotalsLaunchShuttle"/>
+        <SITEACTION class="LookupRegisterSite">
+            <COMMENT >
+                This site causes the register record to be looked
+                up.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="LookupStoreStatusSite">
+            <COMMENT >
+                This site causes the store status record to be looked
+                up.
+            </COMMENT>
+        </SITEACTION>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="LookupStoreStatus">
+            <SITE  name="LookupStoreStatus" siteaction="LookupStoreStatusSite">
+                <COMMENT >
+                    This site looks up store status data.
+                </COMMENT>
+                <AISLE
+                    name="LookupStoreStatusError"
+                    letter="Failure"
+                    laneaction="LookupStoreStatusErrorAisle">
+                </AISLE>
+                <ROAD
+                    name="LookupStoreStatusContinue"
+                    letter="Continue"
+                    destination="LookupRegister"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when a store-status lookup is complete
+                        and only one or no business dates were found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ResetHardTotalsRoad"
+                    letter="ResetHardTotals"
+                    destination="ResetHardTotalsStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LookupStoreStatusExit"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE  name="LookupRegister" siteaction="LookupRegisterSite">
+                <COMMENT >
+                    This site looks up register data.
+                </COMMENT>
+                <AISLE
+                    name="LookupRegisterParameterError"
+                    letter="ParameterError"
+                    laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when there is a parameter error
+                        while determining the workstation ID. If no workstation
+                        ID is available from the hard totals, the service
+                        terminates.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+                </AISLE> 
+                                               
+                <ROAD
+                    name="LookupRegisterExit"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterTillNotOwned"
+                    letter="TillNotOwned"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when the opened till is owned by another
+                        register.  This can occur when an offline register opens
+                        the same till number as another register.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterContinue"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ResetHardTotalsStation"
+                servicename="admin.resethardtotals.resethardtotals"
+                targettier="CURRENTTIER"
+                launchshuttle="ResetHardTotalsLaunchShuttle">
+                <ROAD
+                    name="HardTotalsReset"
+                    letter="Continue"
+                    destination="LookupRegister"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

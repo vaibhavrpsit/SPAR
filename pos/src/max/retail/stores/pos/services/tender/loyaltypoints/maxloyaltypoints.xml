@@ -1,0 +1,352 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2016 - 2017 MAX Hypermarket, Inc.    All Rights Reserved.
+ *	
+ *	Rev 1.0     Jan 06, 2016		Ashish Yadav		Online Points Redemption FES
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Tender"
+	package="oracle.retail.stores.pos.services.tender.purchaseorder" tourcam="ON">
+	<COMMENT>
+		This service implements the Tender Use Case of the
+		Tender Package.
+    </COMMENT>
+	<CARGO class="MAXTenderCargo" package="max.retail.stores.pos.services.tender" />
+
+	<SERVICECODE>
+		<LETTER name="Success" />
+		<LETTER name="Failure" />
+		<LETTER name="Continue" />
+		<LETTER name="Agency" />
+		<LETTER name="Link" />
+		<LETTER name="Next" />
+		<LETTER name="Undo" />
+		<LETTER name="Cancel" />
+		<LETTER name="Invalid" />
+		<LETTER name="PaidUp" />
+		<LETTER name="Offline" />
+		<LETTER name="No" />
+		<LETTER name="Yes" />
+		<LETTER name="Reverse" />
+        <LETTER name="InsufficientPoints"/>
+        <LETTER name="Reverse"/>
+        <LETTER name="false"/>
+        <LETTER name="LoyaltyCustomerContinue"/>
+        <LETTER name="failureByPhoneNumber"/>
+        <LETTER name="Timeout"/>
+        <LETTER name="EnterLoyaltyPoints"/>
+        <LETTER name="LoyaltyCustomer"/>
+		<SITEACTION class="MAXAddLoyaltyPointsTenderSite" package="max.retail.stores.pos.services.tender.loyaltypoints"/>	
+		<SITEACTION class="MAXEnterLoyaltyAmountSite" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		<LANEACTION class="MAXValidateLoyaltyPointsAisle1" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		<LANEACTION class="MAXWebRequestResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		<LANEACTION class="MAXContinueWebResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		<LANEACTION class="MAXReversalRequestAisle" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		<LANEACTION class="MAXCustomerBalanceEnquiryAisle" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		
+		<!-- Changes starts for Rev 1.0 -->
+		<SITEACTION class="MAXEnterOtpSite" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		<LANEACTION class="MAXOTPRequestResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		<LANEACTION class="MAXLoyaltyOtpOverrideAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		<SITEACTION class="MAXDisplayTimeout" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		<SITEACTION  class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION  class="MAXAddAmountLoyaltySite" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+        <SITEACTION class="MAXLoyaltyCustomerSite" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+	<!-- Changes ends for Rev 1.0 -->
+	</SERVICECODE>
+
+	<MAP>
+		<REGION region="SERVICE" startsite="LoyaltyCustomer">
+		
+		<SITE name="LoyaltyCustomer" siteaction="MAXLoyaltyCustomerSite">
+			<!--  Rev 1.3 changes starts -->
+				<AISLE name="DisplayLoyaltyDetails" letter="LoyaltyCustomer"
+					laneaction="MAXCustomerBalanceEnquiryAisle">
+				</AISLE>
+				
+				<ROAD name="DisplayLoyaltyDetailsOnFailure" letter="Failure" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="DisplayLoyaltyDetailsOnFailurePhoneNum" letter="failureByPhoneNumber" destination="EnterLoyaltyAmount"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="DisplayLoyaltyDetailsOnFailureResp" letter="Timeout" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<!-- <ROAD name="CustomerInfoFound" letter="Success" destination="EnterLoyaltyPointsAmount"
+					tape="ADVANCE" record="OFF" index="OFF">
+					<COMMENT>
+						Road is traversed when a lookup finds a customer.
+					</COMMENT>
+				</ROAD> -->
+				
+				<ROAD name="LoyaltyCustomerSelected" letter="LoyaltyCustomerContinue"
+					destination="EnterLoyaltyAmount" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD> 
+				<!-- Rev 1.3 changes ends -->
+				<!-- changes for Rev 1.2 akhilesh start -->
+				
+			<!-- 	to rollback point redemption changes -->
+				<!-- <AISLE name="EncryptDecryptLoyaltyInfo" letter="LoyaltyCustomer"
+					laneaction="LSIPLVerifyPhoneNumberAisle">
+				</AISLE> -->
+				<!-- 	to rollback point redemption changes -->
+				
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+						
+				<!-- <AISLE name="AddPhoneNumber" letter="Next"
+					laneaction="MAXAddPhoneNumberAisle">
+				</AISLE> -->
+				
+				<ROAD name="EnterLoyaltyPointSelected" letter="EnterLoyaltyPoints"
+					destination="EnterLoyaltyAmount" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				
+				<ROAD name="Cancel" letter="Cancel" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+			</SITE>
+		
+			<SITE name="EnterLoyaltyAmount" siteaction="MAXEnterLoyaltyAmountSite">
+			<!-- Changes starts for Rev 1.0 -->
+			    <ROAD name="ProcessOtp" letter="Otp" destination="EnterOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			<!-- Changes ends for Rev 1.0 -->
+				<AISLE
+					name="ValidateLoyaltyPoints"
+					letter="Next"
+					laneaction="MAXValidateLoyaltyPointsAisle1">
+				</AISLE>
+				<AISLE
+					name="ValidateFromCRMAisle"
+					letter="Success"
+					laneaction="MAXWebRequestResponseInfoAisle">
+				</AISLE>
+				<!-- <ROAD name="LoyaltyCustomerContinue" letter="LoyaltyCustomerContinue" destination="EnterLoyaltyAmount"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+				<ROAD name="Succeed" letter="Continue" destination="AddLoyaltyPointsTender"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<AISLE name="FailureLoyaltyPoints" letter="Ok"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE>
+				
+				<ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="Final" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				
+				<AISLE name="SendReversalRequest" letter="No"
+					laneaction="MAXReversalRequestAisle">
+				</AISLE>
+				<ROAD name="OverTenderLoyaltyPoints" letter="Reverse"
+					destination="Final" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<AISLE name="ContiuneLoyaltyInfo" letter="Yes"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE>
+				<ROAD name="FailureTenderLoyaltyPoints" letter="Failure"
+					destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD
+					name="ValidationFailedRoad"
+					letter="Ok"
+					destination="Final">
+				</ROAD>
+			</SITE>
+			<!-- Changes starts for Rev 1.0 -->
+			<SITE name="EnterOTP" siteaction="MAXEnterOtpSite">
+			 
+			 	<AISLE name="ValidateOtp" letter="Next"
+					laneaction="MAXOTPRequestResponseInfoAisle">
+				</AISLE>
+				
+				<ROAD name="Retrying" letter="Retry"
+	                destination="EnterOTP" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+				<ROAD name="Succeed" letter="Cancel" laneaction="MAXLoyaltyOtpOverrideAisle" destination="CheckAccess"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<AISLE name="Succeed" letter="OtpSucessfull"  laneaction="MAXWebRequestResponseInfoAisle" 
+					tape="ADVANCE" record="OFF" index="OFF">
+				</AISLE>
+				
+				<ROAD name="Succeed" letter="Continue" destination="AddLoyaltyPointsTender"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<AISLE name="FailureLoyaltyPoints" letter="Ok"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE>
+				<ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="EnterLoyaltyAmount" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				
+				<ROAD name="Failed" letter="Failure" destination="EnterOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="TimeoutFaliure" letter="Done" destination="TimeoutDispaly"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="TimeoutFaliureError" letter="Invalid" laneaction="MAXLoyaltyOtpOverrideAisle" destination="CheckAccess"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				
+			</SITE>
+			<!-- <SITE  name="TimeoutFaliureErrorDispaly" siteaction="MAXDisplayTimeout">
+			
+			<ROAD name="TimeoutFaliureError" letter="Ok" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+				</SITE> -->
+			
+			
+			
+			<SITE  name="TimeoutDispaly" siteaction="MAXDisplayTimeout">
+			
+				<AISLE name="TimeoutFaliure" letter="Ok"
+					laneaction="MAXWebRequestResponseInfoAisle">
+				</AISLE>
+				
+				<!-- <AISLE name="EncryptDecryptLoyaltyInfo" letter="Otp"
+					laneaction="EnterOTP">
+				</AISLE> -->
+				<ROAD name="Enterotp" letter="Otp" destination="EnterOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="Succeed" letter="Continue" destination="AddLoyaltyPointsTender"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+				<!-- <ROAD name="Succeed" letter="Continue" destination="PurchaseOrderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<!-- <AISLE name="FailureLoyaltyPoints" letter="Ok"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE> -->
+				<ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="EnterLoyaltyAmount" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				
+				
+				<ROAD name="OverTenderLoyaltyPoints" letter="No"
+					destination="Final" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<AISLE name="ContiuneLoyaltyInfo" letter="Yes"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE>
+				<ROAD name="FailureTenderLoyaltyPoints" letter="Failure"
+					destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			
+				 
+				<!-- <ROAD name="EncryptDecryptLoyaltyInfo" letter="ProcessCapillaryRequest"
+					destination="LoyaltyRequestResponseInfo" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+			
+
+				</SITE>
+				<!--  changes starts for Rev 1.0 -->
+			<SITE  name="CheckAccess" siteaction="CheckAccessSite">
+			<!--  changes starts for Rev 1.0 -->
+                <ROAD 
+                    name="ManagerOverrideChosen"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="AccessGranted"
+                    letter="Continue"
+                      destination="AddAmountLoyalty"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+             <!--   returnshuttle="SecurityOverrideReturnShuttle"> -->  
+                <ROAD 
+                    name="AdminAccessDenied"
+                    letter="Failure"
+                    destination="Final" >
+                </ROAD>
+                <ROAD 
+                    name="ManagerOverrideSuccessful"
+                    letter="Success"
+                    destination="AddAmountLoyalty"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+              </STATION>
+	
+	<SITE name="AddAmountLoyalty" siteaction="MAXAddAmountLoyaltySite">
+				
+				<AISLE name="Succeed" letter="OverideSuccess" laneaction="MAXWebRequestResponseInfoAisle">
+				</AISLE>
+				<ROAD name="AddLoyaltyAmount" letter="Continue" destination="AddLoyaltyPointsTender"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				
+				</SITE>
+				<!-- Changes ends for Rev 1.0 -->
+			<SITE name="AddLoyaltyPointsTender" siteaction="MAXAddLoyaltyPointsTenderSite">
+				<ROAD
+					name="TenderAddedSuccessRoad"
+					letter="PaidUp"
+					destination="Final">
+				</ROAD>
+				<ROAD
+					name="TenderAddedFailureRoad"
+					letter="Failure"
+					destination="Final">
+				</ROAD>					
+			</SITE>
+			<SYSTEMSITE name="Final" action="RETURN" />
+		</REGION>
+	</MAP>
+</SERVICE>

@@ -1,0 +1,291 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/pricing/employeediscount/employeediscountoptions.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="EmployeeDiscountOptions"
+    package="oracle.retail.stores.pos.services.pricing.employeediscount"
+    tourcam="OFF">
+    <CARGO class="PricingCargo" package="oracle.retail.stores.pos.services.pricing"/>
+    <SERVICECODE>
+        <LETTER name="ItemDiscAmt"/>
+        <LETTER name="ItemDiscPer"/>
+        <LETTER name="TransDiscAmt"/>
+        <LETTER name="TransDiscPer"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Next"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Failure"/>
+
+        <SHUTTLE class="ItemDiscountLaunchShuttle" package="oracle.retail.stores.pos.services.pricing"/>
+        <SHUTTLE class="ItemDiscountReturnShuttle" package="oracle.retail.stores.pos.services.pricing"/>
+        <SHUTTLE class="ModifyEmployeeTransactionDiscountPercentLaunchShuttle" package="oracle.retail.stores.pos.services.pricing.employeediscount"/>
+        <SHUTTLE class="ModifyEmployeeTransactionDiscountPercentReturnShuttle" package="oracle.retail.stores.pos.services.pricing.employeediscount"/>
+        <SHUTTLE class="ModifyEmployeeTransactionDiscountAmountLaunchShuttle" package="oracle.retail.stores.pos.services.pricing.employeediscount"/>
+        <SHUTTLE class="ModifyEmployeeTransactionDiscountAmountReturnShuttle" package="oracle.retail.stores.pos.services.pricing.employeediscount"/>
+
+        <LANEACTION class="DiscountAmountSelectedRoad" package="oracle.retail.stores.pos.services.pricing"/>
+        <LANEACTION class="DiscountPercentSelectedRoad" package="oracle.retail.stores.pos.services.pricing"/>
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="EmployeeNumberCapturedAisle"/>
+
+         <SITEACTION class="CaptureEmployeeNumberSite"/>
+        <SITEACTION class="CheckOnlyOneDiscountSite" package="oracle.retail.stores.pos.services.pricing"/>
+        <SITEACTION class="DiscountOptionsSite"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckOnlyOneDiscount">
+            <SITE name="CheckOnlyOneDiscount" siteaction="CheckOnlyOneDiscountSite">
+                <ROAD
+                    name="EmployeeDiscountSucceeded"
+                    letter="Continue"
+                    destination="CaptureEmployeeNumber">
+                </ROAD>
+                <ROAD
+                    name="EmployeeDiscountFailed"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="CaptureEmployeeNumber" siteaction="CaptureEmployeeNumberSite">
+                <COMMENT>
+                    Prompts the associate to enter the employee number.  
+                </COMMENT>
+                <AISLE
+                    name="EmployeeNumberCaptured"
+                    letter="Next"
+                    laneaction="EmployeeNumberCapturedAisle">                
+                </AISLE>
+                <ROAD
+                  name="EmployeeDiscountFailure"
+                  letter="Failure"
+                  destination="CaptureEmployeeNumber"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              	</ROAD>
+                <ROAD
+                    name="EmployeeIDReceived"
+                    letter="Continue"
+                    destination="DiscountOptions">
+                    <COMMENT>
+                        The discount amount was added. Validate it.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelEmployeeNumber"
+                    letter="Cancel"
+                    destination="Final">
+                    <COMMENT>
+                        send a final letter with a parm telling the parent
+                        to give up
+                    </COMMENT>
+                </ROAD> 
+                <ROAD name="EmployeeNumberUndo"
+                     letter="Undo"
+                     destination="Final">
+                </ROAD>
+            </SITE>
+        <SITE name="DiscountOptions" siteaction="DiscountOptionsSite">
+
+              <ROAD
+                  name="ItemDiscAmtSelected"
+                  letter="ItemDiscAmt"
+                  laneaction="DiscountAmountSelectedRoad"
+                  destination="EmployeeDiscountStation">
+              </ROAD>
+
+              <ROAD
+                  name="ItemDiscPerSelected"
+                  letter="ItemDiscPer"
+                  laneaction="DiscountPercentSelectedRoad"
+                  destination="EmployeeDiscountStation">
+              </ROAD>
+
+              <ROAD
+                  name="TransDiscAmtSelected"
+                  letter="TransDiscAmt"
+                  destination="EmployeeTransDiscountAmountStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="TransDiscPerSelected"
+                  letter="TransDiscPer"
+                  destination="EmployeeTransDiscountPercentStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="PricingUndo"
+                  letter="Undo"
+                  destination="Final">
+              </ROAD>
+              <ROAD
+                  name="PricingCancel"
+                  letter="Cancel"
+                  destination="Final">
+              </ROAD>
+          </SITE>
+
+<!-- Item Discount Station -->
+          <STATION name="EmployeeDiscountStation"
+              servicename="pricing.employeediscount.employeediscount"
+              targettier="CURRENTTIER"
+              launchshuttle="ItemDiscountLaunchShuttle"
+              returnshuttle="ItemDiscountReturnShuttle">
+              <AISLE
+                  name="ItemDiscountCleared"
+                  letter="Clear"
+                  laneaction="NextLetterAisle">
+              </AISLE>
+              <ROAD
+                  name="ItemDiscountCanceled"
+                  letter="Cancel"
+                  destination="Final">
+              </ROAD>
+              
+             <ROAD
+                  name="ItemDiscountFailure"
+                  letter="Failure"
+                  destination="DiscountOptions">
+              </ROAD>
+              <ROAD
+                  name="ItemDiscountUndo"
+                  letter="Undo"
+                  destination="DiscountOptions">
+              </ROAD>
+              <ROAD
+                  name="ItemDiscountSuccess"
+                  letter="Next"
+                  destination="Final">
+              </ROAD>
+          </STATION>
+
+<!-- Transaction Discount Percent Station -->
+          <STATION name="EmployeeTransDiscountPercentStation"
+               servicename="modifytransaction.employeediscount.modifyemployeetransactiondiscount"
+               targettier="CURRENTTIER"
+               launchshuttle="ModifyEmployeeTransactionDiscountPercentLaunchShuttle"
+               returnshuttle="ModifyEmployeeTransactionDiscountPercentReturnShuttle">
+               <COMMENT>
+                    This station will go to the Modify Transaction Discount
+                    service.
+               </COMMENT>
+              <ROAD
+                   name="UndoDiscountPercent"
+                   letter="Undo"
+                   destination="DiscountOptions"
+                   tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Undo letter is received
+                             from the Discount service.
+                        </COMMENT>
+              </ROAD>
+              <ROAD
+                  name="NextDiscountPercent"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Next Letter is received
+                             from the Discount service.
+                        </COMMENT>
+              </ROAD>
+              <ROAD
+                  name="CancelDiscountPercent"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Cancel letter is received
+                             from the Discount service.
+                        </COMMENT>
+              </ROAD>
+              <ROAD
+                  name="FailureDiscountPercent"
+                  letter="Failure"
+                  destination="DiscountOptions"
+                  tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Failure letter is received
+                             from the Discount service.
+                        </COMMENT>
+              </ROAD>
+          </STATION>
+
+<!-- Transaction Discount Amount Station -->
+          <STATION name="EmployeeTransDiscountAmountStation"
+                   servicename="modifytransaction.employeediscount.modifyemployeetransactiondiscount"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ModifyEmployeeTransactionDiscountAmountLaunchShuttle"
+                   returnshuttle="ModifyEmployeeTransactionDiscountAmountReturnShuttle">
+               <COMMENT>
+                    This station will transfer to the Modify Transaction
+                    Discount service.
+               </COMMENT>
+               <ROAD
+                   name="NextDiscountAmount"
+                   letter="Next"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Next letter is received
+                         from the Discount service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="CancelDiscountAmount"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel letter is received
+                         from the Discount service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="FailureDiscountAmount"
+                   letter="Failure"
+                   destination="DiscountOptions"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Failure  letter is received
+                         from the Discount service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="UndoDiscountAmount"
+                   letter="Undo"
+                   destination="DiscountOptions"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Undo letter is received
+                         from the Discount service.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

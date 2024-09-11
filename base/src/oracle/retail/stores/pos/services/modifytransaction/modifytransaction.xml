@@ -1,0 +1,1202 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/modifytransaction/modifytransaction.xml /main/42 2014/05/14 14:41:27 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    asinton   10/22/14 - Refactor to restore Fulfillment main option flow.
+ *    cgreene   05/14/14 - rename retrieve to resume
+ *    yiqzhao   03/10/14 - Avoid sliding on bill payment search screen.
+ *    abhinavs  10/02/13 - Fix to resolve sliding button issue on layaway
+ *                         failure
+ *    mchellap  08/27/13 - Refactor item basket flow for tour guidelines
+ *    mkutiana  05/09/13 - Fixed tour for escaping from reasoncode screen at
+ *                         Suspend transaction
+ *    yiqzhao   02/14/13 - Disalbe Order Button in modifytransaction when there
+ *                         is item in the transaction.
+ *    cgreene   02/04/13 - voidfailed road now goes back to sale screen menu
+ *    yiqzhao   09/26/12 - refactor related item to add cross sell, upsell and
+ *                         substitute, remove pick one and pick many
+ *    yiqzhao   07/23/12 - modify order search flow for xchannel order and
+ *                         special order
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    nkgautam  06/23/10 - bill pay changes
+ *    acadar    06/03/10 - changes for signature capture
+ *    abondala  05/28/10 - re packaging files
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    acadar    05/21/10 - additional changes for process order flow
+ *    acadar    05/19/10 - connect process order service
+ *    abondala  05/12/10 - Siebel search order flow
+ *    abondala  05/12/10 - Search external orders flow
+ *    cgreene   04/28/10 - updated deprecated classnames
+ *    abhayg    03/26/10 - added new road PDOContinue for pickup and delivery
+ *                         in serialised item tour
+ *    abondala  01/02/10 - Update Header date
+ *    blarsen   10/01/09 - XbranchMerge
+ *                         blarsen_bug8848490-user-not-auto-logged-out-after-spec-order
+ *                         from rgbustores_13.1x_branch
+ *    blarsen   09/09/09 - Added support ExitSpecialOrder letter. This letter
+ *                         provides a path out of special orders when a
+ *                         transaction is performed. In this case the sale must
+ *                         be initialized and register accountability checked.
+ *                         This fixes the Lowe's problem where user was not
+ *                         automatically logged out after a pickup or a cancel.
+ *    vikini    02/10/09 - fixing defect with special order station
+ *    aariyer   02/04/09 - Files for Item Basket Feature
+ *    vikini    02/03/09 - Fixing Error in commenting
+ *    vikini    02/03/09 - Adding the Undo Road for Related Items Station
+ *    vikini    02/03/09 - Commenting the Itembasket Launch and Return Shuttle
+ *    aariyer   02/02/09 - Added files for Item Basket feature
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ModifyTransaction" package="oracle.retail.stores.pos.services.modifytransaction" tourcam="OFF">
+<CARGO class="ModifyTransactionCargo"/>
+<SERVICECODE>
+
+     <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="DoneLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="GiftReceiptAssignedAisle"/>
+     <LANEACTION class="GiftReceiptCheckEligibilityAisle"/>
+     <LANEACTION class="RemoveItemRoad"/>
+
+     <LETTER name="BillPay"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Done"/>
+     <LETTER name="ExitCompleteSale"/>
+     <LETTER name="ExitLayaway"/>
+     <LETTER name="ExitSpecialOrder"/>
+     <LETTER name="ExternalOrder"/>
+     <LETTER name="Failure"/>
+     <LETTER name="GiftReceipt"/>
+     <LETTER name="GiftReceiptEligible"/>
+     <LETTER name="GiftRegistry"/>
+     <LETTER name="ItemBasket"/>
+     <LETTER name="Layaway"/>
+     <LETTER name="Next"/>
+     <LETTER name="Ok"/>
+     <LETTER name="QueueFull"/>
+     <LETTER name="Resume"/>
+     <LETTER name="SalesAssociate"/>
+     <LETTER name="Send"/>
+     <LETTER name="Order"/>
+     <LETTER name="SpecialOrder"/>
+     <LETTER name="Success"/>
+     <LETTER name="Suspend"/>
+     <LETTER name="SuspendedTransaction"/>
+     <LETTER name="Tax"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Void"/>
+     <LETTER name="VoidedTransaction"/>
+
+     <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+     <SHUTTLE class="ItemBasketLaunchShuttle" package="oracle.retail.stores.pos.services.itembasket"/>
+     <SHUTTLE class="ItemBasketReturnShuttle" package="oracle.retail.stores.pos.services.itembasket"/>
+     <SHUTTLE class="ModifyItemSerialNumberLaunchShuttle"/>
+     <SHUTTLE class="ModifyTransactionGiftRegistryLaunchShuttle"/>
+     <SHUTTLE class="ModifyTransactionGiftRegistryReturnShuttle"/>
+     <SHUTTLE class="ModifyTransactionLayawayLaunchShuttle"/>
+     <SHUTTLE class="ModifyTransactionLayawayReturnShuttle"/>
+     <SHUTTLE class="ModifyTransactionResumeLaunchShuttle"/>
+     <SHUTTLE class="ModifyTransactionResumeReturnShuttle"/>
+     <SHUTTLE class="ModifyTransactionSalesAssociateLaunchShuttle"/>
+     <SHUTTLE class="ModifyTransactionSalesAssociateReturnShuttle"/>
+     <SHUTTLE class="ModifyTransactionSendLaunchShuttle"/>
+     <SHUTTLE class="ModifyTransactionSendReturnShuttle"/>
+     <SHUTTLE class="ModifyTransactionSuspendLaunchShuttle"/>
+     <SHUTTLE class="ModifyTransactionSuspendReturnShuttle"/>
+     <SHUTTLE class="ModifyTransactionTaxLaunchShuttle"/>
+     <SHUTTLE class="ModifyTransactionTaxReturnShuttle"/>
+     <SHUTTLE class="OrderLaunchShuttle"/>
+     <SHUTTLE class="RelatedItemLaunchShuttle"/>
+     <SHUTTLE class="SpecialOrderLaunchShuttle"/>
+     <SHUTTLE class="SpecialOrderReturnShuttle"/>
+     <SHUTTLE class="VoidLaunchShuttle"/>
+     <SHUTTLE class="SearchExternalOrderLaunchShuttle" package="oracle.retail.stores.pos.services.modifytransaction"/>
+     <SHUTTLE class="SearchExternalOrderReturnShuttle" package="oracle.retail.stores.pos.services.modifytransaction"/>
+     <SHUTTLE class="BillPayLaunchShuttle"/>
+     <SHUTTLE class="BillPayReturnShuttle"/>
+     <SHUTTLE class="OrderReturnShuttle"/>
+
+     <SITEACTION class="EvaluateOrderNavigationSite"/>
+     <SITEACTION class="ItemBasketSite"/>
+     <SITEACTION class="ModifyTransactionOptionsSite"/>
+     
+     <SIGNAL class="IsXChannelOrderSignal" package="oracle.retail.stores.pos.services.common"/>
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="ModifyTransactionOptions">
+          <SITE name="ModifyTransactionOptions" siteaction="ModifyTransactionOptionsSite">
+               <COMMENT>
+                    This site is used to launch shuttles for all the transaction
+                    level operations.
+               </COMMENT>
+               <AISLE
+                    name="GiftReceiptCheckEligibility"
+                    letter="GiftReceipt"
+                    laneaction="GiftReceiptCheckEligibilityAisle">
+                    <COMMENT>
+                        Show diaglog screen if not all items are eligible,
+                        then flow continues.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="GiftReceiptSelected"
+                    letter="GiftReceiptEligible"
+                    laneaction="GiftReceiptAssignedAisle">
+                    <COMMENT>
+                        This aisle will assign a gift receipt attribute to
+                        the SaleReturnLineItem and mail the Final letter,
+                        Next to the calling service.
+                    </COMMENT>
+                </AISLE>
+               <ROAD name="GiftRegistrySelected"
+                     letter="GiftRegistry"
+                     destination="GiftRegistryStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                         This road is traversed when the user select gift registry.
+                     </COMMENT>
+               </ROAD>
+               <ROAD name="VoidSelected"
+                     letter="Void"
+                     destination="VoidStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                          This road is traversed when the void key is pressed
+                          on the menu.
+                     </COMMENT>
+               </ROAD>
+               <ROAD name="TaxSelected"
+                     letter="Tax"
+                     destination="TaxStation" tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                         This road is traversed when the Discount Percent
+                         is pressed on the menu.
+                     </COMMENT>
+               </ROAD>
+               <ROAD name="SalesAssociateSelected"
+                     letter="SalesAssociate"
+                     destination="SalesAssociateStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                         This road is traversed when the Sales Person button
+                         is pressed on the UI.
+                     </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendSelected"
+                     letter="Suspend"
+                     destination="SuspendStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                         This road is traversed when the Suspend button
+                         is pressed on the menu.  This activates the process to
+                         suspend a transaction.
+                     </COMMENT>
+               </ROAD>
+               <ROAD name="ResumeSelected"
+                     letter="Resume"
+                     destination="ResumeStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                         This road is traversed when the Resume button
+                         is pressed on the menu.  This activates the process to
+                         resume a suspended transaction.
+                     </COMMENT>
+               </ROAD>
+               <ROAD name="UndoModifyOptions"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Undo key is pressed
+                         on the UI.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="NextModifyOptions"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Next button is pressed
+                         on the UI.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelModifyOptions"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This Road is traversed when the Cancel Button is pressed
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="LayawaySelected"
+                     letter="Layaway"
+                     destination="LayawayOptionsStation" tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                         This road is traversed when the Layaway button
+                         is pressed on the menu.
+                      </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="SendSelected"
+                    letter="Send"
+                    destination="ModifyTransactionSendStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OrderRaod"
+                    letter="Order"
+                    destination="EvaluateOrderNavigation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemBasketSelected"
+                    letter="ItemBasket"
+                    destination="ItemBasketStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ExternalOrderSelected"
+                    letter="ExternalOrder"
+                    destination="ExternalOrderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                     <COMMENT>
+                         This road is traversed when the user select web order.
+                     </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="BillPaySelected"
+                    letter="BillPay"
+                    destination="BillPayStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                         This road is traversed when the user select Bill Pay.
+                     </COMMENT>
+                </ROAD>
+          </SITE>
+          <SITE name="EvaluateOrderNavigation" siteaction="EvaluateOrderNavigationSite">
+                <ROAD
+                    name="OrderSelectedRoad"
+                    letter="Order"
+                    destination="OrderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is taken when either we are coming from fulfillment and there is no transaction
+                        in progress, or we are in commerce anywhere configuration. 
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SpecialOrderSelectedRoad"
+                    letter="SpecialOrder"
+                    destination="SpecialOrderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is taken when we are not comming from fulfillment and we are not in commerce
+                        anywhere configuration.
+                    </COMMENT>
+                </ROAD>
+          </SITE>
+          <STATION
+                 name="ModifyTransactionSendStation"
+                 servicename="services.send.transactionlevelsend"
+                 targettier="CURRENTTIER"
+                 launchshuttle="ModifyTransactionSendLaunchShuttle"
+                 returnshuttle="ModifyTransactionSendReturnShuttle">
+                 <COMMENT>
+                      This station is the transfer point for the send
+                      service.
+                 </COMMENT>
+                 <ROAD
+                    name="NonMerchandiseItemFound"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionLevelSendSuccessfullyStarts"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoPressedDuringCutomerLink"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelPressedDuringCutomerLink"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDEnteredDuringCutomerLink"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerAlreadyLinked"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerNotLinked"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+          <STATION name="GiftRegistryStation"
+                   servicename="modifytransaction.registry.ModifyTransactionGiftRegistry"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ModifyTransactionGiftRegistryLaunchShuttle"
+                   returnshuttle="ModifyTransactionGiftRegistryReturnShuttle">
+               <COMMENT>
+                    This station goes to the Modify Gift Registry Service.
+               </COMMENT>
+               <ROAD name="CancelGiftRegistry"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="FailureGiftRegistry"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Failure Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoGiftRegistryStation"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when a Undo letter is received
+                         from Gift Registry.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="NextGiftRegistry"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when a Next letter is received
+                         from Gift Registry
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <STATION name="VoidStation"
+                   servicename="services.postvoid.void"
+                   targettier="CURRENTTIER"
+                   launchshuttle="VoidLaunchShuttle"
+                   returnshuttle="FinancialCargoShuttle">
+               <COMMENT>
+                    This station connects to the Modify Transaction
+                    Void service.
+               </COMMENT>
+               <ROAD name="VoidReturned"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Next letter is received
+                         from the Void service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="VoidUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Undo letter is received
+                         from the Void service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="VoidCanceled"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel letter is received
+                         from the Void service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="VoidFailed"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when voiding a transaction fails.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="VoidTransactionComplete"
+                     letter="VoidedTransaction"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="VoidTransactionQueueFull"
+                     letter="QueueFull"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <STATION name="SalesAssociateStation"
+                   servicename="modifytransaction.salesassociate.ModifyTransactionSalesAssociate"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ModifyTransactionSalesAssociateLaunchShuttle"
+                   returnshuttle="ModifyTransactionSalesAssociateReturnShuttle">
+               <COMMENT>
+                    This station connects to the Modify Transaction
+                    Sales Associate site.
+               </COMMENT>
+               <ROAD name="CancelSalesAssociate"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Cancel letter is received
+                         from Sales Associate.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="FailureSalesAssociate"
+                     letter="Failure"
+                     destination="ModifyTransactionOptions"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Failure letter is received
+                         from Sales Associate.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoSalesAssociate"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Undo letter is received
+                         from Sales Associate.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SalesAssociateReturned"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Next letter is received
+                         from Sales Associate.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+
+          <STATION name="TaxStation"
+              servicename="modifytransaction.tax.modifytransactiontax"
+              targettier="CURRENTTIER"
+              launchshuttle="ModifyTransactionTaxLaunchShuttle"
+              returnshuttle="ModifyTransactionTaxReturnShuttle">
+               <COMMENT>
+                    This station goes to the Modify Tax Service.
+               </COMMENT>
+               <ROAD name="NextTax"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Next letter is received
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="TaxExemptOverrideError"
+                     letter="Ok"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                    <COMMENT>
+                         This road is traversed when a Ok letter is received
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelTax"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoTax"
+                     letter="Undo"
+                     destination="ModifyTransactionOptions"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Undo letter is received
+                         from the Modify Transaction Tax service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="FailureTax"
+                     letter="Failure"
+                     destination="ModifyTransactionOptions"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when the Failure  letter is received
+                         from the Tax.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <STATION name="SuspendStation"
+              servicename="modifytransaction.suspend.suspend"
+              targettier="CURRENTTIER"
+              launchshuttle="ModifyTransactionSuspendLaunchShuttle"
+              returnshuttle="ModifyTransactionSuspendReturnShuttle">
+               <COMMENT>
+                    This station goes to the Suspend Service.
+               </COMMENT>
+               <ROAD name="NextSuspend"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Next letter is received
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendFailure"
+                     letter="Failure"
+                     destination="ModifyTransactionOptions"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Next letter is received
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelSuspend"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoSuspend"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Undo letter is received
+                         from the Modify Transaction Suspend service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendTransactionComplete"
+                     letter="SuspendedTransaction"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+               </ROAD>
+               <ROAD name="SuspendTransactionQueueFull"
+                     letter="QueueFull"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+               </ROAD>
+          </STATION>
+          <STATION name="ResumeStation"
+              servicename="modifytransaction.resume.resume"
+              targettier="CURRENTTIER"
+              launchshuttle="ModifyTransactionResumeLaunchShuttle"
+              returnshuttle="ModifyTransactionResumeReturnShuttle">
+               <COMMENT>
+                    This station goes to the Resume Service.
+               </COMMENT>
+               <ROAD name="NextResume"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Next letter is received
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelResume"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoResume"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Undo letter is received
+                         from the Modify Transaction Resume service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ResumeSuccess"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when the retrieval is performed successfully.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ResumeFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when an error occurs during the retrieval.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <STATION name="LayawayOptionsStation"
+              servicename="services.layaway.layawayoptions"
+              targettier="CURRENTTIER"
+              launchshuttle="ModifyTransactionLayawayLaunchShuttle"
+              returnshuttle="ModifyTransactionLayawayReturnShuttle">
+               <COMMENT>
+                    This station goes to the Layaway Options Service.
+               </COMMENT>
+               <ROAD name="CancelLayaway"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="FailureLayaway"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when the Failure Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoLayawayStation"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Undo letter is received
+                         from Create Layaway.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="NextLayaway"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a Success letter is received
+                         from Create Layaway.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="LayawayComplete"
+                     letter="ExitLayaway"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                         This road is traversed when a ExitLayaway letter is received
+                         from layaway options.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="LayawayOptionsQueueFull"
+                   letter="QueueFull"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+               </ROAD>
+          </STATION>
+          <STATION
+                name="SpecialOrderStation"
+                servicename="services.specialorder.specialorder"
+                targettier="CURRENTTIER"
+                launchshuttle="SpecialOrderLaunchShuttle"
+                returnshuttle="SpecialOrderReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the special
+                    order service.
+                </COMMENT>
+                <AISLE
+                    name="SpecialOrderFailure"
+                    letter="Failure"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="SpecialOrderSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the special order service
+                        returns with a Success letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SpecialOrderUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the special order service
+                        returns with a Undo letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SpecialOrderCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the Till Function service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SpecialOrderQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <ROAD
+                   name="SpecialOrderComplete"
+                   letter="ExitSpecialOrder"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+                    <COMMENT>
+                         This road is traversed when a Special Order transaction has finished.
+                         ExitSpecialOrder letter indicates that normal init-sale processing should occur.
+                         (This includes checking accountability.)
+                    </COMMENT>
+               </ROAD>
+            </STATION>
+            <STATION
+                name="OrderStation"
+                servicename="services.order.order"
+                targettier="CURRENTTIER"
+                launchshuttle="OrderLaunchShuttle"
+                returnshuttle="OrderReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the special
+                    order service.
+                </COMMENT>
+                <AISLE
+                    name="OrderFailure"
+                    letter="Failure"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="OrderSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the special order service
+                        returns with a Success letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OrderUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the special order service
+                        returns with a Undo letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OrderCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the Till Function service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OrderQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <ROAD
+                   name="OrderComplete"
+                   letter="ExitSpecialOrder"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+                    <COMMENT>
+                         This road is traversed when a Special Order transaction has finished.
+                         ExitSpecialOrder letter indicates that normal init-sale processing should occur.
+                         (This includes checking accountability.)
+                    </COMMENT>
+               </ROAD>
+            </STATION>            
+            <SITE name="ItemBasket" siteaction="ItemBasketSite">
+               <ROAD
+                    name="ItemAdded"
+                    letter="RelatedItems"
+                    destination="RelatedItemStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GetSerialNumbers"
+                    letter="GetSerialNumbers"
+                    destination="SerializedItemStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <AISLE
+                    name="UndoRelatedItemSelected"
+                    laneaction ="RemoveItemRoad"
+                    letter="Undo"
+                    destination="ItemBasket"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </AISLE>
+                <AISLE
+                    name="CancelItemSelected"
+                    laneaction ="RemoveItemRoad"
+                    letter="Cancel"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </AISLE>
+                <AISLE
+                    name="InvalidItemSelectedRoad"
+                    laneaction ="RemoveItemRoad"
+                    letter="Invalid"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </AISLE>
+               <ROAD name="ItemBasketDone"
+                     letter="Success"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </SITE>
+            <STATION name="ItemBasketStation"
+                   servicename="services.itembasket.itembasket"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ItemBasketLaunchShuttle"
+                   returnshuttle="ItemBasketReturnShuttle">
+               <COMMENT>
+                    This station goes to the Modify Gift Registry Service.
+               </COMMENT>
+               <ROAD name="ReturnItemsToSaleScreen"
+                     letter="Success"
+                     destination="ItemBasket"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ReturnToSaleScreen"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoItemBasketSelect"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelItemBasketSelect"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel Letter is received.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <STATION
+                name="RelatedItemStation"
+                servicename="modifyitem.relateditem.relateditem"
+                targettier="CURRENTTIER"
+                launchshuttle="RelatedItemLaunchShuttle">
+                <COMMENT>
+                    This station goes to the related item services to add all
+                    related items.
+                </COMMENT>
+                <ROAD
+                    name="RelatedItemsAdded"
+                    letter="Done"
+                    destination="ItemBasket"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                         This road is traversed when the Done Letter is received.
+                    </COMMENT>
+                </ROAD>
+                <AISLE name="RelatedItemsUndo"
+                    letter="Undo"
+                    laneaction ="DoneLetterAisle">
+                </AISLE> 
+                <ROAD
+                     name="CancelItemRoad"
+                     laneaction ="RemoveItemRoad"
+                     letter="Cancel"
+                     destination="ItemBasket">
+                </ROAD>
+                <ROAD
+                     name="RemovePrimaryItemRoad"
+                     laneaction ="RemoveItemRoad"
+                     letter="Next"
+                     destination="ItemBasket">
+                </ROAD>            
+            </STATION>
+             <STATION
+                 name="SerializedItemStation"
+                 servicename="modifyitem.serialnumber.serializedItem"
+                 targettier="CURRENTTIER"
+                 launchshuttle="ModifyItemSerialNumberLaunchShuttle">
+                 <COMMENT>
+                     This service prompts the user for serial number input and sets the serial number attribute
+                     for one or more line items.
+                 </COMMENT>
+                 <ROAD
+                     name="SerialNumbersEntered"
+                     letter="Ok"
+                     destination="RelatedItemStation">
+                 </ROAD>
+                 <ROAD
+                     name="SerializedItemUndo"
+                     laneaction ="RemoveItemRoad"
+                     letter="Undo"
+                     destination="ItemBasket">
+                 </ROAD>
+                 <ROAD
+                     name="SerializedItemCancel"
+                     laneaction ="RemoveItemRoad"
+                     letter="Cancel"
+                     destination="ItemBasket">
+                 </ROAD>
+                 <ROAD
+                     name="DuplicateSerializedItem"
+                     laneaction ="RemoveItemRoad"
+                     letter="Error"
+                     destination="ItemBasket">
+                 </ROAD>
+                 <ROAD
+                     name="PDOContinue"
+                     letter="Continue"
+                     destination="RelatedItemStation">
+                 </ROAD>
+            </STATION>
+              <STATION name="ExternalOrderStation"
+                   servicename="externalorder.searchorder.searchorder"
+                   targettier="CURRENTTIER"
+                   launchshuttle="SearchExternalOrderLaunchShuttle"
+                   returnshuttle="SearchExternalOrderReturnShuttle">
+               <COMMENT>
+                    This station connects to the Modify Transaction
+                    External Order site.
+               </COMMENT>
+               <ROAD name="CancelExternalOrder"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Cancel letter is received
+                         from External Order.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="FailureExternalOrder"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Failure letter is received
+                         from External Order.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoExternalOrder"
+                     letter="Undo"
+                     destination="ModifyTransactionOptions"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Undo letter is received
+                         from External Order.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ExternalOrderReturned"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the Next letter is received
+                         from External Order.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="ExceptionExternalOrder"
+                    letter="Final"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road goes to the ShowSaleScreen, after a return was timed out.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ExternalOrderProcessingCompleted"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road goes to the ShowSaleScreen, after a return was timed out.
+                    </COMMENT>
+                </ROAD>
+          </STATION>
+          
+          <STATION
+              name="BillPayStation"
+              servicename="modifytransaction.billpay.billpay"
+              targettier="CURRENTTIER"
+              launchshuttle="BillPayLaunchShuttle"
+              returnshuttle="BillPayReturnShuttle">
+              <ROAD 
+                 name="BillPayCancel" 
+                 letter="Cancel"
+                 destination="Final">
+             </ROAD>
+             <ROAD 
+                name="BillPayUndo" 
+                letter="Undo"
+                destination="Final">
+            </ROAD>
+            <ROAD 
+               name="BillPayTxnCompleted" 
+               letter="ExitCompleteSale"
+               destination="Final">
+            </ROAD>
+          </STATION>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+     </REGION>
+</MAP>
+</SERVICE>

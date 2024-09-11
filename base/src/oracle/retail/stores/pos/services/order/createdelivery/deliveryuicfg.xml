@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/createdelivery/deliveryuicfg.xml /main/12 2012/05/02 14:07:48 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     04/13/12 - Moved to the order package during the cross
+ *                         channel project to provide better organization for
+ *                         the order create process.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/17/09 - Added ADE Header
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+	<BEAN specName="GetDeliveryDateSpec"
+		 configuratorPackage="oracle.retail.stores.pos.ui"
+		 configuratorClassName="POSBeanConfigurator"
+		 beanPackage="oracle.retail.stores.pos.ui.beans"
+		 beanClassName="GetDeliveryDateBean">
+	</BEAN>
+
+	<BEAN specName="CaptureDeliveryCustomerAddressInfoSpec"
+		 configuratorPackage="oracle.retail.stores.pos.ui"
+		 configuratorClassName="POSBeanConfigurator"
+		 beanPackage="oracle.retail.stores.pos.ui.beans"
+		 beanClassName="CustomerInfoBean">
+	</BEAN>
+
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		 resourceBundleFilename="deliveryText"
+		 specName="GET_DELIVERY_DATE_SCREEN">
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel"
+			 beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="buttonStates"
+				 propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="WorkPanel"
+			 beanSpecName="GetDeliveryDateSpec">
+			<BEANPROPERTY propName="RequiredValidatingFields"
+				 propValue="deliveryDateField" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel"
+			 beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag"
+				 propValue="StatusDeliveryDate" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel"
+			 beanSpecName="PromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag"
+				 propValue="PromtpForDeliveryDate" />
+		</ASSIGNMENT>
+		<CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="GetDeliveryDateSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="GetDeliveryDateSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+		
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="GetDeliveryDateSpec"/>
+
+	</OVERLAYSCREEN>
+
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		 resourceBundleFilename="deliveryText"
+		 specName="GET_DELIVERY_ADDRESS_SCREEN">
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel"
+			 beanSpecName="GlobalNavigationPanelSpec">
+		        <BEANPROPERTY
+                                propName="manageNextButton"
+                                propValue="false"/>
+			<BEANPROPERTY propName="buttonStates"
+				 propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="WorkPanel"
+			 beanSpecName="CaptureDeliveryCustomerAddressInfoSpec">
+			<BEANPROPERTY propName="RequiredValidatingFields"
+				 propValue="addressLine1Field,cityField,postalCodeField,telephoneField" />
+			<BEANPROPERTY propName="OptionalValidatingFields"
+				 propValue="firstNameField,lastNameField,orgNameField, addressLine2Field,postalCodeExtField,instrScrollPane" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel"
+			 beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag"
+				 propValue="StatusDeliveryAddress" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel"
+			 beanSpecName="PromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag"
+				 propValue="PromtpForNewAddress" />
+		</ASSIGNMENT>
+
+		<CONNECTION listenerInterfaceName="ValidateActionListener"
+			 listenerPackage="oracle.retail.stores.pos.ui.behavior"
+			 sourceBeanSpecName="GlobalNavigationPanelSpec"
+			 targetBeanSpecName="CaptureDeliveryCustomerAddressInfoSpec" />
+
+		 <CONNECTION
+			 sourceBeanSpecName="CaptureDeliveryCustomerAddressInfoSpec"
+			 targetBeanSpecName="GlobalNavigationPanelSpec"
+			 listenerPackage="javax.swing.event"
+			 listenerInterfaceName="DocumentListener" />
+
+		<CONNECTION listenerInterfaceName="ClearActionListener"
+			 listenerPackage="oracle.retail.stores.pos.ui.behavior"
+			 sourceBeanSpecName="GlobalNavigationPanelSpec"
+			 targetBeanSpecName="CaptureDeliveryCustomerAddressInfoSpec" />
+	</OVERLAYSCREEN>
+
+</UICFG>

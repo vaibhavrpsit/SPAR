@@ -1,0 +1,576 @@
+<?xml version="1.0"?>
+<!--
+/*===========================================================================
+* Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+* ===========================================================================
+* $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/xchannelcreateshipping/xchannelcreateshippinguicfg.xml /main/8 2014/06/10 12:04:10 abhinavs Exp $
+* ===========================================================================
+* NOTES
+* <other useful comments, qualifications, etc.>
+*
+* MODIFIED    (MM/DD/YY)
+* abhinavs    06/09/14 - CAE add available date during order create enhancement
+*                        phase II
+* abhinavs    05/01/13 - Validating postalcode field for search store option
+* yiqzhao     01/28/13 - change the minimum length of the first name and the
+*                        last name to 1.
+* yiqzhao     01/28/13 - Use CustomerContactInfoBean.
+* yiqzhao     11/09/12 - Enable cancel and delete buttons on global navigation
+*                        panel.
+* yiqzhao     07/06/12 - use XChannelShippingMethodBean
+* yiqzhao     07/03/12 - change StatusPanelSpec.StoreSearchForOrder to Store
+*                        Search for Order
+* yiqzhao     07/02/12 - Read text from orderText bundle file and define screen
+*                        names
+* yiqzhao     06/04/12 - Creation
+* ===========================================================================
+*/
+-->
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+   <BEAN
+        specName="ShipToOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="ShipToStore"
+            enabled="true"
+            keyName="F2"
+            labelTag="ShipToStore"/>
+        <BUTTON
+            actionName="Customer"
+            enabled="true"
+            keyName="F3"
+            labelTag="Customer"/>
+    </BEAN>
+    <BEAN
+        specName="OrderCreateShipOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Ship"
+            enabled="true"
+            keyName="F2"
+            labelTag="Ship"/>
+
+        <BUTTON
+            actionName="StoreSearch"
+            enabled="true"
+            keyName="F3"
+            labelTag="StoreSearch"/>
+
+    </BEAN>
+    <BEAN
+        specName="NewCustomerAddressButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            actionName="New"
+            enabled="true"
+            keyName="F2"
+            labelTag="New"/>
+    </BEAN> 
+    <BEAN
+        specName="NoneButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+    </BEAN>
+ 
+    <BEAN
+        specName="StoreSelectForShipSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ListBean">
+
+            <BEANPROPERTY propName="LabelTags" propValue="StoreNumberLabel,NameLable,StoreAddressLabel,StoreTelephoneLabel"/>
+            <BEANPROPERTY propName="LabelWeights" propValue="15,21,50,14"/>
+            <BEANPROPERTY propName="Renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.StoreLineItemRenderer"/>
+            <BEANPROPERTY propName="Focused" propValue="true"/>
+    </BEAN>  
+    
+    <BEAN
+        specName="ShipToStoreCustomerDataInputSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="CustomerContactInfoBean">
+        <FIELD fieldName="firstNameField"
+            fieldType="ConstrainedField"
+            labelTag="FirstNameLabel"
+            paramList="firstNameField,1,30,16"
+            enabled="true"
+            required="true"/>
+        <FIELD fieldName="lastNameField"
+            fieldType="ConstrainedField"
+            labelTag="LastNameLabel"
+            paramList="lastNameField,1,30,20"
+            enabled="true"
+            required="true"/>
+        <FIELD fieldName="telephoneNumberField"
+            fieldType="ValidatingFormattedTextField"
+            labelTag="TelephoneNumberLabel"
+            paramList="telephoneNumberField,true,30,20"
+            enabled="true"
+            required="true"/>
+        <FIELD fieldName="countryField"
+            fieldType="ValidatingComboBox"
+            labelTag="CountryLabel"
+            paramList="countryField,false,15"
+            enabled="true"
+            required="false"/>
+    </BEAN> 
+    
+    <BEAN
+        specName="OrderCreateShipToStoreCustomerOptionsSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Customer"
+            enabled="true"
+            keyName="F2"
+            labelTag="Customer"/>
+    </BEAN>  
+      
+    <BEAN
+        specName="XChannelShipCustomerInfoSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="CaptureCustomerInfoBean">
+    </BEAN> 
+    
+    <BEAN
+        specName="OrderShippingMethodSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="XChannelShippingMethodBean">
+    </BEAN>    
+    <BEAN
+        specName="OrderStoreShippingMethodSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="XChannelStoreShippingMethodBean">
+    </BEAN>
+    <BEAN
+        specName="CustomerAddressBookSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ListBean">
+            <BEANPROPERTY propName="LabelTags" propValue="AddressTypeLabel,NameLabel,AddressLabel,PhoneLabel"/>
+            <BEANPROPERTY propName="LabelWeights" propValue="15,20,50,15"/>
+            <BEANPROPERTY propName="Renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.CustomerAddressBookRenderer"/>
+            <BEANPROPERTY propName="Focused" propValue="true"/>
+    </BEAN>     
+    
+    <OVERLAYSCREEN
+        specName="SHIP_TO_OPTIONS"
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="ShipToOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+                <BEANPROPERTY
+                    propName="promptTextTag" propValue="ShipToAddressPrompt"/>
+                <BEANPROPERTY
+                    propName="enterData" propValue="false"/>                    
+        </ASSIGNMENT>        
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="XChannelShipCustomerInfoSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+            propValue="firstNameField,lastNameField,addressLine1Field,cityField,countryField,stateField,postalCodeField,telephoneField"/>                
+        </ASSIGNMENT>
+      
+        <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="ShipToOptionsButtonSpec">
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>                
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="XChannelShipCustomerInfoSpec"/>
+        <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="XChannelShipCustomerInfoSpec"/>
+        <CONNECTION
+                sourceBeanSpecName="XChannelShipCustomerInfoSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>        
+    </OVERLAYSCREEN>  
+    
+    <OVERLAYSCREEN
+        specName="XC_SHIP_TO_STORE_SELECT"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="StoreSelectForShipSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="ShipToStoreSearchResultScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag" propValue="ShipToStoreSearchPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="OrderCreateShipOptionsButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                   propName="manageNextButton"
+                   propValue="false"/>
+            <BEANPROPERTY
+                   propName="buttonStates"
+                   propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        specName="XC_SHIP_TO_STORE_CUSTOMER"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="ShipToStoreCustomerDataInputSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="CatureCustomerForShipScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag" propValue="CreateShipToStoreCustomerPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="OrderCreateShipToStoreCustomerOptionsSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                   propName="manageNextButton"
+                   propValue="false"/>
+            <BEANPROPERTY
+                   propName="buttonStates"
+                   propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="ShipToStoreCustomerDataInputSpec"/>  
+        <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="ShipToStoreCustomerDataInputSpec"/>
+        <CONNECTION
+                sourceBeanSpecName="ShipToStoreCustomerDataInputSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>                      
+    </OVERLAYSCREEN>    
+    <OVERLAYSCREEN
+            defaultScreenSpecName="DefaultValidatingSpec"
+            resourceBundleFilename="orderText"
+            specName="XC_SHIPPING_METHOD">
+
+            <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+                <BEANPROPERTY
+                    propName="screenNameTag" propValue="ShippingMethodScreenName"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="ShippingMethodButtonSpec">
+                <BEANPROPERTY
+                propName="actionName"
+                propValue="Done"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="OrderShippingMethodSpec">
+                <BEANPROPERTY
+                     propName="RequiredValidatingFields"
+                     propValue="shipChargeField,shipViaList"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+                <BEANPROPERTY
+                    propName="promptTextTag" propValue="ShippingMethodPrompt"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+                <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+                <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[false],Keys[true]"/>
+           </ASSIGNMENT>
+           <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="OrderShippingMethodSpec"/>
+
+           <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="ShippingMethodButtonSpec"
+                targetBeanSpecName="OrderShippingMethodSpec"/>
+
+           <CONNECTION
+                sourceBeanSpecName="OrderShippingMethodSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+     <OVERLAYSCREEN
+            defaultScreenSpecName="DefaultValidatingSpec"
+            resourceBundleFilename="orderText"
+            specName="XC_STORE_SHIPPING_METHOD">
+
+            <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+                <BEANPROPERTY
+                    propName="screenNameTag" propValue="ShippingOptionScreenName"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="ShippingMethodButtonSpec">
+                <BEANPROPERTY
+                propName="actionName"
+                propValue="Done"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="OrderStoreShippingMethodSpec">
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+                <BEANPROPERTY
+                    propName="promptTextTag" propValue="StoreShippingOptionPrompt"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+                <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+                <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[false],Keys[true]"/>
+           </ASSIGNMENT>
+           <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="OrderStoreShippingMethodSpec"/>
+
+           <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="ShippingMethodButtonSpec"
+                targetBeanSpecName="OrderStoreShippingMethodSpec"/>
+
+           <CONNECTION
+                sourceBeanSpecName="OrderStoreShippingMethodSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        specName="CUSTOMER_ADDRESS_BOOK"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="CustomerAddressBookSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="CustomerAddressBookScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag" propValue="SelectCustomerAddressPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="NewCustomerAddressButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                   propName="manageNextButton"
+                   propValue="true"/>
+            <BEANPROPERTY
+                   propName="buttonStates"
+                   propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>    
+    <OVERLAYSCREEN
+        specName="NEW_CUSTOMER_SHIP_ADDRESS"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="XChannelShipCustomerInfoSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+            propValue="firstNameField,lastNameField,addressLine1Field,addressLine2Field,cityField,countryField,stateField,postalCodeField,telephoneField"/>                
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="NewCustomerAddressScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag" propValue="NewCustomerAddressPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="NoneButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                   propName="manageNextButton"
+                   propValue="true"/>
+            <BEANPROPERTY
+                   propName="buttonStates"
+                   propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN> 
+    <OVERLAYSCREEN
+        specName="STORE_SEARCH_FOR_SHIP"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="StoreSearchDataInputSpec">
+          <BEANPROPERTY
+                propName="OptionalValidatingFields"
+                propValue="postalCodeField"/>     
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="StoreSearchForOrder"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag" propValue="StoreSearchCriteriaPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                   propName="manageNextButton"
+                   propValue="false"/>
+            <BEANPROPERTY
+                   propName="buttonStates"
+                   propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="StoreSearchDataInputSpec"/>
+
+        <CONNECTION
+                sourceBeanSpecName="StoreSearchDataInputSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>    
+                
+        <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="StoreSearchDataInputSpec"/>    
+    </OVERLAYSCREEN>
+</UICFG>

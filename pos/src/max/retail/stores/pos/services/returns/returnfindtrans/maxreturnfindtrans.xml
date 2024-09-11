@@ -1,0 +1,574 @@
+<?xml version='1.0' ?>
+<!--
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ************************
+ * Copyright (c) 2016-2017 Max Hypermarket.    All Rights Reserved. 
+ * Rev 1.1  15 Feb, 2017              Nadia              MAX-StoreCredi_Return requirement.
+ * Rev 1.0  08 Nov, 2016              Nadia              fix for issue : in returns, try to give unknown transaction number, it will ask for renter the tran no and click on no button, application is getting hang
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ***************************/
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE 
+    name="returnfindtransaction"
+    package="oracle.retail.stores.pos.services.returns.returnfindtrans"
+    tourcam="OFF">
+    <COMMENT >
+        This services searches for transactions by Transaction 
+        ID and allows the user select a transaction if the 
+        application retrieves more than one.
+    </COMMENT>
+    <CARGO  class="ReturnFindTransCargo"/>
+    <SERVICECODE >
+        <LANEACTION  class="CheckDatabaseErrorAisle"/>
+        <LANEACTION  class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION  class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION  class="GetSelectedTransactionRoad"/>
+        <LANEACTION class="RetrieveOriginalTendersRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>         
+        <LANEACTION  class="GetTransactionSummaryIndexRoad"/>
+        <LANEACTION  class="ReturnItemConversionAisle" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION  class="RollbackTransactionSummaryRoad"/>
+        <LANEACTION  class="TooManyTransactionsErrorAisle" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION  class="UndoCustomerRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION  class="ValidateReceiptIDAisle"/>
+        <LANEACTION  class="TransReentryRoad"/>
+        <LANEACTION  class="MoveTransactionToOriginalRoad" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <LETTER  name="Cancel"/>
+        <LETTER  name="Continue"/>
+        <LETTER  name="DbError"/>
+        <LETTER  name="Failure"/>
+        <LETTER  name="Failure2"/>
+        <LETTER  name="Invalid"/>
+        <LETTER  name="Loop"/>
+        <LETTER  name="MultipleMatches"/>
+        <LETTER  name="Next"/>
+        <LETTER  name="Ok"/>
+        <LETTER  name="Receipt"/>
+        <LETTER  name="Retrieve"/>
+        <LETTER  name="ReturnItem"/>
+        <LETTER  name="Success"/>
+        <LETTER  name="Tender"/>
+        <LETTER  name="TooMany"/>
+        <LETTER  name="Undo"/>
+        <SHUTTLE  class="ReturnTransactionLaunchShuttle"/>
+        <!-- Changes for Rev 1.1 : Starts -->
+        <SHUTTLE  class="MAXReturnTransactionReturnShuttle" package="max.retail.stores.pos.services.returns.returnfindtrans"/>
+        <!-- Changes for Rev 1.1 : Ends -->
+        <SIGNAL  class="IsDBErrorSignal"/>
+        <SIGNAL  class="IsNotDBErrorSignal" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SIGNAL  class="IsThereMoreThanOneTransactionSignal"/>
+        <SIGNAL  class="IsThereOneTransactionSignal"/>
+        <SIGNAL  class="TransReentryLight"/>
+        <SIGNAL  class="IsWebManagedOrderSignal" package="oracle.retail.stores.pos.services.order.common"/>
+        <SITEACTION  class="CheckForReturnableItemSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION  class="EnterReceiptIDSite"/>
+        <SITEACTION  class="EvaluateSearchCriteria"/>
+        <SITEACTION  class="EvaluateSearchCriteriaSite"/>
+        <SITEACTION  class="ReadSelectedTenderTransactionSite"/>
+        <SITEACTION  class="ReadTransactionSite"/>
+        <SITEACTION  class="SelectTransactionSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION  class="SelectTransactionSummarySite"/>
+        <!-- Gift Card -->
+        <SITEACTION  class="MAXCheckForReturnableItemSite" package="max.retail.stores.pos.services.returns.returncommon"/>
+         <SITEACTION class="LookupReturnOrderSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="EvaluateSearchCriteria">
+            <SITE  name="EvaluateSearchCriteria" siteaction="EvaluateSearchCriteriaSite">
+                <ROAD 
+                    name="SearhByReceiptSelected"
+                    letter="Receipt"
+                    destination="EnterReceiptID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="SearchByTenderSelected"
+                    letter="Tender"
+                    destination="SearchTransactionByTender"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterReceiptID" siteaction="EnterReceiptIDSite">
+                <AISLE 
+                    name="NextEnterReceiptID"
+                    letter="Next"
+                    laneaction="ValidateReceiptIDAisle">
+                </AISLE>
+                <AISLE 
+                    name="CancelEnterReceiptID"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD 
+                    name="OkEnterReceiptID"
+                    letter="Ok"
+                    destination="EnterReceiptID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="ContinueEnterReceiptID"
+                    letter="Continue"
+                    destination="ReadTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="TransReentryLight" negate="Y"/>
+                </ROAD>
+                <ROAD 
+                    name="ReturnItemReadTransactions"
+                    laneaction="TransReentryRoad"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="TransReentryLight"/> 
+                </ROAD> 
+                <ROAD 
+                    name="UndoEnterReceiptID"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FailureEnterReceiptID"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+            </SITE>
+            <SITE  name="ReadTransaction" siteaction="ReadTransactionSite">
+                <AISLE 
+                    name="DbErrorReadTransaction"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE 
+                    name="TooManyReadTransaction"
+                    letter="TooMany"
+                    laneaction="TooManyTransactionsErrorAisle">
+                </AISLE>
+                <AISLE 
+                    name="OkReadTransactionDBError"
+                    letter="Ok"
+                    laneaction="CheckDatabaseErrorAisle">
+                    <LIGHT  signal="IsDBErrorSignal"/>
+                </AISLE>
+                <ROAD 
+                    name="OkReadTransactionInvalidTransEntry"
+                    letter="Retry"
+                    destination="EnterReceiptID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SuccessReadTransaction"
+                    letter="Success"
+                    destination="CheckForReturnableItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SuccessReadTransactions"
+                    letter="MultipleMatches"
+                    destination="SelectTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="ReturnItemReadTransactions"
+                    letter="ReturnItem"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="InvalidReadTransaction"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Transaction read is invalid for return such as house 
+                        account payment transaction.
+                    </COMMENT>
+                </ROAD>
+                <!-- changes for Rev 1.1 starts -->
+                <ROAD
+                    name="ReturnItemReadTransactions"
+                    letter="TransactionNotFound"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- changes for Rev 1.1 ends -->
+            </SITE>
+            <SITE  name="SearchTransactionByTender" siteaction="ReadTransactionSite">
+                <AISLE 
+                    name="DbErrorSearchTransactionByTender"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE 
+                    name="TooManyReadTransactions"
+                    letter="TooMany"
+                    laneaction="TooManyTransactionsErrorAisle">
+                </AISLE>
+                <AISLE 
+                    name="OkReadTransactionsTooMany"
+                    letter="Ok"
+                    laneaction="ReturnItemConversionAisle">
+                </AISLE>
+                <ROAD 
+                    name="SuccessSearchTransactionByTender"
+                    letter="Success"
+                    destination="ReadTenderItemTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SuccessSearchTransactionsByTender"
+                    letter="MultipleMatches"
+                    destination="SelectTenderTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="RetryItemSearchTransactionByTender"
+                    letter="Retry"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+                <ROAD 
+                    name="ReturnItemSearchTransactionByTender"
+                    letter="ReturnItem"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="InvalidSearchTransactionByTender"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Transaction read is invalid for return such as house 
+                        account payment transaction.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ReturnItemReadTransactions"
+                    letter="TransactionNotFound"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SuccessTransactionWithWebOrder"
+                    letter="TransactionHasOrder"
+                    laneaction="MoveTransactionToOriginalRoad"
+                    destination="CheckForReturnableItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsWebManagedOrderSignal"/>
+                </ROAD>
+                <ROAD
+                    name="SuccessReadTransactionWithOrder"
+                    letter="TransactionHasOrder"
+                    destination="LookupOrderFromTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsWebManagedOrderSignal" negate="Y"/>
+                </ROAD>
+            </SITE>
+            <SITE  name="SelectTenderTransaction" siteaction="SelectTransactionSummarySite">
+            
+                <ROAD 
+                    name="AcceptTenderTransaction"
+                    letter="Next"
+                    laneaction="GetTransactionSummaryIndexRoad"
+                    destination="ReadTenderItemTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Goes to a site to retrieve the items for the selected 
+                        transaction for the provided tender and item
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="CancelSelectTenderTransaction"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoSelectTenderTransaction"
+                    letter="Undo"
+                    laneaction="RollbackTransactionSummaryRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Returns to site to allow the re-entry of the item number. 
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE  name="ReadTenderItemTransaction" siteaction="ReadSelectedTenderTransactionSite">
+                <AISLE 
+                    name="DBErrorReadSelectedTransaction"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE 
+                    name="OkReadSelectedTransaction"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD 
+                    name="SuccessReadSelectedTransaction"
+                    letter="Success"
+                    destination="TenderReturnableItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FailureReadSelectedTransaction"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="TenderReturnableItems" siteaction="CheckForReturnableItemSite">
+                <AISLE 
+                    name="OkNoTenderReturnableItems"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE 
+                    name="Failure2Conversion"
+                    letter="Failure2"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD 
+                    name="SuccessTenderReturnableItems"
+                    laneaction="RetrieveOriginalTendersRoad"
+                    letter="Success"
+                    destination="ReturnTransactionStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FailureTenderReturnableItems"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="LookupOrderFromTransaction" siteaction="LookupReturnOrderSite">
+                <AISLE 
+                    name="LookupOrderOkFailure" 
+                    letter="Ok" 
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE 
+                    name="LookupOrderDBError" 
+                    letter="DbError" 
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <ROAD 
+                    name="LookupOrderFailure" 
+                    letter="Failure" 
+                    destination="Final" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LookupOrderSuccess" 
+                    letter="Success" 
+                    destination="CheckForReturnableItem" 
+                    record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryItemSearchTransaction"
+                    letter="Retry"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ReturnItemReadTransactions"
+                    letter="TransactionNotFound"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE  name="SelectTransaction" siteaction="SelectTransactionSite">
+                <AISLE 
+                    name="CancelSelectTransaction"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD 
+                    name="AcceptSelectTransaction"
+                    letter="Next"
+                    laneaction="GetSelectedTransactionRoad"
+                    destination="CheckForReturnableItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoSelectTransaction"
+                    letter="Undo"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FailureSelectTransaction"
+                    letter="Failure"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!-- SITE  name="CheckForReturnableItem" siteaction="CheckForReturnableItemSite"-->
+            <SITE  name="CheckForReturnableItem" siteaction="MAXCheckForReturnableItemSite">
+                <AISLE 
+                    name="OkNoReturnableItemsError"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE 
+                    name="Failure2Conversion"
+                    letter="Failure2"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD 
+                    name="SuccessCheckForReturnableItem"
+                    letter="Success"
+                    laneaction="RetrieveOriginalTendersRoad"
+                    destination="ReturnTransactionStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FailureCheckForReturnableItem"
+                    letter="Failure"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION 
+                name="ReturnTransactionStation"
+                servicename="returns.returntransaction.returntransaction"
+                targettier="CURRENTTIER"
+                launchshuttle="ReturnTransactionLaunchShuttle"
+                returnshuttle="MAXReturnTransactionReturnShuttle">
+                <AISLE 
+                    name="ContinueReturnItem"
+                    letter="Continue"
+                    laneaction="FailureConversionAisle">
+                </AISLE>                
+                <ROAD 
+                    name="UndoTransactionStationOne"
+                    letter="Undo"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                <ROAD 
+                    name="UndoTransactionStationOne"
+                    letter="Cancel"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD 
+                    name="SuccessReturnItem"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+        
+                <ROAD 
+                    name="FailureReturnItem"
+                    letter="Failure"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="TimeoutReturnItem"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/reprintreceipt/reprintreceiptuicfg.xml /main/15 2014/05/22 14:49:08 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/22/14 - XbranchMerge cgreene_bug-18781443 from
+ *                         rgbustores_14.0x_generic_branch
+ *    cgreene   05/22/14 - use list adapter to enable gift receipt button
+ *    cgreene   12/12/12 - implement pricing menu as a popup
+ *    rrkohli   05/19/11 - names changed
+ *    rrkohli   05/05/11 - pos ui quickwin
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="ReprintOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="LastTransaction"
+            enabled="true"
+            keyName="F2"
+            labelTag="LastTransaction"/>
+        <BUTTON
+            actionName="TransactionNumber"
+            enabled="true"
+            keyName="F3"
+            labelTag="TransactionNumber"/>
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="reprintreceiptText"
+        specName="REPRINT_RECEIPT_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ReprintOptionsScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ReprintOptionsPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ReprintOptionsButtonSpec">
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="reprintreceiptText"
+        specName="REPRINT_RECEIPT_TRANSACTION_SEARCH">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionSearchScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionSearchPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="12"/>
+            <BEANPROPERTY propName="maxLength" propValue="20"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+                deviceSessionName="ScannerSession"
+                targetBeanSpecName="PromptAndResponsePanelSpec"
+                listenerPackage="java.beans"
+                listenerInterfaceName="PropertyChangeListener"
+                adapterPackage="oracle.retail.stores.foundation.manager.gui"
+                adapterClassName="InputDataAdapter"
+                adapterParameter="setScannerData"
+                activateMode="MODE_SINGLESCAN"/>
+    </OVERLAYSCREEN>
+
+    <BEAN
+        specName="ReprintSelectButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="GiftReceipt"
+            enabled="true"
+            keyName="F2"
+            labelTag="GiftReceipt"/>
+        <!-- PrintOriginal button displays only when EnableReprintOriginalReceipt parameter is 'Y' -->
+        <BUTTON
+            actionName="PrintOriginal"
+            enabled="true"
+            keyName="F3"
+            labelTag="PrintOriginal"/>
+    </BEAN>
+
+    <BEAN
+        specName="ReprintSelectSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ReprintSelectItemsBean">
+        <BEANPROPERTY propName="focused"  propValue="false"/>
+        <BEANPROPERTY propName="renderer" propValue="oracle.retail.stores.pos.ui.beans.ReturnLineItemRenderer"/>
+        <BEANPROPERTY propName="labelTags"
+                      propValue="ItemLabel,QuantityLabel,PriceLabel,DiscountLabel,ExtendedPriceLabel"/>
+        <BEANPROPERTY propName="labelWeights"
+                      propValue="24,13,23,19,21"/>
+        <BEANPROPERTY propName="selectionMode" propValue="multi"/>
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="POSStackedStatusScreenSpec"
+        resourceBundleFilename="reprintreceiptText"
+        specName="REPRINT_SELECT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StackedStatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ReprintSelectScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="TotalStatusPanel"
+            beanSpecName="StackedTotalPanelSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ReprintSelectPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ReprintSelectButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ReprintSelectSpec">
+        </ASSIGNMENT>
+
+        <CONNECTION
+            sourceBeanSpecName="ReprintSelectSpec"
+            targetBeanSpecName="ReprintSelectButtonSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="ListSelectionListener"
+            adapterPackage="oracle.retail.stores.pos.ui.behavior"
+            adapterClassName="GiftReceiptItemListAdapter" />
+    </OVERLAYSCREEN>
+
+</UICFG>

@@ -1,0 +1,188 @@
+<?xml version='1.0' ?>
+
+<!DOCTYPE DEVICETECHNICIAN SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/devicescript.dtd">
+
+<DEVICETECHNICIAN package="oracle.retail.stores.pos.device">
+    <ACTIONGROUP name="CRFDeviceActionGroupIfc"
+            class="CRFDeviceActionGroup"
+            package="oracle.retail.stores.foundation.manager.device"/>
+
+    <ACTIONGROUP name="POSDeviceActionGroupIfc"
+            class="POSDeviceActionGroup"
+            package="oracle.retail.stores.pos.device"/>
+
+    <ACTIONGROUP name="CashDrawerActionGroupIfc"
+            class="CashDrawerActionGroup"
+            package="oracle.retail.stores.pos.device">
+        <PROPERTY propname="beepTimeout" propvalue="1000" proptype="INTEGER" />
+        <PROPERTY propname="beepFrequency" propvalue="20010" proptype="INTEGER" />
+        <PROPERTY propname="beepDuration" propvalue="250" proptype="INTEGER" />
+        <PROPERTY propname="beepDelay" propvalue="750" proptype="INTEGER" />
+        <PROPERTY propname="beepOn" propvalue="false" proptype="BOOLEAN" />
+        <PROPERTY propname="cashDrawerDelay" propvalue="2001" proptype="LONG" />
+        <PROPERTY propname="openDrawerWait" propvalue="500" proptype="LONG" />
+    </ACTIONGROUP>
+
+    <!-- Printer action groups are defined here.
+         ReceiptPrinter objects are defined in DeviceContext.xml.
+         BlueprintedReceipt objects are defined in ApplicationContext.xml. -->
+    <!-- START JPOS Printer Action Group -->
+    <ACTIONGROUP name="PrinterActionGroupIfc"
+            class="POSPrinterActionGroup"
+            package="oracle.retail.stores.pos.device">
+        <PROPERTY propname="slipInsertionTimeout" propvalue="60000" proptype="INTEGER" />
+        <PROPERTY propname="frankingCapable" propvalue="true" proptype="BOOLEAN"/>
+        <PROPERTY propname="slipLineSize" propvalue="-1" proptype="INTEGER" />
+        <PROPERTY propname="slipPrintSize" propvalue="35" proptype="INTEGER" />
+        <PROPERTY propname="frankingLines" propvalue="frankingLinePurchaseOrder=1,frankingLineGiftCertificateIssued=1,frankingLineGiftCertificateVoided=1,frankingLineStoreCreditIssued=1" proptype="STRING" />
+        <PROPERTY propname="alwaysPrintLineFeeds" propvalue="false" proptype="BOOLEAN" />
+        <PROPERTY propname="characterWidths" propvalue="BASIC_LATIN=1,LATIN_1_SUPPLEMENT=1,GENERAL_PUNCTUATION=1,CJK_UNIFIED_IDEOGRAPHS=2,HALFWIDTH_AND_FULLWIDTH_FORMS=2,CJK_SYMBOLS_AND_PUNCTUATION=2,HIRAGANA=2,KATAKANA=2,HANGUL_SYLLABLES=2,CYRILLIC=1,GREEK=2,LATIN_EXTENDED_A=1,CURRENCY_SYMBOLS=1" proptype="STRING" />
+    </ACTIONGROUP>
+    <!-- END JPOS Printer Action Group -->
+
+    <!-- START IPP Printer Action Group
+    <ACTIONGROUP name="PrinterActionGroupIfc"
+            class="IppPrinterActionGroup"
+            package="oracle.retail.stores.pos.device">
+        <PROPERTY propname="alwaysPrintLineFeeds" propvalue="true" proptype="BOOLEAN" />
+        <PROPERTY propname="characterWidths" propvalue="BASIC_LATIN=1,LATIN_1_SUPPLEMENT=1,GENERAL_PUNCTUATION=1,CJK_UNIFIED_IDEOGRAPHS=2,HALFWIDTH_AND_FULLWIDTH_FORMS=2,CJK_SYMBOLS_AND_PUNCTUATION=2,HIRAGANA=2,KATAKANA=2,HANGUL_SYLLABLES=2,CYRILLIC=1,GREEK=2,LATIN_EXTENDED_A=1,CURRENCY_SYMBOLS=1" proptype="STRING" />
+    </ACTIONGROUP>
+    END IPP Printer Action Group -->
+    
+    <!-- START JPOS Fiscal Printer Action Group
+    <ACTIONGROUP name="PrinterActionGroupIfc"
+            class="FiscalPrinterActionGroup"
+            package="oracle.retail.stores.pos.device">
+        <PROPERTY propname="slipInsertionTimeout" propvalue="60000" proptype="INTEGER" />
+        <PROPERTY propname="frankingCapable" propvalue="false" proptype="BOOLEAN"/>
+        <PROPERTY propname="slipLineSize" propvalue="-1" proptype="INTEGER" />
+        <PROPERTY propname="slipPrintSize" propvalue="35" proptype="INTEGER" />
+        <PROPERTY propname="frankingLines" propvalue="frankingLinePurchaseOrder=1,frankingLineGiftCertificateIssued=1,frankingLineGiftCertificateVoided=1,frankingLineStoreCreditIssued=1" proptype="STRING" />
+        <PROPERTY propname="alwaysPrintLineFeeds" propvalue="false" proptype="BOOLEAN" />  
+        <PROPERTY propname="characterWidths" propvalue="BASIC_LATIN=1,LATIN_1_SUPPLEMENT=1,GENERAL_PUNCTUATION=1,CJK_UNIFIED_IDEOGRAPHS=2,HALFWIDTH_AND_FULLWIDTH_FORMS=2,CJK_SYMBOLS_AND_PUNCTUATION=2,HIRAGANA=2,KATAKANA=2,HANGUL_SYLLABLES=2,CYRILLIC=1,GREEK=2,LATIN_EXTENDED_A=1" proptype="STRING" />    
+    </ACTIONGROUP>
+    END JPOS Fiscal Printer Action Group -->
+
+    <ACTIONGROUP name="LineDisplayActionGroupIfc"
+            class="LineDisplayActionGroup"
+            package="oracle.retail.stores.pos.device"/>
+
+    <ACTIONGROUP name="HardTotalsActionGroupIfc"
+            class="HardTotalsActionGroup"
+            package="oracle.retail.stores.pos.device"/>
+
+    <ACTIONGROUP name="MSRActionGroupIfc"
+            class="MSRActionGroup"
+            package="oracle.retail.stores.pos.device"/>
+
+    <ACTIONGROUP name="MICRActionGroupIfc"
+            class="MICRActionGroup"
+            package="oracle.retail.stores.pos.device"/>
+
+    <ACTIONGROUP name="FingerprintReaderActionGroupIfc"
+            class="FingerprintReaderActionGroup"
+            package="oracle.retail.stores.pos.device">
+            
+        <!-- The text returned by checkHealth is not defined in the UPOS spec.
+             This property can be set to some text string that a vendor's
+             driver places in the checkHealth Jpos property that is indicative
+             that the deice is perceived to be healthy. --> 
+         <PROPERTY propname="checkHealthOKText" proptype="STRING" propvalue="OK"/>
+    </ACTIONGROUP>
+ 
+    <ACTIONGROUP name="ScannerActionGroupIfc"
+            class="ScannerActionGroup"
+            package="oracle.retail.stores.pos.device"/>
+
+    <!-- DEVICE SESSIONS -->
+
+    <SESSION name="ScannerSession"
+            devicename = "MetroUSBSerial"
+            class="ScannerSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_RELEASED">
+            <!-- Default if not specified is DEVICE_AND_EVENTS. Other valid value is EVENTS_ONLY. -->
+            <!-- PROPERTY propname="shouldDisable" propvalue="DEVICE_AND_EVENTS" proptype="STRING" / -->
+    </SESSION>
+
+     <SESSION name="FingerprintReaderSession"
+            devicename = "defaultFingerprintReader"
+            class="SimulatedFingerprintReaderSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_RELEASED">
+
+        <!-- falseAcceptRate can be any one of the enums defined in FingerprintReaderSessionIfc. E.g. LOW, MEDIUM HIGH
+             This controls how similar fingerprints must be to be considered a match.
+             worst cases: LOW might require the employee to touch the fingerprint scanner several times 
+                              before a successful login is achieved.
+                          HIGH might login an employee as the wrong employee if their fingerprints are too similar
+                              the read fingerprint and the fingerprint associated with the employee  -->
+        <PROPERTY propname="falseAcceptRate" propvalue="LOW" proptype="oracle.retail.stores.foundation.manager.device.FingerprintReaderSessionIfc$FALSE_ACCEPT_RATE" />
+     </SESSION>
+
+    <SESSION name="SimulatedMICRSession"
+            devicename = "defaultMICR"
+            class="SimulatedMICRSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_RELEASED"
+            />
+
+    <SESSION name="MSRSession"
+            devicename = "defaultMSR"
+            class="SimulatedMSRSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_RELEASED"
+            />
+
+    <!-- START DefaultPrinter SESSION
+    <SESSION name="PrinterSession"
+            devicename = "defaultPrinter"
+            class="PrinterSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_RELEASED">
+    </SESSION>
+    END DefaultPrinter SESSION -->
+    
+    <!-- START FiscalPrinter SESSION
+    <SESSION name="FiscalPrinterSession"
+            devicename = "defaultPrinter"
+            class="FiscalPrinterSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_RELEASED">
+    </SESSION>
+    END FiscalPrinter SESSION -->
+
+    <!-- START Simulated DefaultPrinter SESSION -->
+    <SESSION name="PrinterSession"
+            devicename = "POSPrinter"
+            class="PrinterSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_RELEASED">
+     </SESSION>
+     <!-- END Simulated DefaultPrinter SESSION -->
+
+    <SESSION name="CashDrawerSession"
+            devicename = "CashDrawer"
+            class="CashDrawerSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_RELEASED">
+            <!-- Comment out this property when not using a SimulatedCashDrawerSession -->
+            <!-- PROPERTY propname="simulatedOpenPause" propvalue="3000" proptype="LONG" / -->
+    </SESSION>
+
+    <SESSION name="SimulatedHardTotalsSession"
+            devicename = "defaultHardTotals"
+            class="SimulatedHardTotalsSession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode = "MODE_IDLE">
+            <PROPERTY propname="totalsSize" propvalue="1000000" proptype="INTEGER" />
+    </SESSION>
+
+    <SESSION name="LineDisplaySession"
+            devicename = "LD Demo"
+            class="LineDisplaySession"
+            package="oracle.retail.stores.foundation.manager.device"
+            defaultmode="MODE_RELEASED"
+            />
+
+</DEVICETECHNICIAN>

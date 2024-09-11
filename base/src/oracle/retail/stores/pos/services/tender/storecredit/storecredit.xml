@@ -1,0 +1,441 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/storecredit/storecredit.xml /main/16 2012/03/27 10:57:14 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     03/26/12 - Modified to support centralized gift certificate and
+ *                         store credit.
+ *    cgreene   08/09/11 - added support to remove last tender when change
+ *                         override is declined
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      5    360Commerce 1.4         5/19/2008 2:26:55 AM   ASHWYN TIRKEY
+           Adding new road DatabaseOffline for the issue 31453
+      4    360Commerce 1.3         12/19/2007 7:54:02 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:30:11 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:25:31 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:14:26 PM  Robert Pearse
+     $
+     Revision 1.7.2.1  2004/11/15 21:39:22  bwf
+     @scr 7725 Handle continue letter from override service.
+
+     Revision 1.7  2004/06/16 18:07:41  bwf
+     @scr 5000 Back out changes, change to req happening.
+
+     Revision 1.6  2004/06/15 22:57:01  bwf
+     @scr 5000 Check to see if customer was captured before asking again.
+
+     Revision 1.5  2004/06/04 21:27:18  bwf
+     @scr 5205 Fixed change due options and store credit flow for undo
+     and cancel during change and refund.
+
+     Revision 1.4  2004/06/02 04:05:19  blj
+     @scr 4529 - resolution to customer id printing issues
+
+     Revision 1.3  2004/04/30 22:27:10  blj
+     @scr 4476 - removed foreign number and country code sites.
+
+     Revision 1.2  2004/04/19 16:22:38  bwf
+     @scr 4263 Decomposition of store credit.
+
+     Revision 1.1  2004/04/13 16:30:07  bwf
+     @scr 4263 Decomposition of store credit.
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.storecredit"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the store credit use case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Cancel"/>
+        <LETTER name="Compute"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Foreign"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="RefundOptions"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Valid"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Offline"/>
+
+        <SITEACTION class="CheckStoreCreditNumberActionSite" />
+        <SITEACTION class="ComputeStoreCreditExpDateActionSite" />
+        <SITEACTION class="CreateStoreCreditNumberActionSite" />
+        <SITEACTION class="DetermineTenderSubTourStartSite" package="oracle.retail.stores.pos.services.tender"/>
+        <SITEACTION class="EnterDocumentFaceValueSite" package="oracle.retail.stores.pos.services.tender"/>
+        <SITEACTION class="EnterStoreCreditNumberUISite" />
+        <SITEACTION class="GetStoreCreditNumberUISite" />
+        <SITEACTION class="IssueStoreCreditActionSite" />
+        <SITEACTION class="StoreCreditActionSite" />
+        <SITEACTION class="StoreCreditLimitActionSite"/>
+
+        <LANEACTION class="ConvertLetterToOtherAisle"/>
+        <LANEACTION class="RemoveTenderRoad" package="oracle.retail.stores.pos.services.tender"/>
+        <LANEACTION class="GetDocumentFaceValueAisle" package="oracle.retail.stores.pos.services.tender"/>
+
+        <SHUTTLE class="CaptureCustomerLaunchShuttle"/>
+        <SHUTTLE class="CaptureCustomerReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+    </SERVICECODE>
+
+    <MAP>
+        <REGION  region="SERVICE" startsite="DetermineTenderSubTourStart">
+
+            <SITE name="DetermineTenderSubTourStart" siteaction="DetermineTenderSubTourStartSite">
+                <ROAD name="StoreCreditTender"
+                      letter="StoreCredit"
+                      destination="StoreCreditLimitAction"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="StoreCreditRefund"
+                      letter="StoreCreditRefund"
+                      destination="IssueStoreCreditAction"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="IssueStoreCreditAction" siteaction="IssueStoreCreditActionSite">
+                  <ROAD name="OverTenderStoreCredit"
+                         letter="RefundOptions"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                  </ROAD>
+                  <ROAD name="ExistingNumberAssign"
+                         letter="Yes"
+                         destination="EnterStoreCreditNumber"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                  </ROAD>
+                  <ROAD name="NewNumberAssign"
+                         letter="No"
+                         destination="CreateStoreCreditNumber"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                  </ROAD>
+            </SITE>
+
+            <SITE name="EnterStoreCreditNumber" siteaction="EnterStoreCreditNumberUISite">
+                  <ROAD name="StoreCreditNumberEntered"
+                         letter="Next"
+                         destination="CheckStoreCreditNumber"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                  </ROAD>
+                  <ROAD name="StoreCreditNumberUndo"
+                         letter="Undo"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                  </ROAD>
+                  <ROAD name="StoreCreditNumberCancel"
+                         letter="Cancel"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                  </ROAD>
+            </SITE>
+
+            <SITE name="CheckStoreCreditNumber" siteaction="CheckStoreCreditNumberActionSite">
+                <ROAD name="StoreCreditNumberValid"
+                       letter="Valid"
+                       destination="StoreCreditCaptureCustomerInfo"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                </ROAD>
+                <ROAD name="StoreCreditNumberInvalid"
+                       letter="Invalid"
+                       destination="EnterStoreCreditNumber"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                </ROAD>
+                <ROAD name="DatabaseOffline"
+                       letter="Success"
+                       destination="StoreCreditCaptureCustomerInfo"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                </ROAD>
+            </SITE>
+  
+            <SITE name="ComputeStoreCreditExpDate" siteaction="ComputeStoreCreditExpDateActionSite">
+                  <ROAD name="EndCompute"
+                         letter="Success"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                  </ROAD>
+            </SITE>
+
+            <SITE name="CreateStoreCreditNumber" siteaction="CreateStoreCreditNumberActionSite">
+                  <ROAD name="StoreCreditNumberCreated"
+                       letter="Valid"
+                       destination="StoreCreditCaptureCustomerInfo"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                  </ROAD>
+                  <ROAD name="OverTenderStoreCredit"
+                         letter="Cancel"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                  </ROAD>
+            </SITE>
+
+            <SITE  name="StoreCreditAction" siteaction="StoreCreditActionSite">
+                <ROAD
+                    name="StoreCreditAddedRoad"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditTenderFailureRoad"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditInvalidRoad"
+                    letter="Invalid"
+                    destination="GetStoreCreditNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateValidationOffline"
+                    letter="Offline"
+                    destination="EnterDocumentFaceValue"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="GetStoreCreditNumberUI" siteaction="GetStoreCreditNumberUISite">
+                <ROAD
+                    name="StoreCreditNumberEntered"
+                    letter="Next"
+                    destination="StoreCreditAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditNumberUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE  name="EnterDocumentFaceValue" siteaction="EnterDocumentFaceValueSite">
+                <AISLE
+                    name="DocumentFaceValueEntered"
+                    letter="Next"
+                    laneaction="GetDocumentFaceValueAisle">
+                </AISLE>
+                <ROAD
+                    name="DocumentFaceValueSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DocumentFaceValueCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DocumentFaceValueUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="StoreCreditLimitAction" siteaction="StoreCreditLimitActionSite">
+                <ROAD
+                    name="StoreCreditLimitsPassed"
+                    letter="Success"
+                    destination="GetStoreCreditNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditOverrideRoad"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditDiscardRoad"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditLimitInvalidRoad"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <STATION
+                name="StoreCreditCaptureCustomerInfo"
+                servicename="tender.capturecustomerinfo.capturecustomerinfo"
+                targettier="CURRENTTIER"
+                launchshuttle="CaptureCustomerLaunchShuttle"
+                returnshuttle="CaptureCustomerReturnShuttle">
+                <ROAD
+                   name="CustomerInfoCapturedRoad"
+                   letter="Success"
+                   destination="ComputeStoreCreditExpDate"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD
+                   name="CustomerInfoCanceledRoad"
+                   laneaction="RemoveTenderRoad"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerInfoUndoRoad"
+                    laneaction="RemoveTenderRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                   name="CustomerInfoFailureRoad"
+                   letter="Failure"
+                   destination="ComputeStoreCreditExpDate"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+            </STATION>
+
+            <STATION
+                name="TenderLimitOverrideStation"
+                servicename="tender.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLimitOverrideLaunchShuttle"
+                returnshuttle="TenderLimitOverrideReturnShuttle">
+                <ROAD
+                    name="TenderLimitOverrideSuccess"
+                    letter="Success"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideContinue"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+
+        </REGION>
+    </MAP>
+</SERVICE>

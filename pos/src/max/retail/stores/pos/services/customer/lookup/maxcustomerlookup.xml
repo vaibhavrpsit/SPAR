@@ -1,0 +1,1158 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*  Copyright (c) 2016 - 2017 MAX Hypermarket, Inc.    All Rights Reserved.
+*
+*	Rev 1.2     Feb 08, 2017		Hitesh Dua			Bug_fix: Unexpected exception while searching through customer name
+*	Rev 1.1     Dec 28, 2016		Ashish Yadav			Changes for Online Points Redemption FES
+*	Rev 1.0     Oct 19, 2016		Mansi Goel			Changes for Customer FES
+*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="CustomerLookup"
+    package="oracle.retail.stores.pos.services.customer.lookup"
+    tourcam="ON">
+    <CARGO  class="MAXCustomerCargo" package="max.retail.stores.pos.services.customer.common"/>
+    <SERVICECODE>
+        <LETTER name="Add"/>
+        <LETTER name="AddBusiness"/>
+        <LETTER name="BusinessInfo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="CustID"/>
+        <LETTER name="CustInfo"/>
+        <LETTER name="EmpID"/>
+        <LETTER name="Exit"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Link"/>
+        <LETTER name="Next"/>
+        <LETTER name="Offline"/>
+        <LETTER name="OfflineAdd"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="TaxID"/>
+
+         <!-- MAX Rev 1.0 Change : Start -->
+         <LETTER  name="Ok"/>
+        <LETTER name="POSCustomer"/>
+         <LETTER name="TICCustomer"/>
+         <LETTER name="Continueforward"/>
+        <!-- MAX Rev 1.0 Change : end -->
+
+        <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CustomerContactDoneRoad" package="oracle.retail.stores.pos.services.customer.common"/>
+        <LANEACTION class="CustomerIDEnteredRoad" package="oracle.retail.stores.pos.services.customer.common"/>
+        <LANEACTION class="TaxIDEnteredRoad" package="oracle.retail.stores.pos.services.customer.common"/>
+        <LANEACTION class="CustomerSelectedAisle"/>
+        <LANEACTION class="DontLinkCustomerIDAisle"/>
+        <LANEACTION class="EmployeeIDEnteredRoad"/>
+        <LANEACTION class="AddCustomerOfflineRoad"/>
+        <LANEACTION class="FindBusinessInfoEnteredAisle"/>
+        <LANEACTION class="FindBusinessInfoInvalidAisle"/>
+        <LANEACTION class="FindCustomerInfoEnteredAisle"/>
+        <!-- changes for rev 1.2 -->
+        <LANEACTION class="MAXFindCustomerInfoEnteredAisle" package="max.retail.stores.pos.services.customer.lookup"/>
+        <LANEACTION class="LinkCustomerIDAisle" package="oracle.retail.stores.pos.services.customer.common"/>
+        <LANEACTION class="OfflineAddLetterAisle" package="oracle.retail.stores.pos.services.customer.common"/>
+ 		<!-- MAX Rev 1.0 Change :start-->
+        <LANEACTION  class="MAXValidateCustInfoAisle" package="max.retail.stores.pos.services.customer.lookup"/>
+        <!-- MAX Rev 1.0 Change : end -->
+
+        <SHUTTLE class="CustomerCargoLaunchShuttle" package="oracle.retail.stores.pos.services.customer.common"/>
+        <SHUTTLE class="CustomerCargoReturnShuttle" package="oracle.retail.stores.pos.services.customer.common"/>
+        <SHUTTLE class="CustomerLookupLaunchShuttle" package="oracle.retail.stores.pos.services.customer.find"/>
+        <SHUTTLE class="CustomerLookupReturnShuttle" package="oracle.retail.stores.pos.services.customer.find"/>
+	   
+		<!-- Changes for Rev 1.0 : Start -->
+        <SITEACTION class="MAXCustomerLookupFailedSite" package="max.retail.stores.pos.services.customer.lookup"/>
+        <SITEACTION class="MAXCustomersFoundSite" package="max.retail.stores.pos.services.customer.lookup"/>
+        <SITEACTION class="MAXEnterEmployeeIDSite" package="max.retail.stores.pos.services.customer.lookup"/>
+        <SITEACTION class="MAXFindBusinessInfoSite" package="max.retail.stores.pos.services.customer.lookup"/>
+        <SITEACTION class="MAXFindCustomerInfoSite" package="max.retail.stores.pos.services.customer.lookup"/>
+        <SITEACTION class="MAXCustomerTypeSite" package="max.retail.stores.pos.services.customer.lookup"/>
+        
+        <!-- Changes for Rev 1.0 : End -->
+        
+        <SITEACTION class="CustomerSearchOptionSite"/>
+        <SITEACTION class="EnterCustomerIDSite"/>        
+        <SITEACTION class="LookupBusinessSite"/>
+        <!-- Changes starts for Rev 1.1 (Ashish : Online points redemption) -->
+        <SITEACTION class="MAXLookupCustomerIDsSite" package="max.retail.stores.pos.services.customer.common"/>
+        <!-- Changes ends for Rev 1.1 (Ashish : Online points redemption) -->
+        <SITEACTION class="LookupTaxIDCustomersSite" package="oracle.retail.stores.pos.services.customer.common"/>      
+        <SITEACTION class="LookupEmployeeIDCustomersSite"/>
+        <SITEACTION class="LookupCustomerSite" package="oracle.retail.stores.pos.services.customer.common"/>
+        <SITEACTION class="OfflineCustomerOptionsSite" package="oracle.retail.stores.pos.services.customer.common"/>
+        <SITEACTION class="EnterCustomerTaxIDSite"/>
+                        
+        <!-- akhilesh changes for tic cusotmer start -->
+		<SITEACTION class="MAXCustomerSearchOptionSite"  package="max.retail.stores.pos.services.customer.lookup"/>
+		<LANEACTION class="MAXCustomerSearchByNumberAisle" package="max.retail.stores.pos.services.customer.lookup"/>
+				
+		<SITEACTION class="MAXCustomersFoundByPhoneSite" package="max.retail.stores.pos.services.customer.common" />	
+		<!-- akhilesh changes for tic cusotmer END -->	
+		
+		<SITEACTION class="MAXLookupCustomerByPhoneSite" package="max.retail.stores.pos.services.customer.common" />
+        
+    </SERVICECODE>
+
+    <MAP>
+        <REGION  region="SERVICE" startsite="CustomerSearchOption">
+                   <!-- changes for tic customer start changing the siteaction from CustomerSearchOptionSite to MAXCustomerSearchOptionSite -->
+            <SITE  name="CustomerSearchOption" siteaction="MAXCustomerSearchOptionSite">
+            <!-- changes for tic customer END -->
+
+                <COMMENT>
+                    The CustomerSearchOption allows the user to select
+                    which type of lookup she wants to do, Customer number,
+                    Customer information, or the customer's employee
+                    number.
+                </COMMENT>
+                <!-- Changes for Rev 1.0 : Start -->
+                <ROAD
+                    name="CustomerInformation"
+                    letter="CustInfo"
+                    laneaction="AddCustomerOfflineRoad"
+                    destination="CustomerType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        The CustomerInformation road is traversed when
+                        the CustInfo letter is returned by the UI.
+                    </COMMENT>
+                </ROAD>
+                <!-- Changes for Rev 1.0 : End -->
+                <ROAD
+                    name="CustomerID"
+                    letter="CustID"
+                    destination="EnterCustomerID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        The CustomerID road is traversed when the CustID
+                        letter is returned by the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerEmployeeID"
+                    letter="EmpID"
+                    laneaction="AddCustomerOfflineRoad"
+                    destination="EnterEmployeeID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        The CustomerEmployeeID road is traversed when the
+                        EmpID letter is returned by the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="BusinessCustomerInformation"
+                    letter="BusinessInfo"
+                    laneaction="AddCustomerOfflineRoad"
+                    destination="EnterBusinessInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        The BusinessCustomerInformation road is traversed
+                        when the BusinessInfo letter is returned by the UI.
+                    </COMMENT>
+                </ROAD>
+                 <ROAD
+                    name="CustomerTaxID"
+                    letter="TaxID"
+                    laneaction="AddCustomerOfflineRoad"
+                    destination="EnterCustomerTaxID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        The CustomerTaxID road is traversed
+                        when the TaxID letter is returned by the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerLookupUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The CustomerLookupUndo road is traversed when an
+                        Undo letter is received from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerLookupCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The CustomerLookupCancel road is traversed when
+                        a Cancel letter is received from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerLookupCancelMenu"
+                    letter="CancelMenu"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The CustomerLookupCancelMenu road is traversed when
+                        a CancelMenu letter is received from the UI.
+                    </COMMENT>
+                </ROAD>
+                <!-- Changes for Rev 1.0 : Starts -->
+                <AISLE 
+                	name="CustomerSearchByNumber" 
+                	letter="CustomerSearchByNumber" 
+                	laneaction="MAXCustomerSearchByNumberAisle"/>				
+				<ROAD 
+					name="CustomerLookup" 
+					letter="CustomerLookup" 
+					destination="LookupCustomerByPhone"
+					tape="ADVANCE" 
+					record="OFF" 
+					index="OFF">
+					<COMMENT>
+						to call the LookupCustomerSite for customer fetch from the db
+                    </COMMENT>
+				</ROAD>
+				<!-- Changes for Rev 1.0 : Ends -->
+            </SITE>
+            <SITE name="EnterCustomerID" siteaction="EnterCustomerIDSite">
+                <COMMENT>
+                    This site allows the user to enter customer ID information
+                    for doing a lookup.
+                </COMMENT>
+                <ROAD
+                    name="CustomerIDEntered"
+                    letter="Next"
+                    laneaction="CustomerIDEnteredRoad"
+                    destination="LookupCustomerID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        Road to traverse when the user enters a Customer ID
+                        to search for.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterCustomerIDUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when an Undo letter is received
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterCustomerIDCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The CustomerLookupCancel road is traversed when
+                        a Cancel letter is received from the UI.
+                    </COMMENT>
+                </ROAD>
+                <!-- 	akhilesh tic customer changes Start -->
+				<AISLE
+					name="CustomerSearchByNumber"
+					letter="CustomerSearchByNumber"
+					laneaction="MAXCustomerSearchByNumberAisle"/>
+				
+				<ROAD
+					name="CustomerLookup"
+					letter="CustomerLookup"
+					destination="LookupCustomerByPhone"
+					tape="ADVANCE"
+					record="OFF"
+					index="OFF">
+					<COMMENT>
+						to call the LookupCustomerSite for customer fetch from the db
+                    </COMMENT>
+				</ROAD>				
+		    	<!-- 	akhilesh tic customer changes END -->
+            </SITE>
+            <SITE name="EnterCustomerTaxID" siteaction="EnterCustomerTaxIDSite">
+                <COMMENT>
+                    This site allows the user to enter Tax ID information
+                    for doing a lookup.
+                </COMMENT>
+                <ROAD
+                    name="TaxIDEntered"
+                    letter="Next"
+                    laneaction="TaxIDEnteredRoad"
+                    destination="LookupTaxIDCustomers"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        Road to traverse when the user enters a Tax ID
+                        to search for.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterTaxIDUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when an Undo letter is received
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterTaxIDCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The EnterTaxIDCancel road is traversed when
+                        a Cancel letter is received from the UI.
+                    </COMMENT>
+                </ROAD>
+             </SITE>
+                <SITE name="LookupTaxIDCustomers" siteaction="LookupTaxIDCustomersSite">
+                <COMMENT>
+                    Query the database for tax ID's associated
+                    customers.
+                </COMMENT>
+                <ROAD
+                    name="TaxIDFound"
+                    letter="Success"
+                    destination="CustomersFound"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road is traversed when a lookup finds a customer.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TooManyCustomersFound"
+                    letter="Retry"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when too many customers are found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxIDNotFound"
+                    letter="Failure"
+                    destination="CustomerLookupFailed"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a database error occurs.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+<!-- Changes starts for Rev 1.1 (Ashish : Online points redemption) -->
+            <SITE name="LookupCustomerID" siteaction="MAXLookupCustomerIDsSite">
+                <AISLE
+                    name="CustomerIDExists"
+                    letter="Success"
+                    laneaction="ContinueConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="LookupFailure"
+                    letter="Failure"
+                    destination="CustomerLookupFailed"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDFound"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+ <!-- Changes starts for Rev 1.1 (Ashish : Online points redemption) -->
+            <SITE name="EnterEmployeeID" siteaction="MAXEnterEmployeeIDSite">
+                <ROAD
+                    name="EmployeeIDEntered"
+                    letter="Next"
+                    laneaction="EmployeeIDEnteredRoad"
+                    destination="LookupEmployeeIDCustomers"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        Road to traverse when the user enters an Employee
+                        ID to search for.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EmployeeIDUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when an Undo letter is received
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EmployeeIDCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when a Cancel letter is received
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="LookupEmployeeIDCustomers" siteaction="LookupEmployeeIDCustomersSite">
+                <COMMENT>
+                    Query the database for an Employee ID's associated
+                    customers.
+                </COMMENT>
+                <ROAD
+                    name="EmployeeIDFound"
+                    letter="Success"
+                    destination="CustomersFound"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road is traversed when a lookup finds a customer.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TooManyCustomersFound"
+                    letter="Retry"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when too many customers are found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EmployeeIDNotFound"
+                    letter="Failure"
+                    destination="CustomerLookupFailed"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a database error occurs.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="EnterCustomerInfo" siteaction="MAXFindCustomerInfoSite">
+                <COMMENT>
+                    Obtain the search criteria for the customer lookup.
+                </COMMENT>
+                <!-- changes for rev 1.2 start-->
+                <AISLE
+                    name="CustomerInfoEntered"
+                    letter="Next"
+                    laneaction="MAXFindCustomerInfoEnteredAisle">
+                    <COMMENT>
+                        Stores customer information in the cargo.
+                    </COMMENT>
+                </AISLE>
+                <!-- changes for rev 1.2 end-->
+                <ROAD 
+                    name="CustomerInfoEnteredFail" 
+                    letter="Error"
+                    destination="EnterCustomerInfo" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <!-- MAX Rev 1.0 Change : start -->
+                <!-- changes for rev 1.2 start -->
+                <ROAD 
+                    name="InvalidData" 
+                    letter="Ok"
+                    destination="EnterCustomerInfo" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <AISLE 
+                    name="MAXValidateCustInfoAisle"
+                    letter="validate"
+                    laneaction="MAXValidateCustInfoAisle">
+                </AISLE>
+                <!-- changes for rev 1.2 end -->
+                <ROAD 
+                    name="CustomerInfoContinue"
+                    letter="Continueforward"
+                    destination="LookupCustomer"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT >
+                        This road is traversed when the customer info has 
+                        been entered.
+                    </COMMENT>
+                </ROAD> 
+                <ROAD 
+                    name="CustomerInfoOk"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed when an Undo letter is received 
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+                <!-- MAX Rev 1.0 Change : end -->
+                <ROAD
+                    name="CustomerInfoUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when an Undo letter is received
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerInfoCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when a Cancel letter is received
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="LookupCustomer" siteaction="LookupCustomerSite">
+                <COMMENT>
+                    Site that goes out to the database and queries for
+                    customers based on the search criteria entered by
+                    the user.
+                </COMMENT>
+                <ROAD
+                    name="CustomerInfoFound"
+                    letter="Success"
+                    destination="CustomersFound"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road is traversed when a lookup finds a customer.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerInfoNotFound"
+                    letter="Failure"
+                    destination="CustomerLookupFailed"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a database error occurs.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TooManyCustomersFound"
+                    letter="Retry"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when too many customers are found.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="CustomersFound" siteaction="MAXCustomersFoundSite">
+                <COMMENT>
+                    Process the results of the customer search.
+                </COMMENT>
+                <AISLE
+                    name="CustomerSelected"
+                    letter="Next"
+                    laneaction="CustomerSelectedAisle">
+                    <COMMENT>
+                        Aisle to traverse when the operator chooses a customer
+                        from the CustomerList screen.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="CustomerFound"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        Road to traverse when the right customer is identified.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerListUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the user selects the Undo button.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerListCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the user presses the Cancel
+                        button.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="CustomerLookupFailed" siteaction="MAXCustomerLookupFailedSite">
+                <COMMENT>
+                    Handles the different reasons for failure to find
+                    the customer
+                </COMMENT>
+                <AISLE
+                    name="CustomerOfflineExit"
+                    letter="Exit"
+                    laneaction="DontLinkCustomerIDAisle">
+                </AISLE>
+                <AISLE
+                    name="CustomerOfflineLink"
+                    letter="Link"
+                    laneaction="LinkCustomerIDAisle">
+                </AISLE>
+                <ROAD
+                    name="CustomerOfflineAdd"
+                    letter="Add"
+                    destination="OfflineCustomerOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerNotFoundAcknowledged"
+                    letter="Retry"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerOffline"
+                    letter="Offline"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerLookupCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerLookupDone"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="OfflineCustomerOptions" siteaction="OfflineCustomerOptionsSite">
+                <ROAD
+                    name="SelectOfflineCustomerAdd"
+                    letter="Add"
+                    destination="CustomerAddTransferStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SelectOfflineBusinessAdd"
+                    letter="AddBusiness"
+                    destination="BusinessAddTransferStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SelectOfflineCustomerOptionUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SelectOfflineCustomerOptionFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SelectOfflineCustomerOptionCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="EnterBusinessInfo" siteaction="MAXFindBusinessInfoSite">
+                <COMMENT>
+                    Obtain the search criteria for the business customer
+                    lookup.
+                </COMMENT>
+                <AISLE
+                    name="BusinessInfoEntered"
+                    letter="Next"
+                    laneaction="FindBusinessInfoEnteredAisle">
+                    <COMMENT>
+                        Stores customer information in the cargo.
+                    </COMMENT>
+                </AISLE>
+                <ROAD 
+                    name="BusinessInfoEnteredFail" 
+                    letter="Error"
+                    destination="EnterBusinessInfo" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="BusinessInfoEnteredOk"
+                    letter="Ok"
+                    destination="LookupBusiness"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when the customer info has
+                        been entered.
+                    </COMMENT>
+                </ROAD>
+                <AISLE
+                    name="BusinessInfoFailure"
+                    letter="Failure"
+                    laneaction="FindBusinessInfoInvalidAisle">
+                    <COMMENT>
+                        Search criteria is invalid.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="InvalidBusinessInfo"
+                    letter="BusinessInfo"
+                    destination="EnterBusinessInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when the entered customer
+                        info is invalid.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="BusinessInfoUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when an Undo letter is received
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="BusinessInfoCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when a Cancel letter is received
+                        from the UI.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="LookupBusiness" siteaction="LookupBusinessSite">
+                <COMMENT>
+                    Site that goes out to the database and queries for
+                    customers based on the search criteria entered by
+                    the user.
+                </COMMENT>
+                <ROAD
+                    name="BusinessInfoFound"
+                    letter="Success"
+                    destination="CustomersFound"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road is traversed when a lookup finds a business customer.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TooManyBusCustomersFound"
+                    letter="Retry"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when too many customers are found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="BusinessInfoNotFound"
+                    letter="Failure"
+                    destination="CustomerLookupFailed"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a database error occurs.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="CustomerAddTransferStation"
+                servicename="customer.add.customeradd"
+                targettier="CURRENTTIER"
+                launchshuttle="CustomerCargoLaunchShuttle"
+                returnshuttle="CustomerCargoReturnShuttle">
+                <AISLE
+                    name="CustomerAddTransferStationContinue"
+                    letter="Continue"
+                    laneaction="OfflineAddLetterAisle">
+                    <COMMENT>
+                        We know that this flow is only taken when a customer
+                        is added offline. Since the add customer operation
+                        queue, it will always return a continue. We are changing
+                        the letter to offline because the calling services
+                        behave different if it is offlineAdd.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="CustomerAddTransferStationUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerAddTransferStationFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerAddTransferStationOfflineAdd"
+                    letter="OfflineAdd"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerAddTransferStationCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="BusinessAddTransferStation"
+                servicename="customer.addbusiness.businessadd"
+                targettier="CURRENTTIER"
+                launchshuttle="CustomerCargoLaunchShuttle"
+                returnshuttle="CustomerCargoReturnShuttle">
+                <AISLE
+                    name="BusinessAddTransferStationContinue"
+                    letter="Continue"
+                    laneaction="OfflineAddLetterAisle">
+                    <COMMENT>
+                        We know that this flow is only taken when a customer
+                        is added offline. Since the add customer operation
+                        queue, it will always return a continue. We are changing
+                        the letter to offline because the calling services
+                        behave different if it is offline add.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="BusinessAddTransferStationUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="BusinessAddTransferStationOfflineAdd"
+                    letter="OfflineAdd"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="BusinessAddTransferStationFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="BusinessAddTransferStationCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            
+            <!-- akhilesh changes for tic customer start -->
+			<SITE name="LookupCustomerByPhone" siteaction="MAXLookupCustomerByPhoneSite">
+				<COMMENT>
+					Site that goes out to the database and queries for
+					customers based on the search criteria entered by
+					the user in the case of tic search.
+                </COMMENT>
+				<ROAD
+					name="CustomerInfoFound"
+					letter="Success"
+					destination="CustomersFoundByPhone"
+					tape="ADVANCE"
+					record="OFF"
+					index="OFF">
+					<COMMENT>
+						Road is traversed when a lookup finds a customer. 
+                    </COMMENT>
+				</ROAD>
+				<ROAD
+					name="CustomerInfoNotFound"
+					letter="Failure"
+					destination="Final"
+					tape="ADVANCE"
+					record="OFF"
+					index="OFF">
+					<COMMENT>
+						Road to traverse when a database error occurs.
+                    </COMMENT>
+				</ROAD>
+				
+				<ROAD
+					name="DoNotLinkCustomer"
+					letter="Cancel"
+					destination="Final"
+					tape="ADVANCE"
+					record="OFF"
+					index="OFF">
+					<COMMENT>
+						Road to traverse when a database error occurs.
+                    </COMMENT>
+				</ROAD>
+				<ROAD
+					name="FailureByPhoneNumber"
+					letter="failureByPhoneNumber"
+					destination="Final"
+					tape="ADVANCE"
+					record="OFF"
+					index="OFF">
+					<COMMENT>
+						Road to traverse the failure by phone no search
+                    </COMMENT>
+				</ROAD>				
+				<ROAD
+					name="TooManyCustomersFound" 
+					letter="Retry" 
+					destination="LastIndexed"
+					tape="REWIND" 
+					record="OFF" 
+					index="OFF">
+					<COMMENT>
+						Road to traverse when too many customers are found. 
+                    </COMMENT>
+				</ROAD>
+			</SITE>		
+			
+			<SITE name="CustomersFoundByPhone" siteaction="MAXCustomersFoundByPhoneSite">
+				<COMMENT>
+					Process the results of the customer search.
+                </COMMENT>
+				<AISLE 
+					name="CustomerSelected" 
+					letter="Next" 
+					laneaction="CustomerSelectedAisle">
+					<COMMENT>
+						Aisle to traverse when the operator chooses a customer
+						from the CustomerList screen.
+                    </COMMENT>
+				</AISLE>
+				<ROAD
+					name="CustomerFound" 
+					letter="Continue" 
+					destination="Final"
+					tape="ADVANCE" 
+					record="OFF" 
+					index="ON">
+					<COMMENT>
+						Road to traverse when the right customer is identified. 
+                    </COMMENT>
+				</ROAD>
+				<ROAD 
+					name="CustomerListUndo" 
+					letter="Undo" 
+					destination="LastIndexed"
+					tape="REWIND" 
+					record="OFF" 
+					index="OFF">
+					<COMMENT>
+						Road to traverse when the user selects the Undo button. 
+                    </COMMENT>
+				</ROAD>
+				<ROAD 
+					name="CustomerListCancel" 
+					letter="Cancel" 
+					destination="Final"
+					tape="ADVANCE" 
+					record="OFF" 
+					index="OFF">
+					<COMMENT>
+						Road to traverse when the user presses the Cancel
+						button.
+                    </COMMENT>
+				</ROAD>
+			</SITE>			
+			<!-- akhilesh changes for tic customer END -->
+
+			<!-- MAX Rev 1.0 Change : Start -->
+            <SITE  name="CustomerType" siteaction="MAXCustomerTypeSite">
+                <COMMENT >
+                    Site that goes out to the database and queries for 
+                    customers based on the search criteria entered by 
+                    the user.
+                </COMMENT>
+                <ROAD 
+                    name="POSCustomerSelected"
+                    letter="POSCustomer"
+                    destination="EnterCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road is traversed when a lookup finds a customer. 
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="TICCustomerSelected"
+                    letter="TICCustomer"
+                    destination="EnterCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road is traversed when a lookup finds a customer. 
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="CustomerInfoCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when a database error occurs.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="CustomerTypeUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when too many customers are found. 
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="EnterCustDetails"
+                    letter="Ok"
+                    destination="EnterCustomerInfo"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when too many customers are found. 
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+             <!-- MAX Rev 1.0 Change : end -->
+			            
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

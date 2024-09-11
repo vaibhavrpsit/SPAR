@@ -1,0 +1,227 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/modifytransaction/salesassociate/ModifyTransactionSalesAssociate.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ModifyTransactionSalesAssociate"
+         package="oracle.retail.stores.pos.services.modifytransaction.salesassociate">
+    <COMMENT>
+        This service models the Modify Transaction Sales
+        Associate use case of the Sale Package Requirements
+    </COMMENT>
+    <CARGO class="ModifyTransactionSalesAssociateCargo"/>
+    <SERVICECODE>
+        <!-- letters -->
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Override"/>
+        <LETTER name="IDError"/>
+        
+
+        <SITEACTION class="EnterSalesAssocUpdatePolicySite"/>
+        <SITEACTION class="EnterEmployeeIDSite"/>
+        <SITEACTION class="CreateRetailTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="ValidateEmployeeIDSite"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <LANEACTION class="EmployeeEnteredRoad"     package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="UserAccessOverrideNoticeAisle"  package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="EmployeeInvalidAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="NextLetterAisle"        package="oracle.retail.stores.pos.services.common"/>
+       <LANEACTION class="UndoLetterAisle"        package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="UpdatePolicyEnteredRoad"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+          <SITE name="CheckAccess" siteaction="CheckAccessSite">
+              <ROAD
+                  name="AccessDEnied"
+                  letter="Override"
+                  destination="SecurityOverrideStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="AccessGranted"
+                  letter="Continue"
+                  destination="EnterSalesAssocUpdatePolicy"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+          </SITE>
+          <STATION name="SecurityOverrideStation"
+              servicename="security.override.override"
+              targettier="CURRENTTIER"
+              launchshuttle="SecurityOverrideLaunchShuttle" >
+              <ROAD
+                  name="SecurityOverrideGranted"
+                  letter="Success"
+                  destination="EnterSalesAssocUpdatePolicy"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideDenied"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideCancelled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+           </STATION>
+           <SITE name="EnterSalesAssocUpdatePolicy"  siteaction="EnterSalesAssocUpdatePolicySite">
+                <AISLE name="SalesAssociateError"
+                     letter="Ok"
+                     laneaction="UndoLetterAisle">
+                </AISLE>
+                <ROAD name="UpdatePolicyYesEntered"
+                      letter="Yes"
+                      laneaction="UpdatePolicyEnteredRoad"
+                      destination="EnterEmployeeID">
+                </ROAD>
+                <ROAD name="UpdatePolicyNoEntered"
+                      letter="No"
+                      laneaction="UpdatePolicyEnteredRoad"
+                      destination="EnterEmployeeID">
+                </ROAD>
+                <ROAD name="UndoSalesAssociate"
+                      letter="Undo"
+                      destination="Final">
+                </ROAD>
+          </SITE>
+          <SITE name="EnterEmployeeID" siteaction="EnterEmployeeIDSite">
+                <COMMENT>
+                    This site displays the TRANSACTION_SALES_ASSOCIATE
+                    Screen to the user.
+                </COMMENT>
+                <ROAD name="EmployeeEntered"
+                      letter="Next"
+                      laneaction="EmployeeEnteredRoad"
+                      destination="ValidateEmployeeID">
+                    <COMMENT>
+                        This road is traveled when an employee ID needs to
+                        be validated.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="UndoKeyPressed"
+                      letter="Undo"
+                      destination="Final">
+                    <COMMENT>
+                        This road is traveled when the user presses
+                        the Undo key from the TRANSACTION_SALES_ASSOCIATE
+                        screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CancelKeyPressed"
+                      letter="Cancel"
+                      destination="Final">
+                     <COMMENT>
+                        This road is traveled when the user presses
+                        the Cancel key from the TRANSACTION_SALES_ASSOCIATE
+                        screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="ValidateEmployeeID"
+                  siteaction="ValidateEmployeeIDSite">
+                <COMMENT>
+                    Validates an employee ID.
+                </COMMENT>
+                <AISLE name="EmployeeInvalid"
+                       letter="Failure"
+                       laneaction="EmployeeInvalidAisle">
+                    <COMMENT>
+                        This aisle is traveled when the database lookup for
+                        an employee ID fails.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="ValidEmployeeID"
+                       letter="Success"
+                       laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This aisle is traversed when the user enters a valid
+                        employee ID
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="SalesAssociateValidated"
+                      letter="Next"
+                      destination="CreateRetailTransaction">
+                    <COMMENT>
+                        This road is traveled when an employee ID is valid.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="ReenterEmployeeID"
+                      letter="Ok"
+                      destination="EnterEmployeeID">
+                    <COMMENT>
+                        This road is traveled when an employee ID needs to
+                        be reentered.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="CreateRetailTransaction"
+                  siteaction="CreateRetailTransactionSite">
+                <COMMENT>
+                    This site creates the retail tansaction.
+                </COMMENT>
+                <AISLE name="TransactionCreated"
+                       letter="Success"
+                       laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This aisle is traversed after the transaction
+                        has been created.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="TransactionFailed"
+                       letter="Failure"
+                       laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This aisle is traversed if the transaction
+                        is not created.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="ExitService"
+                      letter="Next"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        This road is traversed after the transaction
+                        has been created.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

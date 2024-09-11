@@ -1,0 +1,916 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/poscount/poscount.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="PosCount" package="oracle.retail.stores.pos.services.dailyoperations.poscount" tourcam="OFF">
+<CARGO class="PosCountCargo">
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Yes"/>
+     <LETTER name="No"/>
+     <LETTER name="Next"/>
+     <LETTER name="Enter"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="CountDetail"/>
+     <LETTER name="CountSummary"/>
+     <LETTER name="CountNo"/>
+     <LETTER name="CountTender"/>
+     <LETTER name="CountCharge"/>
+     <LETTER name="ButtonPressed"/>
+     <LETTER name="Cash"/>
+     <LETTER name="CashDetail"/>
+     <LETTER name="Check"/>
+     <LETTER name="ECheck"/>
+     <LETTER name="Credit"/>
+     <LETTER name="Debit"/>
+     <LETTER name="GiftCard"/>
+     <LETTER name="GiftCert"/>
+     <LETTER name="TravCheck"/>
+     <LETTER name="TravelCheck"/>
+     <LETTER name="Coupon"/>
+     <LETTER name="StoreCredit"/>
+     <LETTER name="MallCert"/>
+     <LETTER name="PurchaseOrder"/>
+     <LETTER name="MoneyOrder"/>
+     <LETTER name="Continue"/>
+     <LETTER name="CAD"/>
+     <LETTER name="MXN"/>
+     <LETTER name="GBP"/>
+     <LETTER name="EUR"/>
+     <LETTER name="JPY"/>
+     <LETTER name="USD"/>
+     <LETTER name="LoanCashSummary"/>
+     <LETTER name="LoanCashDetail"/>
+     <LETTER name="PickupCashSummary"/>
+     <LETTER name="PickupCashDetail"/>
+
+     <SIGNAL class="IsTillBeingCountedSignal" />
+     <SIGNAL class="IsCashBeingCountedSignal" />
+     <SIGNAL class="IsCashTenderSignal" />
+     <SIGNAL class="IsNotCashTenderSignal" />
+
+     <LANEACTION class="SetupTenderAisle" >
+          <COMMENT>
+          Setup the cargo for tender and count type
+          </COMMENT>
+     </LANEACTION>
+     <LANEACTION class="SetupChargeAisle" >
+          <COMMENT>
+          Setup the cargo for Carge and count type
+          </COMMENT>
+     </LANEACTION>
+     <LANEACTION class="UncountedTendersAisle" >
+          <COMMENT>
+          Check to see if there are tenders which have not been counted.
+          </COMMENT>
+     </LANEACTION>
+     <LANEACTION class="GetEnteredSummaryAmountAisle" />
+     <LANEACTION class="GetEnteredPickupSummaryAmountAisle" />
+     <LANEACTION class="GetEnteredLoanSummaryAmountAisle" />
+     <LANEACTION class="ValidateEnteredSummaryAmountAisle" />
+     <LANEACTION class="GetEnteredTenderDetailAisle" />
+     <LANEACTION class="ValidateEnteredTenderDetailAisle" />
+     <LANEACTION class="GetEnteredCashDetailAisle" />
+     <LANEACTION class="GetEnteredPickupCashDetailAisle" />
+     <LANEACTION class="GetEnteredLoanCashDetailAisle" />
+     <LANEACTION class="ValidateEnteredCashDetailAisle" />
+     <LANEACTION class="MoveCashDetailToTotalsAisle" />
+     <LANEACTION class="MoveDetailToTotalsAisle" />
+     <LANEACTION class="MoveAmountToTotalsAisle" />
+     <LANEACTION class="ChargeSelectedRoad" />
+     <LANEACTION class="UndoChargeSelectedRoad" />
+     <LANEACTION class="ApprovedCheckDetailAisle" />
+     <LANEACTION class="CashSelectedAisle" />
+     <LANEACTION class="CheckSelectedAisle" />
+     <LANEACTION class="ECheckSelectedAisle" />
+     <LANEACTION class="CreditSelectedAisle" />
+     <LANEACTION class="DebitSelectedAisle" />
+     <LANEACTION class="GiftCardSelectedAisle" />
+     <LANEACTION class="GiftCertSelectedAisle" />
+     <LANEACTION class="TravelCheckSelectedAisle" />
+     <LANEACTION class="CouponSelectedAisle" />
+     <LANEACTION class="StoreCreditSelectedAisle" />
+     <LANEACTION class="MallCertificateSelectedAisle" />
+     <LANEACTION class="PurchaseOrderSelectedAisle" />
+     <LANEACTION class="MoneyOrderSelectedAisle" />
+     <LANEACTION class="ForeignCurrencySelectedAisle" />
+     <LANEACTION class="ForeignTenderSelectedAisle" />
+     <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+
+     <SITEACTION class="StartCountSite" >
+          <ARRIVE>
+               <COMMENT>
+               Determine from the Cargo where to start -- cash detail
+               count, cash summary count, or complete till count.
+               </COMMENT>
+          </ARRIVE>
+     </SITEACTION>
+
+     <SITEACTION class="EnterCashDetailSite"/>
+     <SITEACTION class="EnterPickupCashDetailSite"/>
+     <SITEACTION class="EnterLoanCashDetailSite"/>
+     <SITEACTION class="EnterTenderDetailSite"/>
+     <SITEACTION class="EnterSummaryAmountSite"/>
+     <SITEACTION class="EnterPickupSummaryAmountSite"/>
+     <SITEACTION class="EnterLoanSummaryAmountSite"/>
+     <SITEACTION class="DisplayChargeSelectionsSite" />
+     <SITEACTION class="DisplayTenderSelectionsSite" />
+     <SITEACTION class="CheckAllTendersSite" />
+     <SITEACTION class="CheckAllChargesSite" />
+     <SITEACTION class="CountCheckDetailSite" />
+     <SITEACTION class="CountCheckNoSite" />
+     <SITEACTION class="CheckForeignCurrencySite" />
+     <SITEACTION class="DisplayForeignCurrencyCountSite" />
+     <SITEACTION class="DisplayForeignTenderSelectionsSite" />
+     <SITEACTION class="CheckAllForeignTendersSite" />
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="StartCount">
+
+          <SITE name="StartCount" siteaction="StartCountSite">
+               <ROAD name="CountCashDetailRoad"
+                     letter="CountDetail"
+                     destination="CountCashDetail" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsCashTenderSignal"/>
+               </ROAD>
+               <ROAD name="CountCheckDetailRoad"
+                     letter="CountDetail"
+                     destination="CountCheckDetail" tape="ADVANCE" record="ON" index="ON" >
+                   <LIGHT signal="IsNotCashTenderSignal"/>
+               </ROAD>
+                <ROAD name="CountPickupCashDetailRoad"
+                     letter="PickupCashDetail"
+                     destination="CountPickupCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+                <ROAD name="CountLoanCashDetailRoad"
+                     letter="LoanCashDetail"
+                     destination="CountLoanCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountCheckNoRoad"
+                     letter="CountNo"
+                     destination="CountCheckNo" tape="ADVANCE" record="ON" index="ON" >
+               </ROAD>
+               <ROAD name="CountCashSummaryRoad"
+                     letter="CountSummary"
+                     destination="CountTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountPickupCashSummaryRoad"
+                     letter="PickupCashSummary"
+                     destination="CountPickupTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountLoanCashSummaryRoad"
+                     letter="LoanCashSummary"
+                     destination="CountLoanTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountTenderRoad"
+                     letter="CountTender"
+                     destination="SelectTender" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountChargeRoad"
+                     letter="CountCharge"
+                     destination="SelectCharge" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CountCheckDetail" siteaction="CountCheckDetailSite">
+                <AISLE name="GetEnteredCheckDetail"
+                     letter="Next"
+                     laneaction="GetEnteredTenderDetailAisle">
+                </AISLE>
+               <AISLE name="ValidateEnteredCheckDetail"
+                     letter="Continue"
+                     laneaction="ValidateEnteredTenderDetailAisle">
+               </AISLE>
+               <AISLE name="ApprovedCheckDetail"
+                     letter="Yes"
+                     laneaction="ApprovedCheckDetailAisle">
+                    <COMMENT>
+                        Expected and Entered are not equal.
+                        User Approved difference
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="RetryCheckDetail"
+                     letter="No"
+                     destination="CountCheckDetail" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        Expected and Entered are not equal.
+                        User wants to re-enter
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuccessCheckDetail"
+                     letter="Success"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        Expected and Entered are equal
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelCheckDetail"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoCheckDetail"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CountCheckNo" siteaction="CountCheckNoSite">
+               <ROAD name="SuccessCheckNo"
+                     letter="Success"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="FailureCheckNo"
+                     letter="Ok"
+                     destination="CountCheckDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CountCashDetail" siteaction="EnterCashDetailSite">
+               <AISLE name="AcceptCashDetail"
+                     letter="Next"
+                     laneaction="GetEnteredCashDetailAisle">
+               </AISLE>
+               <AISLE name="ValidateCashDetail"
+                     letter="Continue"
+                     laneaction="ValidateEnteredCashDetailAisle">
+               </AISLE>
+               <ROAD name="CashDetailInvalidAmountEntered"
+                     letter="Failure"
+                     destination="CountCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <AISLE name="AcceptCashDetailDiscrepancy"
+                     letter="Yes"
+                     laneaction="MoveCashDetailToTotalsAisle">
+               </AISLE>
+               <ROAD name="CancelCashDetail"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoCashDetailExit"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsCashBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="UndoCashDetail"
+                     letter="Undo"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsTillBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="SuccessCashDetailCash"
+                     letter="Success"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsCashBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="SuccessCashDetailTill"
+                     letter="Success"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsTillBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="DoNotAcceptCashDetailDescrepency"
+                     letter="No"
+                     destination="CountCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountPickupCashDetail" siteaction="EnterPickupCashDetailSite">
+               <AISLE name="AcceptPickupCashDetail"
+                     letter="Next"
+                     laneaction="GetEnteredPickupCashDetailAisle">
+               </AISLE>
+               <AISLE name="ValidatePickupCashDetail"
+                     letter="Continue"
+                     laneaction="ValidateEnteredCashDetailAisle">
+               </AISLE>
+               <ROAD name="PickupCashDetailInvalidAmountEntered"
+                     letter="Failure"
+                     destination="CountPickupCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <AISLE name="AcceptPickupCashDetailDescrepency"
+                     letter="Yes"
+                     laneaction="MoveCashDetailToTotalsAisle">
+               </AISLE>
+               <ROAD name="CancelPickupCashDetail"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoPickupCashDetailExit"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>>
+               <ROAD name="SuccessPickupCashDetailCash"
+                     letter="Success"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DoNotAcceptPickupCashDetailDescrepency"
+                     letter="No"
+                     destination="CountPickupCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountLoanCashDetail" siteaction="EnterLoanCashDetailSite">
+               <AISLE name="AcceptLoanCashDetail"
+                     letter="Next"
+                     laneaction="GetEnteredLoanCashDetailAisle">
+               </AISLE>
+               <AISLE name="ValidateLoanCashDetail"
+                     letter="Continue"
+                     laneaction="ValidateEnteredCashDetailAisle">
+               </AISLE>
+               <ROAD name="LoanCashDetailInvalidAmountEntered"
+                     letter="Failure"
+                     destination="CountLoanCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <AISLE name="AcceptLoanCashDetailDescrepency"
+                     letter="Yes"
+                     laneaction="MoveCashDetailToTotalsAisle">
+               </AISLE>
+               <ROAD name="CancelLoanCashDetail"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoLoanCashDetailExit"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>>
+               <ROAD name="SuccessLoanCashDetailCash"
+                     letter="Success"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DoNotAcceptLoanCashDetailDescrepency"
+                     letter="No"
+                     destination="CountLoanCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountTenderDetail" siteaction="EnterTenderDetailSite">
+               <AISLE name="AcceptTenderDetail"
+                     letter="Next"
+                     laneaction="GetEnteredTenderDetailAisle">
+               </AISLE>
+               <AISLE name="ValidateTenderDetail"
+                     letter="Continue"
+                     laneaction="ValidateEnteredTenderDetailAisle">
+               </AISLE>
+               <AISLE name="AcceptTenderDetailDiscrepency"
+                     letter="Yes"
+                     laneaction="MoveDetailToTotalsAisle">
+                      <COMMENT>
+                        A discrepency between Entered and Expected has been found and
+                        the user has accepted it.
+                      </COMMENT>
+               </AISLE>
+               <ROAD name="CancelTenderDetail"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        Cancel key has been pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoTenderDetailExit"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsCashBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="UndoTenderDetail"
+                     letter="Undo"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsTillBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="SuccessTenderDetail"
+                     letter="Success"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        Expected and Entered are equal
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="DoNotAcceptTenderDetailDescrepency"
+                     letter="No"
+                     destination="CountTenderDetail" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        A descrepency between Entered and Expected has been found and
+                        the user did not accept it.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountTenderSummary" siteaction="EnterSummaryAmountSite">
+               <AISLE name="NextTenderSummary"
+                     letter="Next"
+                     laneaction="GetEnteredSummaryAmountAisle">
+               </AISLE>
+               <AISLE name="ContinueTenderSummary"
+                     letter="Continue"
+                     laneaction="ValidateEnteredSummaryAmountAisle">
+               </AISLE>
+               <AISLE name="AcceptTenderSummaryDescrepency"
+                     letter="Yes"
+                     laneaction="MoveAmountToTotalsAisle">
+               </AISLE>
+               <ROAD name="InvalidAmountEntered"
+                     letter="Failure"
+                     destination="CountTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CancelTenderSummary"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoTenderSummaryExit"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsCashBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="UndoTenderSummary"
+                     letter="Undo"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsTillBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="SuccessTenderSummaryCash"
+                     letter="Success"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsCashBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="SuccessTenderSummaryTill"
+                     letter="Success"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsTillBeingCountedSignal"/>
+               </ROAD>
+               <ROAD name="DoNotAcceptTenderSummaryDescrepency"
+                     letter="No"
+                     destination="CountTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountPickupTenderSummary" siteaction="EnterPickupSummaryAmountSite">
+               <AISLE name="NextPickupTenderSummary"
+                     letter="Next"
+                     laneaction="GetEnteredPickupSummaryAmountAisle">
+               </AISLE>
+               <AISLE name="ContinuePickupTenderSummary"
+                     letter="Continue"
+                     laneaction="ValidateEnteredSummaryAmountAisle">
+               </AISLE>
+               <AISLE name="AcceptPickupTenderSummaryDescrepency"
+                     letter="Yes"
+                     laneaction="MoveAmountToTotalsAisle">
+               </AISLE>
+               <ROAD name="InvalidPickupAmountEntered"
+                     letter="Failure"
+                     destination="CountPickupTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CancelPickupTenderSummary"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoPickupTenderSummaryExit"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SuccessPickupTenderSummaryCash"
+                     letter="Success"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DoNotAcceptPickupTenderSummaryDescrepency"
+                     letter="No"
+                     destination="CountPickupTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountLoanTenderSummary" siteaction="EnterLoanSummaryAmountSite">
+               <AISLE name="NextLoanTenderSummary"
+                     letter="Next"
+                     laneaction="GetEnteredLoanSummaryAmountAisle">
+               </AISLE>
+               <AISLE name="ContinueLoanTenderSummary"
+                     letter="Continue"
+                     laneaction="ValidateEnteredSummaryAmountAisle">
+               </AISLE>
+               <AISLE name="AcceptLoanTenderSummaryDescrepency"
+                     letter="Yes"
+                     laneaction="MoveAmountToTotalsAisle">
+               </AISLE>
+               <ROAD name="InvalidLoanAmountEntered"
+                     letter="Failure"
+                     destination="CountLoanTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CancelLoanTenderSummary"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoLoanTenderSummaryExit"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SuccessLoanTenderSummaryCash"
+                     letter="Success"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DoNotAcceptLoanTenderSummaryDescrepency"
+                     letter="No"
+                     destination="CountLoanTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="SelectTender" siteaction="DisplayTenderSelectionsSite">
+               <AISLE name="CashSelected"
+                      letter="Cash"
+                      laneaction="CashSelectedAisle">
+               </AISLE>
+               <AISLE name="CheckSelected"
+                      letter="Check"
+                      laneaction="CheckSelectedAisle">
+               </AISLE>
+               <AISLE name="ECheckSelected"
+                      letter="ECheck"
+                      laneaction="ECheckSelectedAisle">
+               </AISLE>
+               <AISLE name="CreditSelected"
+                      letter="Credit"
+                      laneaction="CreditSelectedAisle">
+               </AISLE>
+               <AISLE name="DebitSelected"
+                      letter="Debit"
+                      laneaction="DebitSelectedAisle">
+               </AISLE>
+               <AISLE name="GiftCardSelected"
+                      letter="GiftCard"
+                      laneaction="GiftCardSelectedAisle">
+               </AISLE>
+               <AISLE name="GiftCertSelected"
+                      letter="GiftCert"
+                      laneaction="GiftCertSelectedAisle">
+               </AISLE>
+               <AISLE name="TravelCheckSelected"
+                      letter="TravelCheck"
+                      laneaction="TravelCheckSelectedAisle">
+               </AISLE>
+               <AISLE name="CouponSelected"
+                      letter="Coupon"
+                      laneaction="CouponSelectedAisle">
+               </AISLE>
+               <AISLE name="StoreCreditSelected"
+                      letter="StoreCredit"
+                      laneaction="StoreCreditSelectedAisle">
+               </AISLE>
+               <AISLE name="MallCertificateSelected"
+                      letter="MallCert"
+                      laneaction="MallCertificateSelectedAisle">
+               </AISLE>
+               <AISLE name="PurchaseOrderSelected"
+                      letter="PurchaseOrder"
+                      laneaction="PurchaseOrderSelectedAisle">
+               </AISLE>
+               <AISLE name="MoneyOrderSelected"
+                      letter="MoneyOrder"
+                      laneaction="MoneyOrderSelectedAisle">
+               </AISLE>
+               <ROAD name="ChargeSelected"
+                      letter="CountCharge"
+                      laneaction="ChargeSelectedRoad"
+                      destination="SelectCharge">
+               </ROAD>
+               <ROAD name="CancelSelectTender"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoSelectTender"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="AcceptSelectTender"
+                     letter="Next"
+                     destination="CheckAllTenders" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountTenderDetailRoad"
+                     letter="CountDetail"
+                     destination="CountTenderDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountCashTenderDetailRoad"
+                     letter="CashDetail"
+                     destination="CountCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountTenderSummaryRoad"
+                     letter="CountSummary"
+                     destination="CountTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="SelectCharge" siteaction="DisplayChargeSelectionsSite">
+               <AISLE name="ChargeButtonPressed"
+                      letter="ButtonPressed"
+                      laneaction="SetupChargeAisle">
+                    <COMMENT>
+                         This aisle is traveled the user has selected a
+                         tender.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="CancelSelectCharge"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoSelectCharge"
+                     letter="Undo"
+                     laneaction="UndoChargeSelectedRoad"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="AcceptSelectCharge"
+                     letter="Next"
+                     destination="CheckAllCharges" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountChargeDetailRoad"
+                     letter="CountDetail"
+                     destination="CountTenderDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountChargeSummaryRoad"
+                     letter="CountSummary"
+                     destination="CountTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CheckAllTenders" siteaction="CheckAllTendersSite">
+               <ROAD name="AllTendersCounted"
+                     letter="Success"
+                     destination="CheckForeignCurrency" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UncountedTendersEnter"
+                     letter="Enter"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UncountedTendersOk"
+                     letter="Ok"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CheckAllCharges" siteaction="CheckAllChargesSite">
+               <ROAD name="AllChargesCounted"
+                     letter="Success"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UncountedChargesEnter"
+                     letter="Enter"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UncountedChargesOk"
+                     letter="Ok"
+                     destination="StartCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CheckForeignCurrency" siteaction="CheckForeignCurrencySite">
+               <ROAD name="ForeignCurrencyTenderedRoad"
+                     letter="Yes"
+                     destination="DisplayForeignCurrencyCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NoForeignCurrencyToCountRoad"
+                      letter="No"
+                      destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NotTillCountRoad"
+                     letter="Success"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                          If we aren't couting the till, we are finished.
+                     </COMMENT>
+               </ROAD>
+          </SITE>
+
+          <SITE name="DisplayForeignCurrencyCount" siteaction="DisplayForeignCurrencyCountSite">
+               <AISLE name="ForeignCurrencyCountCompleteAisle"
+                     letter="Next"
+                     laneaction="SuccessConversionAisle">
+               </AISLE>
+               <AISLE name="CADCurrencySelected"
+                      letter="CAD"
+                      laneaction="ForeignCurrencySelectedAisle">
+               </AISLE>
+               <AISLE name="MXNCurrencySelected"
+                      letter="MXN"
+                      laneaction="ForeignCurrencySelectedAisle">
+               </AISLE>
+               <AISLE name="GBPCurrencySelected"
+                      letter="GBP"
+                      laneaction="ForeignCurrencySelectedAisle">
+               </AISLE>
+               <AISLE name="EURCurrencySelected"
+                      letter="EUR"
+                      laneaction="ForeignCurrencySelectedAisle">
+               </AISLE>
+               <AISLE name="JPYCurrencySelected"
+                      letter="JPY"
+                      laneaction="ForeignCurrencySelectedAisle">
+               </AISLE>
+                <AISLE name="USDCurrencySelected"
+			          letter="USD"
+			          laneaction="ForeignCurrencySelectedAisle">
+               </AISLE>
+               <ROAD name="ForeignCurrencySelectedRoad"
+                     letter="Continue"
+                     destination="DisplayForeignTenderSelections" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="ForeignCurrencyCountCompletedRoad"
+                     letter="Success"
+                     destination="CheckAllForeignTenders" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="DisplayForeignTenderSelections" siteaction="DisplayForeignTenderSelectionsSite">
+               <AISLE name="ForeignCurrencyCashSelected"
+                      letter="Cash"
+                      laneaction="ForeignTenderSelectedAisle">
+               </AISLE>
+               <AISLE name="ForeignCurrencyCheckSelected"
+                      letter="Check"
+                      laneaction="ForeignTenderSelectedAisle">
+               </AISLE>
+               <AISLE name="ForeignCurrencyTravCheckSelected"
+                      letter="TravCheck"
+                      laneaction="ForeignTenderSelectedAisle">
+               </AISLE>
+               <AISLE name="ForeignCurrencyGiftCertSelected"
+                      letter="GiftCert"
+                      laneaction="ForeignTenderSelectedAisle">
+               </AISLE>
+               <AISLE name="ForeignCurrencyStoreCreditSelected"
+                      letter="StoreCredit"
+                      laneaction="ForeignTenderSelectedAisle">
+               </AISLE>
+               <ROAD name="ForeignCurrencyTenderCountCompleteRoad"
+                     letter="Next"
+                     destination="DisplayForeignCurrencyCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CancelSelectForeignTender"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountForeignTenderDetailRoad"
+                     letter="CountDetail"
+                     destination="CountForeignTenderDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountForeignCashDetailRoad"
+                     letter="CashDetail"
+                     destination="CountForeignCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CountForeignTenderSummaryRoad"
+                     letter="CountSummary"
+                     destination="CountForeignTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountForeignCashDetail" siteaction="EnterCashDetailSite">
+               <AISLE name="AcceptForeignCashDetail"
+                     letter="Next"
+                     laneaction="GetEnteredCashDetailAisle">
+               </AISLE>
+               <AISLE name="ValidateForeignCashDetail"
+                     letter="Continue"
+                     laneaction="ValidateEnteredCashDetailAisle">
+               </AISLE>
+               <ROAD name="ForeignCashDetailInvalidAmountEntered"
+                     letter="Failure"
+                     destination="CountForeignCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <AISLE name="AcceptForeignCashDetailDescrepency"
+                     letter="Yes"
+                     laneaction="MoveCashDetailToTotalsAisle">
+               </AISLE>
+               <ROAD name="CancelForeignCashDetail"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoForeignCashDetail"
+                     letter="Undo"
+                     destination="DisplayForeignCurrencyCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SuccessForeignCashDetailTill"
+                     letter="Success"
+                     destination="DisplayForeignTenderSelections" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DoNotAcceptForeignCashDetailDescrepency"
+                     letter="No"
+                     destination="CountForeignCashDetail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountForeignTenderDetail" siteaction="EnterTenderDetailSite">
+               <AISLE name="AcceptTenderDetail"
+                     letter="Next"
+                     laneaction="GetEnteredTenderDetailAisle">
+               </AISLE>
+               <AISLE name="ValidateForeignTenderDetail"
+                     letter="Continue"
+                     laneaction="ValidateEnteredTenderDetailAisle">
+               </AISLE>
+               <AISLE name="AcceptForeignTenderDetailDescrepency"
+                     letter="Yes"
+                     laneaction="MoveDetailToTotalsAisle">
+                      <COMMENT>
+                        A descrepency between Entered and Expected has been found and
+                        the user has accepted it.
+                      </COMMENT>
+               </AISLE>
+               <ROAD name="CancelForeignTenderDetail"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        Cancel key has been pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoForeignTenderDetail"
+                     letter="Undo"
+                     destination="DisplayForeignCurrencyCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SuccessForeignTenderDetail"
+                     letter="Success"
+                     destination="DisplayForeignTenderSelections" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        Expected and Entered are equal
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="DoNotAcceptForeignTenderDetailDiscrepency"
+                     letter="No"
+                     destination="CountForeignTenderDetail" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        A descrepency between Entered and Expected has been found and
+                        the user did not accept it.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+
+          <SITE name="CountForeignTenderSummary" siteaction="EnterSummaryAmountSite">
+               <AISLE name="NextForeignTenderSummary"
+                     letter="Next"
+                     laneaction="GetEnteredSummaryAmountAisle">
+               </AISLE>
+               <AISLE name="ContinueForeignTenderSummary"
+                     letter="Continue"
+                     laneaction="ValidateEnteredSummaryAmountAisle">
+               </AISLE>
+               <AISLE name="AcceptForeignTenderSummaryDescrepency"
+                     letter="Yes"
+                     laneaction="MoveAmountToTotalsAisle">
+               </AISLE>
+               <ROAD name="InvalidForeignAmountEntered"
+                     letter="Failure"
+                     destination="CountForeignTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CancelForeignTenderSummary"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoForeignTenderSummary"
+                     letter="Undo"
+                     destination="DisplayForeignCurrencyCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SuccessForeignTenderSummaryTill"
+                     letter="Success"
+                     destination="DisplayForeignTenderSelections" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DoNotAcceptForeignTenderSummaryDescrepency"
+                     letter="No"
+                     destination="CountForeignTenderSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+
+          <SITE name="CheckAllForeignTenders" siteaction="CheckAllForeignTendersSite">
+               <ROAD name="AllForeignTendersCounted"
+                     letter="Success"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UncountedForeignTendersEnter"
+                     letter="Enter"
+                     destination="DisplayForeignCurrencyCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UncountedForeignTendersOk"
+                     letter="Ok"
+                     destination="DisplayForeignCurrencyCount" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

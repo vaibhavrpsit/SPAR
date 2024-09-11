@@ -1,0 +1,399 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2010, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/externalorder/processorder/processorder.xml /main/13 2012/10/22 15:36:21 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   10/19/12 - Refactor by using DestinationTaxRule station to get
+ *                         new tax rules from shipping destination postal code.
+ *    abondala  08/18/10 - handle timeout during processing external order that
+ *                         has return items.
+ *    jswan     08/11/10 - Fixed issue with setting order to pending state.
+ *    jswan     06/30/10 - Merge from refresh.
+ *    jswan     06/30/10 - Checkin for first promotion of External Order
+ *                         integration.
+ *    sgu       06/21/10 - check in after merge
+ *    sgu       06/21/10 - added site declaration
+ *    acadar    06/17/10 - updates for poslog and for new ExternalOrdermanager
+ *                         API
+ *    sgu       06/09/10 - merge after refresh to latest
+ *    sgu       06/03/10 - remove invalid letters
+ *    acadar    06/03/10 - refresh to tip
+ *    acadar    05/28/10 - merged with tip
+ *    sgu       06/01/10 - check in after merge
+ *    sgu       06/01/10 - check in order sell item flow
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    acadar    05/21/10 - additional changes for process order flow
+ *    acadar    05/17/10 - incorporated feedback from code review
+ *    acadar    05/14/10 - initial version for process external order tour
+ *    acadar    05/14/10 - initial version
+ *    acadar    05/03/10 - added logic for searching for external orders by the
+ *                         default search criteria
+ *    acadar    05/03/10 - initial checkin for external order search
+ *    acadar    05/03/10 - external order search initial check in
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ProcessOrder"
+    package="oracle.retail.stores.pos.services.externalorder.processorder"
+    tourcam="OFF">
+    <COMMENT>
+        This service does a non-UI validation of an external order and calls either the return service or the sale service
+    </COMMENT>
+    <CARGO class="ProcessOrderCargo" package="oracle.retail.stores.pos.services.externalorder.processorder">
+        <COMMENT> This is the cargo for storing the payload that needs to be moved accros sites</COMMENT>
+    </CARGO>
+    <SERVICECODE>
+
+        <!-- Letters -->
+        <LETTER name="Success" />
+        <LETTER name="Next" />
+        <LETTER name="Continue" />
+        <LETTER name="Return" />
+        <LETTER name="Failure" />
+        <LETTER name="Sale" />
+        <LETTER name="QueueFull" />
+        <LETTER name="Timeout" />
+        <LETTER name="Undo" />
+        <LETTER name="Cancel" />
+        <LETTER name="Retry" />
+        <LETTER name="Invalid" />
+        <LETTER name="OneItemFound" />
+        <LETTER name="MultipleItemsFound" />
+
+
+        <!-- Site Actions -->
+        <SITEACTION class="LockOrderSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        <SITEACTION class="CancelOrderSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        <SITEACTION class="ValidateOrderShippingSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+
+        <SITEACTION class="CheckOrderReturnItemsSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+
+        <SITEACTION class="ProcessOrderSaleItemsSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+
+        <SITEACTION class="CaptureOrderSaleItemInfoSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+
+        <SITEACTION class="CheckOrderItemQuantitySite"
+            template="siteaction.tpl">
+        </SITEACTION>
+
+        <SITEACTION class="RejectOrderSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        
+        <SITEACTION class="ProcessOrderSendPackagesSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+
+        <SITEACTION class="AddShippingChargeLineItemSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        
+        <!-- Shuttles -->
+        <SHUTTLE class="ProcessOrderSendLaunchShuttle"/>
+        <SHUTTLE class="ProcessOrderSendReturnShuttle"/>
+
+        <SHUTTLE class="SellOrderItemLaunchShuttle"/>
+        <SHUTTLE class="SellOrderItemReturnShuttle"/>
+
+        <SHUTTLE class="ValidateItemLaunchShuttle"/>
+        <SHUTTLE class="ValidateItemReturnShuttle"/>
+
+        <SHUTTLE class="ReturnLaunchShuttle"/>
+        <SHUTTLE class="ReturnReturnShuttle"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="LockOrder">
+            <COMMON>
+                <!-- PAPB: Common road for user inactivity timeout -->
+                <ROAD name="Timeout"
+                    letter="Timeout"
+                    destination="CancelOrder"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after user inactivity timeout
+                    </COMMENT>
+                </ROAD>
+                <!-- PAPB: Common road for unknown exceptions. -->
+                <ROAD name="UnknownException"
+                    letter="UnknownException"
+                    destination="CancelOrder"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after a fatal error occurs
+                    </COMMENT>
+                </ROAD>
+            </COMMON>
+            <SITE name="LockOrder"
+                siteaction="LockOrderSite">
+                <COMMENT>
+                    The LockOrderSite sends a message to an external order system for locking the order
+                    and preventing using the order at another terminal
+                </COMMENT>
+                <ROAD name="OrderLocked" letter="Continue"
+                    destination="ValidateOrderShipping">
+                </ROAD>
+                <ROAD name="OrderLockingFailed" letter="Failure"
+                    destination="RejectOrder">
+                </ROAD>
+            </SITE>
+            <SITE name="ValidateOrderShipping"
+                siteaction="ValidateOrderShippingSite">
+                <COMMENT>
+                    This site checks to see if any shipping from the warehouse was applied to the external order
+                </COMMENT>
+                <ROAD name="ValidationFailed" letter="Failure"
+                    destination="RejectOrder">
+                </ROAD>
+                <ROAD name="ValidationSucceeded" letter="Continue"
+                      destination="CheckOrderReturnItems">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckOrderReturnItems"
+                siteaction="CheckOrderReturnItemsSite">
+                <COMMENT>
+                    This site checks to see if any there are any order items marked for return
+                </COMMENT>
+                <ROAD name="ReturnItemsFound" letter="Return"
+                    destination="ReturnStation">
+                </ROAD>
+                <ROAD name="ReturnItemsNotFound" letter="Sale"
+                      destination="ProcessOrderSaleItems">
+                </ROAD>
+            </SITE>
+            <SITE name="ProcessOrderSaleItems"
+                siteaction="ProcessOrderSaleItemsSite">
+                <COMMENT>
+                    This site calls the item validation station for each item marked for sale in the external order
+                </COMMENT>
+                <ROAD name="ItemValidationInProgress" letter="Next"
+                    destination="ValidateItemStation">
+                </ROAD>
+                <ROAD name="ItemValidationDone" letter="Continue"
+                      destination="CaptureOrderSaleItemInfo">
+
+                </ROAD>
+            </SITE>
+            <SITE name="CheckOrderItemQuantity"
+                siteaction="CheckOrderItemQuantitySite">
+                <COMMENT>
+                    After we return from the item validation, we check the quantity on each order item
+                </COMMENT>
+                <ROAD name="QuantityCheckSuccedded" letter="Next"
+                    destination="ProcessOrderSaleItems">
+                </ROAD>
+                <ROAD name="QuantityCheckFailed" letter="Failure"
+                      destination="RejectOrder">
+
+                </ROAD>
+            </SITE>
+            <SITE name="CaptureOrderSaleItemInfo"
+                siteaction="CaptureOrderSaleItemInfoSite">
+                <COMMENT>
+                    This site calls the item validation station for each item marked for sale in the external order
+                </COMMENT>
+                <ROAD name="ItemCaptureInfoProgress" letter="Next"
+                    destination="OrderSellItemStation">
+                </ROAD>
+                <ROAD name="ItemCaptureInfoDone" letter="Continue"
+                      destination="ProcessOrderSendPackages">
+                </ROAD>
+            </SITE>
+           
+            <SITE name="ProcessOrderSendPackages"
+                siteaction="ProcessOrderSendPackagesSite">
+                <COMMENT>
+                    This site calls each order send package station
+                </COMMENT>
+                <ROAD name="ProcessOrderSendProgress" letter="Next"
+                    destination="ProcessOrderSendStation">
+                </ROAD>
+                <ROAD name="ProcessOrderSendDone" letter="Done"
+                      destination="AddShippingChargeLineItem">
+                </ROAD>
+            </SITE>
+            <SITE name="AddShippingChargeLineItem"
+                siteaction="AddShippingChargeLineItemSite">
+                <COMMENT>
+                    This site calls the item validation station for each item marked for sale in the external order
+                </COMMENT>
+                <ROAD name="ShippingChargeAdded" letter="Done"
+                    destination="Final">
+                </ROAD>
+            </SITE>             
+            <SITE name="CancelOrder"
+                siteaction="CancelOrderSite">
+                <COMMENT>
+                    The site displays an error message and the use case ends
+                </COMMENT>
+                <ROAD name="OrderCanceled" letter="Failure"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+            <SITE name="RejectOrder"
+                siteaction="RejectOrderSite">
+                <COMMENT>
+                    The site displays an error message and the use case ends
+                </COMMENT>
+                <ROAD name="OrderRejected" letter="Failure"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ReturnStation"
+                servicename="returns.returnoptions.returnoptions"
+                targettier="CURRENTTIER"
+                launchshuttle="ReturnLaunchShuttle"
+                returnshuttle="ReturnReturnShuttle">
+                <COMMENT >
+                    This station goes to the Return service.
+                </COMMENT>
+                <ROAD
+                    name="CancelReturnStation"
+                    letter="Cancel"
+                    destination="CancelOrder">
+                    <COMMENT >
+                        This road goes to cancel transaction
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoReturnStation"
+                    letter="Undo"
+                    destination="CancelOrder">
+                    <COMMENT >
+                        This road goes to the ProcessOrderSaleItems.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="FailureReturnStation"
+                    letter="Failure"
+                    destination="CancelOrder">
+                    <COMMENT >
+                        This road is traversed in a failure letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SuccessReturnStation"
+                    letter="Success"
+                    destination="ProcessOrderSaleItems">
+                    <COMMENT >
+                        This road is traversed in a Success letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TimeoutReturnStation"
+                    letter="Timeout"
+                    destination="Final">
+                    <COMMENT >
+                        This road goes to the ShowSaleScreen, after a return was timed out.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="ValidateItemStation"
+                servicename="iteminquiry.itemvalidate.itemvalidate"
+                targettier="CURRENTTIER"
+                launchshuttle="ValidateItemLaunchShuttle"
+                returnshuttle="ValidateItemReturnShuttle">
+               <ROAD  name="ItemInfoNotFound"
+                      letter="Retry"
+                      destination="ProcessOrderSaleItems">
+               </ROAD>
+               <ROAD  name="ItemInfoInvalid"
+                      letter="Invalid"
+                      destination="CancelOrder">
+               </ROAD>
+               <ROAD  name="OneItemFound"
+                      letter="OneItemFound"
+                      destination="CheckOrderItemQuantity">
+               </ROAD>
+               <ROAD name="MultipleItemsFound"
+                      letter="MultipleItemsFound"
+                      destination="CheckOrderItemQuantity">
+                </ROAD>
+            </STATION>
+             <STATION
+                name="OrderSellItemStation"
+                servicename="externalorder.sellorderitem.sellorderitem"
+                targettier="CURRENTTIER"
+                launchshuttle="SellOrderItemLaunchShuttle"
+                returnshuttle="SellOrderItemReturnShuttle">
+               <ROAD  name="CheckItemTypeCanceled"
+                      letter="Cancel"
+                      destination="CancelOrder">
+               </ROAD>
+               <ROAD name="UndoCheckItemType"
+                     letter="Undo"
+                     destination="CancelOrder">
+               </ROAD>
+                <ROAD
+                    name="CancelAlterationsNoCustomer"
+                    letter="No"
+                    destination="CancelOrder">
+              </ROAD>
+              <ROAD  name="CheckItemInvalid"
+                      letter="Invalid"
+                      destination="CancelOrder">
+               </ROAD>
+               <ROAD  name="DoneAddItem"
+                      letter="Done"
+                      destination="CaptureOrderSaleItemInfo">
+               </ROAD>
+            </STATION>
+            <STATION
+                name="ProcessOrderSendStation"
+                servicename="externalorder.processordersend.processordersend"
+                targettier="CURRENTTIER"
+                launchshuttle="ProcessOrderSendLaunchShuttle"
+                returnshuttle="ProcessOrderSendReturnShuttle">
+                <COMMENT >
+                    This station goes to the process the order send information
+                </COMMENT>
+                <ROAD
+                    name="UndoProcessSendStation"
+                    letter="Undo"
+                    destination="CancelOrder">
+                    <COMMENT >
+                        This road is traversed in a Undo letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SuccessProcessStation"
+                    letter="Done"
+                    destination="ProcessOrderSendPackages">
+                    <COMMENT >
+                        This road is traversed in a Success letter.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+            <SYSTEMSITE name="Final" action="RETURN" />
+
+        </REGION>
+    </MAP>
+</SERVICE>

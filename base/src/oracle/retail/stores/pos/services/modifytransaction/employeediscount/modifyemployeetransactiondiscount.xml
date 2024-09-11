@@ -1,0 +1,351 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/modifytransaction/employeediscount/modifyemployeetransactiondiscount.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ModifyEmployeeTransactionDiscount"
+         package="oracle.retail.stores.pos.services.modifytransaction.employeediscount"
+         tourcam="OFF">
+     <CARGO class="ModifyTransactionDiscountCargo" package="oracle.retail.stores.pos.services.modifytransaction.discount"/>
+     <SERVICECODE>
+          <LETTER name="Percent"/>
+          <LETTER name="Dollar"/>
+          <LETTER name="Continue"/>
+          <LETTER name="Success"/>
+          <LETTER name="Failure"/>
+          <LETTER name="Next"/>
+          <LETTER name="Undo"/>
+          <LETTER name="Ok"/>
+          <LETTER name="Cancel"/>
+          <LETTER name="Clear"/>
+          <LETTER name="Override"/>
+          <LETTER name="Employee"/>
+
+          <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+          <SITEACTION class="DiscountPercentSite" package="oracle.retail.stores.pos.services.modifytransaction.discount"/>
+          <SITEACTION class="DiscountDollarSite" package="oracle.retail.stores.pos.services.modifytransaction.discount"/>
+          <SITEACTION class="StartSite" package="oracle.retail.stores.pos.services.modifytransaction.discount"/>
+          <SITEACTION class="CreateRetailTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+          <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+          <SITEACTION class="CheckDiscountAlreadyAppliedSite" package="oracle.retail.stores.pos.services.modifytransaction.discount"/>
+          <SITEACTION class="ModifyItemDiscountSite" package="oracle.retail.stores.pos.services.pricing.employeediscount"/>
+  
+          <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+          <LANEACTION class="UndoLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+          <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+          <LANEACTION class="AmountEnteredAisle"/>
+          <LANEACTION class="PercentEnteredAisle"/>
+          
+          
+          
+          <SIGNAL class="IsAmountDiscountSignal" package="oracle.retail.stores.pos.services.pricing"/>
+          <SIGNAL class="IsPercentDiscountSignal" package="oracle.retail.stores.pos.services.pricing"/>
+
+     </SERVICECODE>
+     <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="CheckDiscountAlreadyApplied">
+                </ROAD>
+            </SITE>
+
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="CheckDiscountAlreadyApplied"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+          <SITE name="CheckDiscountAlreadyApplied" siteaction="CheckDiscountAlreadyAppliedSite">
+                <ROAD
+                    name="CheckDiscountAlreadyAppliedContinue"
+                    letter="Continue"
+                    destination="ModifyItemDiscount">
+                </ROAD>
+                <ROAD
+                    name="CheckDiscountAlreadyAppliedCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+<!-- Modify Item Discount Site-->
+          <SITE name="ModifyItemDiscount" siteaction="ModifyItemDiscountSite">
+                <COMMENT>
+                    Modify the discount amount for the selected item.
+                    Pressing the clear key indicates the discount should
+                    be removed altogether. Prompt the user for a reason
+                    code. A null reason will not be allowed if an amount
+                    was entered.
+                </COMMENT>
+                    <AISLE name="PercentEntered"
+                           letter="Next"
+                           laneaction="PercentEnteredAisle">
+                    <LIGHT signal="IsPercentDiscountSignal"/>
+                         <COMMENT>
+                              This aisle is traversed when an percentage
+                              is entered in the UI.
+                         </COMMENT>
+                    </AISLE>
+                    <AISLE name="AmountEntered"
+                           letter="Next"
+                           laneaction="AmountEnteredAisle">
+                     <LIGHT signal="IsAmountDiscountSignal"/>
+                         <COMMENT>
+                              This aisle is traversed when the Accept key
+                              is pressed.
+                         </COMMENT>
+                    </AISLE>
+
+                    <ROAD name="InvalidValueEntered"
+                          letter="Ok"
+                          destination="ModifyItemDiscount"
+                          tape="ADVANCE" record="ON" index="ON">
+                         <COMMENT>
+                              This road is traversed when a percentage
+                              entered is out of range.
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="PercentRecorded"
+                          letter="Continue"
+                          destination="CreateRetailTransaction"
+                          tape="ADVANCE" record="ON" index="ON">
+                         <COMMENT>
+                              This road is traveled when the percent and reason
+                              code have been saved to the cargo.
+                         </COMMENT>
+                    </ROAD>
+
+                    <ROAD name="UndoService"
+                          letter="Undo"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                         <COMMENT>
+                              This road is traversed when the service is
+                              exiting because of a user access error.
+                         </COMMENT>
+                    </ROAD>
+                <ROAD
+                    name="CancelItemDiscount"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+                 <ROAD
+                    name="ClearItemDiscount"
+                    letter="Clear"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+<!--
+               <SITE name="Start" siteaction="StartSite">
+                    <COMMENT>
+                         This site reroutes to another site depending on what
+                         is in the Cargo. If it is a Discount Dollar then the
+                         DiscountDollar Site is next. Otherwise the Discount
+                         Percent is the next site.
+                    </COMMENT>
+                     <ROAD name="RoadToDiscountDollar"
+                          letter="Dollar"
+                          destination="DiscountDollar"
+                          tape="ADVANCE" record="ON" index="ON">
+                         <COMMENT>
+                              This road is traversed when the Discount
+                              is of type dollar
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="RoadToDiscountPercent"
+                          letter="Percent"
+                          destination="DiscountPercent"
+                          tape="ADVANCE" record="ON" index="ON">
+                         <COMMENT>
+                              This road is traversed when the discount
+                              is a percentage discount.
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="UndoService"
+                          letter="Undo"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                         <COMMENT>
+                              This road is traversed when the service is
+                              exiting because of a user access error.
+                         </COMMENT>
+                    </ROAD>
+               </SITE>
+               <SITE name="DiscountPercent" siteaction="DiscountPercentSite">
+                    <COMMENT>
+                         This site will show the UI for the percentage discount.
+                    </COMMENT>
+                    <AISLE name="PercentEntered"
+                           letter="Next"
+                           laneaction="PercentEnteredAisle">
+                         <COMMENT>
+                              This aisle is traversed when an percentage
+                              is entered in the UI.
+                         </COMMENT>
+                    </AISLE>
+                    <ROAD name="InvalidPercentEntered"
+                          letter="Ok"
+                          destination="DiscountPercent"
+                          tape="ADVANCE" record="ON" index="ON">
+                         <COMMENT>
+                              This road is traversed when a percentage
+                              entered is out of range.
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="PercentRecorded"
+                          letter="Continue"
+                          destination="CreateRetailTransaction"
+                          tape="ADVANCE" record="ON" index="ON">
+                         <COMMENT>
+                              This road is traveled when the percent and reason
+                              code have been saved to the cargo.
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="CancelPercent"
+                          letter="Cancel"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                         <COMMENT>
+                              This road is traversed when the Cancel key is
+                              pressed.
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="UndoPercent"
+                          letter="Undo"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                         <COMMENT>
+                              This road is traversed when the undo key
+                              is pressed.
+                         </COMMENT>
+                    </ROAD>
+               </SITE>
+               <SITE name="DiscountDollar" siteaction="DiscountDollarSite">
+                    <COMMENT>
+                         This site will show the UI for the Discount for the
+                         Dollar amount.
+                    </COMMENT>
+                    <AISLE name="AmountEntered"
+                           letter="Next"
+                           laneaction="AmountEnteredAisle">
+                         <COMMENT>
+                              This aisle is traversed when the Accept key
+                              is pressed.
+                         </COMMENT>
+                    </AISLE>
+                    <ROAD name="AmountRecorded"
+                          letter="Continue"
+                          destination="CreateRetailTransaction"
+                          tape="ADVANCE" record="ON" index="ON">
+                         <COMMENT>
+                              This road is traveled when the amount and reason
+                              code have been saved to the cargo.
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="CancelAmount"
+                          letter="Cancel"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                         <COMMENT>
+                              This road is traversed when the Cancel key
+                              is pressed.
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="UndoAmount"
+                          letter="Undo"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                         <COMMENT>
+                              This road is traversed when the Undo key
+                              is pressed.
+                         </COMMENT>
+                    </ROAD>
+                    <ROAD name="InvalidAmountEntered"
+                          letter="Ok"
+                          destination="DiscountDollar"
+                          tape="ADVANCE" record="ON" index="ON">
+                         <COMMENT>
+                              This road is traversed when an amount
+                              entered is out of range.
+                         </COMMENT>
+                    </ROAD>
+               </SITE>
+-->
+               <SITE name="CreateRetailTransaction"
+                     siteaction="CreateRetailTransactionSite">
+                    <COMMENT>
+                         This site creates the retail tansaction.
+                    </COMMENT>
+                    <AISLE name="TransactionCreated"
+                           letter="Success"
+                           laneaction="NextLetterAisle">
+                         <COMMENT>
+                              This aisle is traversed after the transaction
+                              has been created.
+                         </COMMENT>
+                    </AISLE>
+                    <AISLE name="TransactionFailed"
+                           letter="Failure"
+                           laneaction="NextLetterAisle">
+                         <COMMENT>
+                              This aisle is traversed if the transaction
+                              is not created.
+                         </COMMENT>
+                    </AISLE>
+                    <ROAD name="ExitService"
+                          letter="Next"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                         <COMMENT>
+                              This road is traversed after the transaction
+                              has been created.
+                         </COMMENT>
+                    </ROAD>
+               </SITE>
+               <SYSTEMSITE name="Final" action="RETURN"/>
+          </REGION>
+     </MAP>
+</SERVICE>

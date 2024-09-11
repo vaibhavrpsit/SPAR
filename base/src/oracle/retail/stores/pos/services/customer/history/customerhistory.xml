@@ -1,0 +1,163 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/customer/history/customerhistory.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="CustomerHistory"
+    package="oracle.retail.stores.pos.services.customer.history"
+    tourcam="ON">
+    <CARGO class="ReturnCustomerCargo" package="oracle.retail.stores.pos.services.returns.returncustomer"/>
+    <SERVICECODE>
+    <!-- Letters -->
+        <LETTER name="Cancel"/>
+        <LETTER name="Next"/>
+        <LETTER name="Done"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Lookup"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Undo"/>
+
+     <!-- Aisles -->
+        <LANEACTION class="ReadCustomerTransactionsAisle"/>
+        <LANEACTION class="ValidateDateRangeAisle"/>
+        <LANEACTION class="NarrowHistorySearchAisle"/>
+        <LANEACTION class="GetSelectedTransactionRoad"/>
+
+     <!-- Sites -->
+        <SITEACTION class="DisplayCustomerHistoryListSite"/>
+        <SITEACTION class="DisplayCustomerHistoryDetailSite"/>
+        <SITEACTION class="ReadCustomerHistorySite"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="ReadCustomerHistory">
+            <SITE name="ReadCustomerHistory" siteaction="ReadCustomerHistorySite">
+                <AISLE
+                    name="NarrowHistorySearch"
+                    letter="Retry"
+                    laneaction="NarrowHistorySearchAisle">
+                </AISLE>
+                <AISLE
+                    name="ValidateDateRange"
+                    letter="Next"
+                    laneaction="ValidateDateRangeAisle">
+                </AISLE>
+                <ROAD
+                    name="ReadCustomerTransactions"
+                    letter="Lookup"
+                    destination="ReadCustomerHistory"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CustomerTransactionsRead"
+                    letter="Continue"
+                    destination="DisplayCustomerHistoryList"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="NoHistoryAvailable"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="NarrowSearchCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NarrowSearchUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="DisplayCustomerHistoryList" siteaction="DisplayCustomerHistoryListSite">
+                <ROAD
+                    name="GetSelectedTransaction"
+                    laneaction="GetSelectedTransactionRoad"
+                    letter="Next"
+                    destination="DisplayCustomerHistoryDetail"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="HistoryListCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HistoryListUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayCustomerHistoryDetail" siteaction="DisplayCustomerHistoryDetailSite">
+                <ROAD
+                    name="HistoryDetailCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HistoryDetailUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HistoryDetailDoneSelected"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

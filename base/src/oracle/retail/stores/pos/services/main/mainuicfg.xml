@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/main/mainuicfg.xml /main/19 2014/06/06 15:03:13 abondala Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole     09/20/14 - added property to restrict where the browser can be
+                           invoked by clicking on the logo.
+ *    abondala  06/06/14 - move training mode from main screen to admin screen
+ *    abondala  05/30/14 - notifications UI related changes
+ *    abhinavs  07/18/13 - Fix to enable Dashboard/browser for IBM JRE
+ *    cgreene   12/14/12 - Button image and plaf loading updates
+ *    vbongu    11/30/12 - dashboard changes
+ *    vbongu    11/26/12 - Dashboard changes
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/07/09 - added keys[true]
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+    <BEAN
+        specName="OnlineOfficeSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="OnlineOfficeBean">
+    </BEAN>
+
+    <BEAN
+        specName="MainOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="DailyOps"
+            enabled="true"
+            keyName="F2"
+            iconName="buttonIconDailyOps"
+            labelTag="DailyOperations"/>
+
+        <BUTTON
+            actionName="POS"
+            enabled="true"
+            keyName="F3"
+            iconName="buttonIconPOS"
+            labelTag="POS"/>
+
+        <BUTTON
+            actionName="Administration"
+            enabled="true"
+            keyName="F4"
+            iconName="buttonIconAdmin"
+            labelTag="Administration"/>
+
+        <BUTTON
+            actionName="Clock"
+            enabled="true"
+            keyName="F5"
+            iconName="buttonIconClock"
+            labelTag="ClockInOut"/>
+
+        <BUTTON
+            actionName="ServiceAlert"
+            enabled="true"
+            keyName="F6"
+            iconName="buttonIconServiceAlert"
+            labelTag="ServiceAlert"/>
+
+        <!--BUTTON
+            actionName="OnlineOffice"
+            enabled="true"
+            keyName="F7"
+            labelTag="BackOffice"/-->
+
+        <BUTTON
+            actionName="LaunchBrowser"
+            enabled="true"
+            keyName="F7"
+            iconName="buttonIconLaunchBrowser"
+            labelTag="Browser"/>
+            
+        <BUTTON
+            labelTag="Messages"
+            actionName="Messages"
+            enabled="true"
+            iconName="buttonIconEmailReceipt"
+            keyName="F8" /> 
+
+        <BUTTON 
+            actionName="Inventory"
+            enabled="true"
+            keyName="F9"
+            iconName="buttonIconInventory"
+            labelTag="ItemInquiry"/>
+
+        <!-- BUTTON actionName="TransReentry"
+            enabled="true"
+            keyName="F9"
+            labelTag="TransReentryOn" / -->
+    </BEAN>
+
+    <BEAN
+        specName="OnlineOfficeStatusSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="BrowserStatusBean">
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="mainText"
+        specName="MAIN_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag"   propValue="ChooseOptionPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="MainOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="LogoSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[false],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="MainOptionsButtonSpec">
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="HyperlinkLogoPanelSpec">
+        </ASSIGNMENT>            
+    </OVERLAYSCREEN>
+
+    <!-- Begin Dashboard configuration -->
+     <BEAN
+        specName="DashBoardReportSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DashboardReportBean">
+     </BEAN>
+ <!--      END Dashboard configuration --> 
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="mainText"
+        specName="MAIN_OPTIONS_DASHBOARD">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag"   propValue="ChooseOptionPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="MainOptionsScreenName"/>
+        </ASSIGNMENT>
+     <!-- Begin Dashboard configuration  -->
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="DashBoardReportSpec">
+        </ASSIGNMENT>
+     <!-- END Dashboard configuration -->
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[false],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="MainOptionsButtonSpec">
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="HyperlinkLogoPanelSpec">
+        </ASSIGNMENT>            
+    </OVERLAYSCREEN>
+    
+    <DEFAULTSCREEN
+        specName="OnlineOfficeDefaultSpec"
+        templateSpecName="OnlineOfficeTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec">
+    </DEFAULTSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="OnlineOfficeDefaultSpec"
+        resourceBundleFilename="commonText"
+        specName="ONLINE_OFFICE">
+
+        <ASSIGNMENT
+            areaName="BrowserPanel"
+            beanSpecName="OnlineOfficeSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="BrowserStatusPanel"
+            beanSpecName="BrowserStatusSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="OnlineOfficeNavigationPanel"
+            beanSpecName="OnlineOfficeNavigationSpec">
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="BrowserStatusListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="OnlineOfficeSpec"
+            targetBeanSpecName="BrowserStatusSpec"/>
+
+    </OVERLAYSCREEN>
+</UICFG>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/********************************************************************************
+*   
+*  Copyright (c) 2016 MAX Hyper Market Inc.    All Rights Reserved.
+*   Rev 1.2     23 MAY 2017 Kritica Agarwal		GST Changes
+*   Rev	1.1 	24 Mar,2017	Nitika.Arora	    Ecom Receipt Changes
+*	Rev	1.0 	15dec,2016	Hitesh.Dua			Receipt Changes FES
+*
+********************************************************************************/
+-->
+<blueprint id="SaleReceipt" copies="1">
+    <linkReport documentType="Logo" idePath="/pos/deploy/client/receipts/Logo.bpt" id="30686835" cutPaper="false" />
+    <report name="CustomerID" id="543433" cutPaper="false">
+        <group id="53225">
+            <line id="38760" dependsOnPresenceOf="456656">
+                <element text="Customer:" id="334434" dependsOnPresenceOf="786578567" />
+                <methodElement printedWhenLengthZero="false" id="786578567">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="CustomerIfc" name="getCustomer" class="oracle.retail.stores.domain.transaction.SaleReturnTransactionIfc" >
+                        	<method returns="String" name="getCustomerID" class="oracle.retail.stores.domain.customer.CustomerIfc" />
+                        </method>
+                    </method>
+                </methodElement>
+                <methodElement printedWhenLengthZero="false" valuePrintedWhenFalse=" " valuePrintedWhenTrue="" id="456656">
+                    <method returns="boolean" name="printLoyaltyCustomer" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc"/>
+                </methodElement>
+            </line>
+			<line id="126049270"  >
+				<element text="E-Receipt OTP: " id="12098845110" dependsOnPresenceOf="54678962" />
+				<methodElement id="54678962" printedWhenValueZero="false" >
+                    <method returns="String" name="getEReceiptOTPNumber" class="max.retail.stores.pos.receipt.MAXReceiptParameterBeanIfc">
+                    </method>
+                </methodElement>
+				 
+		</line>	
+            
+        </group>
+     </report>
+     <linkReport documentType="LoyaltyCustomer" idePath="/pos/deploy/client/receipts/LoyaltyCustomer.bpt" id="3065757" cutPaper="false">
+    	<dependsOn returns="boolean" name="printLoyaltyCustomer" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc" />
+	</linkReport>
+	<linkReport documentType="CustomerType" idePath="/pos/deploy/client/receipts/MAXCustomerTypePAN.bpt" id="13926918556" cutPaper="false"/>
+	<linkReport documentType="SendReceipt" idePath="/pos/deploy/client/receipts/MAXSendReceipt.bpt" id="7667676" cutPaper="false">
+        <dependsOn returns="boolean" name="hasSendPackages" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc" />
+    </linkReport>
+    <linkReport documentType="ItemsHeader" idePath="/pos/deploy/client/receipts/ItemsHeader.bpt" id="1658841212" cutPaper="false" >
+    </linkReport>
+    <linkReport documentType="Items" idePath="/pos/deploy/client/receipts/Items.bpt" id="16879915" cutPaper="false" >
+    </linkReport>
+    <linkReport documentType="Totals" idePath="/pos/deploy/client/receipts/Totals.bpt" id="16879916" cutPaper="false" />
+    <linkReport documentType="Tenders" idePath="/pos/deploy/client/receipts/MAXTenders.bpt" id="16879917" cutPaper="false" />
+    <report name="TotalTenderReport" id="16879918" cutPaper="false">
+        <group id="21775432">
+            <line id="19002349" dependsOnPresenceOf="6147615" />
+            <line id="4675508">
+                <element text="  Store Credit Issued" id="10345944" dependsOnPresenceOf="6147615" />
+                <methodElement fixedWidth="17" printedWhenLengthZero="false" id="6147615" fillChar=" " justified="right">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="TenderStoreCreditIfc[]" name="getIssuedStoreCredit" class="oracle.retail.stores.domain.transaction.TenderableTransactionIfc">
+                            <method returns="CurrencyIfc" name="getAmount" class="oracle.retail.stores.domain.tender.TenderStoreCreditIfc">
+                                <method returns="CurrencyIfc" name="negate" class="oracle.retail.stores.commerceservices.common.currency.CurrencyIfc" />
+                            </method>
+                        </method>
+                    </method>
+                </methodElement>
+            </line>
+            <line id="1503060">
+                <element text="  Store Credit #:" id="1476602" dependsOnPresenceOf="20188930" />
+                <methodElement printedWhenLengthZero="false" id="20188930">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="TenderStoreCreditIfc[]" name="getIssuedStoreCredit" class="oracle.retail.stores.domain.transaction.TenderableTransactionIfc">
+                            <method returns="String" name="getStoreCreditID" class="oracle.retail.stores.domain.tender.TenderStoreCreditIfc" />
+                        </method>
+                    </method>
+                </methodElement>
+            </line>
+            <line id="18037555" dependsOnPresenceOf="27172040">
+                <element text="  Name:" id="11979296" dependsOnPresenceOf="27172040" />
+                <methodElement printedWhenLengthZero="false" id="27172040" stretch="true">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="TenderStoreCreditIfc[]" name="getIssuedStoreCredit" class="oracle.retail.stores.domain.transaction.TenderableTransactionIfc">
+                            <method returns="StoreCreditIfc" name="getStoreCredit" class="oracle.retail.stores.domain.tender.TenderStoreCreditIfc">
+                                <method returns="String" name="getFullName" class="oracle.retail.stores.domain.utility.StoreCreditIfc" param="Locale" />
+                            </method>
+                        </method>
+                    </method>
+                </methodElement>
+            </line>
+            <line id="9113552">
+                <element text="  ID Type:" id="26003159" dependsOnPresenceOf="25300975" />
+                <methodElement printedWhenLengthZero="false" id="25300975">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="TenderStoreCreditIfc[]" name="getIssuedStoreCredit" class="oracle.retail.stores.domain.transaction.TenderableTransactionIfc">
+                            <method returns="String" name="getPersonalIDType" class="oracle.retail.stores.domain.tender.TenderStoreCreditIfc" param="Locale" />
+                        </method>
+                    </method>
+                </methodElement>
+            </line>
+        </group>
+        <group id="26460711">
+            <line id="18945918" />
+            <line id="26049230">
+                <element text="Total Tender" id="20988917" fixedWidth="13" justified="left" />
+				<methodElement id="22216747" justified="right" fixedWidth="43">
+                    <method returns="CurrencyIfc" name="getTotalTenderAmount" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc" />
+                </methodElement>
+                <element text=" " id="18860423" fixedWidth="5" justified="left"/>
+            </line>
+            <!--line id="24745276" dependsOnPresenceOf="5855220">
+                <methodElement precededBySpace="false" printedWhenLengthZero="false" valuePrintedWhenFalse=" " valuePrintedWhenTrue="" id="5855220">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="boolean" name="isSuspended" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>
+            </line-->
+            <line id="20237898">
+                <element text="Change Due" id="5990634" fixedWidth="10" justified="left"/>
+                <!-- element text="   " id="15951383" dependsOnPresenceOf="2172104" />-->
+                <!-- <element text="0.00" id="4444343" /> -->
+                 <methodElement id="15260515" justified="right" fixedWidth="45" >
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="CurrencyIfc" name="calculateChangeGiven" class="oracle.retail.stores.domain.transaction.TenderableTransactionIfc" />
+                    </method>
+                </methodElement>
+				<element text=" " id="18860423" fixedWidth="5" justified="left"/>
+            </line>
+			<line id="934301244">
+                <element text="Easy Buy Totals :" id="272345193" dependsOnPresenceOf="72446577123" fixedWidth="17" justified="left"/>
+                <methodElement id="72446577123" precededBySpace="false" printedWhenLengthZero="false" printedWhenValueZero="false" justified="right" fixedWidth="38">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+						<method returns="String" name="getEasyBuyTotals" class="max.retail.stores.domain.transaction.MAXSaleReturnTransactionIfc" />
+					 </method>
+                </methodElement>
+				<element text=" " id="18860423" fixedWidth="5" justified="left"/>
+            </line>	
+        </group>
+    </report>
+    <report name="TotalTenderAddonReport" id="168799181" cutPaper="false">
+        <group id="1420491970">
+            <line id="18316026" dependsOnPresenceOf="21905549" fixedWidth="60" justified="left"/>
+            <line id="241205299">
+                <element text="  Total Number of Items/Qty:                   " id="10166575" fixedWidth="42" justified="left" />
+				<!--element text=" " id="18860423" fixedWidth="20" justified="left"/-->
+                <methodElement formatter="QUANTITY" id="21905549" fixedWidth="3" justified="right">
+                	<method returns="int" name="getNumItems" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc"/>
+                </methodElement>
+                <element text="/" id="331111235" fixedWidth="1"/>
+                <methodElement formatter="QUANTITY" id="21676549" fixedWidth="8" justified="left">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="TransactionTotalsIfc" name="getTransactionTotals" class="oracle.retail.stores.domain.transaction.TenderableTransactionIfc">
+                            <method returns="int" name="getQuantityTotal" class="oracle.retail.stores.domain.transaction.TransactionTotalsIfc" />
+                        </method>
+                    </method>
+                </methodElement>
+				<element text=" " id="18860423" fixedWidth="5" justified="left"/>
+            </line>
+        </group>
+    </report>
+	<linkReport documentType="EComOrder" idePath="/pos/deploy/client/receipts/EComOrder.bpt" id="3065766" cutPaper="false">
+    	<dependsOn returns="boolean" name="printEcomDetails" class="max.retail.stores.pos.receipt.MAXReceiptParameterBeanIfc" />
+    </linkReport>
+    <linkReport documentType="EmployeeReceipt" idePath="/pos/deploy/client/receipts/EmployeeReceipt.bpt" id="1394343" cutPaper="false"/>
+    <report name="SavingReport" id="3244" cutPaper="false">
+    	<group id="23332">
+			<line id="29901568" />
+			<line id="29901569" dependsOnPresenceOf="1969779288">
+                <element text="--------------------------------------------------------------" id="29901570" justified="left"/>
+            </line>	
+            <line id="1969779288" > 
+                <methodElement prefix="***TOTAL SAVING : Rs." suffix="***" printedWhenLengthZero="false" printedWhenValueZero="false"  id="18833785" justified="center" stretch="true" fixedWidth="62">
+                    <method returns="CurrencyIfc" name="getTotalSavings" class="max.retail.stores.pos.receipt.MAXReceiptParameterBeanIfc" />
+                </methodElement>
+            </line>
+			<line id="29901571" dependsOnPresenceOf="1969779288">
+                <element text="--------------------------------------------------------------" id="29901572" justified="left" />
+            </line>	
+			<line></line>
+        </group>
+    </report>
+<!--Change for Rev 1.2 :Starts -->
+    <!--<linkReport documentType="VATSummary" idePath="/pos/deploy/client/receipts/VATSummary.bpt" id="13926411" cutPaper="false"/>-->
+    <linkReport documentType="VATSummary" idePath="/pos/deploy/client/receipts/VATSummary.bpt" id="13926411" cutPaper="false">
+       <dependsOn returns="boolean" name="isGSTDisable" class="max.retail.stores.pos.receipt.MAXReceiptParameterBeanIfc" />
+    </linkReport>
+	
+	<linkReport documentType="TaxSummary" idePath="/pos/deploy/client/receipts/MAXTaxSummary.bpt" id="1392668411" cutPaper="false">
+        <dependsOn returns="boolean" name="isGSTEnabled" class="max.retail.stores.pos.receipt.MAXReceiptParameterBeanIfc" />
+    </linkReport>
+	<!--Change for Rev 1.2 :Ends -->
+    <linkReport documentType="Ankle" idePath="/pos/deploy/client/receipts/Ankle.bpt" id="4830872" cutPaper="false" />
+    <linkReport documentType="Footer" idePath="/pos/deploy/client/receipts/Footer.bpt" id="4830873" cutPaper="false"/>
+    <linkReport documentType="Transaction" idePath="/pos/deploy/client/receipts/Transaction.bpt" id="4855872" cutPaper="false"/>
+    <report name="CopyReport" id="5" cutPaper="false">
+        <group id="6">
+           
+            <line id="134434" dependsOnPresenceOf="183485">
+            	<element id="3343434" text="" fillChar="-" stretch="true"/>
+            </line>
+            <line id="12206609" dependsOnPresenceOf="183485">
+                 <methodElement id="183485" printedWhenLengthZero="false" printedWhenValueZero="false" justified="center" stretch="true">
+                    <method returns="String" name="getCopyReportText" class="max.retail.stores.pos.receipt.MAXReceiptParameterBeanIfc" />
+                </methodElement>
+            </line>
+        </group>
+    <dependsOn returns="boolean" name="isExtraCopy" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc" />
+    </report>
+    <linkReport documentType="Blank" idePath="/pos/deploy/client/receipts/MAXTransaction.bpt" id="157665"  />
+    
+</blueprint>

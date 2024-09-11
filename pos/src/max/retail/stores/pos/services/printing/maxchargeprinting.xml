@@ -1,0 +1,49 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   Copyright (c) 2012 - 2013 MAXHyperMarket, Inc.    All Rights Reserved.
+
+	Rev 1.0  17/June/2013	Jyoti Rawal, Initial Draft: Fix for Bug 6394 Credit Charge Slip is not getting printed
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ -->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="MAXChargePrinting" package="max.retail.stores.pos.services.printing"
+	tourcam="OFF">
+	<COMMENT>
+		This service implements all the printing for a tendered
+		transaction.
+     </COMMENT>
+	<CARGO class="MAXPrintingCargo" package="max.retail.stores.pos.services.printing"/>
+	<SERVICECODE>
+		<SITEACTION class="MAXPrintChargeSlipSite" package="max.retail.stores.pos.services.printing" />
+
+		<LETTER name="Retry" />
+		<LETTER name="Continue" />
+		<LETTER name="Print" />
+		<LETTER name="Next" />
+		<LETTER name="ExitPrinting" />
+		<LETTER name="Discard" />
+		<LETTER name="Done" />
+
+	</SERVICECODE>
+	<MAP>
+		<REGION region="SERVICE" startsite="PrintChargeSlip">
+			<SITE name="PrintChargeSlip" siteaction="MAXPrintChargeSlipSite">
+
+
+				<ROAD name="PrintingCompleted" letter="Done" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="RetryPrinting" letter="Retry" destination="PrintChargeSlip"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="ContinuePrinting" letter="Continue" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE>
+			<SYSTEMSITE name="Final" action="RETURN" />
+			<SYSTEMSITE name="LastIndexed" action="BACKUP" />
+		</REGION>
+	</MAP>
+</SERVICE>

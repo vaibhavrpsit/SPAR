@@ -1,0 +1,124 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/notifications/notifications.xml /main/3 2014/05/30 16:24:11 abondala Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abondala  05/30/14 - notifications UI related changes
+ *    abondala  05/29/14 - introduced notifications service
+ *    abondala  05/14/14 - notifications requirement
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Notifications"
+    package="oracle.retail.stores.pos.services.notifications"
+    tourcam="OFF">
+    <COMMENT>
+        This services routes the user to the various services
+        available through the Notifications screen.
+    </COMMENT>
+    <CARGO class="NotificationsCargo" package="oracle.retail.stores.pos.services.notifications"/>
+    <SERVICECODE>
+        <LETTER name="Success"/>
+        <LETTER name="Done"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Failure"/>
+        
+        <SHUTTLE class="OperatorIdLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />        
+        <SITEACTION class="RetrieveNotificationsSite">
+            <COMMENT>
+                This site displays all the notifications that are retrieved from enterprise.
+            </COMMENT>
+        </SITEACTION>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="OperatorIdStation">
+            <STATION name="OperatorIdStation"
+                    servicename="services.operatorid.operatorid"
+                    targettier="CURRENTTIER"
+                    launchshuttle="OperatorIdLaunchShuttle"
+                    returnshuttle="OperatorIdReturnShuttle">
+                <ROAD
+                    name="LoginSucceeded"
+                    letter="Success"
+                    destination="RetrieveNotifications"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                    
+                <AISLE
+                    name="LoginUndo"
+                    letter="Undo"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT >
+                      This aisle is traversed to convert the current letter
+                      to Failure
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LoginFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SITE name="RetrieveNotifications" siteaction="RetrieveNotificationsSite">
+                <COMMENT>
+                    This site displays all the notifications that are retrieved from enterprise.
+                </COMMENT>
+                <ROAD
+                    name="NotificationsCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the user presses the Undo
+                        key from the notifications list screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="NotificationsUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled when the user presses the Undo
+                        key from the notifications list screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="RetrieveNotificationsDone"
+                      letter="Done"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="ON"
+                      index="ON">
+                      <COMMENT>
+                         This road is traveled when the user presses the Next
+                         key from the notifications list screen.
+                      </COMMENT>
+                </ROAD>                
+            </SITE>
+            
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

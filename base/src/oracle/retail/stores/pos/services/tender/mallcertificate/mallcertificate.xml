@@ -1,0 +1,240 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/mallcertificate/mallcertificate.xml /main/16 2014/04/14 15:54:36 abhinavs Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhinavs  03/19/14 - Fix to validate Mall certificate if it has already
+ *                         been tendered out
+ *    icole     12/15/11 - Move letter dependent depart code to road lane
+ *                         action and always reset the evaluate flag as there
+ *                         are other areas of exposure other than UnDo.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 7:52:32 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:29:00 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:23:26 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:12:32 PM  Robert Pearse
+     $
+     Revision 1.1.4.1  2004/11/15 21:39:22  bwf
+     @scr 7725 Handle continue letter from override service.
+
+     Revision 1.1  2004/04/02 22:34:35  epd
+     @scr 4263 Updates to move Mall Cert. tender into sub tour
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.mallcertificate"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Tender Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="MGCAsPO"/>
+        <LETTER name="MGCAsCheck"/>
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Continue"/>
+        
+        <LANEACTION class="MallCertificateAsCheckRoad"/>
+        <LANEACTION class="MallCertificateAsPORoad"/>
+        <LANEACTION class="ResetEvaluateTenderLimitsRoad"/>
+                
+        <SITEACTION class="GetMallCertificateNumberSite"/>
+        <SITEACTION class="GetMallCertificateOptionsSite"/>
+        <SITEACTION class="MallCertificateActionSite"/>
+        <SITEACTION class="MallCertificateLimitActionSite"/>
+
+        <SHUTTLE class="TenderLimitOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+
+    </SERVICECODE>
+
+    <MAP >
+        <REGION  region="SERVICE" startsite="MallCertificateLimitAction">
+            <SITE  name="MallCertificateLimitAction" siteaction="MallCertificateLimitActionSite">
+                <ROAD
+                    name="MallCertPassed"
+                    letter="Success"
+                    destination="GetMallCertificateOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertOverridden"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="MallCertFailed"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetMallCertificateOptions" siteaction="GetMallCertificateOptionsSite">
+                <ROAD
+                    name="MallCertOptionsNotNeeded"
+                    letter="Success"
+                    destination="GetMallCertificateNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MGCAsCheckSelected"
+                    letter="MGCAsCheck"
+                    destination="MallCertificateAction"
+ 	                laneaction="MallCertificateAsCheckRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MGCAsPOSelected"
+                    letter="MGCAsPO"
+                    destination="MallCertificateAction"
+                    laneaction="MallCertificateAsPORoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertSelectedUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertSelectedCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetMallCertificateNumber" siteaction="GetMallCertificateNumberSite">
+                <ROAD
+                    name="MallCertNumberRetrieved"
+                    letter="Next"
+                    destination="MallCertificateAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertNumberUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertNumberCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="MallCertificateAction" siteaction="MallCertificateActionSite">
+                <ROAD
+                    name="MallCertTenderAdded"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertificateTenderOffline"
+                    letter="Offline"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertificateTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="TenderLimitOverrideStation"
+                servicename="tender.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLimitOverrideLaunchShuttle"
+                returnshuttle="TenderLimitOverrideReturnShuttle">
+                <ROAD
+                    name="TenderLimitOverrideSuccess"
+                    letter="Success"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideContinue"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,259 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/fill/fillorder.xml /main/1 2013/01/10 14:03:53 sgu Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    sgu       01/08/13 - add support for order picklist
+ *    sgu       01/07/13 - remove old flow
+ *    sgu       01/04/13 - add new tour
+ *    sgu       01/03/13 - rename the class for xc only
+ *    sgu       01/03/13 - add back order fill flow
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+     $Log:
+      7    360Commerce 1.6         12/19/2007 8:25:20 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      6    360Commerce 1.5         2/6/2007 2:49:07 PM    Edward B. Thorne
+           Merge from fillorder.xml, Revision 1.3.1.0
+      5    360Commerce 1.4         11/27/2006 5:38:36 PM  Charles D. Baker CR
+           21362 - Reintroducing previously deleted funcationlity for special
+           order location behavior previously removed by inventory
+      4    360Commerce 1.3         5/4/2006 5:11:51 PM    Brendan W. Farrell
+           Remove inventory.
+      3    360Commerce 1.2         3/31/2005 4:28:10 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:21:39 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:11:03 PM  Robert Pearse
+     $
+     Revision 1.4  2004/10/06 02:44:24  mweis
+     @scr 7012 Special and Web Orders now have Inventory.
+
+     Revision 1.3  2004/03/26 00:24:20  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:51:23  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:18  cschellenger
+     updating to pvcs 360store-current
+
+
+ *
+ *    Rev 1.1   Sep 17 2001 13:10:20   msg
+ * header update
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="fillorder" package="oracle.retail.stores.pos.services.order.fill" tourcam="OFF">
+     <COMMENT>
+          fill order that has been picked
+     </COMMENT>
+<CARGO class="OrderCargo" package="oracle.retail.stores.pos.services.order.common"/>
+<SERVICECODE>
+
+<!-- Letters -->
+     <LETTER name="Yes"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Search"/>
+     <LETTER name="DbError"/>
+     <LETTER name="OrderNumber"/>
+     <LETTER name="Status"/>
+     <LETTER name="Next"/>
+     <LETTER name="OneFound"/>
+     <LETTER name="Print"/>
+     <LETTER name="NoMatch"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Customer"/>
+     <LETTER name="Offline"/>
+
+<!-- Signals -->
+     <SIGNAL class="IsOneOrderSummarySignal" package="oracle.retail.stores.pos.services.order.common" template="signal.tpl"/>
+     <SIGNAL class="IsNotOneOrderSummarySignal" package="oracle.retail.stores.pos.services.order.common" template="signal.tpl"/>
+     <SIGNAL class="IsOnlineSignal" package="oracle.retail.stores.pos.services.common"/>
+     <SIGNAL class="IsOfflineSignal" package="oracle.retail.stores.pos.services.common"/>
+
+<!-- Aisles Roads -->
+     <LANEACTION class="CheckAndUpdateOrderAisle" package="oracle.retail.stores.pos.services.order.fill" template="laneaction.tpl"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="ResetOrderCargoRoad" package="oracle.retail.stores.pos.services.order.common" template="laneaction.tpl"/>
+     <LANEACTION class="StatusSearchEnteredRoad" package="oracle.retail.stores.pos.services.order.common" template="laneaction.tpl"/>
+     <LANEACTION class="LocationEnteredRoad"/>
+     <LANEACTION class="OrderIDEnteredRoad" package="oracle.retail.stores.pos.services.order.common" template="laneaction.tpl"/>
+     <LANEACTION class="SetSummaryRoad" package="oracle.retail.stores.pos.services.order.common" template="laneaction.tpl"/>
+
+<!-- Shuttles -->
+     <SHUTTLE class="OrderShuttle" package="oracle.retail.stores.pos.services.order.common"/>
+     <SHUTTLE class="CustomerFindLaunchShuttle" package="oracle.retail.stores.pos.services.order.common"/>
+     <SHUTTLE class="CustomerFindReturnShuttle" package="oracle.retail.stores.pos.services.order.common"/>
+
+<!-- Sites -->
+     <SITEACTION class="DisplayOrderListSite" package="oracle.retail.stores.pos.services.order.common" template="siteaction.tpl">
+        <COMMENT>Displays the ORDER_LIST screen if the cargo contains orders. </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="LookupOrderSite" package="oracle.retail.stores.pos.services.order.common" template="siteaction.tpl">
+        <COMMENT>tries to find order details for print order. </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="CheckOrderModifiableSite" package="oracle.retail.stores.pos.services.order.common" />
+     <SITEACTION class="AutomaticEmailSite" package="oracle.retail.stores.pos.services.order.common" template="siteaction.tpl"/>
+     <SITEACTION class="UpdateOrderSite" package="oracle.retail.stores.pos.services.order.common" template="siteaction.tpl"/>
+     <SITEACTION class="EditItemStatusSite" package="oracle.retail.stores.pos.services.order.fill" template="siteaction.tpl"/>
+     <SITEACTION class="EditOrderLocationSite" package="oracle.retail.stores.pos.services.order.fill" template="siteaction.tpl"/>
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="SearchOrderStation">
+          <STATION name="SearchOrderStation"
+                   launchshuttle="OrderShuttle" returnshuttle="OrderShuttle"
+                   servicename="order.search.searchorder" targettier="APPLICATIONTIER">
+               <ROAD name="SearchOrderStationMultipleFound"
+                     letter="Success"
+                     destination="DisplayOrderList"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsNotOneOrderSummarySignal"/>
+               </ROAD>
+               <ROAD name="SearchOrderStationOneFound"
+                     letter="Success"
+                     destination="LookupOrder"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <LIGHT signal="IsOneOrderSummarySignal"/>
+               </ROAD>
+               <ROAD name="ViewOrderStationNext"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="ViewOrderStationFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="ViewOrderStationCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="ViewOrderStationUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>
+            </STATION>
+          <SITE name="DisplayOrderList" siteaction="DisplayOrderListSite">
+               <ROAD name="DisplayOrderListCancel" letter="Cancel" destination="SearchOrderStation" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DisplayOrderListUndo" letter="Undo" destination="SearchOrderStation" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DisplayOrderListNext" letter="Next" laneaction="SetSummaryRoad" destination="LookupOrder" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CheckOrderModifiable" siteaction="CheckOrderModifiableSite">
+			   <ROAD name="CheckOrderModifiableSuccess"
+                     letter="Success"
+                     destination="EditItemStatus"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CheckOrderModifiableFailureOne"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsOneOrderSummarySignal"/>
+               </ROAD>
+               <ROAD name="CheckOrderModifiableFailureMany"
+                     letter="Failure"
+                     destination="DisplayOrderList"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsNotOneOrderSummarySignal"/>
+               </ROAD>
+			</SITE>
+          <SITE name="EditItemStatus" siteaction="EditItemStatusSite">
+               <AISLE name="EditItemStatusAccept" letter="Next" laneaction="CheckAndUpdateOrderAisle">
+               </AISLE>
+               <ROAD name="EditItemStatusCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="EditItemStatusUndo" letter="Undo" destination="SearchOrderStation" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="EditItemStatusSuccess" letter="Success" destination="EditOrderLocation" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+<!--
+               <ROAD name="PrintOrder" letter="Success" destination="PrintOrderStation" tape="ADVANCE" record="ON" index="ON"/>
+-->
+               <ROAD name="EditItemStatusFailureOne" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+                 <LIGHT signal="IsOneOrderSummarySignal"/>
+               </ROAD>
+               <ROAD name="EditItemStatusFailureMany" letter="Failure" destination="DisplayOrderList" tape="ADVANCE" record="ON" index="ON">
+                 <LIGHT signal="IsNotOneOrderSummarySignal"/>
+               </ROAD>
+          </SITE>
+          <SITE name="UpdateOrder" siteaction="UpdateOrderSite">
+               <AISLE name="UpdateOrderOkFailure" letter="Ok" laneaction="FailureConversionAisle">
+               </AISLE>
+               <AISLE name="UpdateOrderDBError" letter="DbError" laneaction="DataBaseErrorAisle">
+               </AISLE>
+               <ROAD name="UpdateOrderFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UpdateOrderSuccess" letter="Success" destination="AutomaticEmail" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="EditOrderLocation" siteaction="EditOrderLocationSite">
+               <ROAD name="EditOrderLocationCancel" letter="Cancel" destination="SearchOrderStation" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="EditOrderLocationUndo" letter="Undo" destination="EditItemStatus" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="PrintOrder" letter="Next" destination="PrintOrderStation" laneaction="LocationEnteredRoad" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="AutomaticEmail" siteaction="AutomaticEmailSite">
+               <COMMENT>
+                    This site is used to generate an automatic email to the customer.
+               </COMMENT>
+               <AISLE name="AutomaticEmailOkFailure" letter="Ok"
+                      laneaction="FailureConversionAisle"/>
+               <AISLE name="AutomaticEmailDBError" letter="DbError"
+                      laneaction="DataBaseErrorAisle"/>
+               <ROAD name="AutomaticEmailFailure" letter="Failure"
+                     destination="Final" laneaction="ResetOrderCargoRoad" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="AutomaticEmailSuccess" laneaction="ResetOrderCargoRoad" letter="Success"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <SITE name="LookupOrder" siteaction="LookupOrderSite">
+               <AISLE name="LookupOrderOkFailure" letter="Ok" laneaction="FailureConversionAisle">
+               </AISLE>
+               <AISLE name="LookupOrderDBError" letter="DbError" laneaction="DataBaseErrorAisle">
+               </AISLE>
+               <ROAD name="LookupOrderFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LookupOrderSuccess" letter="Success" destination="CheckOrderModifiable" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+		  <STATION name="PrintOrderStation"
+                   launchshuttle="OrderShuttle"
+                   returnshuttle="OrderShuttle"
+                   servicename="order.print.printorder" targettier="APPLICATIONTIER">
+               <ROAD name="PrintOrderStationFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="PrintOrderStationCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="PrintOrderStationUndo" letter="Undo" destination="SearchOrderStation" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="PrintOrderStationSuccess" letter="Success" destination="UpdateOrder" tape="ADVANCE" record="ON" index="ON"/>
+          </STATION>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

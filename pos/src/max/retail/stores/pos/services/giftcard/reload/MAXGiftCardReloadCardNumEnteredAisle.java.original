@@ -1,0 +1,367 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   Copyright (c) 2012 - 2013 MAXHyperMarket, Inc.    All Rights Reserved.
+	 Rev 1.2  06/Jun/2013	Jyoti Rawal  Fix for Bug 6192 GC Issue - Error Message is not proper while QC is Offline
+  	Rev 1.1 05/06/2013 Jyoti Rawal Fix for Bug 6153 GC Reload :- Duplicate card in 
+	same transaction should not allow 
+	Rev 1.0  15/Apr/2013	Jyoti Rawal, Initial Draft: Changes for Gift Card Functionality 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+package com.max.pos.services.giftcard.reload;
+
+import java.util.HashMap;
+
+import com._360commerce.commerceservices.common.currency.CurrencyIfc;
+import com._360commerce.common.utility.Util;
+import com.extendyourstore.domain.DomainGateway;
+import com.extendyourstore.domain.lineitem.SaleReturnLineItemIfc;
+import com.extendyourstore.domain.stock.GiftCardPLUItem;
+import com.extendyourstore.domain.stock.GiftCardPLUItemIfc;
+import com.extendyourstore.domain.stock.ProductGroupConstantsIfc;
+import com.extendyourstore.domain.transaction.RetailTransactionIfc;
+import com.extendyourstore.domain.utility.GiftCardIfc;
+import com.extendyourstore.foundation.manager.ifc.JournalManagerIfc;
+import com.extendyourstore.foundation.manager.ifc.ParameterManagerIfc;
+import com.extendyourstore.foundation.manager.ifc.UIManagerIfc;
+import com.extendyourstore.foundation.manager.parameter.ParameterException;
+import com.extendyourstore.foundation.tour.gate.Gateway;
+import com.extendyourstore.foundation.tour.ifc.BusIfc;
+import com.extendyourstore.pos.manager.ifc.UtilityManagerIfc;
+import com.extendyourstore.pos.services.PosLaneActionAdapter;
+import com.extendyourstore.pos.services.giftcard.GiftCardCargo;
+import com.extendyourstore.pos.services.giftcard.GiftCardConstantsIfc;
+import com.extendyourstore.pos.services.giftcard.GiftCardUtilities;
+import com.extendyourstore.pos.ui.DialogScreensIfc;
+import com.extendyourstore.pos.ui.POSUIManagerIfc;
+import com.extendyourstore.pos.ui.beans.DialogBeanModel;
+import com.extendyourstore.pos.ui.beans.GiftCardBeanModel;
+import com.extendyourstore.pos.ui.beans.POSBaseBeanModel;
+import com.extendyourstore.pos.ui.beans.PromptAndResponseModel;
+import com.max.domain.stock.MAXGiftCardPLUItem;
+import com.max.domain.stock.MAXGiftCardPLUItemIfc;
+import com.max.domain.utility.MAXGiftCard;
+import com.max.pos.services.giftcard.MAXGiftCardUtilities;
+import com.max.pos.services.qc.MAXGiftCardUtilitiesQC;
+import com.max.pos.ui.MAXPOSUIManagerIfc;
+import com.qwikcilver.clientapi.svpos.GCPOS;
+
+//--------------------------------------------------------------------------
+/**
+ * Validates the gift card number entered or scanned and adds it to the cargo.
+ * <p>
+ * 
+ * @version $Revision: 1.7 $
+ **/
+// --------------------------------------------------------------------------
+public class MAXGiftCardReloadCardNumEnteredAisle extends PosLaneActionAdapter implements GiftCardConstantsIfc {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5693833249190182356L;
+	/**
+	 * class name
+	 **/
+	public static final String LANENAME = "GiftCardReloadCardNumEnteredAisle";
+	/**
+	 * revision number
+	 **/
+	public static final String revisionNumber = "$Revision: 1.7 $";
+
+	// ----------------------------------------------------------------------
+	/**
+	 * Get the data entered on the Gift Card screen or from MSR Validate and
+	 * save the gift card number. Send the 'Continue' letter
+	 * <p>
+	 * 
+	 * @param bus
+	 *            the bus traversing this lane
+	 **/
+	// ----------------------------------------------------------------------
+	public void traverse(BusIfc bus) {
+		/*
+		 * read the data from the UI
+		 */
+
+		POSUIManagerIfc ui = (POSUIManagerIfc) bus.getManager(UIManagerIfc.TYPE);
+		//UtilityManagerIfc utility = (UtilityManagerIfc) bus.getManager(UtilityManagerIfc.TYPE);
+		ParameterManagerIfc pm = (ParameterManagerIfc) bus.getManager(ParameterManagerIfc.TYPE);
+		GiftCardCargo cargo = (GiftCardCargo) bus.getCargo();
+		boolean isFreshCard = false;
+
+		GiftCardIfc giftCard = cargo.getGiftCard();
+		// Gift Card not getting accepted at QC after swiping
+		String cardNumber = null;
+		String var1 = ";";
+		String var2 = "=";
+		String var3 = "?";
+		String trackData = "";
+		boolean isSwiped = false;
+		boolean isScanned = false;
+		MAXGiftCardUtilitiesQC utilObj = new MAXGiftCardUtilitiesQC();
+		GCPOS pos = utilObj.getInstance(); 
+		
+
+		String cardNum = ui.getInput();
+		
+		if(cardNum != null && cardNum.length()!= 0)
+		{
+			if(cardNum.length() > 28)
+				isSwiped = true;
+			else if(cardNum.length() == 26)
+				isScanned = true;
+		}
+		
+		
+		if(isScanned)
+		{
+			trackData = ui.getInput();
+			cardNumber = utilObj.getCardNumberFromTrackData(ui.getInput(),true);
+		}
+		else if(isSwiped)
+		{
+			trackData = var1 + cardNum.substring(0, 16) + var2 + cardNum.substring(16) + var3;
+			cardNumber = utilObj.getCardNumberFromTrackData(trackData,true);
+		}
+		
+		
+		/*if (cardNum.length() > 26) {
+			trackData = var1 + cardNum.substring(0, 16) + var2 + cardNum.substring(16) + var3;
+			cardNumber = cardNum.substring(0, 16);
+			cardNumber = utilObj.getCardNumberFromTrackData(trackData,true);
+			//isSwiped = true;
+
+		} else {
+			cardNumber = utilObj.getCardNumberFromTrackData(ui.getInput(),true);
+		}*/
+		// Gift Card not getting accepted at QC after swiping ends here
+		GiftCardBeanModel model = (GiftCardBeanModel) ui.getModel(POSUIManagerIfc.GET_CARD_NUM_FOR_GIFT_CARD);
+		boolean duplicate = false;
+		if (isSwiped) {
+			model.setSwiped(true);
+			// model.setTrackData(trackData);
+		}
+		
+		RetailTransactionIfc retailTransaction = cargo.getRetailTransactionIfc();
+		SaleReturnLineItemIfc[] items = null;
+		/**
+		*  Rev 1.1 changes start here
+		*/
+		if (retailTransaction != null)
+			items = retailTransaction.getProductGroupLineItems(ProductGroupConstantsIfc.PRODUCT_GROUP_GIFT_CARD);
+
+		if (items != null && items.length != 0) {
+			for (int j = 0; j < items.length; j++) {
+				if (items[j].getPLUItem() instanceof GiftCardPLUItem) {
+					MAXGiftCardPLUItemIfc gfItem = (MAXGiftCardPLUItemIfc) items[j].getPLUItem();
+					MAXGiftCard giftCardr= (MAXGiftCard) gfItem.getGiftCard();
+					if (isSwiped) {
+					// giftCard.setSwiped(true);
+					// giftCard.setTrackData(trackData);
+					}
+					if (cardNumber != null && cardNumber.length()!= 0 && cardNumber.equals(giftCardr.getCardNumber())) {
+						duplicate = true;
+					}
+				}
+			}
+		}
+		if (duplicate) {
+			ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, MAXGiftCardUtilities.createDupllicateGiftCardNumErrorDialogModel());
+			duplicate = false;
+			return;
+		}
+		/**
+		*  Rev 1.1 changes end here
+		*/
+		// cardNumber = model.getCardRangeFrom();
+		if (logger.isInfoEnabled())
+			logger.info("GiftCardNumberEnteredAisle.traverse(), cardNumber = " + cardNumber + "");
+
+		
+		if (pos != null) {
+			boolean isValid = false;
+			if (giftCard == null) {
+				giftCard = DomainGateway.getFactory().getGiftCardInstance();
+			}
+			String denominationAmount = giftCard.getInitialBalance().toString();
+			
+			String notes = null;
+			notes = "{VldType~GCRLD|AMOUNT~" + denominationAmount +"}";
+			// POSBaseBeanModel model = new POSBaseBeanModel();
+			// POSUIManagerIfc ui =
+			// (POSUIManagerIfc)bus.getManager(UIManagerIfc.TYPE);
+			ui.showScreen(MAXPOSUIManagerIfc.GIFT_CARD_VALIDATING_SCREEN, new POSBaseBeanModel());
+
+			HashMap balanceEnquiryMap = utilObj.balanceEnquiryWithNotes(pos, cardNumber, trackData, notes);
+			if (balanceEnquiryMap != null && balanceEnquiryMap.size() != 0) {
+				String responseCode = balanceEnquiryMap.get("ResponseCode").toString();
+				//String responseMessage = balanceEnquiryMap.get("ResponseMessage").toString();
+				//String invoiceNumber = balanceEnquiryMap.get("InvoiceNumber").toString();
+				// String acquirerId =
+				// balanceEnquiryMap.get("AcquirerId").toString();
+				// String expiryDate =
+				// balanceEnquiryMap.get("Expiry").toString();
+				// String previousBalance =
+				// balanceEnquiryMap.get("PreviousBalance").toString();
+				// String cardType =
+				// balanceEnquiryMap.get("CardType").toString();
+				if (("0").equals(responseCode)) {
+					isValid = true;
+				}
+
+			}
+			if (balanceEnquiryMap.get("Amount") != null) {
+				DialogBeanModel dialogModel = new DialogBeanModel();
+				String msg[] = new String[7];
+				dialogModel.setResourceID("GIFTCARD_ENQUIRYQC");
+				msg[0] = "<<--||--:: Please Find The GiftCard Details As Below ::--||-->>";
+				msg[1] = "GIFTCard" + " " + giftCard.getCardNumber();
+				msg[2] = " Total Amount In This Card Is " + balanceEnquiryMap.get("CardCurrencySymbol").toString() + " "+ balanceEnquiryMap.get("Amount").toString() + " ";
+						
+				msg[3] = "ExpiryDate " + utilObj.calculateEYSDate(balanceEnquiryMap.get("Expiry").toString());
+				msg[4] = "Press Enter To Proceed ";
+				msg[5] = balanceEnquiryMap.get("CardType").toString();
+				msg[6] = "::Thanks::";
+				dialogModel.setArgs(msg);
+				dialogModel.setType(DialogScreensIfc.ACKNOWLEDGEMENT);
+				// dialogModel.setButtonLetter(DialogScreensIfc.BUTTON_YES,
+				// "AfterBalance");
+				dialogModel.setButtonLetter(DialogScreensIfc.BUTTON_OK, "Continue");
+				// POSUIManagerIfc ui = (POSUIManagerIfc)
+				// bus.getManager(UIManagerIfc.TYPE);
+
+				ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, dialogModel);
+
+			}
+			if (balanceEnquiryMap != null && balanceEnquiryMap.size() != 0 && ("0").equals(balanceEnquiryMap.get("ResponseCode").toString())) {
+				//String responseCode = balanceEnquiryMap.get("ResponseCode").toString();
+				//String responseMessage = balanceEnquiryMap.get("ResponseMessage").toString();
+				//String invoiceNumber = balanceEnquiryMap.get("InvoiceNumber").toString();
+				//String acquirerId = balanceEnquiryMap.get("AcquirerId").toString();
+				//String expiryDate = balanceEnquiryMap.get("Expiry").toString();
+				String amount = balanceEnquiryMap.get("Amount").toString();
+				//String cardType = balanceEnquiryMap.get("CardType").toString();
+
+				if (giftCard.getRequestType() == GiftCardIfc.GIFT_CARD_RELOAD) {
+					amount = giftCard.getCurrentBalance().toString(); // Reload
+																		// Amount
+				}
+				CurrencyIfc amt = DomainGateway.getBaseCurrencyInstance(amount);
+				giftCard.setInitialBalance(amt);
+				giftCard.setCurrentBalance(amt);
+				((MAXGiftCard)giftCard).setTrackData(trackData);
+				
+
+			}
+			if (balanceEnquiryMap.get("Amount") == null && balanceEnquiryMap.get("TerminalId") != null) {  //Rev 1.2 changes
+				DialogBeanModel dialogModel = new DialogBeanModel();
+				String msg[] = new String[7];
+				dialogModel.setResourceID("GIFTCARD_ENQUIRYQC");
+				msg[0] = "<<--||--:: Please Find The GiftCard Details As Below ::--||-->>";
+				msg[1] = "GIFTCard" + " " + giftCard.getCardNumber();
+				msg[2] = "";//" Total Amount In This Card Is " + balanceEnquiryMap.get("Amount");
+				msg[3] = "";//"ExpiryDate : N/A ";
+				msg[4] = balanceEnquiryMap.get("ResponseMessage").toString();
+				if (balanceEnquiryMap.get("AcquirerId") != null)
+					msg[5] = balanceEnquiryMap.get("AcquirerId").toString();
+				else {
+					msg[5] = "Could Not Validate Card";
+				}
+				msg[6] = "::Thanks::";
+				dialogModel.setArgs(msg);
+				dialogModel.setType(DialogScreensIfc.ERROR);
+				// dialogModel.setButtonLetter(DialogScreensIfc.BUTTON_YES,
+				// "AfterBalance");
+				dialogModel.setButtonLetter(DialogScreensIfc.BUTTON_OK, "Undo");
+				// POSUIManagerIfc ui = (POSUIManagerIfc)
+				// bus.getManager(UIManagerIfc.TYPE);
+
+				ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, dialogModel);
+				isFreshCard = true;
+
+			}
+			if (balanceEnquiryMap.get("Amount") == null && balanceEnquiryMap.get("TerminalId") == null) { //Rev 1.2 cnanges
+				DialogBeanModel dialogModel = new DialogBeanModel();
+				String msg[] = new String[7];
+				dialogModel.setResourceID("GIFTCARD_ENQUIRYQC");
+				msg[0] = " ";
+				msg[1] = "Gift Card cannot be reloaded";
+				msg[2] = " due to network offline";   //" Total Amount In This Card Is " + balanceEnquiryMap.get("Amount");
+				msg[3] = "Press Enter button to return to previous screen";
+				msg[4] = " ";
+				msg[5] = " ";
+				msg[6] = " ";
+				msg[6] = "::Thanks::";
+				dialogModel.setArgs(msg);
+				dialogModel.setType(DialogScreensIfc.ERROR);
+				dialogModel.setButtonLetter(DialogScreensIfc.BUTTON_OK, "Undo");
+
+				ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, dialogModel);
+				isFreshCard = true;
+
+			}
+			if (!isFreshCard && noError(bus, cardNumber, isValid)) {
+				String itemID = "0";
+				try {
+					itemID = pm.getStringValue(DEFAULT_GIFT_CARD_ITEM_ID);
+				} catch (ParameterException e) {
+					itemID = DEFAULT_ITEM_ID;
+				}
+
+				GiftCardPLUItemIfc pluItem = GiftCardUtilities.getPluItem(ui, cargo, itemID, logger, bus.getServiceName());
+				if (pluItem != null) {
+					CurrencyIfc amount = giftCard.getCurrentBalance();
+					giftCard.setCardNumber(cardNumber);
+					/**
+					 * Fixed the GiftCard swiping issue while using multiple
+					 * cards -- Jyoti
+					 */
+					((MAXGiftCardPLUItem) pluItem).setTrackData(trackData);
+					((MAXGiftCardPLUItem) pluItem).setSwiped(isSwiped);
+					giftCard.setRequestType(GiftCardIfc.GIFT_CARD_RELOAD);
+					pluItem.setGiftCard(giftCard);
+					pluItem.setPrice(amount);
+					cargo.setItemQuantity(Util.I_BIG_DECIMAL_ONE);
+					cargo.setPLUItem(pluItem);
+
+					JournalManagerIfc jmi = (JournalManagerIfc) Gateway.getDispatcher().getManager(JournalManagerIfc.TYPE);
+					jmi.journal(cargo.getTransaction().getCashier().getLoginID(), cargo.getTransaction().getTransactionID(), giftCard.toJournalString()
+							+ "\n    Reloaded.");
+					//Letter letter = new Letter(CommonLetterIfc.CONTINUE);
+					if (logger.isInfoEnabled())
+						logger.info("GiftCardNumberEnteredAisle.traverse(), giftCard = " + cardNumber + "");
+					// bus.mail(letter, BusIfc.CURRENT);
+				}
+			}
+		} else {
+			utilObj.showQCOfflineErrorBox(bus);
+		}
+	}
+
+	protected boolean noError(BusIfc bus, String cardNumber, boolean flag) {
+		POSUIManagerIfc ui = (POSUIManagerIfc) bus.getManager(UIManagerIfc.TYPE);
+		UtilityManagerIfc utility = (UtilityManagerIfc) bus.getManager(UtilityManagerIfc.TYPE);
+		//ParameterManagerIfc pm = (ParameterManagerIfc) bus.getManager(ParameterManagerIfc.TYPE);
+		//GiftCardCargo cargo = (GiftCardCargo) bus.getCargo();
+		GiftCardBeanModel model = (GiftCardBeanModel) ui.getModel(POSUIManagerIfc.SELL_GIFT_CARD);
+
+		// String cardNumber = ui.getInput();
+
+		boolean noError = true;
+
+		if (GiftCardUtilities.isEmpty(model, cardNumber, logger, bus.getServiceName())) {
+			noError = false;
+			PromptAndResponseModel parModel = model.getPromptAndResponseModel();
+			if ((parModel != null) && parModel.isSwiped()) {
+				ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, GiftCardUtilities.createBadMSRReadDialogModel(utility));
+
+			} else {
+				ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, GiftCardUtilities.createInvalidGiftCardNumErrorDialogModel());
+			}
+		}
+
+		if (!flag) {
+			noError = false;
+			ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, GiftCardUtilities.createInvalidGiftCardNumErrorDialogModel());
+		}
+
+		return noError;
+	}
+}

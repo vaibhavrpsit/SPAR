@@ -1,0 +1,673 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/manager/registerreports/reportsuicfg.xml /main/17 2013/04/22 15:28:43 mchellap Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   10/22/14 - Change the key name of BillPaySummary in
+                           XChannelReportOptionsButtonSpec from F2 to F9
+ *    mchellap  04/22/13 - Add validation to preview
+ *    rgour     02/21/13 - The Clear button is removed from Print preview
+ *                         screen
+ *    sgu       01/15/13 - add back order status report
+ *    sgu       07/12/12 - remove retrieve order summary by status or by
+ *                         emessage
+ *    mkutiana  09/27/11 - Externalize Button Labels and rename button
+ *    vtemker   03/03/11 - Changes for Print Preview Reports Quickwin
+ *    nkgautam  07/02/10 - bill pay report changes
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/16/09 - add Keys button
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="ReportOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            labelTag="SummaryButtonLabel"
+            actionName="Summary"
+            enabled="true"
+            keyName="F2" />
+
+        <BUTTON
+            labelTag="DepartmentSalesButtonLabel"
+            actionName="DeptSalesReport"
+            keyName="F3"
+            enabled="true"/>
+
+        <BUTTON
+            labelTag="AssociateProductivityButtonLabel"
+            actionName="AssocProdReport"
+            keyName="F4"
+            enabled="true"/>
+
+        <BUTTON
+            labelTag="HourlySalesButtonLabel"
+            actionName="HrlySalesReport"
+            keyName="F5"
+            enabled="true"/>
+
+        <BUTTON
+            labelTag="QueueTransactionButtonLabel"
+            actionName="QueTransReport"
+            keyName="F6"
+            enabled="true"/>
+
+        <BUTTON
+            labelTag="SuspendTransactionButtonLabel"
+            actionName="SuspendedTransactions"
+            keyName="F7"
+            enabled="true"/>
+    </BEAN>
+
+    <BEAN
+        specName="CRReportOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Summary"
+            enabled="true"
+            keyName="F2"
+            labelTag="SummaryButtonLabel"/>
+
+        <BUTTON
+            actionName="DeptSalesReport"
+            enabled="true"
+            keyName="F3"
+            labelTag="DepartmentSalesButtonLabel"/>
+
+        <BUTTON
+            actionName="AssocProdReport"
+            enabled="true"
+            keyName="F4"
+            labelTag="AssociateProductivityButtonLabel"/>
+
+        <BUTTON
+            actionName="HrlySalesReport"
+            enabled="true"
+            keyName="F5"
+            labelTag="HourlySalesButtonLabel"/>
+
+        <BUTTON
+            actionName="QueTransReport"
+            enabled="true"
+            keyName="F6"
+            labelTag="QueueTransactionButtonLabel"/>
+
+        <BUTTON
+            actionName="SuspendedTransactions"
+            enabled="true"
+            keyName="F7"
+            labelTag="SuspendTransactionButtonLabel"/>
+
+        <BUTTON
+            actionName="OrderStatus"
+            enabled="true"
+            keyName="F8"
+            labelTag="OrderStatusButtonLabel"/>
+            
+        <BUTTON
+            actionName="OrdersSummary"
+            enabled="true"
+            keyName="F2"
+            labelTag="OrderSummaryButtonLabel"/>
+
+        <BUTTON
+            actionName="BillPaySummary"
+            enabled="true"
+            keyName="F3"
+            labelTag="BillPaySummaryButtonLabel"/>
+    </BEAN>
+    
+    <BEAN
+        specName="XChannelReportOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Summary"
+            enabled="true"
+            keyName="F2"
+            labelTag="SummaryButtonLabel"/>
+
+        <BUTTON
+            actionName="DeptSalesReport"
+            enabled="true"
+            keyName="F3"
+            labelTag="DepartmentSalesButtonLabel"/>
+
+        <BUTTON
+            actionName="AssocProdReport"
+            enabled="true"
+            keyName="F4"
+            labelTag="AssociateProductivityButtonLabel"/>
+
+        <BUTTON
+            actionName="HrlySalesReport"
+            enabled="true"
+            keyName="F5"
+            labelTag="HourlySalesButtonLabel"/>
+
+        <BUTTON
+            actionName="QueTransReport"
+            enabled="true"
+            keyName="F6"
+            labelTag="QueueTransactionButtonLabel"/>
+
+        <BUTTON
+            actionName="SuspendedTransactions"
+            enabled="true"
+            keyName="F7"
+            labelTag="SuspendTransactionButtonLabel"/>
+            
+        <BUTTON
+            actionName="OrdersSummary"
+            enabled="true"
+            keyName="F8"
+            labelTag="OrderSummaryButtonLabel"/>
+
+        <BUTTON
+            actionName="BillPaySummary"
+            enabled="true"
+            keyName="F9"
+            labelTag="BillPaySummaryButtonLabel"/>
+    </BEAN>
+
+    <BEAN
+        specName="SummaryReportPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SummaryReportBean">
+    </BEAN>
+
+    <BEAN
+        specName="DateRangeReportPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DateRangeReportBean">
+    </BEAN>
+
+    <BEAN
+        specName="OrderStatusReportSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="OrderStatusReportBean">
+    </BEAN>
+
+    <BEAN
+        specName="OrderReportButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ValidateNavigationButtonBean">
+
+        <BUTTON
+            actionName="Print"
+            enabled="true"
+            keyName="F2"
+            labelTag="Print"/>
+            
+        <BUTTON
+            actionName="Preview"
+            enabled="true"
+            keyName="F3"
+            labelTag="Preview"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="OrderSumRptButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ValidateNavigationButtonBean">
+
+        <BUTTON
+            actionName="Print"
+            enabled="true"
+            keyName="F2"
+            labelTag="Print"/>
+
+        <BUTTON
+            actionName="Preview"
+            enabled="true"
+            keyName="F3"
+            labelTag="Preview"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="OrdersSummaryReportSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="OrdersSummaryReportBean">
+    </BEAN>
+
+    <!-- Added for print preview -->
+    <BEAN
+        specName="ReportsPreviewSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="PrintPreviewBean">
+    </BEAN>
+
+    <OVERLAYSCREEN
+        specName="CR_REPORT_OPTIONS"
+        resourceBundleFilename="reportsText"
+        defaultScreenSpecName="EYSPOSDefaultSpec" >
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="CRReportOptionsButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="ReportOptionsPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="ReportOptionsScreenName"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+    
+    <OVERLAYSCREEN
+        specName="XC_REPORT_OPTIONS"
+        resourceBundleFilename="reportsText"
+        defaultScreenSpecName="EYSPOSDefaultSpec" >
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="XChannelReportOptionsButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="ReportOptionsPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="ReportOptionsScreenName"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        specName="REPORT_OPTIONS"
+        resourceBundleFilename="reportsText"
+        defaultScreenSpecName="EYSPOSDefaultSpec" >
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ReportOptionsButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="ReportOptionsPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="ReportOptionsScreenName"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+
+    <!-- New Print preview screen -->
+    <OVERLAYSCREEN
+         specName="PRINT_PREVIEW"
+         resourceBundleFilename="reportsText"
+  		 defaultScreenSpecName="EYSPOSDefaultSpec" >
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="PrintButtonSpec">
+            <BEANPROPERTY
+                propName="actionName"
+                propValue="Print"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="PrintPreviewPrompt"/>
+        </ASSIGNMENT>
+
+       <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ReportsPreviewSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="PrintPreviewScreenName"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        specName="SUMMARY_REPORT"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="reportsText"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="SummaryReportBeanModel">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="PrintAndPreviewButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="SummaryReportPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SummaryReportPanelSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+                propValue="tillRegNumField,busnDateField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="SummaryReportScreenName"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="PrintAndPreviewButtonSpec"
+            targetBeanSpecName="SummaryReportPanelSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="SummaryReportPanelSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="SummaryReportPanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        specName="DATE_RANGE_REPORT"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="reportsText"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="DateRangeReportBeanModel">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="PrintAndPreviewButtonSpec">
+            <BEANPROPERTY
+                propName="actionName"
+                propValue="Print,Preview"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="DateRangeReportPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="DateRangeReportPanelSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+                propValue="startBusnDateField,endBusnDateField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="DateRangeReportScreenName"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="DateRangeReportPanelSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="PrintAndPreviewButtonSpec"
+            targetBeanSpecName="DateRangeReportPanelSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="DateRangeReportPanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+
+
+    <OVERLAYSCREEN
+        specName="PRINT_REPORT"
+        resourceBundleFilename="reportsText"
+        defaultScreenSpecName="EYSPOSDefaultSpec" >
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[false],Cancel[false],Undo[false],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="ReportPrintingPrompt"/>
+        </ASSIGNMENT>
+
+
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="ReportPrintingScreenName"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="reportsText"
+        specName="ORDER_REPORT">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="OrderStatusReportSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="startBusnDateField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OrderStatusReportScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="OrderStatusReportPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="OrderReportButtonSpec">
+            <BEANPROPERTY
+                propName="actionName"
+                propValue="Print,Preview"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="OrderStatusReportSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="OrderReportButtonSpec"
+            targetBeanSpecName="OrderStatusReportSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="OrderStatusReportSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="reportsText"
+        specName="ORDER_SUM_RPT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="OrdersSummaryReportSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="startBusnDateField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OrderSummaryReportScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="OrderSummaryReportPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="OrderSumRptButtonSpec">
+            <BEANPROPERTY
+                propName="actionName"
+                propValue="Print,Preview"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="OrdersSummaryReportSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="OrderSumRptButtonSpec"
+            targetBeanSpecName="OrdersSummaryReportSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="OrdersSummaryReportSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+</UICFG>

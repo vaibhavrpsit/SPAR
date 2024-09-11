@@ -1,0 +1,182 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/activation/activation.xml /main/4 2014/02/20 14:40:22 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     02/20/14 - Fixing null pointer exception when cancelling failed
+ *                         gift card refund tender.
+ *    asinton   02/06/14 - reworked flow for gift card activation error
+ *                         scenarios
+ *    asinton   10/28/13 - Fixed problem with the reporting of gift card
+ *                         activation errors
+ *    asinton   05/04/11 - New activation service for APF.
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Activation"
+         package="oracle.retail.stores.pos.services.tender.activation"
+         tourcam="ON">
+    <CARGO class="ActivationCargo"/>
+    <SERVICECODE>
+        <LETTER name="Activate"/>
+        <LETTER name="Approved"/>
+        <LETTER name="Declined"/>
+        <LETTER name="Failure"/>
+        <LETTER name="MobileFailure"/>
+        <LETTER name="Error"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Success"/>
+        <LETTER name="Manual"/>
+        
+        <LANEACTION class="ActivationCanceledAisle" />
+        <LANEACTION class="ActivationDeclinedAisle"/>
+        <LANEACTION class="ActivationOfflineAisle"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="GiftCardInfoEnteredAisle"/>
+        <LANEACTION class="ActivationErrorAisle"/>
+        <LANEACTION class="ManualApprovalRoad"/>
+
+        <SIGNAL class="IsRefundTenderSignal"/>
+
+        <SITEACTION class="ActivationSite"/>
+        <SITEACTION class="GetGiftCardInfoSite"/>
+        <SITEACTION class="EvaluateRequestListSite"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="EvaluateRequestList">
+
+            <SITE name="EvaluateRequestList" siteaction="EvaluateRequestListSite">
+                <ROAD name="ActivationsSucceeded"
+                      letter="Success"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="CallActivation"
+                      letter="Activate"
+                      destination="Activation"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ActivationFailuresExistRoad"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                      <COMMENT>
+                        This road is taken when there are failed gift card activations.
+                      </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="Activation" siteaction="ActivationSite">
+                <AISLE name="ActivationDeclined"
+                      letter="Declined"
+                      laneaction="ActivationDeclinedAisle">
+                </AISLE>
+                <AISLE name="ActivationOffline"
+                      letter="Offline"
+                      laneaction="ActivationOfflineAisle">
+                </AISLE>
+                <AISLE name="ActivationError"
+                      letter="Error"
+                      laneaction="ActivationErrorAisle">
+                </AISLE>
+                <ROAD name="ActivationManualApproval"
+                      letter="Manual"
+                      laneaction="ManualApprovalRoad"
+                      destination="EvaluateRequestList"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ActivationMobileFailure"
+                      letter="MobileFailure"
+                      destination="EvaluateRequestList"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ActivationApproved"
+                      letter="Approved"
+                      destination="EvaluateRequestList"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ActivationCardInfo"
+                      letter="CardInfo"
+                      destination="GetGiftCardInfo"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ActivationFailed"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="GetGiftCardInfo" siteaction="GetGiftCardInfoSite">
+                <COMMENT>
+                    This site displays the SELL_GIFT_CARD form to allow
+                    the user to enter the required information for the
+                    item.
+                </COMMENT>
+                <AISLE
+                    name="GiftCardInfoEntered"
+                    letter="Next"
+                    laneaction="GiftCardInfoEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed after the user entered the
+                        gift card information.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="ActivationCanceled"
+                    letter="Cancel"
+                    laneaction="ActivationCanceledAisle">
+                    <COMMENT>
+                        This aisle is traversed if the operator selects to cancel
+                        the activation if a new card.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="InfoEnteredSuccess"
+                    letter="Continue"
+                    destination="Activation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InfoEnteredFailed"
+                    letter="InvalidCardNumber"
+                    destination="GetGiftCardInfo"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ActivationFailed"
+                    letter="Failure"
+                    destination="EvaluateRequestList"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT signal="IsRefundTenderSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="RefundTenderActivationFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT signal="IsRefundTenderSignal"/>
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+
+        </REGION>
+    </MAP>
+</SERVICE>

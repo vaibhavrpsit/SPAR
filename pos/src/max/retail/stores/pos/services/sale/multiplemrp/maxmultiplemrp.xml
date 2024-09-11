@@ -1,0 +1,107 @@
+<?xml version='1.0' ?>
+<!--
+/**
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2013 MAXHyperMarkets, Inc.    All Rights Reserved.
+  Rev 1.0	Jyoti Rawal		10/08/2013		Initial Draft:	CR:Restriction required in POS to display no.
+  of MRPs to the user. Also, parameter is required to control the no. of MRPs to be shown to user.
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="MultipleMRP"
+	package="max.retail.stores.pos.services.sale.multiplemrp"
+	tourcam="OFF">
+	<CARGO class="MAXMultipleMRPCargo" />
+	<SERVICECODE>
+		<LANEACTION class="MAXActiveMRPSelectedAisle"
+			package="max.retail.stores.pos.services.sale.multiplemrp" />
+		<LANEACTION class="MAXInActiveMRPSelectedAisle"
+			package="max.retail.stores.pos.services.sale.multiplemrp" />
+		<LETTER name="Cancel" />
+		<LETTER name="Continue" />
+		<LETTER name="Done" />
+		<LETTER name="InactiveMRPFound" />
+		<LETTER name="InactiveMRPScreen" />
+		<LETTER name="Next" />
+		<LETTER name="PickInactiveMRP" />
+		<LETTER name="PickOneMRP" />
+		<LETTER name="Undo" />
+		<SHUTTLE class="MAXMultipleMRPLaunchShuttle"
+			package="max.retail.stores.pos.services.inquiry.iteminquiry.itemcheck" />
+		<SHUTTLE class="MAXMultipleMRPReturnShuttle"
+			package="max.retail.stores.pos.services.inquiry.iteminquiry.itemcheck" />
+		<SITEACTION class="MAXDetermineMultipleMRPSite"
+			package="max.retail.stores.pos.services.sale.multiplemrp" />
+		<SITEACTION class="MAXDisplayActiveMRPSite"
+			package="max.retail.stores.pos.services.sale.multiplemrp">
+			<COMMENT>
+				This site is used to display the multiple active mrp
+				for an item.
+			</COMMENT>
+		</SITEACTION>
+		<SITEACTION class="MAXDisplayInActiveMRPSite"
+			package="max.retail.stores.pos.services.sale.multiplemrp" >
+			<COMMENT>
+				This site is used to display the multiple inactive mrp
+				for an item.
+			</COMMENT>
+			</SITEACTION>
+	</SERVICECODE>
+	<MAP>
+		<REGION region="SERVICE" startsite="DetermineMultipleMRP">
+			<SITE name="DetermineMultipleMRP"
+				siteaction="MAXDetermineMultipleMRPSite">
+				<ROAD name="NoMultipleMRPFound" letter="Continue"
+					destination="Final" tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="MultipleMRPFound" letter="PickOneMRP"
+					destination="DisplayActiveMRP" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+			</SITE>
+			<SITE name="DisplayActiveMRP"
+				siteaction="MAXDisplayActiveMRPSite">
+				<COMMENT>
+					This Site displays one or more active MRP's for an
+					item.
+				</COMMENT>
+				<AISLE name="ActiveMRPSelected" letter="Next"
+					laneaction="MAXActiveMRPSelectedAisle">
+				</AISLE>
+				<ROAD name="UndoSelected" letter="Undo"
+					destination="Final" tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="CancelSelected" letter="Cancel"
+					destination="Final" tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="DisplayInActiveMRP" letter="PickInactiveMRP"
+					destination="DisplayInActiveMRP" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="MRPUpdated" letter="Continue"
+					destination="Final" tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE>
+			<SITE name="DisplayInActiveMRP"
+				siteaction="MAXDisplayInActiveMRPSite">
+				<AISLE name="InActiveMRPSelected" letter="Next"
+					laneaction="MAXInActiveMRPSelectedAisle">
+				</AISLE>
+				<ROAD name="UndoSelected" letter="Undo"
+					destination="DisplayActiveMRP" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="CancelSelected" letter="Cancel"
+					destination="Final" tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="MRPUpdated" letter="Continue"
+					destination="Final" tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE>
+			<SYSTEMSITE name="LastIndexed" action="BACKUP" />
+			<SYSTEMSITE name="NamedIndex" action="BACKUP" />
+			<SYSTEMSITE name="Final" action="RETURN" />
+		</REGION>
+	</MAP>
+</SERVICE>

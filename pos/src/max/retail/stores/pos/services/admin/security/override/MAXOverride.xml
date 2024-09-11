@@ -1,0 +1,134 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/security/override/override.xml /main/16 2013/11/19 09:42:41 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *	 Changes to capture ManagerOverride for Reporting purpose
+ 
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="override" package="oracle.retail.stores.pos.services.admin.security.override">
+    <COMMENT>
+        This service provides security override
+    </COMMENT>
+    <CARGO class="SecurityOverrideCargo" />
+    <SERVICECODE>
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Undo"/>
+
+        <SHUTTLE class="OperatorIdLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common" />
+        <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.admin.security.common" />
+
+        <SITEACTION class="PromptForOverrideSite"/>
+        <SITEACTION class="CheckOverrideAllowedSite"/>
+
+        <LANEACTION class="OverrideAccessGrantedRoad"/>
+        <!-- Change for ManagerOverride : Start -->
+        <LANEACTION class="MAXOverrideAccessGrantedRoad" package="com.MAX.pos.services.admin.security.override"/>
+        <!-- Change for ManagerOverride : End -->
+        <LANEACTION  class="UndoSelectedAisle"/>
+        <LANEACTION  class="ContinueConversionAisle" package="com._360commerce.pos.services.common"/>
+		<!-- Change for ManagerOverride : Start -->
+        <LANEACTION  class="MAXOverrideNoAisle" package="max.retail.stores.pos.services.admin.security.override"/>
+        <!-- Change for ManagerOverride : End -->
+        <LANEACTION class="UndoSelectedAisle"/>
+        <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+	
+        <SIGNAL class="UndoSelectedSignal"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckOverrideAllowed">
+            <SITE name="CheckOverrideAllowed" siteaction="CheckOverrideAllowedSite">
+                <ROAD
+                    name="OverrideAllowed"
+                    letter="Yes"
+                    destination="PromptForOverride">
+                </ROAD>
+                <ROAD
+                    name="AccessDenied"
+                    letter="Failure"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+            <SITE name="PromptForOverride" siteaction="PromptForOverrideSite">
+                <ROAD
+                    name="OverrideSelected"
+                    letter="Yes"
+                    destination="OperatorIdStation">
+                </ROAD>
+              
+                <!-- MAX Change for ManagerOverride : Start -->
+                <ROAD
+                    name="UserDeclinedOverride"
+                    letter="Failure"
+                    laneaction="MAXOverrideNoAisle"
+                    destination="Final">
+                </ROAD>
+				<!-- MAX Change for ManagerOverride : End -->
+            </SITE>
+
+            <STATION name="OperatorIdStation"
+                servicename="services.operatorid.operatorid"
+                targettier="CURRENTTIER"
+                launchshuttle="OperatorIdLaunchShuttle"
+                returnshuttle="OperatorIdReturnShuttle">
+                <AISLE
+                    name="LoginUndo"
+                    letter="Undo"
+                    laneaction="UndoSelectedAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to Failure
+                    </COMMENT>
+                </AISLE>
+               <!-- Change for ManagerOverride : Start -->
+                <ROAD
+                    name="LoginSucceeded"
+                    letter="Success"
+                    laneaction="MAXOverrideAccessGrantedRoad"
+                    destination="Final" >
+		       </ROAD>
+				<!--  Change for ManagerOverride : End -->
+                <ROAD
+                    name="LoginFailed"
+                    letter="Failure"
+                    destination="PromptForOverride"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="UndoSelectedSignal" negate="Y"/>
+                    <COMMENT>
+                        The login failed. Retry Override.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LoginUndoService"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="UndoSelectedSignal" negate="N"/>
+                    <COMMENT>
+                        The login failed. Retry Override.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

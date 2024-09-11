@@ -1,0 +1,399 @@
+<?xml version='1.0' ?>
+<!-- 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*   Copyright (c) 2012 - 2013 MAXHyperMarket, Inc.    All Rights Reserved.
+*
+*	Rev 1.4  11/May/2017	Ashish Yadav  	Changes for M-Coupon Issuance FES
+*  	Rev 1.3  22/mar/2017	hitesh.dua added flow for printing free item on receipt.
+*  	Rev 1.2  19/jan/2017	hitesh.dua added MAXPrintLoyaltySlipSite for printing loyalty charge slip
+*  	Rev 1.1  28/dec/2016	hitesh.dua calling base MAXPrintTransactionStoreCreditAisle instead of MAXPrintTransactionStoreCreditAisle
+*  	Rev 1.0  23/dec/2016	hitesh.dua calling base PrintSignatureSlipsSite instead of MAXPrintSignatureSlipsSite
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ -->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Printing" package="oracle.retail.stores.pos.services.printing" tourcam="OFF">
+     <COMMENT>
+          This service implements all the printing for a tendered
+          transaction.
+     </COMMENT>
+<CARGO class="MAXPrintingCargo" package="max.retail.stores.pos.services.printing"/>
+<SERVICECODE>
+      <!-- Changes for Rev 1.2 : Starts -->
+     <SITEACTION class="MAXFrankTendersSite" package="max.retail.stores.pos.services.printing"/>
+     <!-- Changes for Rev 1.2 : Ends -->
+     <SITEACTION class="PrintSignatureSlipsSite" />
+     <SITEACTION class="PrintReceiptSite" />
+     <SITEACTION class="PrintStoreCreditSite" />
+     <SITEACTION class="PrintDebitSlipSite"/>
+
+     <LETTER name="Retry"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Print" />
+     <LETTER name="Next" />
+     <LETTER name="ExitPrinting" />
+     <LETTER name="Discard" />
+     <LETTER name="Done" />
+     <LETTER name="ReceiptPrint" />
+ 	 <LETTER name="SendEReceipt" />
+ 	 <LETTER name="PrintMallCert"/>
+ 
+     <LANEACTION class="EndorseTendersAisle" />
+     <LANEACTION class="DiscardTenderAisle" />
+     
+     <SITEACTION class="MAXPrintLoyaltySlipSite" package="max.retail.stores.pos.services.printing"/>
+     
+     <LANEACTION class="MAXPrintTransactionReceiptAisle" package="max.retail.stores.pos.services.printing"/>
+     
+      <LANEACTION class="MAXMallCertificateReceiptPrintAisle" package="max.retail.stores.pos.services.printing"/>
+      
+     <!--  Changes start for code merging -->
+     <!-- <LANEACTION class="PrinterContinueAisle" /> -->
+     <!--  Changes end for code merging -->
+     <LANEACTION class="MAXPrintTransactionStoreCreditAisle" package="max.retail.stores.pos.services.printing"/>
+     <LANEACTION class="CheckForPendingTendersAisle" />
+     <SITEACTION class="MAXPrintSignatureSlipsSite" package="max.retail.stores.pos.services.printing"/>
+      <!-- changes for  rev 1.3 -->
+     <SITEACTION class="MAXPrintFreeItemReceiptSite" package="max.retail.stores.pos.services.printing"/>
+<!-- changes for REV 1.4 start  -->
+		<SITEACTION class="MAXPrintMcouponSlipSite"  package="max.retail.stores.pos.services.printing" />	
+		
+		<!-- changes for Rev 1.4 end -->
+	 <SITEACTION class="MAXBakeryReceiptPrintAisle"  package="max.retail.stores.pos.services.printing"/>
+	<!-- changes for rev 1.1 -->		
+	 	
+	<LANEACTION class="PrintTransactionStoreCreditAisle"/>	
+		
+	<SITEACTION class="MAXEnableEReceiptSite"  package="max.retail.stores.pos.services.printing"/>
+	<SITEACTION class="MAXEReceiptMobileNumberEntrySite"  package="max.retail.stores.pos.services.printing"/>
+	<SITEACTION class="MAXSendEReceiptDataSite"  package="max.retail.stores.pos.services.printing"/>
+			
+	<LANEACTION class="MAXSendEReceiptDetailsAisle" package="max.retail.stores.pos.services.printing"/>
+				
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="FrankTenders">
+          <SITE name="FrankTenders" siteaction="MAXFrankTendersSite">
+               <COMMENT>
+               This site does the franking for all tenders that must
+               be endorsed.
+               </COMMENT>
+               <AISLE name="EndorseTenders"
+                      letter="Print"
+                      laneaction="EndorseTendersAisle">
+               </AISLE>
+               <AISLE name="DiscardTender"
+                      letter="Discard"
+                      laneaction="DiscardTenderAisle">
+               </AISLE>
+
+               <AISLE name="CheckForPendingTenders"
+                      letter="Continue"
+                      laneaction="CheckForPendingTendersAisle">
+               </AISLE>
+               <ROAD name="FrankingCompleted"
+                     letter="Done"
+                     destination="PrintSignatureSlips"
+                     tape="ADVANCE"  record="ON"   index="ON">
+               </ROAD>
+          </SITE>
+          <!-- Rev 1.0 changes start here : calling base-->
+          <SITE name="PrintSignatureSlips" siteaction="MAXPrintSignatureSlipsSite">
+               <COMMENT>
+               This site prints a signature slip for each approved
+               credit card.
+               </COMMENT>
+               <ROAD name="PrintSlipsRetry"
+                     letter="Retry"
+                     destination="PrintSignatureSlips"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintSlipsCompleted"
+                     letter="Continue"
+                     destination="PrintDebitSlip"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          <!-- Rev 1.0 changes end here -->
+          <SITE name="PrintDebitSlip" siteaction="PrintDebitSlipSite">
+              <COMMENT>
+                 This site prints a debit slip for each approved
+                 debit card.
+              </COMMENT>
+              <ROAD name="PrintDepitSlipRetry"
+                     letter="Retry"
+                     destination="PrintDebitSlip"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintDebitSlipCompleted"
+                     letter="Continue"
+                     destination="PrintLoyaltySlip"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          <!-- changes for rev. 1.2 start -->
+          <SITE name="PrintLoyaltySlip" siteaction="MAXPrintLoyaltySlipSite">
+              <COMMENT>
+                 This site prints a debit slip for each approved
+                 debit card.
+              </COMMENT>
+              <ROAD name="PrintLoyaltySlipRetry"
+                     letter="Retry"
+                     destination="PrintLoyaltySlip"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintLoyaltySlipCompleted"
+                     letter="Continue"
+                     destination="EnableEReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <!-- changes for rev. 1.2 end -->
+          </SITE>
+           <SITE name="EnableEReceipt" siteaction="MAXEnableEReceiptSite"> 
+           	
+           		 <ROAD name="PrintReceiptRoad"
+                     letter="Print"
+                     destination="SendEReceiptData"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+                  </ROAD>
+                  
+ 			<ROAD name="MobileNumberRoad"
+                     letter="SendEReceipt"
+                     destination="MobileNumberEntry"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+                  </ROAD>    
+         
+                              
+           </SITE>
+		   
+		   <SITE name="SendEReceiptData" siteaction="MAXSendEReceiptDataSite"> 
+           	
+           		 <ROAD name="PrintReceiptRoad"
+                     letter="Print"
+                     destination="PrintReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+                  </ROAD>     
+           </SITE>
+           
+           
+  		<SITE name="MobileNumberEntry" siteaction="MAXEReceiptMobileNumberEntrySite"> 
+  			
+  			 <AISLE name="SendEReceiptDetails"
+                      letter="Next"
+                      laneaction="MAXSendEReceiptDetailsAisle">
+               </AISLE> 
+               
+                 <AISLE
+                    name="NWErrorReqPendingAisle"
+                    letter="NWErrorReqPending"
+                    laneaction="MAXSendEReceiptDetailsAisle">  
+                </AISLE> 
+                
+                <AISLE name="BakeryWithdrawPrintReceipt"
+                      letter="PrintBakery"
+                      laneaction="MAXBakeryReceiptPrintAisle">
+               </AISLE> 
+               <AISLE name="MallCertWithdrawPrintReceipt"
+                      letter="PrintMallCert"
+                      laneaction="MAXMallCertificateReceiptPrintAisle">
+               </AISLE>
+			   <AISLE name="PrintReceiptRetry"
+                      letter="Retry"
+                      laneaction="MAXBakeryReceiptPrintAisle">
+               </AISLE>
+                      
+                 <ROAD name="EReceiptSuccess"
+                     letter="ExitPrinting"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>         
+               <ROAD name="PrintReceiptRoad"
+                     letter="Print"
+                     destination="PrintReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               
+                <ROAD name="ServerIssue"
+                     letter="Ok"
+                     destination="PrintReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+  		 </SITE>   
+  	    <SITE name="PrintReceipt" siteaction="PrintReceiptSite">
+               <COMMENT>
+               This site prints the receipt.
+               </COMMENT>
+               <AISLE name="PrintTransactionReceipt"
+                      letter="Print"
+                      laneaction="MAXPrintTransactionReceiptAisle">
+               </AISLE>
+			<!--
+				AISLE name="BakeryWithdrawPrintReceipt"
+                      letter="Success"
+                      laneaction="MAXBakeryReceiptPrintAisle">
+               </AISLE--> 
+               
+              <AISLE name="PrintReceiptRetry"
+                      letter="Retry"
+                      laneaction="MAXPrintTransactionReceiptAisle">
+               </AISLE> 
+               <!-- <AISLE name="PrintReceiptRetry"
+                      letter="Retry"
+                      laneaction="MAXBakeryReceiptPrintAisle">
+               </AISLE> -->
+               <!-- changes for  rev 1.3 -->
+               <ROAD name="PrintReceiptCompleted"
+                     letter="Continue"
+                     destination="PrintFreeItem"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD> 
+                 <ROAD name="PrintCompleted"
+                     letter="PrintItem"
+                     destination="PrintFreeItem"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          <!-- changes for  rev 1.3 start -->
+          <SITE name="PrintFreeItem" siteaction="MAXPrintFreeItemReceiptSite">
+               <COMMENT>
+               This site prints the Free Item.
+               </COMMENT>
+               <ROAD name="PrintFreeItemContinue"
+                     letter="Continue"
+                     destination="PrintStoreCredit"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintFreeItemRetry"
+                     letter="Retry"
+                     destination="PrintFreeItem"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          <!-- changes for  rev 1.3 end-->
+          <SITE name="PrintStoreCredit" siteaction="PrintStoreCreditSite">
+               <COMMENT>
+               This site prints the store credit.
+               </COMMENT>
+               <AISLE name="PrintTransactionStoreCredit"
+                      letter="Print"
+                      laneaction="MAXPrintTransactionStoreCreditAisle">
+               </AISLE>
+               <AISLE name="PrintStoreCredittRetry"
+                      letter="Retry"
+                      laneaction="MAXPrintTransactionStoreCreditAisle">
+               </AISLE>
+               <!--  Changes start for code merging -->
+               <!-- <AISLE name="PrintStoreCreditContinue"
+                      letter="Continue"
+                      laneaction="PrinterContinueAisle">
+               </AISLE> -->
+               <ROAD name="PrintStoreCreditContinue"
+                     letter="Continue"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <!-- changes for Rev 1.4 for Mcoupon receipt printing after store credit changed destination from Final to PrintMcouponSlip and removing laneaction="PrinterStatusOnlineAisle" -->			
+				
+               <!--  Changes end for code merging -->
+               <!-- <ROAD name="PrintStoreCreditCompleted"
+                     letter="ExitPrinting"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD> -->
+               <ROAD name="PrintStoreCreditCompleted" letter="ExitPrinting"
+					 destination="PrintMcouponSlip" tape="ADVANCE"
+					record="ON" index="ON">
+				</ROAD>
+				
+<!-- changes for Rev 1.4 for Mcoupon receipt printing after store credit changed destination from Final to PrintMcouponSlip and removing laneaction="PrinterStatusOnlineAisle" end -->
+          </SITE>
+          
+          <!-- changes for Rev 1.4 start for Mcoupon receipt  start -->
+
+			<!-- <SITE name="PrintMcouponSlip" siteaction="MAXPrintMcouponSlipSite">
+						
+				<ROAD name="PrintMcouponSlipCompleted" letter="ExitPrinting"
+					laneaction="PrinterStatusOnlineAisle" destination="Final" tape="ADVANCE"
+					record="ON" index="ON">
+				</ROAD>
+			</SITE> -->
+			<SITE name="PrintMcouponSlip" siteaction="MAXPrintMcouponSlipSite">
+						
+				<AISLE name="BakeryWithdrawPrintReceipt"
+                      letter="PrintBakery"
+                      laneaction="MAXBakeryReceiptPrintAisle">
+               </AISLE> 
+               
+               <AISLE name="MallCertWithdrawPrintReceipt"
+                      letter="PrintMallCert"
+                      laneaction="MAXMallCertificateReceiptPrintAisle">
+               </AISLE> 
+               
+			   <AISLE name="PrintReceiptRetry"
+                      letter="Retry"
+                      laneaction="MAXBakeryReceiptPrintAisle">
+               </AISLE>
+			   <ROAD name="PrintReceiptCompleted"
+                     letter="Continue"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD> 
+                 <ROAD name="PrintCompleted"
+                     letter="ExitPrinting"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+			   
+				<!--ROAD name="PrintMcouponSlipCompleted" letter="ExitPrinting"
+					destination="Final" tape="ADVANCE"
+					record="ON" index="ON">
+               </ROAD-->
+          </SITE>
+
+
+<!-- changes for Rev 1.4 start for Mcoupon receipt  end -->
+          <SYSTEMSITE name="Final" action="RETURN" />
+          <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+     </REGION>
+</MAP>
+</SERVICE>

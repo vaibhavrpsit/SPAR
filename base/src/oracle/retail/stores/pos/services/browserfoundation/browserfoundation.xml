@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/browserfoundation/browserfoundation.xml /main/12 2012/10/29 16:37:49 vbongu Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ * vbongu 10/29/12 - check for already logged in
+ * cgreen 05/26/10 - convert to oracle packaging
+ * cgreen 04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes from
+ *                   st_rgbustores_techissueseatel_generic_branch
+ * cgreen 03/26/10 - move timeout road to common service
+ * cgreen 03/24/10 - XbranchMerge cgreene_tech11 from main
+ * cgreen 03/19/10 - add EXCEPTION region to handle unexpected exceptions
+ * abonda 01/02/10 - Update Header date
+ * abonda 12/25/09 - Updated ADE Header
+ * nkgaut 09/30/08 - tour xml of browserfoundation service
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="BrowserFoundation" package="oracle.retail.stores.pos.services.browserfoundation" tourcam="OFF">
+    <COMMENT>
+         Service that will launch a browser in POS window.
+    </COMMENT>
+    <CARGO class="BrowserFoundationCargo" package="oracle.retail.stores.pos.services.browserfoundation"/>
+    <SERVICECODE>
+        <LETTER name="displayBrowser"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Login"/>
+        <SITEACTION class="BrowserFoundationAppSite" package="oracle.retail.stores.pos.services.browserfoundation"/>
+        <SITEACTION class="CheckOperatorLoggedInSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OperatorIdLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>        
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="BrowserFoundationCheckLogin">
+                <SITE  name="BrowserFoundationCheckLogin" siteaction="CheckOperatorLoggedInSite">
+                    <ROAD
+                        name="OperatorExsisting"
+                        letter="Continue"
+                        destination="CheckAccess"
+                        tape="ADVANCE"
+                        record="OFF"
+                        index="OFF">
+                    </ROAD>                    
+                    <ROAD
+                        name="LoginRequired"
+                        letter="Login"
+                        destination="OperatorIdStation"
+                        tape="ADVANCE"
+                        record="OFF"
+                        index="OFF">
+                    </ROAD>
+                </SITE>                
+                <STATION
+                    name="OperatorIdStation"
+                    servicename="services.operatorid.operatorid"
+                    targettier="CURRENTTIER"
+                    launchshuttle="OperatorIdLaunchShuttle"
+                    returnshuttle="OperatorIdReturnShuttle">
+                    <ROAD
+                        name="LoginSucceeded"
+                        letter="Success"
+                        destination="CheckAccess"
+                        tape="ADVANCE"
+                        record="OFF"
+                        index="OFF">
+                    </ROAD>
+                    <AISLE
+                        name="LoginUndo"
+                        letter="Undo"
+                        laneaction="FailureConversionAisle">
+                        <COMMENT >
+                            This aisle is traversed to convert the current letter
+                            to Failure
+                        </COMMENT>
+                    </AISLE>
+                    <ROAD
+                        name="LoginFailed"
+                        letter="Failure"
+                        destination="Final"
+                        tape="ADVANCE" record="ON" index="ON">
+                    </ROAD>                   
+                </STATION>
+                <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                   <ROAD
+                        name="AccessGranted"
+                        letter="Continue"
+                        destination="BrowserFoundationApp"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD
+                        name="AccessDenied"
+                        letter="Override"
+                        destination="SecurityOverrideStation"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>                    
+                </SITE>
+                <STATION name="SecurityOverrideStation"
+                    servicename="security.override.override"
+                    targettier="CURRENTTIER"
+                    launchshuttle="SecurityOverrideLaunchShuttle" >
+                    <ROAD
+                        name="AdminAccessDenied"
+                        letter="Failure"
+                        destination="Final" >
+                    </ROAD>
+                    <ROAD
+                        name="SecurityOverrideSucceeded"
+                        letter="Success"
+                        destination="BrowserFoundationApp"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD
+                        name="SecurityOverrideCancelled"
+                        letter="Cancel"
+                        destination="Final"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                </STATION>
+                <SITE  name="BrowserFoundationApp" siteaction="BrowserFoundationAppSite">
+                    <ROAD
+                        name="BrowserFoundationSelected"
+                        letter="displayBrowser"
+                        destination="BrowserFoundationApp"
+                        tape="ADVANCE"
+                        record="ON"
+                        index="ON">
+                    </ROAD>
+                    <ROAD
+                        name="UndoSelected"
+                        letter="Undo"
+                        destination="Final"
+                        tape="ADVANCE"
+                        record="OFF"
+                        index="OFF">
+                    </ROAD>
+                </SITE>
+                <SYSTEMSITE name="Final" action="RETURN" />
+        </REGION>
+    </MAP>
+</SERVICE>

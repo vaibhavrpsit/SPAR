@@ -1,0 +1,185 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2018 - 2019 MAX SPAR Hypermarket, Inc.    All Rights Reserved.
+ *	
+ *	Rev 1.0     July 01, 2019		Purushotham Reddy		Amazon Pay Integration FES
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Tender"
+	package="oracle.retail.stores.pos.services.tender.wallet.amazonpay" tourcam="ON">
+	<COMMENT>
+		This service implements the Tender Use Case of the
+		Tender Package.
+    </COMMENT>
+	<CARGO class="MAXTenderCargo" package="max.retail.stores.pos.services.tender" />
+
+	<SERVICECODE>
+		<LETTER name="Next" /> 
+		<LETTER name="TotpSuccess" /> 
+		<LETTER name="AmazonPayReEntry" /> 
+		<LETTER name="Ok" />
+		<LETTER name="ChargeReqSuccess" />
+		<LETTER name="VerifyReqPending" />
+		<LETTER name="VerifyReqSuccess" />
+		
+		
+		<LANEACTION class="MAXAmazonPayRequestInfoAisle" package="max.retail.stores.pos.services.tender.wallet.amazonpay"/>
+	    <LANEACTION class="MAXAmazonPayChargeWebRequestResponseAisle" package="max.retail.stores.pos.services.tender.wallet.amazonpay"/>
+	    <LANEACTION class="MAXAmazonPayVerifyWebRequestResponseAisle" package="max.retail.stores.pos.services.tender.wallet.amazonpay"/>
+	    
+		<SITEACTION class="MAXAmazonPayMobileNumberSite" package="max.retail.stores.pos.services.tender.wallet.amazonpay"/>
+		<SITEACTION class="MAXAmazonPayTenderActionSite" package="max.retail.stores.pos.services.tender.wallet.amazonpay"/>
+		<SITEACTION class="MAXPrintAmazonPayReceiptSite" package="max.retail.stores.pos.services.tender.wallet.amazonpay"/>
+		<SITEACTION class="MAXAmazonPayCheckForOverTenderingSite" package="max.retail.stores.pos.services.tender.wallet.amazonpay"/>
+	</SERVICECODE>
+
+	<MAP>
+		<REGION region="SERVICE" startsite="CheckForOverTendering">
+			 
+            <SITE name="CheckForOverTendering" siteaction="MAXAmazonPayCheckForOverTenderingSite">    
+             
+	             <ROAD
+                    name="OverTenderingNotAllowed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                 <ROAD
+                    name="ProceedForAmazonPay"
+                    letter="Continue"
+                    destination="EnterAmazonPayMobileNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+            </SITE>		 
+              
+			<SITE name="EnterAmazonPayMobileNumber" siteaction="MAXAmazonPayMobileNumberSite">
+			    <AISLE
+                    name="MobileNumberEntered"
+                    letter="Next"   
+                    laneaction="MAXAmazonPayRequestInfoAisle">  
+                </AISLE>
+                 
+                <AISLE
+                    name="AmazonPaySuccessAisle"
+                    letter="AmazonPaySuccess"
+                    laneaction="MAXAmazonPayChargeWebRequestResponseAisle">  
+                </AISLE>  
+                
+                
+                  <!-- <ROAD
+			     	name="ReEntryModeSuccessRoad"
+			     	letter="Success"
+			      	destination="AmazonPayTenderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>  -->
+				 <ROAD
+			     	name="ReEntryModeSuccessRoad"
+			     	letter="ChargeReqSuccess"
+			      	destination="AmazonPayTenderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> 
+               
+                  <!-- <AISLE
+                    name="ChargeReqSuccessAisle"
+                    letter="ChargeReqSuccess"
+                    laneaction="MAXAmazonPayVerifyWebRequestResponseAisle">  
+                </AISLE>    -->
+                
+                
+                  <!--  <AISLE
+                    name="VerifyReqPendingAisle"
+                    letter="VerifyReqPending"
+                    laneaction="MAXAmazonPayVerifyWebRequestResponseAisle">  
+                </AISLE>    -->
+                 
+                   
+                 <AISLE
+                    name="NWErrorReqPendingAisle"
+                    letter="NWErrorReqPending"
+                    laneaction="MAXAmazonPayVerifyWebRequestResponseAisle">  
+                </AISLE> 
+                
+			      <ROAD 	
+			     	name="AmazonPayVerifyReqSuccesssRoad"
+			     	letter="VerifyReqSuccess"
+			      	destination="AmazonPayTenderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> 
+			 
+				<ROAD 	
+					name="AmazonPayError"
+					letter="Ok" 
+					destination="EnterAmazonPayMobileNumber"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD 
+					name="AmazonPayFailure" 
+					letter="Failure" 
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD 
+					name="AmazonPayUndo" 
+					letter="Undo" 
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+			</SITE>		
+			
+			 <SITE  name="AmazonPayTenderAction" siteaction="MAXAmazonPayTenderActionSite">
+                <ROAD 
+                    name="AmazonPayTenderSuccess"
+                    letter="Success"
+                    destination="PrintAmazonPayReceipt"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 
+                <ROAD 
+                    name="AmazonPayReEntryTenderSuccess"
+                    letter="AmazonPayReEntry"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>	
+            
+             <SITE name="PrintAmazonPayReceipt" siteaction="MAXPrintAmazonPayReceiptSite">
+				<ROAD 
+				name="AmazonPayWithdrawPrintContinue" 
+				letter="Success" 
+				destination="Final"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+				<ROAD 
+				name="AmazonPayWithdrawPrintRetry" 
+				letter="Retry" 
+				destination="PrintAmazonPayReceipt"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+			</SITE>
+			
+			<SYSTEMSITE name="Final" action="RETURN" />
+		</REGION>
+	</MAP>
+</SERVICE>

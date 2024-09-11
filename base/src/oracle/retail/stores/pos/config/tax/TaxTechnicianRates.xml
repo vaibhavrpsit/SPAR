@@ -1,0 +1,148 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/config/tax/TaxTechnicianRates.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:31 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SALESTAXSPEC SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/SalesTaxSpec.dtd">
+
+<SALESTAXSPEC>
+    <SALESTAXJURISDICTION
+        taxjurisdictionname="city1"
+        taxjurisdictionid="1"
+        taxjurisdictiondescription="description of default jurisdiction"
+   />
+
+    <SALESTAXJURISDICTION
+        taxjurisdictionname="city2"
+        taxjurisdictionid="2"
+        taxjurisdictiondescription="description of default jurisdiction"
+   />
+    <SALESTAXRATE
+        class="StandardSalesTaxRate"
+        package="oracle.retail.stores.domain.manager.tax"
+        taxratename="tx_state"
+          taxrateid="3001"
+        description="State 6% tax rate in Mgr"
+    >
+
+        <STDTAXCONFIG>
+
+            <TAXAMOUNTRATE amountrate="0.06">
+            </TAXAMOUNTRATE>
+
+        </STDTAXCONFIG>
+    </SALESTAXRATE>
+
+    <SALESTAXRATE
+        class="StandardSalesTaxRate"
+        package="oracle.retail.stores.domain.manager.tax"
+        taxratename="county"
+          taxrateid="3003"
+        description="County 1.25% tax rate"
+    >
+
+        <STDTAXCONFIG>
+            <TAXAMOUNTRATE amountrate="0.0125">
+            </TAXAMOUNTRATE>
+
+        </STDTAXCONFIG>
+    </SALESTAXRATE>
+
+    <SALESTAXRATE
+        class="StandardSalesTaxRate"
+        package="oracle.retail.stores.domain.manager.tax"
+        taxratename="county2"
+          taxrateid="2002"
+        description="flat 1.5%  tax rate "
+    >
+        <STDTAXCONFIG>
+            <TAXAMOUNTRATE amountrate="0.015">
+            </TAXAMOUNTRATE>
+        </STDTAXCONFIG>
+    </SALESTAXRATE>
+
+    <SALESTAXRATE
+        class="StandardSalesTaxRate"
+        package="oracle.retail.stores.domain.manager.tax"
+        taxratename="city1option"
+        taxrateid="2001"
+         description="city1 Option 5% tax rate"
+    >
+        <STDTAXCONFIG>
+            <TAXAMOUNTRATE amountrate="0.05">
+            </TAXAMOUNTRATE>
+        </STDTAXCONFIG>
+    </SALESTAXRATE>
+
+    <SALESTAXRATE
+        class="StandardSalesTaxRate"
+        package="oracle.retail.stores.domain.manager.tax"
+        taxratename="local1"
+          taxrateid="1001"
+        description="flat 5.25%  tax rate "
+    >
+
+        <STDTAXCONFIG>
+            <TAXAMOUNTRATE amountrate="0.0525">
+            </TAXAMOUNTRATE>
+        </STDTAXCONFIG>
+    </SALESTAXRATE>
+
+    <SALESTAXRATE
+        class="StandardSalesTaxRate"
+        package="oracle.retail.stores.domain.manager.tax"
+        taxratename="localoption1"
+          taxrateid="3002"
+        description="flat 1.00%  tax rate "
+    >
+
+        <STDTAXCONFIG>
+            <TAXAMOUNTRATE amountrate="0.01">
+            </TAXAMOUNTRATE>
+        </STDTAXCONFIG>
+    </SALESTAXRATE>
+  
+<SALESTAXGROUP
+       salestaxgroupname="localbasetaxgroup"
+       salestaxgroupid="300"
+       salestaxgroupdescription="Base Sales tax group for local jurisdiction" 
+       salestaxjurisdiction="city1"
+    >
+        <SALESTAXRATEREF salestaxrate="tx_state" order="1" />
+        <SALESTAXRATEREF salestaxrate="localoption1" order="2" />
+        <SALESTAXRATEREF salestaxrate="county" order="3" />
+     </SALESTAXGROUP>
+
+    <SALESTAXGROUP
+       salestaxgroupname="city1option_county2"
+       salestaxgroupid="200"
+       salestaxgroupdescription="City 1 tax group with county2 tax" 
+       salestaxjurisdiction="city1"
+    >
+        <SALESTAXRATEREF salestaxrate="city1option" order="1" />
+        <SALESTAXRATEREF salestaxrate="county2" order="2" />
+    </SALESTAXGROUP>
+
+    <SALESTAXGROUP
+       salestaxgroupname="local_option"
+       salestaxgroupid="100"
+       salestaxgroupdescription="Local 5.25% tax rate" 
+       salestaxjurisdiction="city2"
+    >
+        <SALESTAXRATEREF salestaxrate="local1" order="1" />
+    </SALESTAXGROUP>
+ 
+</SALESTAXSPEC>
+

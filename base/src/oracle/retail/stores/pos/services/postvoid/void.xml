@@ -1,0 +1,589 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/postvoid/void.xml /rgbustores_13.4x_generic_branch/7 2011/10/13 13:23:09 asinton Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   07/26/11 - defunct ceditdebit tour is removed
+ *    asinton   07/14/11 - Updated to use ReversalLaunchShuttle and
+ *                         ReversalReturnShuttle instead of TenderAuth
+ *                         shuttles.
+ *    blarsen   07/08/11 - Routing reversal tours from tender.tenderauth
+ *                         (removed) to new tender.reversal service.
+ *    cgreene   06/07/11 - update to first pass of removing pospal project
+ *    mchellap  04/15/11 - Added cash drawer warning for postvoids
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    asinton   03/02/10 - Removed StackTraceRoad from pos application.
+ *    abondala  01/02/10 - Update Header date
+ *    asinton   12/03/09 - Changes to support credit card authorizations on
+ *                         returns and voids.
+ *    rkar      11/12/08 - Adds/changes for POS-RM integration
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Void" package="oracle.retail.stores.pos.services.postvoid" tourcam="OFF">
+<CARGO class="VoidCargo"/>
+<SERVICECODE>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Next"/>
+     <LETTER name="Ok"/>
+     <LETTER name="No"/>
+     <LETTER name="ExitTender"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Save"/>
+     <LETTER name="ActivateGCardRedeem"/>
+     <LETTER name="ActivationCancelled"/>
+     <LETTER name="CheckForRedeem"/>
+     <LETTER name="DebitRefund"/>
+     <LETTER name="Declined"/>
+     <LETTER name="Depleted"/>
+     <LETTER name="ExitPrinting"/>
+     <LETTER name="VoidedTransaction"/>
+     <LETTER name="Print"/>
+     <LETTER name="Retry"/>
+     <LETTER name="Continue"/>
+     <LETTER name="GCInquiry"/>
+     <LETTER name="Open"/>
+     <LETTER name="Override"/>
+     <LETTER name="Invalid"/>
+     <LETTER name="QueueFull"/>
+
+     <SHUTTLE class="GiftCardDeactivationLaunchShuttle"/>
+     <SHUTTLE class="PrintingLaunchShuttle"/>
+     <SHUTTLE class="ReversalLaunchShuttle"/>
+     <SHUTTLE class="ReversalReturnShuttle"/>
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SHUTTLE class="TenderLaunchShuttle" />
+     <SHUTTLE class="TenderReturnShuttle"/>
+
+     <SITEACTION class="EnterTransactionIDSite" />
+     <SITEACTION class="ValidateTransactionIDSite" />
+     <SITEACTION class="EnterReasonCodeSite" />
+     <SITEACTION class="CancelVoidTransactionSite" />
+     <SITEACTION class="CreateVoidTransactionSite" />
+     <SITEACTION class="OpenDrawerSite"/>
+     <SITEACTION class="SaveTransactionSite"/>
+     <SITEACTION class="RequireOpenDrawerSite"/>
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SITEACTION class="CloseCashDrawerSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+     <SITEACTION class="CheckCashInDrawerSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+     <SITEACTION class="CheckIfTourIsStillDrivingSite" package="oracle.retail.stores.pos.services.common"/>
+
+     <LANEACTION class="ConvertToVoidedAisle"/>
+     <LANEACTION class="ConvertToFailureAisle"/>
+     <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="OpenDrawerRequiredAisle" />
+     <LANEACTION class="SaveFailedAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="TransactionIDEnteredRoad" />
+     <LANEACTION class="CheckForGiftCardRedeemAisle" />
+     <LANEACTION class="SendRMFinalVoidResultAisle" />
+
+     <SIGNAL class="DeactivationIsNotRequiredSignal"/>
+     <SIGNAL class="DeactivationIsRequiredSignal"/>
+
+</SERVICECODE>
+<MAP>
+    <REGION region="SERVICE" startsite="CheckAccess">
+           <SITE name="CheckAccess" siteaction="CheckAccessSite">
+              <ROAD
+                  name="AccessDEnied"
+                  letter="Override"
+                  destination="SecurityOverrideStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="AccessGranted"
+                  letter="Continue"
+                  destination="EnterTransactionID"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+          </SITE>
+
+          <STATION name="SecurityOverrideStation"
+              servicename="security.override.override"
+              targettier="CURRENTTIER"
+              launchshuttle="SecurityOverrideLaunchShuttle" >
+              <ROAD
+                  name="SecurityOverrideGranted"
+                  letter="Success"
+                  destination="EnterTransactionID"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideDenied"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideCancelled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+           </STATION>
+           <SITE name="EnterTransactionID" siteaction="EnterTransactionIDSite">
+               <COMMENT>
+                    This site displays the VOID_TRANSACTION screen.
+               </COMMENT>
+               <ROAD
+                   name="TransactionIDEntered"
+                   letter="Next"
+                   laneaction="TransactionIDEnteredRoad"
+                   destination="ValidateTransactionID"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the transaction ID has
+                         been entered.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="UndoTransactionID"
+                   letter="Undo"
+                   destination="Final"
+                   tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the user presses the Undo
+                         key from the VOID_TRANSACTION screen.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="CancelTransactionID"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the user presses the Cancel
+                         key from the VOID_TRANSACTION screen.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="ValidateTransactionID" siteaction="ValidateTransactionIDSite">
+               <COMMENT>
+                    This site checks to see that the transaction exists,
+                    was created on the same day, and has a transaction
+                    type that can be voided.
+               </COMMENT>
+               <ROAD name="TransactionValidated"
+                     letter="Success"
+                     destination="EnterReasonCode"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the transaction is voidable.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="TransactionNotVoidable"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="RetryRequired"
+                     letter="Ok"
+                     destination="EnterTransactionID"
+                     tape="DISCARD" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="EnterReasonCode" siteaction="EnterReasonCodeSite">
+               <COMMENT>
+                    This site displays the VOID_CONFIRM screen.
+               </COMMENT>
+               <ROAD
+                   name="ReasonCodeEntered"
+                   letter="Next"
+                   destination="CreateVoidTransaction"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the user enters the information
+                         in the VOID_CONFIRM screen.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="UndoReasonCode"
+                   letter="Undo"
+                   destination="EnterTransactionID"
+                   tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the user presses the Undo
+                         key from the VOID_CONFIRM screen.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="CancelReasonCode"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the user presses the Cancel
+                         key from the VOID_CONFIRM screen.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="CancelVoidTransaction" siteaction="CancelVoidTransactionSite">
+               <COMMENT>
+                    This site cancels the current void transaction and
+                    adds an entry to the journal to indicate that.
+               </COMMENT>
+               <AISLE
+                   name="ConvertToNext"
+                   letter="Cancel"
+                   laneaction="NextLetterAisle">
+                    <COMMENT>
+                        Converts the Cancel letter received from the Tender service to Next
+                        which sends the bus down the VoidCanceled road (highly intuitive.)
+                    </COMMENT>
+               </AISLE>
+               <ROAD
+                   name="VoidCanceled"
+                   letter="Next"
+                   destination="Final"
+                   tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the void transaction has
+                         been canceled.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="CreateVoidTransaction" siteaction="CreateVoidTransactionSite">
+               <COMMENT>
+                    This site creates a new void transaction.
+               </COMMENT>
+               <ROAD
+                   name="RefundRequired"
+                   letter="Success"
+                   destination="ReversalStation"
+                   tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when a refund is required.
+                    </COMMENT>
+               </ROAD>
+              <ROAD
+                   name="DebitRefundRequired"
+                   letter="DebitRefund"
+                   destination="DebitRefundStation"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="TillAdjustmentRetrieved"
+                     letter="Open"
+                     destination="OpenDrawer"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+
+		  <STATION
+                name="DebitRefundStation"
+                servicename="tender.reversal.reversal"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLaunchShuttle"
+                returnshuttle="TenderReturnShuttle">
+                <ROAD
+                    name="CreditDebitSuccess"
+                    letter="Success"
+                    destination="ReversalStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                   name="ConvertToNext"
+                   letter="Invalid"
+                   laneaction="ConvertToFailureAisle">
+                    <COMMENT>
+                        Converts the Cancel letter received from the Tender service to Next
+                        which sends the bus down the VoidCanceled road (highly intuitive.)
+                    </COMMENT>
+               </AISLE>
+                <ROAD
+                    name="CreditDebitNo"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDebitUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDebitDeclined"
+                    letter="Declined"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDebitFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDebitCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+          <STATION name="ReversalStation"
+                     servicename="tender.reversal.reversal"
+                     targettier="CURRENTTIER"
+                     launchshuttle="ReversalLaunchShuttle"
+                     returnshuttle="ReversalReturnShuttle">
+               <ROAD name="ReversalCompleted"
+                     letter="Success"
+                     destination="RequireOpenDrawer"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="GiftCardDeplete"
+                    letter="Deplete"
+                    destination="RequireOpenDrawer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road will traverse when more than one gift card redemption is voided and instead
+                        of re-populating the card, cash is given. See tender.xml for tender service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ImpossibleToGetToDepleted"
+                     letter="Depleted"
+                     destination="RequireOpenDrawer"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                        This road is impossible to get to, just handling every possible letter returned from service.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+
+          <SITE name="RequireOpenDrawer" siteaction="RequireOpenDrawerSite">
+                <ROAD name="RequireOpenDrawer"
+                       letter="Open"
+                       destination="OpenDrawer"
+                       tape="ADVANCE" record="OFF" index="OFF">
+             </ROAD>
+             <AISLE
+                   name="CheckForGiftCardRedeem"
+                   letter="Success"
+                   laneaction="CheckForGiftCardRedeemAisle">
+               </AISLE>
+               <ROAD
+                   name="GiftCardRedeemActivationRequired"
+                   letter="ActivateGCardRedeem"
+                   destination="DeactivationStation"
+                   tape="ADVANCE" record="OFF" index="OFF">
+                   <COMMENT>
+                          This road is traveled when the gift card redeem requires Activation
+                          in the original transaction.
+                   </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="ContinueSelected"
+                   letter="Continue"
+                   destination="PrintingStation"
+                   tape="ADVANCE" record="OFF" index="OFF">
+                   <LIGHT signal="DeactivationIsNotRequiredSignal"/>
+               </ROAD>
+               <ROAD name="DeactivationRequired"
+                      letter="Continue"
+                      destination="DeactivationStation"
+                      tape="ADVANCE" record="ON" index="ON">
+                      <COMMENT>
+                          This road is traveled when there are one or more items that require de-activation
+                          in the original transaction.
+                      </COMMENT>
+                      <LIGHT signal="DeactivationIsRequiredSignal"/>
+                </ROAD>
+          </SITE>
+
+          <SITE name="OpenDrawer" siteaction="OpenDrawerSite">
+               <AISLE
+                   name="OpenDrawerRequired"
+                   letter="Open"
+                   laneaction="OpenDrawerRequiredAisle">
+               </AISLE>
+               <AISLE
+                   name="RetryOpenSelected"
+                   letter="Retry"
+                   laneaction="OpenDrawerRequiredAisle">
+               </AISLE>
+               <AISLE
+                   name="CheckForGiftCardRedeem"
+                   letter="CheckForRedeem"
+                   laneaction="CheckForGiftCardRedeemAisle">
+               </AISLE>
+               <ROAD
+                   name="GiftCardRedeemActivationRequired"
+                   letter="ActivateGCardRedeem"
+                   destination="DeactivationStation"
+                   tape="ADVANCE" record="OFF" index="OFF">
+                   <COMMENT>
+                          This road is traveled when the gift card redeem requires Activation
+                          in the original transaction.
+                   </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="ContinueSelected"
+                   letter="Continue"
+                   destination="PrintingStation"
+                   tape="ADVANCE" record="OFF" index="OFF">
+                   <LIGHT signal="DeactivationIsNotRequiredSignal"/>
+               </ROAD>
+               <ROAD name="DeactivationRequired"
+                      letter="Continue"
+                      destination="DeactivationStation"
+                      tape="ADVANCE" record="ON" index="ON">
+                      <COMMENT>
+                          This road is traveled when there are one or more items that require de-activation
+                          in the original transaction.
+                      </COMMENT>
+                      <LIGHT signal="DeactivationIsRequiredSignal"/>
+                </ROAD>
+          </SITE>
+          <STATION name="PrintingStation"
+                   servicename="services.printing.printing"
+                   targettier="CURRENTTIER"
+                   launchshuttle="PrintingLaunchShuttle" >
+               <COMMENT>
+                     This station is the transfer point for the Printing
+                     service.
+               </COMMENT>
+                <ROAD name="PrintingReturned"
+                      letter="ExitPrinting"
+                      destination="SaveTransaction"
+                      tape="ADVANCE" record="ON" index="ON">
+                      <COMMENT>
+                          This road is traveled when the Printing service returns
+                          and there are no items that require activation/de-activation
+                          in the original transaction.
+                      </COMMENT>
+                </ROAD>
+          </STATION>
+
+          <SITE name="SaveTransaction" siteaction="SaveTransactionSite">
+               <COMMENT>
+                    This site writes the transaction to the database.
+               </COMMENT>
+               <AISLE name="SaveFailed"
+                      letter="Ok"
+                      laneaction="SaveFailedAisle">
+               </AISLE>
+               <AISLE name="SaveCompleted"
+                     letter="Continue"
+                     laneaction="SendRMFinalVoidResultAisle">
+               </AISLE>
+               <ROAD name="SendCompleted"
+                     letter="Next"
+                     destination="CloseCashDrawer"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SaveRetry"
+                     letter="Retry"
+                     destination="SaveTransaction"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SaveQueueFull"
+                     letter="QueueFull"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CloseCashDrawer" siteaction="CloseCashDrawerSite">
+              <ROAD
+                    name="CashDrawerClosed"
+                    letter="Continue"
+                    destination="CheckCashInDrawer"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+              </ROAD>
+              <ROAD name="VoidCompleted"
+                    letter="VoidedTransaction"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+              </ROAD>
+          </SITE>
+          <SITE name="CheckCashInDrawer" siteaction="CheckCashInDrawerSite">
+                <ROAD
+                    name="CashLevelsOK"
+                    letter="Ok"
+                    destination="CheckIfPrintingTourStillDriving"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashOverNotified"
+                    letter="Continue"
+                    destination="CheckIfPrintingTourStillDriving"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+          </SITE>
+          <SITE name="CheckIfPrintingTourStillDriving" siteaction="CheckIfTourIsStillDrivingSite">
+                <AISLE name="ConvertToVoided"
+                    letter="ExitCompleteSale"
+                    laneaction="ConvertToVoidedAisle">
+                </AISLE>
+                <ROAD name="VoidCompleted"
+                    letter="VoidedTransaction"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+          </SITE>
+          <STATION name="DeactivationStation"
+                   servicename="tender.activation.activation"
+                   targettier="CURRENTTIER"
+                   launchshuttle="GiftCardDeactivationLaunchShuttle">
+               <ROAD name="DeactivationReturned"
+                     letter="Success"
+                     destination="PrintingStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DeactivationFailure"
+                     letter="Failure"
+                     destination="CancelVoidTransaction"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+
+     </REGION>
+</MAP>
+</SERVICE>

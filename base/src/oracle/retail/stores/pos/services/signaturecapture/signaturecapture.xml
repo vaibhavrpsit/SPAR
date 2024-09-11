@@ -1,0 +1,109 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/signaturecapture/signaturecapture.xml /rgbustores_13.4x_generic_branch/2 2011/06/30 09:59:22 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     06/22/11 - Modified to support signature capture in APF.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="SignatureCapture"
+         package="oracle.retail.stores.pos.services.signaturecapture"
+         tourcam="OFF">
+
+     <COMMENT>
+          This service captures a signature and displays a verification screen
+          if the appropriate flag in cargo is set.
+          Possible exit values are:
+               Success - There are two possible causes for this letter:
+                   1. Signature was captured successfully
+                   2. The APF service does not support signature capture capability.
+               Failure - Signature was not captured successfully; this includes time outs. 
+               Yes - Signature was captured and verified successfully
+               No - Signature was captured but did not pass operator verification
+     </COMMENT>
+
+    <CARGO class="SignatureCaptureCargo" />
+
+    <SERVICECODE>
+
+        <LETTER name="Success" />
+        <LETTER name="Failure" />
+        <LETTER name="Offline" />
+        <LETTER name="Verify" />
+        <LETTER name="Yes" />
+        <LETTER name="No" />
+
+        <SITEACTION class="CaptureSignatureSite" />
+        <SITEACTION class="VerifySignatureSite" />
+
+    </SERVICECODE>
+
+<MAP>
+     <REGION region="SERVICE" startsite="CaptureSignature">
+          <SITE name="CaptureSignature" siteaction="CaptureSignatureSite">
+               <COMMENT>
+               This site captures the customer's signature for each approved credit card.
+               </COMMENT>
+               <ROAD name="VerificationRequested"
+                     letter="Verify"
+                     destination="VerifySignature"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="SignatureCaptured"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="SignatureNotCaptured"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+
+          <SITE name="VerifySignature" siteaction="VerifySignatureSite">
+               <COMMENT>
+               This site displays the signature verification screen.
+               </COMMENT>
+               <ROAD name="SignatureVerified"
+                     letter="Yes"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="SignatureNotVerified"
+                     letter="No"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN" />
+          <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+     </REGION>
+</MAP>
+</SERVICE>

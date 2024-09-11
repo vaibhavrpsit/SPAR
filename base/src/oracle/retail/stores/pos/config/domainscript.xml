@@ -1,0 +1,33 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/config/domainscript.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:31 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE DOMAINTECHNICIAN SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/domainscript.dtd">
+
+<DOMAINTECHNICIAN
+    package="oracle.retail.stores.domain">
+
+    <COMMAND name="GetCurrencyTypeList"
+            class="GetCurrencyTypeCommand"
+            package="oracle.retail.stores.domain.manager.domain"
+         >
+        <COMMENT>
+            This command contains operation for getting a currency type list.
+        </COMMENT>
+    </COMMAND>
+
+</DOMAINTECHNICIAN>

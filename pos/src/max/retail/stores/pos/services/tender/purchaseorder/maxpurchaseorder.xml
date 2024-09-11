@@ -1,0 +1,347 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   Copyright (c) 2013 MAXHyperMarkets, Inc.    All Rights Reserved.
+  Rev 1.0	Jyoti Rawal		07/05/2013		Initial Draft:	Hire requirement.
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE 
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.purchaseorder"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Tender Use Case of the 
+        Tender Package.
+    </COMMENT>
+    <!-- CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/-->
+    <CARGO  class="MAXTenderCargo" package="max.retail.stores.pos.services.tender"/>
+    
+    <SERVICECODE >
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Agency"/>
+        <LETTER name="Link"/>
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="PaidUp"/>
+        <LETTER name="Offline"/>
+
+        <SITEACTION  class="PurchaseOrderCustomerLinkedSite"/>
+        <SITEACTION  class="MAXGetIssuingAgencySite" package="max.retail.stores.pos.services.tender.purchaseorder"/>
+        <SITEACTION  class="GetAgencyNameSite"/>
+        <SITEACTION  class="GetPurchaseOrderNumberSite"/>
+        <SITEACTION  class="PurchaseOrderActionSite"/>
+        <SITEACTION  class="PurchaseOrderLimitActionSite"/>
+        <SITEACTION  class="AmountResetBalanceActionSite"/>
+    
+        <LANEACTION  class="TaxExemptErrorAisle"/>
+
+        <SHUTTLE  class="FindCustomerLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE  class="LinkCustomerReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <!-- SITEACTION  class="MAXGetIssuingAgencySite" package="max.retail.stores.pos.services.tender.purchaseorder"/-->
+		<!--Rev 1.0 changes start here-->
+        <SITEACTION  class="MAXGetAgencyNameSite" package="max.retail.stores.pos.services.tender.purchaseorder"/>
+        <SITEACTION  class="MAXHPLimitActionSite" package="max.retail.stores.pos.services.tender.purchaseorder"/>
+       		<!--Rev 1.0 changes end here-->
+       		  <SITEACTION  class="MAXPurchaseOrderActionSite" package="max.retail.stores.pos.services.tender.purchaseorder"/>
+    </SERVICECODE>
+    
+    <MAP>
+        <REGION  region="SERVICE" startsite="HPLimitAction">
+        <!-- REGION  region="SERVICE" startsite="PurchaseOrderCustomerLinked"-->   <!-- Rev 1.0 chages-->
+         <SITE  name="HPLimitAction" siteaction="MAXHPLimitActionSite"> 
+                <ROAD 
+                    name="HirePurchaseLimitsPassed"
+                    letter="Success"
+                    destination="PurchaseOrderCustomerLinked"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                   <ROAD
+                    name="HirePurchaseDiscardRoad"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HirePurchaseLimitInvalidRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+			 <!-- Rev 1.0 chages end-->
+         <SITE  name="PurchaseOrderCustomerLinked" siteaction="PurchaseOrderCustomerLinkedSite">
+                <ROAD 
+                    name="BusinessCustomerLinked"
+                    letter="Continue"
+                    destination="GetPurchaseOrderNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="IssuingAgencyRoad"
+                    letter="Agency"
+                    destination="GetIssuingAgency"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CustomerGet"
+                    letter="Link"
+                    destination="LinkCustomerStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FailureCheckForBusinessCustomer"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetIssuingAgency" siteaction="MAXGetIssuingAgencySite">
+                <ROAD 
+                    name="AgencySelected"
+                    letter="Next"
+                    destination="GetAgencyName"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="UndoIssuingAgency"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="AgencyNameCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetAgencyName" siteaction="MAXGetAgencyNameSite"> <!-- Rev 1.0 chages-->
+                <AISLE 
+                    name="TaxExemptError"
+                    letter="Next"
+                    laneaction="TaxExemptErrorAisle">
+                </AISLE>
+                <!-- ROAD 
+                    name="TransactionStatusInvalid"
+                    letter="Invalid"
+                    destination="GetPurchaseOrderNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="AgencyNameContinue"
+                    letter="Continue"
+                    destination="GetPurchaseOrderNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD-->
+                 <ROAD 
+                    name="TransactionStatusInvalid"
+                    letter="Invalid"
+                    destination="PurchaseOrderLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="AgencyNameContinue"
+                    letter="Continue"
+                    destination="PurchaseOrderLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoAgencyName"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="AgencyNameCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetPurchaseOrderNumber" siteaction="GetPurchaseOrderNumberSite">
+                <ROAD 
+                    name="PurchaseOrderNumberEntered"
+                    letter="Next"
+                    destination="PurchaseOrderLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="PurchaseOrderSelectedUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="PurchaseOrderSelectedCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PurchaseOrderLimitAction" siteaction="PurchaseOrderLimitActionSite">
+                <ROAD 
+                    name="PurchaseOrderAmountOK"
+                    letter="Continue"
+                    destination="PurchaseOrderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="PurchaseOrderInvalidAmount"
+                    letter="Invalid"
+                    destination="PurchaseOrderAmountResetBalanceAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PurchaseOrderAmountResetBalanceAction" siteaction="AmountResetBalanceActionSite">
+                <ROAD 
+                    name="PurchaseOrderAmountReset"
+                    letter="Continue"
+                    destination="PurchaseOrderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PurchaseOrderAction" siteaction="MAXPurchaseOrderActionSite">    <!-- Rev 1.1 changes-->
+                <ROAD 
+                    name="PurchaseOrderAddedRoad"
+                    letter="PaidUp"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION 
+                name="LinkCustomerStation"
+                servicename="customer.main.customermain"
+                targettier="APPLICATIONTIER"
+                launchshuttle="FindCustomerLaunchShuttle"
+                returnshuttle="LinkCustomerReturnShuttle">
+                <ROAD 
+                    name="CustomerLinkCancel"
+                    letter="Cancel"
+                    destination="PurchaseOrderCustomerLinked"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CustomerLinkContinue"
+                    letter="Continue"
+                    destination="PurchaseOrderCustomerLinked"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FindSelectedUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="OfflineCustomerReturn"
+                    letter="Offline"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FailureCustomerReturn"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="TenderLimitOverrideStation"
+                servicename="tender.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLimitOverrideLaunchShuttle"
+                returnshuttle="TenderLimitOverrideReturnShuttle">
+                <ROAD 
+                    name="TenderLimitOverrideSuccess"
+                    letter="Success"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideContinue"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="TenderLimitOverrideFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

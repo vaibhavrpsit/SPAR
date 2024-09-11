@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/security/override/overrideuicfg.xml /main/1 2013/06/04 17:39:14 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   06/04/13 - implement manager override as dialogs
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<UICFG>
+
+    <BEAN
+        specName="YesNoButtonsSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DialogNavigationButtonBean">
+
+        <BUTTON
+            actionName="Yes"
+            enabled="true"
+            labelTag="Yes"
+            label="Yes"
+            keyName="Enter" />
+        <BUTTON
+            actionName="Failure"
+            enabled="true"
+            labelTag="No"
+            label="No"
+            keyName="Esc"/>
+            <!-- a ConfirmActionListener is added to dialog button by default. -->
+    </BEAN>
+
+    <!-- This dialog is produced when prompting for manager override login. -->
+    <OVERLAYSCREEN
+        specName="OVERRIDE_DIALOG"
+        resourceBundleFilename="dialogText"
+        defaultScreenSpecName="DefaultDialogSpec" >
+        <ASSIGNMENT
+            areaName="DialogMainPanel"
+            beanSpecName="DialogSpec" />
+        <ASSIGNMENT
+            areaName="DialogButtonsPanel"
+            beanSpecName="YesNoButtonsSpec"/>
+    </OVERLAYSCREEN>
+
+</UICFG>

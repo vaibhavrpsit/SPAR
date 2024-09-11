@@ -1,0 +1,129 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/pricing/damagediscount/damagediscountoptions.xml /main/15 2013/10/28 13:07:34 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  10/28/13 - Sliding buttons Manger override fix
+ *    abhinavs  09/30/13 - Fixing sliding button issue with damage discount
+ *                         options
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="DamageDiscountOptions"
+    package="oracle.retail.stores.pos.services.pricing.damagediscount"
+    tourcam="OFF">
+    <CARGO class="PricingCargo" package="oracle.retail.stores.pos.services.pricing"/>
+    <SERVICECODE>
+        <LETTER name="ItemDiscAmt"/>
+        <LETTER name="ItemDiscPer"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Next"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Failure"/>
+
+        <SHUTTLE class="ItemDiscountLaunchShuttle" package="oracle.retail.stores.pos.services.pricing"/>
+        <SHUTTLE class="ItemDiscountReturnShuttle" package="oracle.retail.stores.pos.services.pricing"/>
+
+        <LANEACTION class="DiscountAmountSelectedRoad" package="oracle.retail.stores.pos.services.pricing"/>
+        <LANEACTION class="DiscountPercentSelectedRoad" package="oracle.retail.stores.pos.services.pricing"/>
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+
+        <SITEACTION class="CheckOnlyOneDiscountSite" package="oracle.retail.stores.pos.services.pricing"/>
+        <SITEACTION class="DamageDiscountOptionsSite"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckOnlyOneDiscount">
+        <SITE name="CheckOnlyOneDiscount" siteaction="CheckOnlyOneDiscountSite">
+              <ROAD
+                  name="DamageDiscountSucceeded"
+                  letter="Continue"
+                  destination="DiscountOptions">
+              </ROAD>
+              <ROAD
+                  name="DamageDiscountFailed"
+                  letter="Cancel"
+                  destination="Final">
+              </ROAD>
+        </SITE>
+        <SITE name="DiscountOptions" siteaction="DamageDiscountOptionsSite">
+              <ROAD
+                  name="ItemDiscAmtSelected"
+                  letter="ItemDiscAmt"
+                  laneaction="DiscountAmountSelectedRoad"
+                  destination="DamageDiscountStation">
+              </ROAD>
+
+              <ROAD
+                  name="ItemDiscPerSelected"
+                  letter="ItemDiscPer"
+                  laneaction="DiscountPercentSelectedRoad"
+                  destination="DamageDiscountStation">
+              </ROAD>
+
+              <ROAD
+                  name="PricingUndo"
+                  letter="Undo"
+                  destination="Final">
+              </ROAD>
+              <ROAD
+                  name="PricingCancel"
+                  letter="Cancel"
+                  destination="Final">
+              </ROAD>
+          </SITE>
+
+<!-- Item Discount Station -->
+          <STATION name="DamageDiscountStation"
+              servicename="pricing.damagediscount.damagediscount"
+              targettier="CURRENTTIER"
+              launchshuttle="ItemDiscountLaunchShuttle"
+              returnshuttle="ItemDiscountReturnShuttle">
+              <AISLE
+                  name="ItemDiscountCleared"
+                  letter="Clear"
+                  laneaction="NextLetterAisle">
+              </AISLE>
+              <ROAD
+                  name="ItemDiscountCanceled"
+                  letter="Cancel"
+                  destination="Final">
+              </ROAD>
+              
+             <ROAD
+                  name="ItemDiscountFailure"
+                  letter="Failure"
+                  destination="Final">
+              </ROAD>
+              <ROAD
+                  name="ItemDiscountUndo"
+                  letter="Undo"
+                  destination="Final">
+              </ROAD>
+              <ROAD
+                  name="ItemDiscountSuccess"
+                  letter="Next"
+                  destination="Final">
+              </ROAD>
+          </STATION>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

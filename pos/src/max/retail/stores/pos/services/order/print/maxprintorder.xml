@@ -1,0 +1,143 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 1998-2002 360Commerce, Inc.    All Rights Reserved.
+  
+  Rev 1.1	Animesh		12/08/2013		Initial Draft:  CR Supressing New Special order Receipt
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="OrderPrint" package="oracle.retail.stores.pos.services.order.print" tourcam="OFF">
+<CARGO class="MAXOrderCargo" package="max.retail.stores.pos.services.order.common"/>
+<SERVICECODE>
+     <LETTER name="Print"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Error"/>
+     <LETTER name="Retry"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     
+     <SITEACTION 
+    class="ViewOrderSite" 
+    package="oracle.retail.stores.pos.services.order.print"
+     template="siteaction.tpl">
+          <COMMENT>Displays the PRINT_ORDER screen if the viewOrder flag in cargo is set to true. 
+        </COMMENT>
+     </SITEACTION>
+     <!-- SITEACTION 
+    class="PrintOrderSite" 
+    package="oracle.retail.stores.pos.services.order.print" 
+    template="siteaction.tpl">
+        <COMMENT>Sends print string to receipt printer.
+        </COMMENT>
+     </SITEACTION-->
+     <!-- Rev 1.0 changes start -->
+       <SITEACTION 
+    class="MAXPrintOrderSite" 
+    package="max.retail.stores.pos.services.order.print" 
+    template="siteaction.tpl">
+        <COMMENT>Sends print string to receipt printer.
+        </COMMENT>
+     </SITEACTION>
+     <!-- Rev 1.0 changes end -->
+     <SITEACTION 
+    class="PrinterErrorSite" 
+    package="oracle.retail.stores.pos.services.order.print" 
+    template="siteaction.tpl">
+        <COMMENT>Displays Printer offline dialog.
+        </COMMENT>
+     </SITEACTION>
+     <LANEACTION 
+    class="FailureConversionAisle" 
+    package="oracle.retail.stores.pos.services.common"
+    template="laneaction.tpl">
+        <COMMENT>converts Cancel to Failure letter
+        </COMMENT>
+     </LANEACTION>
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="ViewOrder">
+          <SITE name="ViewOrder" siteaction="ViewOrderSite">
+               <COMMENT>
+                    Determines whether to display the Print Order screen.
+                    If cargo.viewOrder() is false a Print letter is mailed.
+               </COMMENT>
+               <AISLE 
+            name="CancelAisle" 
+            letter="Cancel" 
+            laneaction="FailureConversionAisle"/>
+                <ROAD 
+            name="PrintRoad" 
+            letter="Print" 
+            destination="PrintOrder"
+             tape="ADVANCE" 
+            record="OFF" 
+            index="OFF"/>
+               <ROAD 
+            name="UndoRoad" 
+            letter="Undo" 
+            destination="Final"
+            tape="ADVANCE" 
+            record="OFF" 
+            index="OFF"/>
+               <ROAD 
+            name="ExitRoad" 
+            letter="Failure" 
+            destination="Final"
+             tape="ADVANCE" 
+            record="OFF" 
+            index="OFF"/>
+          </SITE>
+          <SITE name="PrintOrder" siteaction="MAXPrintOrderSite">
+               <COMMENT>
+                    Prints the Order detail.
+               </COMMENT>
+               <ROAD 
+            name="SuccessRoad" 
+            letter="Success" 
+            destination="Final"
+             tape="ADVANCE" 
+            record="OFF" 
+            index="OFF"/>
+               <ROAD 
+            name="ErrorRoad" 
+            letter="Error" 
+            destination="PrinterError"
+             tape="ADVANCE" 
+            record="OFF" 
+            index="OFF"/>
+          </SITE>
+          <SITE name="PrinterError" siteaction="PrinterErrorSite">
+               <COMMENT>
+                    Displays the Printer Offline Dialog.
+               </COMMENT>
+               <ROAD 
+            name="RetryRoad" 
+            letter="Retry" 
+            destination="PrintOrder"
+             tape="ADVANCE" 
+            record="OFF" 
+            index="OFF"/>
+               <ROAD 
+            name="FailureRoad" 
+            letter="Failure" 
+            destination="Final"
+             tape="ADVANCE" 
+            record="OFF" 
+            index="OFF"/>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP">
+          </SYSTEMSITE>
+            <STATION name="LookupOrderStation" servicename="order.lookup.lookuporder" targettier="APPLICATIONTIER">
+               <ROAD name="LookupOrderStationFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupOrderStationCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupOrderStationUndo" letter="Undo" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupOrderStationSuccess" letter="Success" destination="ViewOrder" tape="ADVANCE" record="ON" index="ON"/>
+          </STATION>
+     </REGION>
+</MAP>
+</SERVICE>

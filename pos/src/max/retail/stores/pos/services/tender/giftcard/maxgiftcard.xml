@@ -1,0 +1,343 @@
+<?xml version='1.0' ?>
+<!-- 
+/********************************************************************************
+ *   
+ *	Copyright (c) 2016 - 2017 MAX Hypermarket, Inc    All Rights Reserved.
+ *	
+ *
+ *
+ *	Rev	1.0 	Dec 20, 2016		Mansi Goel		Changes for Gift Card FES	
+ *
+ ********************************************************************************/
+ -->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="TenderGiftCard"
+    package="oracle.retail.stores.pos.services.tender.giftcard"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Travel Check Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="MAXTenderCargo" package="max.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE>
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Next"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="ActivationCancelled"/>
+        <LETTER name="GiftCard"/>
+        <LETTER name="GiftCardRefund"/>
+        <LETTER name="InvalidCardNumber"/>
+        	<LETTER name="EnterPin" />
+		<LETTER name="EnteredPin" />
+		<SIGNAL class="MAXIsPinNotEnteredSignal" package="max.retail.stores.pos.services.tender.giftcard" />
+		<SIGNAL class="MAXIsPinEnteredSignal"	package="max.retail.stores.pos.services.tender.giftcard" />
+		<LANEACTION class="MAXValidateGiftCardPinEnteredAisle" package="max.retail.stores.pos.services.tender.giftcard" />
+		<LANEACTION class="MAXEnterGiftCardPinAisle" package="max.retail.stores.pos.services.tender.giftcard" />
+
+        <SITEACTION  class="MAXEnterGiftCardNumberUISite" package="max.retail.stores.pos.services.tender.giftcard"/>
+        <SITEACTION  class="MAXGiftCardActionSite" package="max.retail.stores.pos.services.tender.giftcard"/>
+        <SITEACTION  class="GiftCardConfirmationUISite"/>
+        <SITEACTION  class="GiftCardLimitActionSite"/>
+
+		<LANEACTION  class="ConvertContinueLetterToExitTenderAisle"/>
+        <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+
+        <LANEACTION class="MAXValidateGiftCardEnteredAisle" package="max.retail.stores.pos.services.tender.giftcard" />
+            <SITEACTION  class="MAXDetermineTenderSubTourStartSite" package="max.retail.stores.pos.services.tender.giftcard"/>
+        <SHUTTLE class="MAXGiftCardActivationLaunchShuttle" package="max.retail.stores.pos.services.tender.giftcard"/>
+         <SITEACTION  class="MAXGiftCardConfirmationUISite" package="max.retail.stores.pos.services.tender.giftcard"/>
+
+        <SHUTTLE class="TenderLimitOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+     <LANEACTION class="MAXGiftCardRedeemAisle" package="max.retail.stores.pos.services.tender.giftcard" />
+		
+		<SHUTTLE class="GiftCardActivationReturnShuttle" />
+
+    </SERVICECODE>
+
+    <MAP>
+        <REGION  region="SERVICE" startsite="DetermineTenderSubTourStart">
+            <SITE name="DetermineTenderSubTourStart" siteaction="MAXDetermineTenderSubTourStartSite">
+                <ROAD name="GiftCardTender"
+                      letter="GiftCard"
+                      destination="GiftCardLimitAction"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="GiftCardRefund"
+                      letter="GiftCardRefund"
+                      destination="EnterGiftCardNumberUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="TransactionNotSuitable"
+                      letter="NoIssue"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GiftCardLimitAction" siteaction="GiftCardLimitActionSite">
+                <ROAD
+                    name="GiftCardLimitsPassed"
+                    letter="Success"
+                    destination="EnterGiftCardNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardOverrideRoad"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GiftCardDiscardRoad"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardLimitInvalidRoad"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="EnterGiftCardNumberUI" siteaction="MAXEnterGiftCardNumberUISite">
+            <AISLE
+                    name="ValidateGidtCardBalAndVal"
+                    letter="Next"
+                    laneaction="MAXValidateGiftCardEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed after the user entered the
+                        gift card information.
+                    </COMMENT>                     
+                    	<LIGHT signal="MAXIsPinNotEnteredSignal" />  <!-- mohan  start-->                 
+                </AISLE>
+                <AISLE name="EnterGiftCardPin" letter="EnterPin"
+					laneaction="MAXEnterGiftCardPinAisle">
+					<COMMENT>
+						This aisle is traversed after the user entered the
+						gift
+						card information.
+					</COMMENT>
+				</AISLE>
+				<AISLE name="ValidateGiftCardPin" letter="EnteredPin"
+					laneaction="MAXValidateGiftCardPinEnteredAisle">
+					<COMMENT>
+						This aisle is traversed after the user entered the
+						gift
+						card information.
+					</COMMENT>
+				</AISLE>
+				<AISLE name="ValidateGidtCard" letter="Next"
+					laneaction="MAXValidateGiftCardPinEnteredAisle">
+					<COMMENT>
+						This aisle is traversed after the user entered the
+						gift
+						card information.
+					</COMMENT>
+					<LIGHT signal="MAXIsPinEnteredSignal" />
+                </AISLE>
+                  <AISLE
+                    name="GiftCardNumberEntered"
+                    letter="AfterBalance"
+                    laneaction="MAXGiftCardRedeemAisle"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </AISLE> 
+                <ROAD
+                    name="GiftCardCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                   <ROAD
+                    name="GiftCardNumberEntered"
+                    letter="AfterBalanceAndRedeem"
+                    destination="GiftCardConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="GiftCardNumberEntered"
+                    letter="Ok"
+                    destination="EnterGiftCardNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="GiftCardOffline"
+                    letter="offline"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="GiftCardInqFailureRoad"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InvalidGiftCardNumber"
+                    letter="InvalidCardNumber"
+                    destination="EnterGiftCardNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The gift card MAG swipe was invalid or the user
+                        entered an invalid number. Allow user to
+                        re-swipe or re-enter the gift card number.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="GiftCardConfirmationUI" siteaction="MAXGiftCardConfirmationUISite">
+                <ROAD
+                    name="GiftCardConfirmed"
+                    letter="Success"
+                    destination="GiftCardAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardNotConfirmed"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GiftCardAction" siteaction="MAXGiftCardActionSite">
+                <ROAD
+                    name="GiftCardAddedRoad"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardTenderFailureRoad"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GiftCardInvalidRoad"
+                    letter="Ok"
+                    destination="EnterGiftCardNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="TenderLimitOverrideStation"
+                servicename="tender.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLimitOverrideLaunchShuttle"
+                returnshuttle="TenderLimitOverrideReturnShuttle">
+                <ROAD
+                    name="TenderLimitOverrideSuccess"
+                    letter="Success"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideContinue"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <!-- Changes for Rev 1.0 : Starts -->
+            <STATION
+                name="ActivationStation"
+                servicename="tender.activation.activation"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXGiftCardActivationLaunchShuttle"
+                returnshuttle="GiftCardActivationReturnShuttle">
+            <!-- Changes for Rev 1.0 : Ends -->
+                <AISLE
+                	name="ConvertActivationCancelledToCancel"
+                    letter="ActivationCancelled"
+                    laneaction="CancelLetterAisle">
+                </AISLE>
+                <ROAD
+                    name="ActivationReturnedSuccessfulForInquiry"
+                    letter="Success"
+                    destination="GiftCardConfirmationUI"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ActivationFailed"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CommunicationFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+			<SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

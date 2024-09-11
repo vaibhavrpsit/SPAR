@@ -1,0 +1,668 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/sale/saleuicfg.xml /main/35 2014/06/16 15:41:00 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole     09/20/14 - added property to restrict where the browser can
+                           be invoked by clicking the logo.
+ *    yiqzhao   06/13/14 - Disable some buttons after retriving order for
+ *                         pickup or cancel.
+ *    abondala  05/30/14 - notifications UI related changes
+ *    abondala  05/14/14 - notifications requirement
+ *    cgreene   06/04/14 - clear scanner data after scan
+ *    cgreene   05/15/14 - remove use of modifyitemlistadapter
+ *    abhinavs  05/15/13 - Fix to enable or disable pricing sub menus based on
+ *                         the line items
+ *    cgreene   12/14/12 - Button image and plaf loading updates
+ *    cgreene   12/05/12 - remove menu=true so that buttons do not paint
+ *                         triangle
+ *    cgreene   09/20/12 - Popupmenu implmentation round 2
+ *    cgreene   09/04/12 - Code cleanup, method name cleanup and refactor to
+ *                         allow for single-clicks and ESC back to previous
+ *                         category
+ *    yiqzhao   06/29/12 - Add dialog for deleting ship item, disable change
+ *                         price for ship item
+ *    yiqzhao   06/28/12 - Add delete shipping item feature
+ *    mchellap  11/14/11 - Added scan sheet help files
+ *    rrkohli   06/01/11 - Max Length of Item field increased to 20
+ *    rrkohli   05/20/11 - adding new defaultScreenSpecName for pos ui quickwin
+ *    rrkohli   05/19/11 - names changed(pos ui quickwin)
+ *    rrkohli   05/05/11 - POS UI quickwin
+ *    cgreene   03/16/11 - implement You Saved feature on reciept and
+ *                         AllowMultipleQuantity parameter
+ *    jkoppolu  03/02/11 - Added Scan sheet button to SellItemButtonSpec.
+ *    jkoppolu  03/02/11 - Added SCAN_SHEET screen and related beans
+ *    abondala  06/21/10 - Disable item level editing for an external order
+ *                         line item
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   01/05/10 - implement parameter enabled bean spec
+ *    abondala  12/25/09 - Updated ADE Header
+ *    cgreene   12/16/09 - add Keys button
+ *    ddbaker   11/11/08 - Updated to layouts to meet business requirements.
+ *    ddbaker   11/10/08 - Updated based on new requirements
+ *    ddbaker   11/06/08 - Preliminary check in to eliminate clipping on item
+ *                         lists.
+ *
+ * ===========================================================================
+ */
+-->
+<!--DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd"-->
+
+<UICFG>
+    <BEAN
+        specName="ScanSheetButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SaleLocalButtonBean"
+        cachingScheme="ONE">
+        <BUTTON
+            labelTag="First"
+            actionName="FirstPage"
+            enabled="false"
+            keyName="F2" />
+        <BUTTON
+            labelTag="Previous"
+            actionName="PreviousPage"
+            enabled="false"
+            keyName="F3" />
+        <BUTTON
+            labelTag="Next"
+            actionName="NextPage"
+            enabled="false"
+            keyName="F4" />
+        <BUTTON
+            labelTag="Last"
+            actionName="LastPage"
+            enabled="false"
+            keyName="F5" />         
+    </BEAN>
+
+    <BEAN
+        specName="ScanSheetPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ImageGridBean">
+    </BEAN>
+
+    <BEAN
+        specName="SaleGlobalNavigationPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SaleGlobalButtonBean"
+        cachingScheme="ONE">
+        <BUTTON
+            actionName="Help"
+            keyName="F1"
+            enabled="true"
+            labelTag="Help"
+            iconName="buttonIconHelp"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.HelpAction"/>
+        <BUTTON
+            actionName="Clear"
+            keyName="F11"
+            enabled="false"
+            iconName="buttonIconClear"
+            labelTag="Delete"/>
+        <BUTTON
+            actionName="Cancel"
+            keyName="F12"
+            enabled="false"
+            labelTag="Cancel"
+            iconName="buttonIconCancel"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.ConfirmCancelAction"/>
+        <BUTTON
+            actionName="Undo"
+            keyName="Esc"
+            enabled="true"
+            iconName="buttonIconUndo"
+            labelTag="Undo"/>
+        <BUTTON
+            actionName="Next"
+            keyName="Enter"
+            enabled="false"
+            iconName="buttonIconNext"
+            labelTag="Next"/>
+        <BUTTON
+            actionName="Keys"
+            keyName="Ctrl+K"
+            enabled="true"
+            labelTag="Keys"
+            label="Keys"
+            parameterName="OnScreenKeyboardEnabled"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.KeyDialogAction"/>
+    </BEAN>
+
+    <BEAN
+        specName="ScanSheetGlobalNavigationPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SaleGlobalButtonBean"
+        cachingScheme="ONE">
+        <BUTTON
+            actionName="Help"
+            keyName="F1"
+            enabled="true"
+            labelTag="Help"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.HelpAction"/>
+        <BUTTON
+            actionName="Clear"
+            keyName="F11"
+            enabled="false"
+            labelTag="Delete"/>
+        <BUTTON
+            actionName="Cancel"
+            keyName="F12"
+            enabled="false"
+            labelTag="Cancel"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.ConfirmCancelAction"/>
+        <BUTTON
+            actionName="Undo"
+            keyName="Esc"
+            enabled="true"
+            labelTag="Undo"/>
+        <BUTTON
+            actionName="AddItem"
+            keyName="Enter"
+            enabled="false"
+            labelTag="Next"/>
+        <BUTTON
+            actionName="Keys"
+            keyName="Ctrl+K"
+            enabled="true"
+            labelTag="Keys"
+            label="Keys"
+            parameterName="OnScreenKeyboardEnabled"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.KeyDialogAction"/>
+    </BEAN>
+
+    <BEAN
+        specName="CustomerGlobalNavigationPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="CustomerGlobalButtonBean"
+        cachingScheme="ONE">
+        <BUTTON
+            actionName="Help"
+            keyName="F1"
+            enabled="true"
+            labelTag="Help"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.HelpAction"/>
+        <BUTTON
+            actionName="Clear"
+            keyName="F11"
+            enabled="false"
+            labelTag="Delete"/>
+        <BUTTON
+            actionName="Cancel"
+            keyName="F12"
+            enabled="false"
+            labelTag="Cancel"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.ConfirmCancelAction"/>
+        <BUTTON
+            actionName="Undo"
+            keyName="Esc"
+            enabled="true"
+            labelTag="Undo"/>
+        <BUTTON
+            actionName="Next"
+            keyName="Enter"
+            enabled="true"
+            labelTag="Next"/>
+        <BUTTON
+            actionName="Keys"
+            keyName="Ctrl+K"
+            enabled="true"
+            labelTag="Keys"
+            label="Keys"
+            parameterName="OnScreenKeyboardEnabled"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.KeyDialogAction"/>
+    </BEAN>
+
+    <BEAN
+        specName="SalePromptAndResponsePanelSpec"
+        beanClassName="SalePromptAndResponseBean"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        cachingScheme="ONE">
+    </BEAN>
+
+    <BEAN
+        specName="SellItemWorkPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SaleBean"
+        cachingScheme="ONE">
+        <BEANPROPERTY propName="focused" propValue="false"/>
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.SaleLineItemRenderer"/>
+        <BEANPROPERTY propName="labelTags"
+                      propValue="ItemLabel,QuantityLabel,PriceLabel,DiscountLabel,ExtendedPriceLabel"/>
+        <BEANPROPERTY propName="labelWeights"
+                      propValue="24,13,23,19,21"/>
+        <BEANPROPERTY propName="selectionMode"
+                      propValue="multi"/>
+    </BEAN>
+
+    <BEAN
+        specName="SellItemButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SaleLocalButtonBean"
+        cachingScheme="ONE">
+        <BUTTON
+            labelTag="Return"
+            actionName="Return"
+            enabled="true"
+            iconName="buttonIconReturn"
+            keyName="F2" />
+        <BUTTON
+            labelTag="ItemLookup"
+            actionName="ItemInquiry"
+            enabled="true"
+            iconName="buttonIconInquiry"
+            keyName="F3" />
+        <BUTTON
+            labelTag="Item"
+            actionName="Item"
+            enabled="true"
+            iconName="buttonIconItem"
+            keyName="F4" />
+        <BUTTON
+            labelTag="Transaction"
+            actionName="Transaction"
+            enabled="true"
+            iconName="buttonIconTransaction"
+            keyName="F5" />
+        <BUTTON
+            labelTag="Tender"
+            actionName="Tender"
+            enabled="true"
+            iconName="buttonIconTender"
+            keyName="F6" />
+        <BUTTON
+            labelTag="Customer"
+            actionName="Customer"
+            enabled="true"
+            iconName="buttonIconCustomer"
+            keyName="F7" />
+        <BUTTON
+            labelTag="Pricing"
+            actionName="Pricing"
+            enabled="true"
+            iconName="buttonIconPricing"
+            keyName="F8" />
+        <BUTTON
+            labelTag="NoSale"
+            actionName="NoSale"
+            enabled="true"
+            iconName="buttonIconNoSale"
+            keyName="F2" />
+        <BUTTON
+            labelTag="HouseAccount"
+            actionName="HouseAccount"
+            enabled="true"
+            iconName="buttonIconHouseAccount"
+            keyName="F3" />
+        <BUTTON
+            labelTag="ReprintReceipt"
+            actionName="ReprintReceipt"
+            enabled="true"
+            iconName="buttonIconReprintReceipt"
+            keyName="F4" />
+        <BUTTON
+            labelTag="TillFunctions"
+            actionName="TillFunctionsContinue"
+            enabled="true"
+            iconName="buttonIconTillFunctions"
+            keyName="F5" />
+        <BUTTON
+            labelTag="Manager"
+            actionName="Manager"
+            enabled="true"
+            iconName="buttonIconManager"
+            keyName="F6" />
+         <BUTTON
+            labelTag="GiftCardCert"
+            actionName="GiftCardCert"
+            enabled="true"
+            iconName="buttonIconGiftCardCert"
+            keyName="F7" />
+         <BUTTON
+            labelTag="Redeem"
+            actionName="Redeem"
+            enabled="true"
+            iconName="buttonIconRedeem"
+            keyName="F8" />
+         <BUTTON
+            labelTag="ScanSheet"
+            actionName="ScanSheet"
+            enabled="true"
+            iconName="buttonIconScanSheet"
+            keyName="F2" />
+    </BEAN>
+
+    <BEAN
+        specName="CustomerInfoButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Skip"
+            enabled="true"
+            keyName="F2"
+            labelTag="Skip"/>
+    </BEAN>
+
+    <BEAN
+        specName="StackedTotalPanelSpec"
+        beanClassName="StackedTotalBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        cachingScheme="ONE">
+    </BEAN>
+
+    <DEFAULTSCREEN
+        specName="SaleResponseEntryScreenSpec"
+        templateSpecName="EYSPOSTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="LineItemsModel"
+        resourceBundleFilename="classpath://oracle/retail/stores/pos/config/posUI.properties">
+
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="HyperlinkLogoPanelSpec"/>
+
+    </DEFAULTSCREEN>
+
+    <DEFAULTSCREEN specName="StackedSaleResponseEntryScreenSpec"
+        templateSpecName="POSStackedStatusTemplateSpec" displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans" modelClassName="LineItemsModel"
+        resourceBundleFilename="classpath://oracle/retail/stores/pos/config/posUI.properties">
+
+        <ASSIGNMENT areaName="SmallLogoPanel" beanSpecName="HyperlinkLogoPanelSpec" />
+
+    </DEFAULTSCREEN>
+
+    <DEFAULTSCREEN
+        specName="CustomerResponseEntryScreenSpec"
+        templateSpecName="EYSPOSTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="posUI">
+
+        <ASSIGNMENT areaName="WorkPanel"
+            beanSpecName="EmptyPanelSpec"/>
+
+        <ASSIGNMENT areaName="LocalNavigationPanel"
+            beanSpecName="LocalNavigationPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="SmallLogoPanelSpec"/>
+
+    </DEFAULTSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="StackedSaleResponseEntryScreenSpec"
+        resourceBundleFilename="posText"
+        specName="SELL_ITEM">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="SalePromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="EnterItemNumberPrompt"/>
+            <BEANPROPERTY propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.MultipleQuantityTextField"/>
+            <BEANPROPERTY propName="enterData"                     propValue="true"/>
+            <BEANPROPERTY propName="clearResponseOnSetScannerData" propValue="true"/>
+            <BEANPROPERTY propName="maxLength"                     propValue="20"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed"        propValue="false"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StackedStatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SellItemScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="TotalStatusPanel"
+            beanSpecName="StackedTotalPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="SaleGlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SellItemWorkPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SellItemButtonSpec">
+        </ASSIGNMENT>
+
+        <CONNECTION sourceBeanSpecName="SellItemWorkPanelSpec"
+            targetBeanSpecName="SellItemButtonSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="LocalButtonListener"/>
+
+        <CONNECTION
+            sourceBeanSpecName="SellItemWorkPanelSpec"
+            targetBeanSpecName="SellItemButtonSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="ListSelectionListener"
+            adapterPackage="oracle.retail.stores.pos.ui.behavior"
+            adapterClassName="PricingItemListAdapter"/>            
+
+        <CONNECTION sourceBeanSpecName="SaleGlobalNavigationPanelSpec"
+            targetBeanSpecName="SalePromptAndResponsePanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="ValidateActionListener"/>
+
+        <CONNECTION sourceBeanSpecName="SellItemWorkPanelSpec"
+            targetBeanSpecName="SaleGlobalNavigationPanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="GlobalButtonListener"/>
+
+        <CONNECTION sourceBeanSpecName="SalePromptAndResponsePanelSpec"
+            targetBeanSpecName="SellItemWorkPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION sourceBeanSpecName="SalePromptAndResponsePanelSpec"
+            targetBeanSpecName="SellItemWorkPanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="ClearActionListener"/>
+
+        <CONNECTION sourceBeanSpecName="SaleGlobalNavigationPanelSpec"
+            targetBeanSpecName="SalePromptAndResponsePanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="ClearActionListener"/>
+
+        <CONNECTION sourceBeanSpecName="SellItemWorkPanelSpec"
+            listenerPackage="oracle.retail.stores.foundation.manager.gui"
+            listenerInterfaceName="BeanChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="ScannerSessionAdapter"
+            adapterParameter="ScannerSession" />
+
+        <CONNECTION
+            sourceBeanSpecName="SellItemWorkPanelSpec"
+            targetBeanSpecName="SaleGlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="ListSelectionListener"
+            adapterPackage="oracle.retail.stores.pos.ui.behavior"
+            adapterClassName="DeleteItemListAdapter" />
+
+       <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="SalePromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_MULTISCAN"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="CustomerResponseEntryScreenSpec"
+        resourceBundleFilename="posText"
+        specName="PROMPT_CUSTOMER_INFO">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="CustomerGlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="PromptCustomerInfoScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.ConstrainedTextField"/>
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="PromptCustomerInfoPrompt"/>
+            <BEANPROPERTY
+                propName="enterData"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="zeroAllowed"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="negativeAllowed"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="doubleByteCharsAllowed"
+                propValue="false"/>
+        </ASSIGNMENT>
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="CustomerGlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            sourceBeanSpecName="CustomerGlobalNavigationPanelSpec"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="ClearActionListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="posText"
+        specName="ENTER_GIFT_CARD_AMOUNT">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardAmountScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardAmountPrompt"/>
+            <BEANPROPERTY
+                propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.CurrencyTextField"/>
+            <BEANPROPERTY propName="maxLength" propValue="9"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+            defaultScreenSpecName="EYSPOSDefaultSpec"
+            resourceBundleFilename="posText"
+            specName="SCAN_SHEET">
+        <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="ScanSheetPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ScanSheetButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="ScanSheetGlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                    propName="buttonStates"
+                    propValue="Help[true],Clear[false],Cancel[false],Undo[true],AddItem[false],Keys[true]"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag"
+                    propValue="ScanSheetScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="SalePromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag"
+                    propValue="ScanSheetPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION sourceBeanSpecName="ScanSheetPanelSpec"
+            targetBeanSpecName="ScanSheetGlobalNavigationPanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="GlobalButtonListener"/>
+
+        <CONNECTION sourceBeanSpecName="ScanSheetPanelSpec"
+            targetBeanSpecName="ScanSheetButtonSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="LocalButtonListener"/>
+
+    </OVERLAYSCREEN>
+
+</UICFG>

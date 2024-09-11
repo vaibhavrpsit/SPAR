@@ -1,0 +1,617 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/modifytransaction/tax/modifytransactiontax.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ModifyTransactionTax"
+    package="oracle.retail.stores.pos.services.modifytransaction.tax"
+    tourcam="ON">
+    <CARGO class="ModifyTransactionTaxCargo"/>
+    <SERVICECODE>
+        <LETTER name="Continue"/>
+        <LETTER name="EnterTaxRate"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Undo"/>
+        <LETTER name="OverrideTaxRate"/>
+        <LETTER name="Success"/>
+        <LETTER name="Link"/>
+        <LETTER name="Exempt"/>
+        <LETTER name="EnterTaxAmount"/>
+        <LETTER name="OverrideTaxAmount"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Response"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="IDError"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Override"/>
+
+        <SIGNAL class="IsNextSignal"/>
+        <SIGNAL class="IsNotNextSignal"/>
+
+         <!-- Shuttles -->
+     <SHUTTLE class="TaxExemptCustomerReturnShuttle"/>
+        <SHUTTLE class="TaxExemptCustomerLaunchShuttle"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <!-- Sites, Aisles, and Roads -->
+        <LANEACTION class="NoPolicyChangeAisle"/>
+        <LANEACTION class="TaxAmountEnteredAisle"/>
+        <LANEACTION class="TaxRateEnteredAisle"/>
+        <LANEACTION class="TaxAmountSelectionAisle"/>
+        <LANEACTION class="TaxRateSelectionAisle"/>
+        <LANEACTION class="UndoCargoRoad"/>
+        <LANEACTION class="UpdatePolicyAisle"/>
+        <LANEACTION class="TaxExemptEnteredAisle"/>
+        <LANEACTION class="TaxDefaultAccessErrorAisle"/>
+        <LANEACTION class="UndoLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CustomerLinkCheckAisle" package="oracle.retail.stores.pos.services.modifytransaction"/>
+
+        <SITEACTION class="EnterTaxAmountSite"/>
+        <SITEACTION class="CheckForCustomerRequiredSite"/>
+      <SITEACTION class="CheckForCertificateInfoRequiredSite"/>
+        <SITEACTION class="EnterTaxExemptSite"/>
+        <SITEACTION class="ValidateCertificateIDSite"/>
+        <SITEACTION class="EnterTaxRateSite"/>
+        <SITEACTION class="ModifyTransactionTaxOptionsSite"/>
+        <SITEACTION class="SetUpdatePolicySite"/>
+        <SITEACTION class="CreateRetailTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+    </SERVICECODE>
+
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="ModifyTransactionTaxOptions">
+                </ROAD>
+            </SITE>
+
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="ModifyTransactionTaxOptions"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SITE name="ModifyTransactionTaxOptions" siteaction="ModifyTransactionTaxOptionsSite">
+                <COMMENT>
+                    This site checks handles the selection of transaction
+                    tax options.
+                </COMMENT>
+                <AISLE
+                    name="TransactionTaxRateSelection"
+                    letter="OverrideTaxRate"
+                    laneaction="TaxRateSelectionAisle">
+                    <COMMENT>
+                        This handles the selection of modify-tax-rate from
+                        the menu.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="TransactionTaxAmountSelection"
+                    letter="OverrideTaxAmount"
+                    laneaction="TaxAmountSelectionAisle">
+                    <COMMENT>
+                        This handles the selection of modify-tax-amount
+                        from the menu.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="CustomerLinkCheck"
+                    letter="Exempt"
+                    laneaction="CustomerLinkCheckAisle">
+                    <COMMENT>
+                        This checks if a customer link is required prior to
+                        modifying the tax exemption.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="TaxExemptOverrideError"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionTaxUpdatePolicy"
+                    letter="Next"
+                    destination="SetUpdatePolicy"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This handles the selection of modify-tax-rate or
+                        modify-tax-amount, both of which require SetUpdatePolicy
+                        site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerLinkRequired"
+                    letter="Link"
+                    destination="CustomerLinkStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This handles the customer link.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DetermineCertificateInfoRequired"
+                    letter="Continue"
+                    destination="CheckForCertificateInfoRequired"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This site determines whether the cashier need to enter 
+                certificate no and reason code.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoLetterOptions"
+                    letter="Undo"
+                    laneaction = "UndoCargoRoad"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when the Undo key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelLetterOptions"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This Road is traversed when the Cancel Button is pressed
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="SetUpdatePolicy" siteaction="SetUpdatePolicySite">
+                <COMMENT>
+                    This site sets the policy for updating the rest of
+                    the transaction with the new tax rate.
+                </COMMENT>
+                <AISLE
+                    name="UpdatePolicy"
+                    letter="Yes"
+                    laneaction="UpdatePolicyAisle">
+                    <COMMENT>
+                        This aisle will check the response from the user and
+                        update the policy.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="NoPolicyChange"
+                    letter="No"
+                    laneaction="NoPolicyChangeAisle">
+                    <COMMENT>
+                        This aisle will check the response from the user and
+                        update the policy.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="PolicyUndoEntered"
+                    letter="Undo"
+                    destination="ModifyTransactionTaxOptions"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Undo key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterTaxRateRoad"
+                    letter="EnterTaxRate"
+                    destination="TaxRateSite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="EnterTaxAmountRoad"
+                    letter="EnterTaxAmount"
+                    destination="TaxAmountSite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="TaxRateSite" siteaction="EnterTaxRateSite">
+                <COMMENT>
+                    This site retrieves the tax rate data from the user.
+                </COMMENT>
+                <AISLE
+                    name="TaxRateEnteredAccept"
+                    letter="Next"
+                    laneaction="TaxRateEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed if a tax rate is entered and
+                        the Next key is pressed.
+                    </COMMENT>
+                    <LIGHT signal="IsNotNextSignal"/>
+                </AISLE>
+                <ROAD
+                    name="TaxRateEntered"
+                    letter="Next"
+                    destination="CreateRetailTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if a tax rate is entered.
+                    </COMMENT>
+                    <LIGHT signal="IsNextSignal"/>
+                </ROAD>
+                <ROAD
+                    name="TaxRateUndoEntered"
+                    letter="Undo"
+                    destination="SetUpdatePolicy"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Undo key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxRateCancelEntered"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRateOkEntered"
+                    letter="Ok"
+                    destination="TaxRateSite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="TaxAmountSite" siteaction="EnterTaxAmountSite">
+                <COMMENT>
+                    This site retrieves the tax amount data from the user.
+                </COMMENT>
+                <AISLE
+                    name="TaxAmountEnteredAccept"
+                    letter="Next"
+                    laneaction="TaxAmountEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed if a tax amount is entered
+                        and the Next key is pressed.
+                    </COMMENT>
+                    <LIGHT signal="IsNotNextSignal"/>
+                </AISLE>
+                <ROAD
+                    name="TaxAmountEntered"
+                    letter="Next"
+                    destination="CreateRetailTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if a tax amount is entered.
+                    </COMMENT>
+                    <LIGHT signal="IsNextSignal"/>
+                </ROAD>
+                <ROAD
+                    name="TaxAmountUndoEntered"
+                    letter="Undo"
+                    destination="SetUpdatePolicy"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Undo key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxAmountCancelEntered"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckForCertificateInfoRequired" siteaction="CheckForCertificateInfoRequiredSite">
+                <COMMENT>
+                    This site checks require certificate info parameter.
+                </COMMENT>
+                <ROAD
+                    name="EnterTaxExemptRoad"
+                    letter="Continue"
+                    destination="EnterTaxExempt"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed if the parameter is set to Y.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ValidateCertificateIDRoad"
+                    letter="Next"
+                    destination="ValidateCertificateID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed if the parameter is set to N.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="EnterTaxExempt" siteaction="EnterTaxExemptSite">
+                <COMMENT>
+                    This site retrieves the tax exempt data from the user.
+                </COMMENT>
+                <ROAD
+                    name="TaxExemptEntered"
+                    letter="Next"
+                    destination="ValidateCertificateID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This aisle is traversed if tax exempt data is entered
+                        and the Next key is pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxExemptUndoEntered"
+                    letter="Undo"
+                    laneaction="UndoCargoRoad"
+                    destination="ModifyTransactionTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Undo key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxExemptCancelEntered"
+                    letter="Cancel"
+                    laneaction = "UndoCargoRoad"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="ValidateCertificateID" siteaction="ValidateCertificateIDSite">
+                <AISLE
+                    name="CertificateIDValidated"
+                    letter="Success"
+                    laneaction="NextLetterAisle">
+                </AISLE>
+                <ROAD
+                    name="CertificateIDEnteredWithoutLinkCustomer"
+                    letter="Continue"
+                    destination="CreateRetailTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if tax-exempt data is entered.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CertificateIDEnteredWithLinkCustomer"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if tax-exempt data is entered.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="CreateRetailTransaction" siteaction="CreateRetailTransactionSite">
+                <COMMENT>
+                    This site creates the retail tansaction.
+                </COMMENT>
+                <AISLE
+                    name="TransactionCreated"
+                    letter="Success"
+                    laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This aisle is traversed after the transaction has
+                        been created.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="TransactionFailed"
+                    letter="Failure"
+                    laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This aisle is traversed if the transaction is not
+                        created.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="ExitService"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed after the transaction has
+                        been created.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="CustomerLinkStation"
+                servicename="customer.main.customermain"
+                targettier="CURRENTTIER"
+                launchshuttle="TaxExemptCustomerLaunchShuttle"
+                returnshuttle="TaxExemptCustomerReturnShuttle">
+                <COMMENT>
+                    Transfers control to the Customer service.
+                </COMMENT>
+                <ROAD
+                    name="CustomerLinkStationContinue"
+                    letter="Continue"
+                    destination="CheckForCustomerRequired"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the CustomerLink service is
+                        completed.
+                    </COMMENT>
+                </ROAD>
+
+                <ROAD
+                    name="CustomerLinkStationUndo"
+                    letter="Undo"
+                    laneaction = "UndoCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to take when the user presses "Undo" from the
+                        initial site in the CustomerLink service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerLinkStationCancel"
+                    letter="Cancel"
+                    destination="CheckForCustomerRequired"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to take when user Cancels out of the CustomerLink
+                        service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerStationOffline"
+                    letter="Offline"
+                    destination="CheckForCustomerRequired"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to take when customer service is offline
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerLinkStationFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to take when user Cancels out of the CustomerLink
+                        service.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SITE name="CheckForCustomerRequired" siteaction="CheckForCustomerRequiredSite">
+                <AISLE
+                    name="NoCheckForCustomerRequired"
+                    letter="No"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="ContinueCheckForCustomerRequired"
+                    letter="Continue"
+                    destination="CheckForCertificateInfoRequired"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="YesCheckForCustomerRequired"
+                    letter="Yes"
+                    destination="CustomerLinkStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureCheckForCustomerRequired"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

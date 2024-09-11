@@ -1,0 +1,165 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/layaway/layawayoptions.xml /main/15 2013/05/03 11:22:31 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/03/13 - fixed popup menu undo navigation
+ *    cgreene   09/20/12 - Popupmenu implmentation round 2
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="layawayoptions" package="oracle.retail.stores.pos.services.layaway" tourcam="OFF">
+    <CARGO class="LayawayCargo" package="oracle.retail.stores.pos.services.layaway"/>
+    <SERVICECODE>
+
+         <!-- Letters -->
+        <LETTER name="Cancel"/>
+        <LETTER name="ExitLayaway"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Find"/>
+        <LETTER name="New"/>
+        <LETTER name="No"/>
+        <LETTER name="Offline"/>
+        <LETTER name="QueueFull"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+
+        <!-- Shuttles -->
+        <SHUTTLE class="LayawayShuttle" package="oracle.retail.stores.pos.services.layaway"/>
+
+        <!-- Sites -->
+        <SITEACTION class="DisplayLayawayOptionsSite"/>
+
+    </SERVICECODE>
+    <MAP>
+         <REGION region="SERVICE" startsite="DisplayLayawayOptions">
+              <SITE name="DisplayLayawayOptions" siteaction="DisplayLayawayOptionsSite">
+                   <ROAD name="LayawayNewNotOffline"
+                         letter="New"
+                         destination="CreateLayawayStation"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="LayawayFind"
+                         letter="Find"
+                         destination="FindLayawayStation"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="LayawayCancel"
+                         letter="Cancel"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="LayawayUndo"
+                         letter="Undo"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="LayawayS"
+                         letter="Success"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+              </SITE>
+              <STATION name="CreateLayawayStation"
+                  launchshuttle="LayawayShuttle"
+                  returnshuttle="LayawayShuttle"
+                  servicename="layaway.create.layawaycreate"
+                  targettier="APPLICATIONTIER">
+                   <ROAD name="CreateLayawayStationFailure"
+                         letter="Failure"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="CreateLayawayStationCancel"
+                         letter="Cancel"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="CreateLayawayStationUndo"
+                         letter="Undo"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="CreateLayawayStationSuccess"
+                         letter="Success"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+              </STATION>
+              <STATION name="FindLayawayStation"
+                  launchshuttle="LayawayShuttle"
+                  returnshuttle="LayawayShuttle"
+                  servicename="layaway.find.layawayfind"
+                  targettier="APPLICATIONTIER">
+                   <ROAD name="CancelLayawayFind"
+                         letter="Cancel"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="FindLayawayStationFailure"
+                         letter="Failure"
+                         destination="DisplayLayawayOptions"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="FindLayawayStationCancel"
+                         letter="Cancel"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="FindLayawayStationUndo"
+                         letter="Undo"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="FindLayawayStationSuccess"
+                         letter="Success"
+                         destination="DisplayLayawayOptions"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD name="PaymentComplete"
+                         letter="ExitLayaway"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="ON"
+                         index="ON"/>
+                   <ROAD
+                         name="FindLayawayQueueFull"
+                         letter="QueueFull"
+                         destination="Final"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                   </ROAD>
+              </STATION>
+              <SYSTEMSITE name="Final" action="RETURN"/>
+              <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+         </REGION>
+    </MAP>
+</SERVICE>

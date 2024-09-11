@@ -1,0 +1,106 @@
+<?xml version='1.0' ?>
+<!--
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ************************
+ * Copyright (c) 2013 Max Hypermarket.    All Rights Reserved. 
+ 
+ *  Rev 1.1		May 04, 2017		Kritica Agarwal 	GST Changes
+ *  Rev 1.0  13/April/2013               Himanshu              MAX-POS-RETURN-FES_v1.2.doc requirement.
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ***************************/
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE 
+    name="CaptureCustomerInfo"
+    package="oracle.retail.stores.pos.services.tender.capturecustomerinfo"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Capture Customer Information
+        use case.
+    </COMMENT>
+    <!-- Change for Rev 1.1 :Starts -->
+    <CARGO  class="MAXCaptureCustomerInfoCargo" package="max.retail.stores.pos.services.tender.capturecustomerinfo"/>
+    <!-- Change for Rev 1.1 :Ends -->
+    <SERVICECODE >
+        <LETTER name="Failure"/>
+        <LETTER    name="Next"/>
+        <LETTER    name="Success"/>
+        <LETTER    name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Retry"/>
+
+          <!-- MAX Rev 1.0 Change : Start -->
+        <SITEACTION    class="MAXCaptureCustomerInfoSite" package="max.retail.stores.pos.services.tender.capturecustomerinfo"/>
+        //<!-- MAX Rev 1.0 Change : end -->
+        <SITEACTION class="MAXValidateCustomerInfoSite" package="max.retail.stores.pos.services.tender.capturecustomerinfo"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION region="SERVICE" startsite="CaptureCustomerInfo">
+        
+         <!-- MAX Rev 1.0 Change : Start -->
+            <SITE name="CaptureCustomerInfo" siteaction="MAXCaptureCustomerInfoSite">
+             <!-- MAX Rev 1.0 Change : end -->
+                <ROAD
+                    name="CustomerInfoEntered"
+                    letter="Next"
+                    destination="ValidateCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureFromCapture"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--  Change for Rev 1.1 :Starts -->
+                <ROAD
+                    name="SuccessSelected"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--  Change for Rev 1.1 :Ends -->
+            </SITE>
+            <SITE name="ValidateCustomerInfo" siteaction="MAXValidateCustomerInfoSite">
+                <ROAD
+                    name="CustomerInfoValidated"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerInfoFailed"
+                    letter="Retry"
+                    destination="CaptureCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

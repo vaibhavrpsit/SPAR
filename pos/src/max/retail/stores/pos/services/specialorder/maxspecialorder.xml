@@ -1,0 +1,197 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012 - 2013 MAX, Inc.    All Rights Reserved.
+  Rev 1.1   Feb 16,2016 Nitika Arora    Changes for handling Cancel Menu letter.
+   Rev 1.0	3/06/2013	Izhar	 		Till Threshold
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="specialorder"
+    package="oracle.retail.stores.pos.services.specialorder"
+    tourcam="ON">
+    <COMMENT>
+        This service controls the special order processing new/add. 
+    </COMMENT>
+    <CARGO class="SpecialOrderCargo">
+        <COMMENT>
+            This is the cargo class for the special order service. 
+        </COMMENT>
+    </CARGO>
+    <SERVICECODE>
+    <!-- Letters -->
+    <LETTER name="Modify"/>
+    <LETTER name="Cancel"/>
+    <LETTER name="Undo"/>
+    <LETTER name="New"/>
+    <LETTER name="Failure"/>
+    <LETTER name="Continue"/>
+    <LETTER name="Success"/>
+    <LETTER name="Canceled"/>
+    <LETTER name="Completed"/>
+    <LETTER name="Done"/>
+    <LETTER name="QueueFull"/>
+   <!--MAX Rev 1.0: Change: Start  -->
+       <LETTER name="blockspecialorder"/>
+        <!--MAX Rev 1.0: Change: Start  -->
+    
+    <!-- Lanes -->
+    <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+    <!-- Shuttles -->
+    <SHUTTLE class="SpecialOrderShuttle" package="oracle.retail.stores.pos.services.specialorder"/>
+    <SHUTTLE class="SpecialOrderFindReturnShuttle" package="oracle.retail.stores.pos.services.specialorder"/>
+    <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+     <!--MAX Rev 1.0: Change: Start  -->
+    <SITEACTION class="MAXChooseSpecialOrderOptionSite" package="max.retail.stores.pos.services.specialorder">
+ <!--MAX Rev 1.0: Change: end  -->
+            <COMMENT>
+                Prompt the operator to choose a special order option 
+            </COMMENT>
+        </SITEACTION>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="ChooseSpecialOrderOption">
+        <!--MAX Rev 1.0: Change: Start  -->
+            <SITE name="ChooseSpecialOrderOption" siteaction="MAXChooseSpecialOrderOptionSite">
+                <COMMENT>
+                    Display the options for special order processing - new/find. 
+                </COMMENT>
+                <ROAD
+                    name="SpecialOrderNewSelected"
+                    letter="New"
+                    destination="AddSpecialOrderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        Road to traverse if the operator chooses the New option. 
+                    </COMMENT>
+                </ROAD>
+                
+               <ROAD name="BlockSplOrder"
+                     letter="blockspecialorder"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                         This road is traversed when the user select gift registry.
+                     </COMMENT>
+               </ROAD>
+              <!--MAX Rev 1.0: Change: end  -->
+                <ROAD
+                    name="SpecialOrderFindSelected"
+                    letter="Modify"
+                    destination="OrderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        Road to traverse if the operator chooses the Find option.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoOptionChosen"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the operator chooses the Undo option.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelOptionChosen"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the operator chooses the Cancel option.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelOptionsMenu"
+                    letter="CancelMenu"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the popup menu cancels option.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="AddSpecialOrderStation"
+                servicename="specialorder.add.specialorderadd"
+                targettier="CURRENTTIER"
+                launchshuttle="SpecialOrderShuttle" 
+                returnshuttle="SpecialOrderShuttle">
+                <AISLE
+                    name="ContinueSuccessConversion"
+                    letter="Continue"
+                    laneaction="SuccessConversionAisle">
+                </AISLE>
+               <ROAD 
+               name="AddSpecialOrderFailure" 
+               letter="Failure" 
+               destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD 
+               name="AddSpecialOrderCancel" 
+               letter="Cancel" 
+               destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD 
+               name="AddSpecialOrdernUndo" 
+               letter="Undo" 
+               destination="LastIndexed" tape="REWIND" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD 
+               name="AddSpecialOrderSuccess" 
+               letter="Success" 
+               destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+            </STATION>
+            <STATION
+                name="OrderStation"
+                servicename="services.order.order"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle" 
+                returnshuttle="SpecialOrderFindReturnShuttle">
+               <ROAD 
+                   name="FindSpecialFailure" 
+                   letter="Failure" 
+                   destination="LastIndexed" tape="REWIND" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD 
+                   name="FindSpecialOrderCancel" 
+                   letter="Cancel" 
+                   destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD 
+                   name="FindSpecialOrdernUndo" 
+                   letter="Undo" 
+                   destination="LastIndexed" tape="REWIND" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD 
+                   name="FindSpecialOrderSuccess" 
+                   letter="Success" 
+                   destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                    name="FindSpecialOrderQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

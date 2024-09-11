@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/patriot/captureirscustomeruicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *    cgreene   12/16/09 - add Keys button
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="CaptureIRSCustomerButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ValidateNavigationButtonBean">
+
+    </BEAN>
+    <BEAN
+        specName="CaptureIRSCustomerSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="CaptureIRSCustomerBean">
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="captureCustomerInfoText"
+        specName="CAPTURE_IRS_CUSTOMER">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="CaptureIRSCustomerSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+                propValue="firstNameField,lastNameField,dateOfBirthField,taxpayerIDField,occupationField,addressLine1Field,cityField,postalCodeField"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="CaptureIRSCustomerButtonSpec">
+            <BEANPROPERTY
+                propName="actionName"
+                propValue="Done"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="CaptureIRSCustomerScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="CaptureIRSCustomerPromptText"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+             listenerInterfaceName="ValidateActionListener"
+             listenerPackage="oracle.retail.stores.pos.ui.behavior"
+             sourceBeanSpecName="GlobalNavigationPanelSpec"
+             targetBeanSpecName="CaptureIRSCustomerSpec"/>
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CaptureIRSCustomerSpec"/>
+        <CONNECTION
+            sourceBeanSpecName="CaptureIRSCustomerSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+</UICFG>

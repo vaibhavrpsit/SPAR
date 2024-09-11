@@ -1,0 +1,601 @@
+<?xml version="1.0"?>
+
+<!-- 
+/********************************************************************************
+ *   
+ *	Copyright (c) 2016 - 2017 MAX Hypermarket, Inc    All Rights Reserved.
+ *	
+ *
+ *  Rev 1.1     Sept 11 ,2018       Bhanupriya      Chages done for merge build
+ *	Rev	1.0 	Dec 20, 2016		Mansi Goel		Changes for Gift Card FES	
+ *
+ ********************************************************************************/
+ -->
+
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="GiftCardSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="GiftCardBean">
+    </BEAN>
+
+    <BEAN
+        specName="GiftCardOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            labelTag="Issue"
+            actionName="Issue"
+            enabled="true"
+            keyName="F2" />
+        <BUTTON
+            labelTag="Reload"
+            actionName="Reload"
+            enabled="true"
+            keyName="F3" />
+        <BUTTON
+            labelTag="Balance"
+            actionName="Balance"
+            enabled="true"
+            keyName="F4" />            
+    </BEAN>
+    
+    <!-- Changes for Rev 1.0 : Starts -->
+    <BEAN
+      specName="GiftCardOptionsPopupButtonSpec"
+      configuratorPackage="oracle.retail.stores.pos.ui"
+      configuratorClassName="POSBeanConfigurator"
+      beanPackage="oracle.retail.stores.pos.ui.beans"
+      beanClassName="NavigationButtonBean">
+      <BUTTON
+          labelTag="Issue"
+          actionName="Issue"
+          enabled="true"
+          keyName="F2" />
+
+      <BUTTON
+          labelTag="Reload"
+          actionName="Reload"
+          enabled="true"
+          keyName="F3" />
+          
+      <BUTTON
+          labelTag="Balance"
+          actionName="Balance"
+          enabled="true"
+          keyName="F4" />
+    </BEAN>
+	<!-- Changes for Rev 1.0 : Ends -->
+	
+    <BEAN
+        specName="GiftCardInquiryButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            labelTag="Done"
+            actionName="Done"
+            enabled="true"
+            keyName="F2" />
+        <BUTTON
+            labelTag="Print"
+            actionName="Print"
+            enabled="true"
+            keyName="F3" />            
+    </BEAN>
+    
+    <BEAN
+        specName="GiftCardPinEntryButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            labelTag="Done"
+            actionName="EnteredPin"
+            enabled="false"
+            keyName="F2" />           
+    </BEAN>
+
+    <BEAN
+        specName="GiftCardAmountButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            labelTag="First"
+            actionName="First"
+            enabled="true"
+            keyName="F2" />
+        <BUTTON
+            labelTag="Second"
+            actionName="Second"
+            enabled="true"
+            keyName="F3" />
+        <BUTTON
+            labelTag="Third"
+            actionName="Third"
+            enabled="true"
+            keyName="F4" />
+        <BUTTON
+            labelTag="Fourth"
+            actionName="Fourth"
+            enabled="true"
+            keyName="F5" />
+        <BUTTON
+            labelTag="Fifth"
+            actionName="Fifth"
+            enabled="true"
+            keyName="F6" />
+        <BUTTON
+            labelTag="Sixth"
+            actionName="Sixth"
+            enabled="true"
+            keyName="F7" />
+        <!-- Changes for Rev 1.0 : Starts -->
+        <BUTTON
+            labelTag="Seventh"
+            actionName="Seventh"
+            enabled="true"
+            keyName="F8" />
+        <!-- Changes for Rev 1.0 : Ends -->
+    </BEAN>
+    
+    <BEAN
+        specName="GiftCardInquirySpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="GiftCardInquiryBean">
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="commonText"
+        specName="SELL_GIFT_CARD">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="GiftCardSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SellGiftCardScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="GiftCardPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="26"/>
+            <BEANPROPERTY propName="maxLength" propValue="32"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="giftcardText"
+        specName="GET_AMOUNT_FOR_GIFT_CARD">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+       <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="GiftCardAmountButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardAmountScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardAmountPrompt"/>
+           <BEANPROPERTY
+                propName="enterData" propValue="true"/>
+           <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.NumericTextField"/>
+           <BEANPROPERTY 
+                propName="maxLength" 
+                propValue="9"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="commonText"
+        specName="GET_CARD_NUM_FOR_GIFT_CARD">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="GiftCardSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SellGiftCardScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="GiftCardPrompt"/>
+            <BEANPROPERTY
+                propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="26"/>
+            <BEANPROPERTY propName="maxLength" propValue="36"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+	<!-- Changes for Rev 1.0 : Starts -->
+    <POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="giftcardText"
+        specName="GIFT_CARD_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="GiftCardOptionsPopupButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="giftcardText"
+        specName="GIFT_CARD_OPTIONS_SCREEN">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+		<!-- Changes for Rev 1.0 : Ends -->
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="GiftCardOptionsButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardOptionsPrompt"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="giftcardText"
+        specName="GIFT_CARD_INQUIRY">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="GiftCardInquirySpec">
+        </ASSIGNMENT>
+        
+      <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY propName="buttonStates"
+                          propValue="Help[true],Cancel[false],Undo[true],Clear[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardInquiryScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="GiftCardInquiryButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="InquiryAnotherGiftCardPrompt"/>
+            <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="13"/>
+            <BEANPROPERTY propName="maxLength" propValue="19"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+        
+      <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+    
+        <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="giftcardText"
+        specName="GIFT_CARD_VALIDATING_SCREEN">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardEnquiryScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardValidatingPrompt"/> 
+       </ASSIGNMENT>        
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">            
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[false],Cancel[false],Undo[false],Next[false]"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+    </OVERLAYSCREEN>
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="giftcardText"
+        specName="Gift_CARD_BATCH_CLOASE_SCREEN">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="BatchCloseScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardBatchClosePrompt"/>          
+        </ASSIGNMENT>
+        
+        <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+    </OVERLAYSCREEN>   
+    
+     <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="giftcardText"
+        specName="GIFT_CARD_PIN">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardPinScreenName"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="GiftCardPinEntryButtonSpec">
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">  
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>          
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[false],Clear[false],Cancel[false],Undo[true],Next[false]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardPinPrompt"/>
+            <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            
+            <BEANPROPERTY propName="maxLength" propValue="6"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+            
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>       
+    </OVERLAYSCREEN>
+    
+
+</UICFG>

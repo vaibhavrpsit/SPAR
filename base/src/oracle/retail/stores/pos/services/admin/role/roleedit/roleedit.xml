@@ -1,0 +1,219 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/role/roleedit/roleedit.xml /main/17 2013/05/03 14:57:42 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  05/03/13 - Cancel was failing since incorrect letter was bieng
+ *                         passed backwards
+ *    mchellap  06/29/10 - Added missing lane action tags
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="RoleEditService" package="oracle.retail.stores.pos.services.admin.role.roleedit" tourcam="ON">
+     <COMMENT>
+          This services is used to find and modify roles as part
+          of security.
+     </COMMENT>
+<CARGO class="RoleEditCargo">
+     <COMMENT>
+          This cargo holds the information necessary to Return
+          Options service.
+     </COMMENT>
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Undo"/>
+     <LETTER name="Next"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="DBError"/>
+     <LETTER name="Find"/>
+     <LETTER name="Add"/>
+     <LETTER name="NameError"/>
+
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="DuplicateNameFoundAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="EditRoleNameAcceptAisle"/>
+     <LANEACTION class="ValidateRoleNameAisle"/>
+     <LANEACTION class="RoleNameErrorAisle"/>
+     <LANEACTION class="ReadAllRolesErrorAisle"/>
+     <LANEACTION class="DBErrorOkAisle"/>
+     <LANEACTION class="CancelFindRoleAisle"/>
+     <SITEACTION class="AddRoleNameSite"/>
+     <LANEACTION class="AddRoleNameAcceptAisle"/>
+     <LANEACTION class="AddRoleNameErrorAisle"/>
+     <LANEACTION class="AddRoleErrorOkAisle"/>
+     <SITEACTION class="EditRoleSite"/>
+     <SITEACTION class="FindRoleToEditSite"/>
+     <LANEACTION class="FindRoleAcceptAisle"/>
+     <LANEACTION class="EditRoleAcceptAisle"/>
+     <SITEACTION class="EditRoleNameSite"/>
+     <SITEACTION class="ReadAllRolesSite"/>
+
+     <SHUTTLE class="SetAccessLaunchShuttle" package="oracle.retail.stores.pos.services.admin.role"/>
+     <SHUTTLE class="EditToSetAccessLaunchShuttle" package="oracle.retail.stores.pos.services.admin.role"/>
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="FindRoleToEdit">
+
+          <SITE name="FindRoleToEdit" siteaction="FindRoleToEditSite">
+               <COMMENT>
+                    The user finds a Role to edit.
+               </COMMENT>
+               <AISLE name="FindRoleAccept"
+                         letter="Next"
+                         laneaction="FindRoleAcceptAisle">
+                    <COMMENT>
+                         This aisle is traversed when the user presses the
+                         Accept key.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="FindRoleCancel"
+                        letter="Cancel"
+                        destination="Final"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traversed when find a role is cancelled.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RoleToEditFound"
+                        letter="Success"
+                        destination="EditRoleName"
+                        tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator presses the enter
+                         key.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="FindRoleFailure"
+                        letter="Failure"
+                        destination="Final"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traversed when there is a failure to find
+                         a role.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="FindRoleUndo"
+                        letter="Undo"
+                        destination="Final"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="EditRoleName" siteaction="EditRoleNameSite">
+               <COMMENT>
+                    This site is used to change a role name
+               </COMMENT>
+               <AISLE name="EditRoleNameError"
+                         letter="NameError"
+                         laneaction="DuplicateNameFoundAisle">
+                    <COMMENT>
+                         Traversed when a duplicate name errror occurs.
+                    </COMMENT>
+               </AISLE>              
+               <AISLE name="EditRoleNameAccept"
+                         letter="Next"
+                         laneaction="EditRoleNameAcceptAisle">
+                    <COMMENT>
+                         This aisle is traversed when the user has editted
+                         a role.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="EditRoleNameCancel"
+                        letter="Cancel"
+                        destination="Final"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        This road is traversed when Edit a role name is cancelled.
+                    </COMMENT>
+               </ROAD> 
+               <ROAD name="EditRoleNameFailure"
+                     letter="Failure"
+                        destination="Final"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken when there was a failure to edit
+                         a role.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EditRoleNameUndo"
+                        letter="Undo"
+                        destination="LastIndexed"
+                        tape="REWIND" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken when the user presses the Undo button.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RoleNameEdited"
+                        letter="Success"
+                        destination="SetAccessStation"
+                        tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                         This road is taken when an existing role name/title
+                         has been successfully edited.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="DuplicateRoleErrorOk"
+                       letter="Ok"
+                        destination="EditRoleName"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken if the user presses the "Ok" button
+                         after reading the "Duplicate Role Name Found" error
+                         dialog.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+
+          <STATION name="SetAccessStation"
+                     servicename="role.setaccess.setaccess"
+                     targettier="CURRENTTIER"
+                     launchshuttle="EditToSetAccessLaunchShuttle">
+               <AISLE name="SiteAccessCancel"
+                         letter="Cancel"
+                         laneaction="FailureConversionAisle">
+               </AISLE>
+
+               <ROAD name="SetAccessSuccess"
+                        letter="Success"
+                        destination="Final"
+                        tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+
+               <ROAD name="SetAccessUndo"
+                        letter="Undo"
+                        destination="LastIndexed"
+                        tape="REWIND" record="OFF" index="OFF">
+               </ROAD>
+
+               <ROAD name="SiteAccessFailure"
+                     letter="Failure"
+                        destination="Final"
+                       tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </STATION>
+
+          <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+
+     </REGION>
+</MAP>
+</SERVICE>

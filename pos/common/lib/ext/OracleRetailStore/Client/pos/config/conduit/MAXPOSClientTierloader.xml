@@ -1,0 +1,23 @@
+
+<!DOCTYPE TIERLOADER SYSTEM "classpath://oracle/retail/stores/foundation/config/tierloader.dtd">
+<TIERLOADER>
+	<LOADERS>
+
+
+		<!-- load JMX components; terminal services ipl, management beans, etc. -->
+        <LOADER loaderclass="oracle.retail.stores.foundation.jmx.JMXComponentLoader">
+            <PROPERTY propname="configScript" propvalue="classpath://config/conduit/POSClientJMX.xml"/>
+        </LOADER>
+
+
+		<!-- load the application -->
+		<!--Changes for code merging: Start -->
+        <LOADER loaderclass="oracle.retail.stores.foundation.tour.conduit.DispatcherLoader">
+            <PROPERTY propname="dispatcherScript" propvalue="classpath://config/conduit/MAXClientConduit.xml"/>
+            <PROPERTY propname="rmiHost" propvalue="classpath://config/rmihost.xml"/>
+        </LOADER>
+		<!--Changes for code merging: End -->
+
+
+     </LOADERS>
+</TIERLOADER>

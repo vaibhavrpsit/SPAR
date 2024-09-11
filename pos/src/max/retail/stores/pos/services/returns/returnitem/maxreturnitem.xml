@@ -1,0 +1,904 @@
+<?xml version='1.0' ?>
+<!--
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ************************
+ * Copyright (c) 2016-2017 Max Hypermarket.    All Rights Reserved. 
+ * Rev 1.0  08 Nov, 2016              Nadia              MAX-StoreCredi_Return requirement.
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ***************************/
+
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ItemReturn"
+    package="oracle.retail.stores.pos.services.returns.returnitem"
+    tourcam="OFF">
+    <CARGO  class="ReturnItemCargo"/>
+    <SERVICECODE >
+        <LANEACTION  class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION  class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION  class="GetReturnItemEnteredAisle"/>
+        <LANEACTION  class="GetReturnItemInformationAisle" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION  class="ItemInfoEnteredAisle"/>
+        <LANEACTION  class="ItemPriceCodeInfoEnteredAisle" package="oracle.retail.stores.pos.services.returns.returnitem"/>
+        <LANEACTION  class="LookupPriceCodeAisle"/>
+        <LANEACTION  class="ResetRestockingFeeRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION  class="ResetRestockingFeeAndSetNextItemRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION  class="ReturnSuccessProcessingRoad"/>
+        <LANEACTION  class="SetNextReturnItemRoad"/>
+        <LANEACTION  class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION  class="SuccessLookupPriceCodeRoad"/>
+        <LANEACTION  class="UndoEnterReturnItemRoad"/>
+        <LANEACTION  class="UpdateReturnItemListRoad"/>
+        <LANEACTION  class="ValidateReturnSerialQuantityAisle"/>
+        <LANEACTION  class="CheckIfSizeRequiredAisle"/>
+        <LANEACTION  class="CheckItemReturnableAisle"/>
+        <LANEACTION  class="UndoEnterSizeAisle"/>
+        <LANEACTION  class="ValidateItemSizeAisle" package="oracle.retail.stores.pos.services.returns.returnoptions"/>
+
+        <LETTER  name="Cancel"/>
+        <LETTER  name="Continue"/>
+        <LETTER  name="Done"/>
+        <LETTER  name="Failure"/>
+        <LETTER  name="Timeout"/>
+        <LETTER  name="Clear"/>
+        <LETTER  name="CheckSize"/>
+        <LETTER  name="ActivationCancelled"/>
+        <LETTER  name="GCInquiry"/>
+        <LETTER  name="GiftCard"/>
+        <LETTER  name="GiftReceipt"/>
+        <LETTER  name="IDError"/>
+        <LETTER  name="Invalid"/>
+        <LETTER  name="Kit"/>
+        <LETTER  name="Next"/>
+        <LETTER  name="No"/>
+        <LETTER  name="Ok"/>
+        <LETTER  name="Retry"/>
+        <LETTER  name="Build"/>
+        <LETTER  name="Override"/>
+        <LETTER  name="PriceCode"/>
+        <LETTER  name="ReturnItem"/>
+        <LETTER  name="SalesAssociateFailure"/>
+        <LETTER  name="ShowItem"/>
+        <LETTER  name="Success"/>
+        <LETTER  name="Search"/>
+        <LETTER  name="Size"/>
+        <LETTER  name="Undo"/>
+        <LETTER  name="UnitOfMeasure"/>
+        <LETTER  name="Yes"/>
+        <SHUTTLE  class="GiftCardInquiryLaunchShuttle" package="oracle.retail.stores.pos.services.inquiry.giftcardinquiry"/>
+        <SHUTTLE  class="GiftCardInquiryReturnShuttle"/>
+        <SHUTTLE  class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE  class="ShowKitComponentsLaunchShuttle"/>
+        <SHUTTLE  class="ShowKitComponentsReturnShuttle"/>
+        <SIGNAL  class="IsGiftReceiptItem" package="oracle.retail.stores.pos.services.returns.returnitem"/>
+        <SIGNAL  class="IsNotGiftReceiptItem" package="oracle.retail.stores.pos.services.returns.returnitem"/>
+        <SIGNAL  class="IsThereAnotherItemSignal" />
+        <SIGNAL  class="IsThereNotAnotherItemSignal" />
+        <SIGNAL  class="IsFirstItemInReturnListSignal"/>
+        <SITEACTION  class="AcceptRestockingFeeSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION  class="GiftCardInquirySite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION  class="ApplyRestockingFeeSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION  class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION  class="CheckForKitHeaderItemSite"/>
+        <SITEACTION  class="CheckUnknownGiftCardSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION  class="EnterItemInfoSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION  class="EnterItemPriceCodeInfoSite" package="oracle.retail.stores.pos.services.returns.returnitem"/>
+        <SITEACTION  class="EnterReturnItemInformationSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION  class="EnterReturnItemSite"/>
+        <SITEACTION  class="EnterItemSizeSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION  class="GetSalesAssociateSite"/>
+        <SITEACTION  class="EnterPriceCodeSite"/>
+        <SITEACTION  class="MAXLookupItemSite" package="max.retail.stores.pos.services.common"/>
+        <SITEACTION  class="DetermineReturnTaxSite"/>
+        <LANEACTION  class="DeleteItemRoad"/>
+        <LETTER  name="NotValid"/>
+        <LANEACTION  class="DisplayItemErrorAisle" package="oracle.retail.stores.pos.services.sale"/>
+        <!--12.0.9IN:MMRP related Changes Starts here -->
+        <SHUTTLE  class="MAXMultipleMRPLaunchShuttle" package="max.retail.stores.pos.services.returns.returnitem"/>
+        <SHUTTLE  class="MAXMultipleMRPReturnShuttle" package="max.retail.stores.pos.services.returns.returnitem"/>
+         <!--12.0.9IN:MMRP related Changes Ends here -->
+
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="EnterReturnItem">
+            <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <AISLE
+                    name="ContinueAccessGranted"
+                    letter="Continue"
+                    laneaction="SuccessConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="AccessGranted"
+                    letter="Success"
+                    laneaction="ResetRestockingFeeRoad"
+                    destination="DetermineTax"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                   <LIGHT  signal="IsThereAnotherItemSignal" negate="Y"/>
+
+                </ROAD>
+                <ROAD
+                    name="RestockingFeeSuccessful"
+                    letter="Success"
+                    laneaction="ResetRestockingFeeAndSetNextItemRoad"
+                    destination="EnterReturnItemInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal"/>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="SecurityOverrideSucceded"
+                    letter="Success"
+                    laneaction="ResetRestockingFeeRoad"
+                    destination="DetermineTax"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal" negate="Y"/>
+                </ROAD>
+               <ROAD
+                    name="SecurityOverrideRestockingFeeSuccessful"
+                    letter="Success"
+                    laneaction="ResetRestockingFeeAndSetNextItemRoad"
+                    destination="EnterReturnItemInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal"/>
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="AcceptRestockingFee"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="EnterReturnItem" siteaction="EnterReturnItemSite">
+                <AISLE
+                    name="NextEnterReturnItem"
+                    letter="Next"
+                    laneaction="GetReturnItemEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="CancelReturnItemEntered"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="ContinueEnterReturnItem"
+                    letter="Continue"
+                    destination="LookupItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DoneEnteringReturnItems"
+                    letter="Success"
+                    laneaction="SetNextReturnItemRoad"
+                    destination="EnterReturnItemInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureEnterReturnItem"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ReturnItemTimeout"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidEnterReturnItem"
+                    letter="Invalid"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="UndoEnterReturnItem"
+                    letter="Undo"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ClearReturnItems"
+                    letter="Clear"
+                    laneaction="DeleteItemRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+            </SITE>
+            <STATION
+                name="ShowKitComponents"
+                servicename="returns.returnkit.returnkit"
+                targettier="CURRENTTIER"
+                launchshuttle="ShowKitComponentsLaunchShuttle"
+                returnshuttle="ShowKitComponentsReturnShuttle">
+                <ROAD
+                    name="KitComponentsSuccessful"
+                    letter="Success"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="KitComponentsFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoReturnKitComponent"
+                    letter="Undo"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelReturnKitComponent"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="CheckForKitHeader" siteaction="CheckForKitHeaderItemSite">
+                <ROAD
+                    name="KitHeaderItemFound"
+                    letter="Kit"
+                    destination="ShowKitComponents"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NonKitHeaderItem"
+                    letter="Next"
+                    laneaction="UpdateReturnItemListRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="EnterItemSize" siteaction="EnterItemSizeSite">
+                <AISLE
+                    name="NextEnterReturnItem"
+                    letter="Next"
+                    laneaction="ValidateItemSizeAisle">
+                </AISLE>
+                <ROAD
+                    name="SuccessEnterItemSize"
+                    letter="Search"
+                    destination="CheckForKitHeader"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsNotGiftReceiptItem"/>
+                </ROAD>
+                <ROAD
+                    name="LookupPriceCode"
+                    letter="Search"
+                    destination="EnterPriceCode"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsGiftReceiptItem"/>
+                </ROAD>
+                <ROAD
+                    name="FailureEnterItemSize"
+                    letter="Failure"
+                    destination="EnterItemInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DoneEnterItemSize"
+                    letter="Undo"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                   <LIGHT  signal="IsFirstItemInReturnListSignal" />
+                </ROAD>
+                <ROAD
+                    name="RetryEnterItem"
+                    letter="Undo"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsFirstItemInReturnListSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="GiftCardInquiryEnterItemSize"
+                    letter="GCInquiry"
+                    destination="GiftCardStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelEnterItemSize"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="LookupItem" siteaction="MAXLookupItemSite">
+                <AISLE
+                    name="CheckItemReturnable"
+                    letter="Success"
+                    laneaction="CheckItemReturnableAisle">
+                </AISLE>
+                <AISLE
+                    name="CheckForItemSize"
+                    letter="CheckSize"
+                    laneaction="CheckIfSizeRequiredAisle">
+                </AISLE>
+                <AISLE
+                    name="UnitOfMeasureItemFound"
+                    letter="UnitOfMeasure"
+                    laneaction="CheckItemReturnableAisle">
+                    <LIGHT  signal="IsNotGiftReceiptItem"/>
+                </AISLE>
+                 <AISLE
+                    name="ItemNotFound"
+                    letter="NotValid"
+                    laneaction="DisplayItemErrorAisle">
+                </AISLE>
+                <ROAD
+                    name="ItemNotReturnable"
+                    letter="Invalid"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptUOMItemFound"
+                    letter="UnitOfMeasure"
+                    destination="EnterPriceCode"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsGiftReceiptItem"/>
+                </ROAD>
+                <ROAD
+                    name="RequestSizeInfo"
+                    letter="Size"
+                    destination="EnterItemSize"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ContinueLookupItem"
+                    letter="Continue"
+                    destination="MultipleMRPStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsNotGiftReceiptItem"/>
+                </ROAD>
+                <ROAD
+                    name="ContinueLookupPriceCode"
+                    letter="Continue"
+                    destination="EnterPriceCode"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsGiftReceiptItem"/>
+                </ROAD>
+                <ROAD
+                    name="FailureLookupItem"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptFailureLookupItem"
+                    letter="GiftReceipt"
+                    destination="EnterItemPriceCodeInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardInquiry"
+                    letter="GCInquiry"
+                    destination="GiftCardStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterPriceCode" siteaction="EnterPriceCodeSite">
+                 <AISLE
+                    name="CancelEnterPriceCode"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="ContinueEnterPriceCode"
+                    letter="Next"
+                    laneaction="SuccessLookupPriceCodeRoad"
+                    destination="CheckForKitHeader"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                 </ROAD>
+                <ROAD
+                    name="FailureEnterPriceCode"
+                    letter="Failure"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnterPriceCode"
+                    letter="Undo"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterItemPriceCodeInformation" siteaction="EnterItemPriceCodeInfoSite">
+                <AISLE
+                    name="AcceptEnterItemInformation"
+                    letter="Next"
+                    laneaction="ItemPriceCodeInfoEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="CancelEnterItemInformation"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="UndoEnterItemInformation"
+                    letter="Undo"
+                    destination="EnterReturnItem"
+                    laneaction="UndoEnterReturnItemRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinueEnterItemInformation"
+                    letter="Continue"
+                    laneaction="UpdateReturnItemListRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ErrorOkEnterItemInformation"
+                    letter="Ok"
+                    destination="EnterItemPriceCodeInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureEnterItemInformation"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="EnterItemInformation" siteaction="EnterItemInfoSite">
+                <AISLE
+                    name="AcceptEnterItemInformation"
+                    letter="Next"
+                    laneaction="ItemInfoEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="CancelEnterItemInformation"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="UndoEnterItemInformation"
+                    letter="Undo"
+                    destination="EnterReturnItem"
+                    laneaction="UndoEnterReturnItemRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidItem"
+                    letter="Invalid"
+                    destination="EnterReturnItem"
+                    laneaction="UndoEnterReturnItemRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinueEnterItemInformation"
+                    letter="Continue"
+                    laneaction="UpdateReturnItemListRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ErrorOkEnterItemInformation"
+                    letter="Ok"
+                    destination="EnterItemInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureEnterItemInformation"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterReturnItemInformation" siteaction="EnterReturnItemInformationSite">
+                <AISLE
+                    name="AcceptEnterReturnItemInformation"
+                    letter="Next"
+                    laneaction="GetReturnItemInformationAisle">
+                </AISLE>
+                <AISLE
+                    name="CancelReturnItemInformation"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE
+                    name="ContinueEnterReturnItemInformation"
+                    letter="Continue"
+                    laneaction="ValidateReturnSerialQuantityAisle">
+                </AISLE>
+
+                <ROAD
+                    name="ValidationErrorOkEnterReturnItemInformation"
+                    letter="Ok"
+                    destination="EnterReturnItemInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SuccessEnterReturnItemInformation"
+                    letter="Success"
+                    destination="GetSalesAssociate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidReturnItem"
+                    letter="Invalid"
+                    destination="AcceptRestockingFee"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnterReturnInformation"
+                    letter="Undo"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureEnterReturnItemInformation"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TimeoutEnterReturnItemInformation"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetSalesAssociate" siteaction="GetSalesAssociateSite">
+                <ROAD
+                    name="SuccessAssociateLookup"
+                    letter="Success"
+                    destination="ApplyRestockingFee"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ApplyRestockingFee" siteaction="ApplyRestockingFeeSite">
+                <AISLE
+                    name="RestockingFeeApplied"
+                    letter="Yes"
+                    laneaction="SuccessConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="RestockingFeeDeclined"
+                    letter="No"
+                    destination="CheckAccess"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RestockingFeeAccepted"
+                    letter="Success"
+                    destination="AcceptRestockingFee"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TimeoutRestockingFee"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="AcceptRestockingFee" siteaction="AcceptRestockingFeeSite">
+                <ROAD
+                    name="RestockingFeeSuccessful"
+                    letter="Success"
+                    laneaction="SetNextReturnItemRoad"
+                    destination="EnterReturnItemInformation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal"/>
+                </ROAD>
+                <ROAD
+                    name="RestockingFeeSuccessfulFinal"
+                    letter="Success"
+                    laneaction="ReturnSuccessProcessingRoad"
+                    destination="DetermineTax"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal" negate="Y"/>
+                </ROAD>
+            </SITE>
+
+            <STATION
+                name="GiftCardStation"
+                servicename="inquiry.giftcardinquiry.inquiry"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardInquiryLaunchShuttle"
+                returnshuttle="GiftCardInquiryReturnShuttle">
+                <AISLE
+                    name="CancelGiftCardInquiry"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE
+                    name="ActivationCancelGiftCardInquiry"
+                    letter="ActivationCancelled"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="GiftCardReturnConfirmed"
+                    letter="Next"
+                    destination="CheckUnknownGiftCard"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DoneRetrieveGiftCardInfo"
+                    letter="Done"
+                    destination="CheckUnknownGiftCard"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <ROAD
+                    name="GiftCardInquiryStationContinue"
+                    letter="Failure"
+                    laneaction="UpdateReturnItemListRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal"/>
+                </ROAD>
+                <ROAD
+                    name="GiftCardInquiryStationFinal"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal" negate="Y"/>
+                </ROAD>
+
+                <ROAD
+                    name="GiftCardUndoInquiry"
+                    letter="Undo"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="CheckUnknownGiftCard" siteaction="CheckUnknownGiftCardSite">
+                <AISLE
+                    name="FailureConversion"
+                    letter="Failure"
+                    laneaction="ContinueConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="KnownGiftCardInGiftReceipt"
+                    letter="Success"
+                    destination="EnterPriceCode"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsGiftReceiptItem"/>
+                </ROAD>
+                <ROAD
+                    name="KnownGiftCard"
+                    letter="Success"
+                    destination="CheckForKitHeader"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsGiftReceiptItem" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="GiftCardInquiryFailureContinue"
+                    letter="Continue"
+                    laneaction="UpdateReturnItemListRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal"/>
+                </ROAD>
+                <ROAD
+                    name="GiftCardInquiryFinal"
+                    letter="Continue"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereAnotherItemSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="GiftCardUndoInquiry"
+                    letter="Undo"
+                    laneaction="UndoEnterReturnItemRoad"
+                    destination="EnterReturnItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="DetermineTax" siteaction="DetermineReturnTaxSite">
+                <ROAD
+                    name="DetermineTaxDone"
+                    letter="Success"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+             <STATION
+                name="MultipleMRPStation"
+                servicename="sale.multiplemrp.mrpselection"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXMultipleMRPLaunchShuttle"
+                returnshuttle="MAXMultipleMRPReturnShuttle">
+                <ROAD
+                    name="ContinueItemLookup"
+                    letter="Continue"
+                    destination="CheckForKitHeader"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelMultipleMRP"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoMultipleMRP"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

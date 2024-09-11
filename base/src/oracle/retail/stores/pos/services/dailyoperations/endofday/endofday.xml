@@ -1,0 +1,743 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/endofday/endofday.xml /main/17 2012/03/08 08:56:24 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   11/14/14 - Add Retry road for PrintPreview
+ *    jswan     01/05/12 - Refactor the status change of suspended transaction
+ *                         to occur in a transaction so that status change can
+ *                         be sent to CO as part of DTM.
+ *    vtemker   08/11/11 - Added the Print preview site, to be displayed just
+ *                         before printing
+ *    cgreene   02/15/11 - move constants into interfaces and refactor
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="EndOfDay"
+         package="oracle.retail.stores.pos.services.dailyoperations.endofday"
+         tourcam="OFF">
+     <COMMENT>
+          This service provides all the functionality necessary
+          for closing the store.
+     </COMMENT>
+<CARGO class="EndOfDayCargo"/>
+<SERVICECODE>
+     <LETTER name="Next"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Yes"/>
+     <LETTER name="No"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="HardTotalsError"/>
+     <LETTER name="DbError"/>
+     <LETTER name="Retry"/>
+     <LETTER name="OpenRegisterError"/>
+     <LETTER name="ClosedStoreError"/>
+     <LETTER name="PrintComplete" />
+     <LETTER name="Override" />
+     <LETTER name="OpenTillError"/>
+     <LETTER name="TrainingModeOnly"/>
+
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SHUTTLE class="PosCountSafeLaunchShuttle"/>
+     <SHUTTLE class="PosCountSafeReturnShuttle"/>
+                           
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <SITEACTION class="RetrieveSuspendedTransactionsReportSite" package="oracle.retail.stores.pos.services.manager.registerreports"/>
+     <SITEACTION class="PrintPreviewSite" package="oracle.retail.stores.pos.services.manager.registerreports"/>
+     
+     <SITEACTION class="StoreStatusUpdateSite">
+          <COMMENT>
+               This site sets the Store to closed and writes to the
+               journal.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="PrintReportsSite">
+          <COMMENT>
+               this site deals with printing the automatic till
+               summary report
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="PrintReportSite" package="oracle.retail.stores.pos.services.manager.registerreports">
+          <COMMENT>
+               This site deals with printing the suspended transaction report
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="StoreClosedErrorSite"/>
+     <SITEACTION class="CheckOpenRegisterSite" package="oracle.retail.stores.pos.services.common">
+     </SITEACTION>
+     <SITEACTION class="CheckOfflineSite"/>
+     <SITEACTION class="RegisterOpenErrorSite"/>
+     <SITEACTION class="CheckSuspendedTransactionsSite"/>
+     <SITEACTION class="SuspendedTransactionsReportPromptSite"/>
+     <SITEACTION class="CancelSuspendedTransactionsPromptSite"/>
+     <SITEACTION class="CancelSuspendedTransactionsSite"/>
+     <SITEACTION class="CheckStoreRegistersSite"/>
+     <SITEACTION class="RegistersOpenErrorSite"/>
+     <SITEACTION class="CheckOpenStoreSite" package="oracle.retail.stores.pos.services.common">
+          <COMMENT>
+               This site determines if the store is open
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="StoreUpdateErrorSite"/>
+     <SITEACTION class="JournalStoreStatusSite"/>
+     <SITEACTION class="EndOfDayConfirmSite">
+          <COMMENT>
+               This site confirms the operator's intention to close
+               the store.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="WriteHardTotalsSite" package="oracle.retail.stores.pos.services.common">
+          <COMMENT>
+               This site writes data to the hard totals device.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="SafeCountParamSite"/>
+     
+     <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common">
+     </LANEACTION>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common">
+     </LANEACTION>
+     <LANEACTION class="WriteHardTotalsErrorAisle" package="oracle.retail.stores.pos.services.common">
+          <TRAVERSE>
+               <COMMENT>
+                    This aisle displays an error message when the hard-totals
+                    write fails.
+               </COMMENT>
+          </TRAVERSE>
+     </LANEACTION>
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+     <SITEACTION class="CheckStoreTillsSite"/>
+     <LANEACTION class="TillOpenErrorAisle"/>
+</SERVICECODE>
+
+<MAP>
+     <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD 
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="CheckOpenStore">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD 
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="CheckOpenStore"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+          </STATION>                 
+          <SITE name="CheckOpenStore" siteaction="CheckOpenStoreSite">
+               <COMMENT>
+                    This site determines if the store is open
+               </COMMENT>
+               <ROAD name="StoreIsOpen"
+                     letter="Success"
+                     destination="CheckOpenRegister"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the store is open.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="StoreIsClosed"
+                     letter="Failure"
+                     destination="StoreClosedError"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the store is closed.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="StoreClosedError" siteaction="StoreClosedErrorSite">
+               <AISLE name="StoreClosedErrorAcknowledged"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This aisle is taken when the store is already closed.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="StoreClosedErrorFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the store is already closed.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="CheckOpenRegister" siteaction="CheckOpenRegisterSite">
+               <COMMENT>
+                    This site determines if the current register is open.
+               </COMMENT>
+               <ROAD name="RegisterIsClosed"
+                     letter="Failure"
+                     destination="CheckOffline"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the register is closed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterIsOpen"
+                     letter="Success"
+                     destination="RegisterOpenError"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the register is open.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="RegisterOpenError" siteaction="RegisterOpenErrorSite">
+               <AISLE name="RegisterOpenErrorAcknowledged"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This aisle is taken when the register is open.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="RegisterOpenErrorFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the register is open.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="CheckOffline" siteaction="CheckOfflineSite">
+               <AISLE name="CheckOfflineErrorAcknowledged"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This aisle is taken when the register is already
+                         closed.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="CheckOfflineFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CheckOfflineSuccess"
+                     letter="Success"
+                     destination="CheckStoreRegisters"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CheckStoreRegisters" siteaction="CheckStoreRegistersSite">
+               <AISLE name="DBErrorOk"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This road is taken when registers are open.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="RegistersAreClosed"
+                     letter="Success"
+                     destination="CheckStoreTills"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when all registers are closed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegistersAreOpen"
+                     letter="OpenRegisterError"
+                     destination="RegistersOpenError"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when registers are open.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CheckStoreRegistersFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when registers are open.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="RegistersOpenError" siteaction="RegistersOpenErrorSite">
+               <AISLE name="RegistersOpenErrorAcknowledged"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This road is taken when registers are open.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="RegistersOpenErrorFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when registers are open.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="CheckSuspendedTransactions" siteaction="CheckSuspendedTransactionsSite">
+               <AISLE name="CheckSuspendedTransactionsDbError" 
+                      letter="DbError"
+                      laneaction="DataBaseErrorAisle">
+               </AISLE>
+               <ROAD name="SuspendedTransactionsDbErrorOk"
+                     letter="Ok"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when a database error is acknowledged.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="NoSuspendedTransactions"
+                     letter="Failure"
+                     destination="EndOfDayConfirm"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when no suspended transactions exist.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendedTransactionsExist"
+                     letter="Success"
+                     destination="SuspendedTransactionsReportPrompt"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when suspended transactions exist.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendedTransactionsTrainingModeOnly"
+                     letter="TrainingModeOnly"
+                     destination="CancelSuspendedTransactions"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when all suspended transactions 
+                         were created in training mode.
+                    </COMMENT>
+               </ROAD>
+               
+          </SITE>
+          <SITE name="SuspendedTransactionsReportPrompt" siteaction="SuspendedTransactionsReportPromptSite">
+               <ROAD name="SuspendedTransactionReportPromptYes"
+                     letter="Yes"
+                     destination="RetrieveSuspendedTransactionsReport"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator elects to print a suspended transactions report.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendedTransactionReportPromptNo"
+                     letter="No"
+                     destination="CancelSuspendedTransactionsPrompt"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator elects to bypass the suspended transactions report.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="RetrieveSuspendedTransactionsReport" siteaction="RetrieveSuspendedTransactionsReportSite">
+               <ROAD name="InvalidSuspendedTransactionsReportData" 
+                      letter="Ok" 
+                      destination="Final"
+                      tape="ADVANCE" 
+                      record="ON" 
+                      index="ON">
+                      <COMMENT>
+                        This road is taken when an error occurs reading the suspended transactions report data.
+                      </COMMENT>
+               </ROAD>
+               <ROAD name="ValidSuspendedTransactionsData" 
+                      letter="PrintPreview" 
+                      destination="PrintPreview" 
+                      tape="ADVANCE" 
+                      record="ON" 
+                      index="ON">
+               </ROAD>
+          </SITE>
+          
+          <SITE name="PrintPreview" siteaction="PrintPreviewSite">
+               <ROAD name="PreviewComplete" 
+                      letter="PreviewComplete" 
+                      destination="PrintSuspendedTransactionReport" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="Print" 
+                      letter="Print" 
+                      destination="PrintSuspendedTransactionReport" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="Next" 
+                      letter="Next" 
+                      destination="PrintSuspendedTransactionReport" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="UndoPrintPreview" 
+                      letter="Undo" 
+                      destination="Final" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="CancelPrintPreview" 
+                     letter="Cancel" 
+                     destination="Final" 
+                     tape="ADVANCE" 
+                     record="OFF" 
+                     index="OFF">
+               </ROAD>
+               <ROAD name="DeletePrintPreview" 
+                     letter="Clear" 
+                     destination="Final" 
+                     tape="ADVANCE" 
+                     record="OFF" 
+                     index="OFF">
+               </ROAD>
+               <ROAD name="DonePrintPreview" 
+                      letter="Done" 
+                      destination="PrintSuspendedTransactionReport" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>
+               <ROAD name="RetryPrintPreview" 
+                      letter="Retry" 
+                      destination="PrintPreview" 
+                      tape="ADVANCE" 
+                      record="OFF" 
+                      index="OFF">
+               </ROAD>               
+          </SITE>
+          
+          <SITE name="PrintSuspendedTransactionReport" siteaction="PrintReportSite">
+               <ROAD name="PrintDone" 
+                     letter="PrintComplete" 
+                     destination="CancelSuspendedTransactionsPrompt"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the report prints successfully.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RetryPrintSuspendedTransactionReport" 
+                     letter="Retry" 
+                     destination="PrintSuspendedTransactionReport" 
+                     tape="ADVANCE" 
+                     record="ON" 
+                     index="ON">
+                    <COMMENT>
+                         This aisle is traversed when an error occurs during printing
+                         and the Retry key is pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelPrintReport" 
+                     letter="Cancel" 
+                     destination="Final" 
+                     tape="ADVANCE" 
+                     record="ON" 
+                     index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CancelSuspendedTransactionsPrompt" siteaction="CancelSuspendedTransactionsPromptSite">
+               <AISLE name="CancelSuspendedTransactionsPromptNo" 
+                      letter="No"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This aisle is traversed when the operator elects not to cancel the suspended transactions.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="CancelSuspendedTransactionsPromptYes"
+                     letter="Yes"
+                     destination="CancelSuspendedTransactions"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator elects to cancel the suspended transactions.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelSuspendedTransactionsPromptExit"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator elects not to cancel the suspended transactions.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="CancelSuspendedTransactions" siteaction="CancelSuspendedTransactionsSite">
+               <AISLE name="CancelSuspendedTransactionsDbError" 
+                      letter="DbError"
+                      laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                         This aisle is traversed when a database error occurs.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="CancelSuspendedTransactionsDbErrorOk"
+                     letter="Ok"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when a database error is acknowledged.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelSuspendedTransactionsSuccess"
+                     letter="Success"
+                     destination="EndOfDayConfirm"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the suspended transactions are canceled successfully.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="EndOfDayConfirm" siteaction="EndOfDayConfirmSite">
+               <COMMENT>
+                    This site confirms the operator's intention to close
+                    the store.
+               </COMMENT>
+               <AISLE name="EndOfDayConfirmDbError" 
+                      letter="DbError"
+                      laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                         This aisle is traversed when a database error occurs.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="ContinueEndOfDay"
+                     letter="Next"
+                     destination="SafeCountParam"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator confirms to
+                         continue with the EndOfDay service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EndOfDayUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="EndOfDayCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="EndOfDayConfirmDbErrorOk"
+                     letter="Ok"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when a database error is acknowledged.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="SafeCountParam" siteaction="SafeCountParamSite">
+               <COMMENT>
+                    This site checks the Store Safe count param
+               </COMMENT>
+               <ROAD name="Count"
+                     letter="Yes"
+                     destination="PosCountSafeStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NoCount"
+                     letter="No"
+                     destination="StoreStatusUpdate"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <STATION name="PosCountSafeStation"
+                   servicename="dailyoperations.poscount.poscount"
+                   targettier="CURRENTTIER"
+                   launchshuttle="PosCountSafeLaunchShuttle"
+                   returnshuttle="PosCountSafeReturnShuttle">
+               <ROAD name="SafeCountSucceeded"
+                     letter="Success"
+                     destination="StoreStatusUpdate"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+              <ROAD name="SafeCountUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SafeCountCanceled"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SITE name="StoreStatusUpdate" siteaction="StoreStatusUpdateSite">
+               <COMMENT>
+                    This site sets the Store to closed.
+               </COMMENT>
+               <ROAD name="UpdateSucceeded"
+                     letter="Success"
+                     destination="WriteHardTotals"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the store is successfully
+                         closed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="StoreAlreadyClosed"
+                     letter="ClosedStoreError"
+                     destination="StoreClosedError"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UpdateFailed"
+                     letter="Failure"
+                     destination="StoreUpdateError"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="StoreUpdateError" siteaction="StoreUpdateErrorSite">
+               <AISLE name="StoreUpdateErrorAcknowledged"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="StoreUpdateErrorExit"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="WriteHardTotals" siteaction="WriteHardTotalsSite">
+               <COMMENT>
+                    This site writes to the hard totals device.
+               </COMMENT>
+               <AISLE name="WriteHardTotalsError"
+                      letter="HardTotalsError"
+                      laneaction="WriteHardTotalsErrorAisle">
+                    <COMMENT>
+                         This aisle displays a message when the hard-totals
+                         write fails.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="WriteHardTotalsExit"
+                      letter="Ok"
+                      laneaction="SuccessConversionAisle">
+                    <COMMENT>
+                         Road to traverse when an error occurs writing to
+                         the hard totals.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="WriteHardTotalsComplete"
+                     letter="Success"
+                     destination="JournalStoreStatus"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        This road is taken when the hard-totals write is
+                        complete.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="JournalStoreStatus" siteaction="JournalStoreStatusSite">
+               <ROAD name="JournalContinue"
+                     letter="Continue"
+                     destination="PrintReport"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="PrintReport" siteaction="PrintReportsSite">
+               <COMMENT>
+                    this site deals with printing the automatic till
+                    summary report
+               </COMMENT>
+               <AISLE name="PrintReportFailureConversion"
+                      letter="Continue"
+                      laneaction="SuccessConversionAisle">
+               </AISLE>
+               <AISLE name="PrintReportDatabaseFailureConversion"
+                      letter="Ok"
+                      laneaction="SuccessConversionAisle">
+               </AISLE>
+               <ROAD name="RetryPrintReport"
+                     letter="Retry"
+                     destination="PrintReport"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="ReportPrinted"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          
+          <SITE name="CheckStoreTills" siteaction="CheckStoreTillsSite">
+               <AISLE name="CheckStoreTillsDbError"
+                      letter="DbError"
+                      laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                         This road is taken when there is database error.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="CheckStoreTillsOpenTillError"
+                      letter="OpenTillError"
+                      laneaction="TillOpenErrorAisle">
+                    <COMMENT>
+                         This road is taken when there is a till open.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="CheckStoreTillsOk"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+               </AISLE> 
+               <ROAD name="CheckStoreTillsSuccess"
+                     letter="Success"
+                     destination="CheckSuspendedTransactions"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when all tills are closed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CheckStoreTillsFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when tills are open.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          
+          <SYSTEMSITE name="Final" action="RETURN"/>
+     </REGION>
+</MAP>
+</SERVICE>

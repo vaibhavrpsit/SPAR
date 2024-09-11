@@ -1,0 +1,1603 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/till/tilloptions/tilloptions.xml /main/29 2014/07/09 13:10:48 icole Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole     06/26/14 - Forward port fix for handling the condition of two
+ *                         registers opened with same till with one or both
+ *                         offline at time of open.
+ *    mkutiana  09/06/13 - Till reconcile cancel Esc sliding buttons issue
+ *                         fixed
+ *    mkutiana  08/06/13 - Fixed Sliding button issue -On TillReconcileSuccess
+ *                         going to Final
+ *    mkutiana  08/06/13 - fixed sliding button issue for till open undo
+ *    cgreene   06/26/13 - corrected cancel path when canceling from resume if
+ *                         store is closed.
+ *    yiqzhao   06/25/13 - Avoid sliding buttons when register error dialog
+ *                         displayed and ok button clicked on the dialog.
+ *    mkutiana  05/09/13 - Fixed tour error when cancel on RegisterOpenDialog
+ *                         selected
+ *    subrdey   04/10/13 - Added Roads
+ *                         TillPayOutFailures,TillPayInFailures,TillPickupFailures,TillFailures
+ *                         and TillLoanContinue,TillPickupContinue.
+ *    cgreene   02/06/13 - Fixed site flow per the changes in the till options
+ *                         menuing
+ *    mchellap  09/12/11 - Renamed TillReconcile letter to match name in
+ *                         CommonActionIfc
+ *    vtemker   07/26/11 - Added the TillCloseConfirmedNo road
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    cgreene   02/24/10 - added Offline letter for return from TillOpen
+ *    vapartha  01/20/10 - Changed code to avoid poslog miss in case of Timeout
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="TillOptions"
+    package="oracle.retail.stores.pos.services.dailyoperations.till.tilloptions"
+    tourcam="OFF">
+    <COMMENT>
+        This services routes the user to the various services
+        available through the Till Options screen.
+    </COMMENT>
+    <CARGO class="TillOptionsCargo">
+        <COMMENT>
+            This cargo holds the information necessary to Till
+            Options service.
+        </COMMENT>
+    </CARGO>
+    <SERVICECODE>
+        <LETTER name="Success"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Options"/>
+        <LETTER name="Functions"/>
+        <LETTER name="TillPayOut"/>
+        <LETTER name="TillPickup"/>
+        <LETTER name="TillPayIn"/>
+        <LETTER name="TillSuspend"/>
+        <LETTER name="TillOpen"/>
+        <LETTER name="TillResume"/>
+        <LETTER name="TillLoan"/>
+        <LETTER name="TillClose"/>
+        <LETTER name="Reconcile"/>
+        <LETTER name="ParameterError"/>
+        <LETTER name="ResetHardTotals"/>
+        <LETTER name="InvalidRegister"/>
+    	<LETTER name="LogoffSuccess"/>
+    	<LETTER name="Logoff"/>
+    	<LETTER name="QueueFull"/>
+
+    <SITEACTION class="DisplayTillFunctionsSite">
+            <COMMENT>
+                This is called from the Sale package when the Till
+                Functions button is pressed.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="DisplayTillOptionsSite">
+            <COMMENT>
+                This site displays the options available from the
+                Till Options screen.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="DetermineTillSelectionSite">
+            <COMMENT>
+                Till options makes decision of which options to display
+                depending on the calling service.
+            </COMMENT>
+        </SITEACTION>
+         <SITEACTION class="LookupStoreStatusSite" package="oracle.retail.stores.pos.services.dailyoperations.common">
+              <COMMENT>
+                   This site causes the store status record to be looked up.
+              </COMMENT>
+         </SITEACTION>
+         <SITEACTION class="LookupRegisterSite" package="oracle.retail.stores.pos.services.dailyoperations.common">
+              <COMMENT>
+                   This site causes the register record to be looked up.
+              </COMMENT>
+         </SITEACTION>
+        <SITEACTION class="SaveCanceledTransactionSite" package="oracle.retail.stores.pos.services.common">
+              <COMMENT>
+                 This site saves the cancelled transactions.
+                  </COMMENT>
+        </SITEACTION>
+
+         <LANEACTION class="TillCloseSuccessRoad"/>
+         <LANEACTION class="InvalidTillRegisterErrorAisle" package="oracle.retail.stores.pos.services.dailyoperations.till.tilloptions"/>             
+         <LANEACTION class="LookupRegisterParameterErrorAisle" package="oracle.retail.stores.pos.services.dailyoperations.common">
+          <TRAVERSE>
+               <COMMENT>
+                    This aisle displays a parameter error message.
+               </COMMENT>
+          </TRAVERSE>
+         </LANEACTION>
+         <LANEACTION class="LogoffSuccessLetterAisle" package="oracle.retail.stores.pos.services.logoff"/>
+         <LANEACTION class="UpdateTillStatusRoad"/>
+
+        <SHUTTLE class="TillCloseReturnShuttle"/>
+        <SHUTTLE class="TillCloseLaunchShuttle"/>
+        <SHUTTLE class="TillReconcileLaunchShuttle"/>
+        <SHUTTLE class="TillPickupReturnShuttle"/>
+        <SHUTTLE class="TillResumeReturnShuttle"/>
+        <SHUTTLE class="TillLoanReturnShuttle"/>
+        <SHUTTLE class="TillSuspendReturnShuttle"/>
+        <SHUTTLE class="TillPayOutReturnShuttle"/>
+        <SHUTTLE class="TillPayInReturnShuttle"/>
+        <SHUTTLE class="ResetHardTotalsLaunchShuttle" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+        <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="DetermineTillSelection">
+            <SITE name="DetermineTillSelection" siteaction="DetermineTillSelectionSite">
+                <COMMENT>
+                    This site displays the options available from the
+                    Till Functions screen, accessed from the sell item
+                    or from daily ops screen.
+                </COMMENT>
+                <ROAD
+                    name="TillOptionsSelected"
+                    letter="Options"
+                    destination="DisplayTillOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled to determine if the calling
+                        service wants the Till Options option screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillFunctionsSelected"
+                    letter="Functions"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled to determine if the calling
+                        service wants the Till Functions option screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayTillFunctions" siteaction="DisplayTillFunctionsSite">
+                <COMMENT>
+                    This site displays the options available from the
+                    Till Functions screen, accessed from the sell item
+                    screen.
+                </COMMENT>
+                <ROAD
+                    name="TillFunctionsCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled when the user presses the Undo
+                        key from the Till Fuctions option screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillFunctionsUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled when the user presses the Undo
+                        key from the Till Fuctions option screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPickupSelected"
+                    letter="TillPickup"
+                    destination="TillPickupStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the Pickup
+                        option from the Till Functions screen
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillLoanSelected"
+                    letter="TillLoan"
+                    destination="TillLoanStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the Loan
+                        option from the Till Functions screen
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayInSelected"
+                    letter="TillPayIn"
+                    destination="TillPayInStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the PayIn
+                        option from the Till Functions screen
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayOutSelected"
+                    letter="TillPayOut"
+                    destination="TillPayOutStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the PayOut
+                        option from the Till Functions screen
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayrollPayOutSelected"
+                    letter="TillPayrollPayOut"
+                    destination="TillPayrollPayOutStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="LogoffSelected"
+                    letter="Logoff"
+                    destination="LogoffStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the Logoff
+                        option from the Till functions screen
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayTillOptions" siteaction="DisplayTillOptionsSite">
+                <COMMENT>
+                    This site displays the options available from the
+                    Till Options screen.
+                </COMMENT>
+                <ROAD
+                    name="UndoTillOptions"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled when the user presses the Undo
+                        key from the Till Options option screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillOpenSelected"
+                    letter="TillOpen"
+                    destination="LookupStoreStatusForTO"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the Open
+                        option from the Till Options screen
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillCloseSelected"
+                    letter="TillClose"
+                    destination="LookupStoreStatusForTC"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the Close
+                        option from the Till Options screen
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillSuspendSelected"
+                    letter="TillSuspend"
+                    destination="LookupStoreStatusForTS"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the Suspend
+                        option from the Till Options screen
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillResumeSelected"
+                    letter="TillResume"
+                    destination="LookupStoreStatusForTR"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the Resume
+                        option from the Till Options screen
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillReconcileSelected"
+                    letter="Reconcile"
+                    destination="LookupStoreStatusForReconcile"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the operator selects the Reconcile
+                        option from the Till Options screen
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="LookupStoreStatusForTO" siteaction="LookupStoreStatusSite">
+                <COMMENT>
+                    This site looks up store status data.
+                </COMMENT>
+                <ROAD
+                    name="LookupStoreStatusContinueTO"
+                    letter="Continue"
+                    destination="LookupRegisterForTO"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a store-status lookup is complete
+                        and only one or no business dates were found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ResetHardTotalsRoadTO"
+                    letter="ResetHardTotals"
+                    destination="ResetHardTotalsStationTO"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LookupStoreStatusExitTO"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ResetHardTotalsStationTO"
+                servicename="admin.resethardtotals.resethardtotals"
+                targettier="CURRENTTIER"
+                launchshuttle="ResetHardTotalsLaunchShuttle">
+                <ROAD
+                    name="HardTotalsResetTO"
+                    letter="Continue"
+                    destination="LookupRegisterForTO"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE name="LookupRegisterForTO" siteaction="LookupRegisterSite">
+                <COMMENT>
+                    This site looks up register data.
+                </COMMENT>
+                <AISLE
+                    name="LookupRegisterParameterErrorTO"
+                    letter="ParameterError"
+                    laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                        Aisle to traverse when there is a parameter error
+                        while determining the workstation ID. If no workstation
+                        ID is available from the hard totals, the service
+                        terminates.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LookupRegisterExitTO"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterContinueTO"
+                    letter="Continue"
+                    destination="TillOpenStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+                <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+                </AISLE>                           
+            </SITE>
+            <STATION
+                name="TillOpenStation"
+                servicename="till.tillopen.tillopen"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="FinancialCargoShuttle">
+                <ROAD
+                    name="TillOpenSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till has been opened.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillOpenFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till was not opened successfully.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillOpenUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillOpenCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillOpenOffline"
+                    letter="Offline"
+                    destination="DisplayTillOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillOpenNo"
+                    letter="No"
+                    destination="DisplayTillOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE name="LookupStoreStatusForTC" siteaction="LookupStoreStatusSite">
+                <COMMENT>
+                    This site looks up store status data.
+                </COMMENT>
+                <ROAD
+                    name="LookupStoreStatusContinueTC"
+                    letter="Continue"
+                    destination="LookupRegisterForTC"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a store-status lookup is complete
+                        and only one or no business dates were found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ResetHardTotalsRoadTC"
+                    letter="ResetHardTotals"
+                    destination="ResetHardTotalsStationTC"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LookupStoreStatusExitTC"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+
+            <SITE name="LookupStoreStatusForReconcile" siteaction="LookupStoreStatusSite">
+                <COMMENT>
+                    This site looks up store status data.
+                </COMMENT>
+                <ROAD
+                    name="LookupStoreStatusContinueReconcile"
+                    letter="Continue"
+                    destination="LookupRegisterForReconcile"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a store-status lookup is complete
+                        and only one or no business dates were found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ResetHardTotalsRoadReconcile"
+                    letter="ResetHardTotals"
+                    destination="ResetHardTotalsStationReconcile"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LookupStoreStatusExitReconcile"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+
+
+            <STATION
+                name="ResetHardTotalsStationTC"
+                servicename="admin.resethardtotals.resethardtotals"
+                targettier="CURRENTTIER"
+                launchshuttle="ResetHardTotalsLaunchShuttle">
+                <ROAD
+                    name="HardTotalsResetTC"
+                    letter="Continue"
+                    destination="LookupRegisterForTC"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+
+
+            <STATION
+                name="ResetHardTotalsStationReconcile"
+                servicename="admin.resethardtotals.resethardtotals"
+                targettier="CURRENTTIER"
+                launchshuttle="ResetHardTotalsLaunchShuttle">
+                <ROAD
+                    name="HardTotalsResetReconcile"
+                    letter="Continue"
+                    destination="LookupRegisterForReconcile"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+
+
+
+            <SITE name="LookupRegisterForTC" siteaction="LookupRegisterSite">
+                <COMMENT>
+                    This site looks up register data.
+                </COMMENT>
+                <AISLE
+                    name="LookupRegisterParameterErrorTC"
+                    letter="ParameterError"
+                    laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                        Aisle to traverse when there is a parameter error
+                        while determining the workstation ID. If no workstation
+                        ID is available from the hard totals, the service
+                        terminates.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+                </AISLE>                
+                <ROAD
+                    name="LookupRegisterExitTC"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterContinueTC"
+                    letter="Continue"
+                    destination="TillCloseStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+
+            <SITE name="LookupRegisterForReconcile" siteaction="LookupRegisterSite">
+                <COMMENT>
+                    This site looks up register data.
+                </COMMENT>
+                <AISLE
+                    name="LookupRegisterParameterErrorReconcile"
+                    letter="ParameterError"
+                    laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                        Aisle to traverse when there is a parameter error
+                        while determining the workstation ID. If no workstation
+                        ID is available from the hard totals, the service
+                        terminates.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LookupRegisterExitReconcile"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterContinueReconcile"
+                    letter="Continue"
+                    destination="TillReconcileStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+                <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+                </AISLE>                
+            </SITE>
+
+            <STATION
+                name="TillCloseStation"
+                servicename="till.tillclose.tillclose"
+                targettier="CURRENTTIER"
+                launchshuttle="TillCloseLaunchShuttle"
+                returnshuttle="TillCloseReturnShuttle">
+                <ROAD
+                    name="TillCloseSuccess"
+                    letter="Success"
+                    laneaction="TillCloseSuccessRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till has been successfully
+                        closed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillCloseFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till was not closed successfully.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillCloseUndo"
+                    letter="Undo"
+                    laneaction="UpdateTillStatusRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillCloseConfirmedNo"
+                    letter="No"
+                    laneaction="UpdateTillStatusRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                
+                <ROAD
+                    name="TillCloseCancel"
+                    letter="Cancel"
+                    laneaction="UpdateTillStatusRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillCloseQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+
+
+
+
+
+            <STATION
+                name="TillReconcileStation"
+                servicename="till.tillreconcile.tillreconcile"
+                targettier="CURRENTTIER"
+                launchshuttle="TillReconcileLaunchShuttle"
+                returnshuttle="TillCloseReturnShuttle">
+                <ROAD
+                    name="TillReconcileSuccess"
+                    letter="Success"
+                    laneaction="TillCloseSuccessRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till has been successfully
+                        reconciled.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillReconcileFailure"
+                    letter="Failure"
+                    laneaction="UpdateTillStatusRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till was not reconciled successfully.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillReconcileUndo"
+                    letter="Undo"
+                    laneaction="UpdateTillStatusRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillReconcileCancel"
+                    letter="Cancel"
+                    laneaction="UpdateTillStatusRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillReconcileNo"
+                    letter="No"
+                    laneaction="UpdateTillStatusRoad"
+                    destination="DisplayTillOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillReconcileQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+
+
+
+            <SITE name="LookupStoreStatusForTS" siteaction="LookupStoreStatusSite">
+                <COMMENT>
+                    This site looks up store status data.
+                </COMMENT>
+                <ROAD
+                    name="LookupStoreStatusContinueTS"
+                    letter="Continue"
+                    destination="LookupRegisterForTS"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a store-status lookup is complete
+                        and only one or no business dates were found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ResetHardTotalsRoadTS"
+                    letter="ResetHardTotals"
+                    destination="ResetHardTotalsStationTS"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LookupStoreStatusExitTS"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ResetHardTotalsStationTS"
+                servicename="admin.resethardtotals.resethardtotals"
+                targettier="CURRENTTIER"
+                launchshuttle="ResetHardTotalsLaunchShuttle">
+                <ROAD
+                    name="HardTotalsResetTS"
+                    letter="Continue"
+                    destination="LookupRegisterForTS"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE name="LookupRegisterForTS" siteaction="LookupRegisterSite">
+                <COMMENT>
+                    This site looks up register data.
+                </COMMENT>
+                <AISLE
+                    name="LookupRegisterParameterErrorTS"
+                    letter="ParameterError"
+                    laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                        Aisle to traverse when there is a parameter error
+                        while determining the workstation ID. If no workstation
+                        ID is available from the hard totals, the service
+                        terminates.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LookupRegisterExitTS"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterContinueTS"
+                    letter="Continue"
+                    destination="TillSuspendStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+                <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+                </AISLE>                
+            </SITE>
+            <STATION
+                name="TillSuspendStation"
+                servicename="till.tillsuspend.tillsuspend"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="TillSuspendReturnShuttle">
+                <ROAD
+                    name="TillSuspendSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till has been suspended.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillSuspendFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till was not suspended
+                        successfully.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillSuspendCancel"
+                    letter="Cancel"
+                    destination="DisplayTillOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillSuspendQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE name="LookupStoreStatusForTR" siteaction="LookupStoreStatusSite">
+                <COMMENT>
+                    This site looks up store status data.
+                </COMMENT>
+                <ROAD
+                    name="LookupStoreStatusContinueTR"
+                    letter="Continue"
+                    destination="LookupRegisterForTR"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a store-status lookup is complete
+                        and only one or no business dates were found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ResetHardTotalsRoadTR"
+                    letter="ResetHardTotals"
+                    destination="ResetHardTotalsStationTR"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LookupStoreStatusExitTR"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ResetHardTotalsStationTR"
+                servicename="admin.resethardtotals.resethardtotals"
+                targettier="CURRENTTIER"
+                launchshuttle="ResetHardTotalsLaunchShuttle">
+                <ROAD
+                    name="HardTotalsResetTR"
+                    letter="Continue"
+                    destination="LookupRegisterForTR"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE name="LookupRegisterForTR" siteaction="LookupRegisterSite">
+                <COMMENT>
+                    This site looks up register data.
+                </COMMENT>
+                <AISLE
+                    name="LookupRegisterParameterErrorTR"
+                    letter="ParameterError"
+                    laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                        Aisle to traverse when there is a parameter error
+                        while determining the workstation ID. If no workstation
+                        ID is available from the hard totals, the service
+                        terminates.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LookupRegisterExitTR"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterContinueTR"
+                    letter="Continue"
+                    destination="TillResumeStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+                <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+                </AISLE>              
+            </SITE>
+            <STATION
+                name="TillResumeStation"
+                servicename="till.tillresume.tillresume"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="TillResumeReturnShuttle">
+                <ROAD
+                    name="TillResumeSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till has been resumed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillResumeFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when the till was not resumed successfully.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillResumeUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when undo is selected
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillResumeCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+				<ROAD
+                    name="TillResumeQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="TillLoanStation"
+                servicename="till.tillloan.tillloan"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="TillLoanReturnShuttle">
+                <ROAD
+                    name="TillLoanSuccess"
+                    letter="Success"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till loan is successful.
+                    </COMMENT>
+                </ROAD>                
+                 <ROAD
+                    name="TillLoanContinue"
+                    letter="Continue"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till loan is successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillFailure"
+                    letter="Failure"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till loan is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillFailures"
+                    letter="FailureTill"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till loan is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillLoanCancel"
+                    letter="Cancel"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillLoanUndo"
+                    letter="Undo"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when undo is selected
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillLoanQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="TillPickupStation"
+                servicename="till.tillpickup.tillpickup"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="TillPickupReturnShuttle">
+                <ROAD
+                    name="TillPickupSuccess"
+                    letter="Success"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till pickup is successful.
+                    </COMMENT>
+                </ROAD>                
+                <ROAD
+                    name="TillPickupContinue"
+                    letter="Continue"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till pickup is successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPickupFailure"
+                    letter="Failure"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till pickup is not successful.
+                    </COMMENT>
+                </ROAD>
+                 <ROAD
+                    name="TillPickupFailures"
+                    letter="FailureTill"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till pickup is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPickupCancel"
+                    letter="Cancel"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillPickupUndo"
+                    letter="Undo"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when undo is selected
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+			         name="TimeoutTillPickupStation"
+			         letter="Timeout"
+			         destination="SaveCancelTransaction"
+			         tape="ADVANCE"
+			         record="OFF"
+			         index="OFF">
+			    </ROAD>
+			    <ROAD
+                    name="TillPickupQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE  name="SaveCancelTransaction" siteaction="SaveCanceledTransactionSite">
+                <COMMENT >
+                    This site saves the current canceled transaction.
+                </COMMENT>
+                <ROAD
+                    name="TransactionCanceled"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="TillPayInStation"
+                servicename="till.tillpayin.tillpayin"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="FinancialCargoShuttle">
+                <ROAD
+                    name="TillPayInSuccess"
+                    letter="Continue"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till PayIn is successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayInFailure"
+                    letter="Failure"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till PayIn is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayInFailures"
+                    letter="FailureTill"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till PayIn is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayInCancel"
+                    letter="Cancel"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillPayInUndo"
+                    letter="Undo"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when undo is selected
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayInQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="TillPayOutStation"
+                servicename="till.tillpayout.tillpayout"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="FinancialCargoShuttle">
+                <ROAD
+                    name="TillPayOutSuccess"
+                    letter="Continue"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till pickup is successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayOutFailure"
+                    letter="Failure"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till pickup is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayOutFailures"
+                    letter="FailureTill"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till PayIn is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayOutCancel"
+                    letter="Cancel"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillPayOutUndo"
+                    letter="Undo"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when undo is selected
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayOutQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="TillPayrollPayOutStation"
+                servicename="till.tillpayrollpayout.tillpayrollpayout"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="FinancialCargoShuttle">
+                <ROAD
+                    name="TillPayOutSuccess"
+                    letter="Continue"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till pickup is successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayOutFailure"
+                    letter="Failure"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till pickup is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD  
+                    name="TillPayOutFailures"
+                    letter="FailureTill"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when a till PayIn is not successful.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayOutCancel"
+                    letter="Cancel"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillPayOutUndo"
+                    letter="Undo"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is taken when undo is selected
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillPayOutQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="LogoffStation"
+                servicename="services.logoff.Logoff"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="FinancialCargoShuttle">
+                <COMMENT>
+                    This road is taken when the cashier tries to logoff.
+                </COMMENT>
+                <ROAD
+                    name="LogoffSuccessful"
+                    letter="Logoff"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LogoffFailure"
+                    letter="Failure"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LogoffCancel"
+                    letter="Cancel"
+                    destination="DisplayTillFunctions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

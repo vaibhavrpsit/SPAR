@@ -1,0 +1,614 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/xchannelcreateshipping/xchannelcreateshipping.xml /main/15 2014/06/10 12:04:10 abhinavs Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   10/02/14 - Add StoreMaximumMatches checking
+ *    abhinavs  06/09/14 - CAE add available date during order create
+ *                         enhancement phase II
+ *    yiqzhao   05/10/13 - Fix Store Server offline issue.
+ *    vbongu    03/20/13 - Changed road SelectStoreForShipUndo destination to
+ *                         LastIndexed instead of Final
+ *    yiqzhao   03/13/13 - Add reason code for shipping charge override for
+ *                         cross channel and store send.
+ *    yiqzhao   03/05/13 - Add Shipping Charge to EJ.
+ *    yiqzhao   11/09/12 - Enable cancel and delete buttons on global
+ *                         navigation panel.
+ *    yiqzhao   10/22/12 - Create an order after skip destination tax rules for
+ *                         VAT.
+ *    yiqzhao   10/19/12 - Refactor to use DestinationTaxRule station to get
+ *                         line item tax from xchannel shipping destination
+ *                         postal code.
+ *    yiqzhao   09/17/12 - set customer info from linked customer.
+ *    yiqzhao   08/01/12 - Remove unused site TempDisplayErrorSite.
+ *    yiqzhao   07/06/12 - merge with the previous transactions.
+ *    yiqzhao   07/06/12 - remove unnecessary roads
+ *    yiqzhao   07/05/12 - Add ship item list on DisplayShippingMethod screen.
+ *    yiqzhao   07/03/12 - Modify Undo road for RetrieveStoreGroupSite
+ *    yiqzhao   07/02/12 - Read text from orderText bundle file and define
+ *                         screen names
+ *    sgu       06/27/12 - modify ship to store for xc
+ *    jswan     05/14/12 - Added to support the Ship button functionality.
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="xchannelcreateshipping" package="oracle.retail.stores.pos.services.order.xchannelcreateshipping"
+    tourcam="ON">
+    <!-- Cargo class will have to change -->
+    <CARGO class="XChannelShippingCargo" package="oracle.retail.stores.pos.services.order.xchannelcreateshipping" />
+    <SERVICECODE>
+        <LETTER name="Customer"/>
+        <LETTER name="ShipToStore"/>
+        <LETTER name="Ship"/>
+        <LETTER name="StoreSearch"/>
+        <LETTER name="Select"/>
+        <LETTER name="New"/>
+        <LETTER name="Success"/>
+        <LETTER name="Error"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Next"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Done"/>
+        <LETTER name="MultipleMatches"/>
+        <LETTER name="NotFound"/>
+        <LETTER name="TooManyMatches"/>        
+
+        <SITEACTION class="VerifyCustomerLinkActionSite"/>
+        <SITEACTION class="ShippingInformationSite"/>
+        <SITEACTION class="DisplayShippingMethodsSite"/>
+        <SITEACTION class="DisplayCustomerAddressBookSite"/>
+        <SITEACTION class="RetrieveStoreGroupSite"/>
+        <SITEACTION class="SelectShippingMethodSite"/>
+        <SITEACTION class="SelectStoreForShipSite"/>
+        <SITEACTION class="AddShippingChargeLineItemSite"/>
+        <SITEACTION class="EnterShipToStoreCustomerInfo"/>
+        <SITEACTION class="EnterShipCustomerInfoSite"/>
+        <SITEACTION class="EnterStoreSearchCriteriaSite"/>
+        <SITEACTION class="GetShippingOptionSite"/>
+        <SITEACTION class="CreateShipOrderSite"/>
+        <SITEACTION class="GetVatRulesSite"/>
+        <SITEACTION class="GetDestinationTaxRuleSite"/>
+        <SITEACTION class="UpdateLineItemTaxRuleSite"/>
+        <SITEACTION class="CheckShippingChargeChangedSite"/>
+        <SITEACTION class="DisplayStoreShippingOptionsSite"/>    
+        <SITEACTION class="SelectStoreShippingOptionSite"/>        
+
+        <LANEACTION class="RetrieveStoreByCriteriaAisle"/>
+        <LANEACTION class="DoneLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="JournalCustomerInformationRoad"/>
+        <LANEACTION class="OrderOfflineAisle" package="oracle.retail.stores.pos.services.order.common"/>
+        <LANEACTION class="ItemAddedRoad" package="oracle.retail.stores.pos.services.sale"/>
+
+        <SHUTTLE class="XChannelShipCustomerLaunchShuttle"/>
+        <SHUTTLE class="XChannelShipCustomerReturnShuttle"/>
+        <SHUTTLE class="XChannelShipDestinationTaxRuleLaunchShuttle"/>
+        <SHUTTLE class="XChannelShipDestinationTaxRuleReturnShuttle"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="VerifyLinkCustomer">
+             <SITE name="VerifyLinkCustomer" siteaction="VerifyCustomerLinkActionSite">
+                <ROAD name="CustomerNotLinked"
+                      letter="Ship"
+                      destination="ShipInfo"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="CustomerLinked"
+                      letter="Continue"
+                      destination="DisplayCustomerAddressBook"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="ShipInfo" siteaction="ShippingInformationSite">
+                <ROAD name="ShipToStore"
+                      letter="ShipToStore"
+                      destination="RetrieveStoreGroup"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="ShipToCustomer"
+                      letter="Customer"
+                      destination="CustomerStation"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="EnteredShippingAddress"
+                      letter="Next"
+                      destination="GetShippingOption"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="ShippingInformationCancelled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                
+                <ROAD name="EnteredShippingAddressUndo"
+                      letter="Undo"
+                      destination="Final"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>            
+            <SITE name="GetShippingOption" siteaction="GetShippingOptionSite">
+                <ROAD name="GetCustomerShippingOptions"
+                      letter="Customer"
+                      destination="DisplayShippingMethods"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="GetStoreShippingOptions"
+                      letter="ShipToStore"
+                      destination="DisplayStoreShippingMethods"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="ErrorOccurs"
+                      letter="Error"
+                      destination="ShipInfo"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="RetrieveStoreGroup" siteaction="RetrieveStoreGroupSite">
+                <ROAD name="SelectStoreForShip"
+                      letter="Success"
+                      destination="SelectStoreForShip"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="UndoSelected"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="RetrieveStoreGroupCancelled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD> 
+                <ROAD name="RetrieveStoreGroupOffline"
+                      letter="Error"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                               
+            </SITE>
+            <SITE name="SelectStoreForShip" siteaction="SelectStoreForShipSite">
+                <ROAD name="SelectStoreForShip"
+                      letter="Next"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="SelectStoreForShip"
+                      letter="Ship"
+                      destination="EnterShipToStoreCustomerInfo"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="SelectStoreForShipSearch"
+                      letter="StoreSearch"
+                      destination="EnterStoreSearchCriteria"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="SelectStoreForShipUndo"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="SelectStoreForShipCancelled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                                
+            </SITE>
+            <SITE name="EnterShipToStoreCustomerInfo" siteaction="EnterShipCustomerInfoSite">
+                <AISLE name="EnterShipToStoreCustomerInfoNext"
+                     letter="Next"
+                     laneaction ="DoneLetterAisle">
+                </AISLE>
+                <ROAD name="EnterShipToStoreCustomerInfoNext"
+                      letter="Done"
+                      destination="GetShippingOption"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="LinkCustomerInfo"
+                      letter="Customer"
+                      destination="CustomerStation"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="EnterShipCustomerInfoUndo"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="EnterShipCustomerInfoCancelled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="EnterStoreSearchCriteria" siteaction="EnterStoreSearchCriteriaSite">
+                <AISLE name="EnterStoreSearchCriteriaNext"
+                     letter="Next"
+                     laneaction ="RetrieveStoreByCriteriaAisle">
+               </AISLE>
+                <ROAD name="EnterStoreSearchCriteriaNext"
+                      letter="Select"
+                      destination="SelectStoreForShip"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="EnterStoreSearchCriteriaError"
+                      letter="Error"
+                      destination="SelectStoreForShip"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="EnterStoreSearchCriteriaNotFound"
+                      letter="NotFound"
+                      destination="EnterStoreSearchCriteria"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="EnterStoreSearchCriteriaTooMany"
+                      letter="TooManyMatches"
+                      destination="EnterStoreSearchCriteria"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>              
+                <ROAD name="EnterStoreSearchCriteriaUndo"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="EnterStoreSearchCriteriaCancel"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayCustomerAddressBook" siteaction="DisplayCustomerAddressBookSite">
+                <ROAD name="NewAddress"
+                      letter="New"                        
+                      destination="ShipInfo"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="SelectExistingAddress"
+                      letter="Next"
+                      destination="ShipInfo"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="SelectUndo"
+                      letter="Undo"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD> 
+                <ROAD name="DisplayCustomerAddressBookCancelled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                               
+            </SITE>
+            <SITE name="DisplayShippingMethods" siteaction="DisplayShippingMethodsSite">
+                <ROAD name="SelectExistingAddress"
+                      letter="Next"
+                      destination="SelectShippingMethod"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="SelectExistingAddress"
+                      letter="Done"
+                      destination="SelectShippingMethod"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="CancelSelected"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="UndoSelected"
+                      letter="Undo"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD> 
+            </SITE>
+            <SITE name="SelectShippingMethod" siteaction="SelectShippingMethodSite">
+                <ROAD name="ShippingMethodSelected"
+                      letter="Next"
+                      destination="CheckShippingChargeChanged"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="ShippingMethodSelected"
+                      letter="Done"
+                      destination="CheckShippingChargeChanged"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="SelectShippingMethodCancelled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                 
+            </SITE>
+            <SITE name="CheckShippingChargeChanged" siteaction="CheckShippingChargeChangedSite">
+                <ROAD name="NoNeedReasonCodeOrReasonCodeSpecified"
+                      letter="Next"
+                      destination="AddShippingChargeLineItem"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="TheLastGroupOfShippingOptions"
+                      letter="Done"
+                      destination="AddShippingChargeLineItem"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>                
+                <ROAD name="ReasonCodeNotSpecified"
+                      letter="NotFound"
+                      destination="DisplayShippingMethods"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="AddShippingChargeLineItem" siteaction="AddShippingChargeLineItemSite">
+                <ROAD name="ShippingChargeAdded"
+                      letter="Done"
+                      laneaction="ItemAddedRoad"
+                      destination="GetDestinationTaxRule"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="ShippingChargeAdded"
+                      letter="Next"
+                      laneaction="ItemAddedRoad"
+                      destination="DisplayShippingMethods"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="UndoSelected"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                
+            </SITE>
+            <SITE name="DisplayStoreShippingMethods" siteaction="DisplayStoreShippingOptionsSite">
+                <ROAD name="NextStoreShippingSelected"
+                      letter="Next"
+                      destination="SelectStoreShippingOption"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="DoneStoreShippingMethodsSelected"
+                      letter="Done"
+                      destination="CreateShipOrder"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="CancelStoreShippingSelected"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="UndoStoreShippingSelected"
+                      letter="Undo"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD> 
+             </SITE> 
+             <SITE name="SelectStoreShippingOption" siteaction="SelectStoreShippingOptionSite">
+                <ROAD name="NextShippingMethodSelected"
+                      letter="Next"
+                      destination="DisplayStoreShippingMethods"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="CancelSelectShippingMethodCancelled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                 
+            </SITE>
+            <SITE name="GetDestinationTaxRule" siteaction="GetDestinationTaxRuleSite">
+                <ROAD name="GetDestinationTaxRule"
+                      letter="Next"
+                      destination="GetDestinationTaxRuleStation"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="VatSkipDestinationTaxRule"
+                      letter="Done"
+                      destination="CreateShipOrder"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                      <COMMENT>This road is executed when the application installed as VAT enable. 
+                      GetDestinationTaxRuleSite is replaced be GetVatRulesSite</COMMENT>
+                </ROAD>
+            </SITE>            
+            <SITE name="UpdateLineItemTaxRule" siteaction="UpdateLineItemTaxRuleSite">
+                <ROAD name="LineItemTaxRuleUpdated"
+                      letter="Next"
+                      destination="CreateShipOrder"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>                
+            <SITE name="CreateShipOrder" siteaction="CreateShipOrderSite">
+                <AISLE name="CreateShipOrderOffline"
+                     letter="Offline"
+                     laneaction ="OrderOfflineAisle">
+                </AISLE>
+                <ROAD name="CreateShipOrderSuccess"
+                      letter="Done"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="CreateShipOrderFailure"
+                      letter="Error"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="GetDestinationTaxRuleStation"
+                     servicename="destinationtaxrule.destinationtaxrule"
+                     targettier="CURRENTTIER"
+                     launchshuttle="XChannelShipDestinationTaxRuleLaunchShuttle"
+                     returnshuttle="XChannelShipDestinationTaxRuleReturnShuttle">
+                <ROAD name="TaxRuleFound"
+                      letter="Next"
+                      destination="UpdateLineItemTaxRule"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="TaxRuleUndo"
+                      letter="Undo"
+                      destination="CreateShipOrder"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="TaxRuleDone"
+                      letter="Done"
+                      destination="CreateShipOrder"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </STATION>              
+            <STATION name="CustomerStation"
+                     servicename="customer.main.customermain"
+                     targettier="CURRENTTIER"
+                     launchshuttle="XChannelShipCustomerLaunchShuttle"
+                     returnshuttle="XChannelShipCustomerReturnShuttle">
+                <ROAD name="CustomerContinue"
+                      letter="Continue"
+                      laneaction="JournalCustomerInformationRoad"
+                      destination="VerifyLinkCustomer"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="CustomerUndo"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="CustomerCancel"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerOffline"
+                    letter="Offline"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+            <SYSTEMSITE name="Final" action="RETURN" />
+        </REGION>
+    </MAP>
+</SERVICE>

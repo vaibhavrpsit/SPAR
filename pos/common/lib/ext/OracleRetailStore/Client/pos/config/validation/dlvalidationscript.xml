@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+
+<!DOCTYPE VALIDATIONTECHNICIAN SYSTEM "classpath://oracle/retail/stores/domain/manager/validation/validationscript.dtd">
+
+<VALIDATIONTECHNICIAN>
+
+    <MASKDEFINITIONS name="defaultMaskDefinitions">
+        <PROPERTY
+            propname="configScript"
+            propvalue="classpath://config/validation/dlvalidationdefinitionscript.xml"
+        />
+    </MASKDEFINITIONS>
+
+    <!-- US Driver's Licence Masks -->
+    <MASKS name="USDLMasks">
+        <PROPERTY propname="AK" propvalue="Nnnnnnn"/>
+        <PROPERTY propname="AL" propvalue="NNNNNNN"/>
+        <PROPERTY propname="AR" propvalue="NNNNNNNNn"/>
+        <PROPERTY propname="AZ" propvalue="YNNNNNNNN AANNNnnn"/>
+        <PROPERTY propname="CA" propvalue="ANNNNNNN"/>
+        <PROPERTY propname="CO" propvalue="NNNNNNNNN YNNNNNN"/>
+        <PROPERTY propname="CT" propvalue="NNNNNNNNN"/>
+        <PROPERTY propname="DC" propvalue="NNNNNNNNN NNNNNNN"/>
+        <PROPERTY propname="DE" propvalue="Nnnnnnn"/>
+        <PROPERTY propname="FL" propvalue="ANNNNNNNNNNNN ANNNNNNNNNNNNNN"/>
+        <PROPERTY propname="GA" propvalue="NNNNNNNnn"/>
+        <PROPERTY propname="HI" propvalue="YNNNNNNNN"/>
+        <PROPERTY propname="IA" propvalue="NNNNNNNNN NNNYYNNNN"/>
+        <PROPERTY propname="ID" propvalue="YYYYYYYYY"/>
+        <PROPERTY propname="IL" propvalue="ANNNNNNNNNNN"/>
+        <PROPERTY propname="IN" propvalue="NNNNNNNNNn"/>
+        <PROPERTY propname="KS" propvalue="YNNNNNNNN YNYNYN"/>
+        <PROPERTY propname="KY" propvalue="YNNNNNNNN NNNNNNNNNN"/>
+        <PROPERTY propname="LA" propvalue="00NNNNNNN Nnnnnnnnn"/>
+        <PROPERTY propname="MA" propvalue="YNNNNNNNN"/>
+        <PROPERTY propname="MD" propvalue="ANNNNNNNNNNNN"/>
+        <PROPERTY propname="ME" propvalue="NNNNNNNa"/>
+        <PROPERTY propname="MI" propvalue="ANNNNNNNNNNNN"/>
+        <PROPERTY propname="MN" propvalue="ANNNNNNNNNNNN"/>
+        <PROPERTY propname="MO" propvalue="ANNNNNnnnn NNNNNNNNN"/>
+        <PROPERTY propname="MS" propvalue="NNNNNNNNN"/>
+        <PROPERTY propname="MT" propvalue="NNNNNNNNN ANYNNAAAN NNNNNNNNNNNNN ANNNNNN"/>
+        <PROPERTY propname="NC" propvalue="Nnnnnnnn"/>
+        <PROPERTY propname="ND" propvalue="YYYNNNNNN"/>
+        <PROPERTY propname="NE" propvalue="ANNNnnnnn"/>
+        <PROPERTY propname="NH" propvalue="NNAAANNNNN"/>
+        <PROPERTY propname="NJ" propvalue="ANNNNNNNNNNNNNN"/>
+        <PROPERTY propname="NM" propvalue="NNNNNNNNN"/>
+        <PROPERTY propname="NV" propvalue="NNNNNNNNNn NNNNNNNNNNNN ANNNNNNNN"/>
+        <PROPERTY propname="NY" propvalue="NNNNNNNNN ANNNNNNNNNNNNNNNNNN"/>
+        <PROPERTY propname="OH" propvalue="NNNNNNNNN AANNNNNN"/>
+        <PROPERTY propname="OK" propvalue="NNNNNNNNN"/>
+        <PROPERTY propname="OR" propvalue="Nnnnnnn"/>
+        <PROPERTY propname="PA" propvalue="NNNNNNNN"/>
+        <PROPERTY propname="RI" propvalue="YNNNNNN"/>
+        <PROPERTY propname="SC" propvalue="NNNNNNnnn"/>
+        <PROPERTY propname="SD" propvalue="NNNNNNnnn NNNNNNNNNNN"/>
+        <PROPERTY propname="TN" propvalue="NNNNNNNnn"/>
+        <PROPERTY propname="TX" propvalue="0NNNNNNN 1NNNNNNN 2NNNNNNN"/>
+        <PROPERTY propname="UT" propvalue="NNNNnnnnnn"/>
+        <PROPERTY propname="VA" propvalue="YNNNNNNNN"/>
+        <PROPERTY propname="VT" propvalue="NNNNNNNY"/>
+        <PROPERTY propname="WA" propvalue="ASSSSASNNNYY"/>
+        <PROPERTY propname="WI" propvalue="ANNNNNNNNNNNNN"/>
+        <PROPERTY propname="WV" propvalue="ANNNNNN 0NNNNNN 1ANNNNN AANNNNN"/>
+        <PROPERTY propname="WY" propvalue="NNNNNNNNNn"/>
+<!-- What are these?? -->
+        <PROPERTY propname="AS" propvalue="NNNNNNNNN"/>
+        <PROPERTY propname="GU" propvalue="NNNNNnnnnn"/>
+        <PROPERTY propname="MY" propvalue="NNNNNNNNN AXNNNNnnnnn"/>
+        <PROPERTY propname="PR" propvalue="NNNnnnn"/>
+        <PROPERTY propname="RA" propvalue="ANNNNNNNNN"/>
+        <PROPERTY propname="VI" propvalue="NNNNNNNNN ANNNNNNNNN"/>
+        <PROPERTY propname="NA" propvalue="tqrA"/>
+        <PROPERTY propname="POS" propvalue="x"/>
+    </MASKS>
+
+    <!-- Canadian Driver's Licence Masks -->
+    <MASKS name="CADLMasks">
+        <PROPERTY propname="AB" propvalue="NNNNNnnnn"/>
+        <PROPERTY propname="BC" propvalue="NNNNNNN"/>
+        <PROPERTY propname="MB" propvalue="AASSSASNNNXX"/>
+        <PROPERTY propname="NB" propvalue="XXXXxxx"/>
+        <PROPERTY propname="NF" propvalue="ANNNNNNNNN NNNNNnn"/>
+        <PROPERTY propname="NS" propvalue="AASSSNNNNNNNnn AASSASNNNXX"/>
+        <PROPERTY propname="NT" propvalue="NNNNNnnnnn"/>
+        <PROPERTY propname="ON" propvalue="ANNNNNNNNNNNNNN"/>
+        <PROPERTY propname="QC" propvalue="ANNNNNNNNNNNN"/>
+        <PROPERTY propname="PE" propvalue="NNNNNNNNNNNN"/>
+        <PROPERTY propname="PQ" propvalue="ANNNNNNNNNNNN"/>
+        <PROPERTY propname="SK" propvalue="NNNNNNNN"/>
+        <PROPERTY propname="YK" propvalue="Nnnnnnnnnn"/>
+    </MASKS>
+
+</VALIDATIONTECHNICIAN>

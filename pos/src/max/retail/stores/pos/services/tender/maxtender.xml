@@ -1,0 +1,4805 @@
+<?xml version='1.0' ?>
+<!--    
+/*********************************************************************************************************
+ *   
+ *	Copyright (c) 2016 - 2017 MAX Hypermarket, Inc    All Rights Reserved.
+ *
+ *	Rev  	1.8  	Jan 02, 2019		 Purushotham Reddy 			Changes for RRP Tax Slabs
+ *	Rev  	1.7  	23 Aug, 2018         Purushotham Reddy          PAN Card Details CR
+ *	Rev  	1.6  	11 May, 2017         Ashish Yadav               Changes for M-Coupon Issuance FES
+ *	Rev  	1.5  	11 MAY, 2017         Hitesh Dua        		    Partial payment with GC, and over tendering with cash showing unexpected error.
+ *	Rev  	1.4  	18 Jan, 2017         Nitesh Kumar               Return with Cash Tender	
+ *	Rev  	1.3  	06 Jan, 2017         shish Yadav                Online Redemption OTP FES	
+ *	Rev  	1.2  	10 JAN, 2017         Hitesh Dua         	    Chnages for bug: pos got hang after clicking on cash button.
+ *	Rev  	1.1  	21 Dec, 2016         Ashish Yadav               Credit Card FES
+ *	Rev		1.0 	Dec 20, 2016		 Mansi Goel				    Changes for Gift Card FES	
+ *	Rev 	1.0  	Nov 08, 2016         Nadia           		    MAX-StoreCredi_Return requirement. 
+ *  Rev 	1.9  	Aug 25, 2021         Atul Shukla           		  EWallet Implementation.
+ *********************************************************************************************************/
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Tender Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="MAXTenderCargo" package="max.retail.stores.pos.services.tender"/>
+    <SERVICECODE >
+        <LETTER name="Alternate"/>
+        <LETTER name="Authorize"/>
+        <LETTER name="CaptureCustomer"/>
+        <LETTER name="CaptureIRSCustomer"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Cash"/>
+        <LETTER name="ChangeDue"/>
+        <LETTER name="Check"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Corporate"/>
+        <LETTER name="Coupon"/>
+        <LETTER name="Credit"/>
+        <LETTER name="CreditDebit"/>
+        <LETTER name="Debit"/>
+        <LETTER name="Declined"/>
+        <LETTER name="Deplete"/>
+        <LETTER name="Done"/>
+        <LETTER name="ExitTender"/>
+        <LETTER name="Failure"/>
+        <LETTER name="ForcedCash"/>
+        <LETTER name="GiftCard"/>
+        <LETTER name="GiftCert"/>
+        <LETTER name="InstantCredit"/>
+        <LETTER name="HouseAccount"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Loop"/>
+        <LETTER name="MailCheck"/>
+        <LETTER name="MallCert"/>
+        <LETTER name="ManagerOverride"/>
+        <LETTER name="MoneyOrder"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="NoValidate"/>
+        <LETTER name="Noswipe"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Open"/>
+        <LETTER name="Override"/>
+        <LETTER name="PaidUp"/>
+        <LETTER name="PurchaseOrder"/>
+        <LETTER name="RedeemRefundOptions"/>
+        <LETTER name="RefundDue"/>
+        <LETTER name="RefundOptions"/>
+        <LETTER name="Reverse"/>
+        <LETTER name="Retry"/>
+        <LETTER name="SendResult"/>
+        <LETTER name="StoreCredit"/>
+        <LETTER name="Success"/>
+        <LETTER name="SwipeAhead"/>
+        <LETTER name="TenderOptions"/>
+        <LETTER name="TravelCheck"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Timeout"/>
+        <!-- Changes for Code merge : Starts -->
+        <LETTER  name="Voided"/>
+        <LETTER  name="VoidSuccess"/>
+        <LETTER  name="PlutusError"/>
+        <LETTER  name="VoidOfflineTransaction"/>
+        <LETTER  name="SelectTender"/>
+        <LETTER  name="Delete"/>
+        <LETTER name="FoodTotal"/>
+        <LETTER name="InsufficientPoints"/>
+        <LETTER name="Reverse"/> 
+        <LETTER name="LoyaltyPoints"/>
+	
+	    <LETTER name="EDCPostVoided" />
+		<LETTER name="EDCPostVoidedFail" />
+		<LETTER name="EDCEnquiry" />
+		<LETTER name="EDCUsed" />
+		<LETTER name="EDCNotUsed" />
+		<LETTER name="CashValidated"/>
+		
+		
+		
+	    <LETTER name="CustWithPAN"/>
+	    <LETTER name="CustWithoutPAN"/>
+	    <LETTER name="NonResident"/>
+	    <LETTER name="Add"/>
+	    <LETTER name="LoyaltyPoints"/>
+	    <LETTER name="NotExceed"/>
+		<!-- Changes for Code merge : Ends -->
+			<!-- 	changes for rev 1.7 :Start -->
+		<LETTER name="Wallet"/>
+		<LETTER name="Mobikwik"/>
+		   
+		 <!-- 	changes for rev 1.7 :End --> 
+		 <!-- 	changes for rev 1.8 :Start -->
+		<LETTER name="Patym"/> 
+		     	 	<!-- 	changes for rev 1.8 :End -->
+		<!-- 	PAN Card CR Changes Rev 1.7 -->     	 	
+		<LETTER name="NoOptionSelected"/>  
+			
+		<LETTER name="AmazonPayRefundPrint"/>
+		<LETTER name="sbiPoints"/>
+		<LETTER name="OxigenWallet"/>  	
+		
+		<LETTER name="EWalletPrint"/>
+		
+			 	 	
+        <SHUTTLE class="AuthorizationLaunchShuttle"/>
+        <SHUTTLE class="AuthorizationReturnShuttle"/>
+        <SHUTTLE class="CaptureCustomerReturnShuttle"/>
+        <SHUTTLE class="CaptureRefundCustomerLaunchShuttle"/>
+        <SHUTTLE class="ChosenRefundSubTourLaunchShuttle"/>
+        <SHUTTLE class="ChosenTenderLaunchShuttle"/>
+        <SHUTTLE class="ChosenTenderReturnShuttle"/>
+        <!-- Changes for Code merge : Starts -->
+        <SHUTTLE  class="MAXChosenTenderLaunchShuttle" package="max.retail.stores.pos.services.tender"/>
+        <SHUTTLE  class="MAXChosenRefundSubTourLaunchShuttle" package="max.retail.stores.pos.services.tender"/>
+		<SHUTTLE  class="MAXChosenTenderSubTourLaunchShuttle" package="max.retail.stores.pos.services.tender.storecredit"/> 
+        <SHUTTLE  class="MAXChosenTenderReturnShuttle" package="max.retail.stores.pos.services.tender"/>
+		<!-- Changes for Code merge : Ends -->
+        
+        <SHUTTLE class="ChosenTenderSubTourLaunchShuttle"/>
+        <SHUTTLE class="ForeignCurrencyLaunchShuttle"/>
+        <SHUTTLE class="ForeignCurrencyReturnShuttle"/>
+        <SHUTTLE class="GiftCardLaunchShuttle"/>
+        <SHUTTLE class="GiftCardReturnShuttle"/>
+        <SHUTTLE class="LinkCustomerReturnShuttle"/>
+        <SHUTTLE class="ReversalLaunchShuttle"/>
+        <SHUTTLE class="ReversalReturnShuttle"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="TenderLimitOverrideLaunchShuttle"/>
+        <SHUTTLE class="TenderLimitOverrideReturnShuttle"/>
+
+        <SIGNAL class="HasSentFinalResult"/>
+        <SIGNAL class="HasNotSentFinalResult"/>
+        <SIGNAL class="IsAuthorizationRequiredSignal"/>
+        <SIGNAL class="IsTenderCanceledSignal"/>
+        <SIGNAL class="RefundToOriginalCardWithTokenSignal"/>
+        <SIGNAL class="MAXIsPaytmTenderSignal" package="max.retail.stores.pos.services.tender.wallet.paytm"/> 
+    	<!-- Changes for Rev 1.4 -->
+        <SIGNAL class="MAXIsCashRefundSignal"  package="max.retail.stores.pos.services.tender"/>
+         <!-- 	changes for rev 1.9 :Start -->
+        <SIGNAL class="MAXIsOxigenEWalletTenderSignal" package="max.retail.stores.pos.services.tender.oxigenwallet"/>
+  <!-- 	changes for rev 1.9 :End -->
+		<LANEACTION class="MAXPreDeleteTenderActionAisle"
+			package="max.retail.stores.pos.services.tender" />
+		<LANEACTION class="MAXPostEDCTenderEnquiryAisle" package="max.retail.stores.pos.services.tender" />
+        <LANEACTION class="AcceptCheckWithoutAuthorizationAisle"/>
+        <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CancelSelectedRoad"/>
+        <LANEACTION class="CashDrawerContinueAisle"/>
+        <LANEACTION class="CashDrawerRetryAisle"/>
+        <LANEACTION class="GetGiftCardEntryRoad"/>
+        <LANEACTION class="GiftCardConversionAisle"/>
+        <LANEACTION class="OpenCashDrawerAisle"/>
+        <LANEACTION class="RefundLetterSendAisle"/>
+        <LANEACTION class="RefundTenderDiscardRoad"/>
+        <LANEACTION class="RemoveTenderRoad"/>
+        <LANEACTION class="SendFinalResultAisle"/>
+        <LANEACTION class="SetRequestTypeCreditAuthRefundRoad"/>
+        <LANEACTION class="SetRequestTypeCreditAuthRoad"/>
+        <LANEACTION class="SetRequestTypeDebitAuthRefundRoad"/>
+        <LANEACTION class="SetRequestTypeGiftCardAuthRoad"/>
+        <LANEACTION class="SetRequestTypeHouseAccountAuthRoad"/>
+        <LANEACTION class="SetRequestTypeHouseAccountAuthRefundRoad"/>
+        <LANEACTION class="TimeoutLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="UndoLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        
+        <!-- changes by shyvanshu mehra... -->
+        
+        <SITEACTION class="MAXCashValidationSite" package="max.retail.stores.pos.services.tender"/>
+		<SITEACTION class="MAXCustomerNumberSite" package="max.retail.stores.pos.services.tender"/>
+	    <SITEACTION class="MAXCustomerMobleNumberEnterSite" package="max.retail.stores.pos.services.tender"/>
+		<SITEACTION class="MAXConfirmCustomerRequestSite" package="max.retail.stores.pos.services.tender"/>
+		<SITEACTION class="MAXCashTenderWithoutNumberSite" package="max.retail.stores.pos.services.tender"/>
+		
+		
+        <!-- changes by Anuj Singh 
+		<LANEACTION  class="MAXCaptureCustomerNumberAisle" package="max.retail.stores.pos.services.tender"/>
+		-->
+		<!-- Changes for Code merging : Starts -->
+		<LANEACTION  class="MAXRetryPlutusAisle" package="max.retail.stores.pos.services.tender"/>
+        <LANEACTION  class="MAXDeleteTenderActionAisle" package="max.retail.stores.pos.services.tender"/>
+        <LANEACTION  class="MAXCancelPlutusAisle" package="max.retail.stores.pos.services.tender"/>
+		<LANEACTION  class="MAXTICRequestMobileNumberAisle" package="max.retail.stores.pos.services.sale"/>
+		<!-- Changes for Code merging : Ends -->
+
+		<SITEACTION class="MAXAddLoyaltyPointsTenderSite" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+
+        <SITEACTION class="AlternateCurrencyTenderOptionsUISite"/>
+        <SITEACTION class="CashChangeActionSite"/>
+        <!-- <SITEACTION class="CashTenderActionSite"/> -->
+         <SITEACTION class="MAXDeletePaytmTenderConfirmationSite" package="max.retail.stores.pos.services.tender.wallet.paytm"/>
+        <SITEACTION class="MAXCashTenderActionSite" package="max.retail.stores.pos.services.tender"/>
+        <!--<SITEACTION class="MAXEWalletTenderActionSite" package="max.retail.stores.pos.services.tender"/>-->
+		<SITEACTION class="MAXEWalletTenderActionSite" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION class="MAXChangeDueOptionsUISite" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION class="ChangeLimitActionSite"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CreditDebitTenderActionSite"/>
+        <SITEACTION class="DeleteTendersActionSite" />
+        <!-- Changes for Code merging : Starts -->
+        <SITEACTION class="MAXDeleteTenderActionSite" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION class="MAXDeleteTendersActionSite" package="max.retail.stores.pos.services.tender"/>        
+        <SITEACTION class="MAXEvaluateBalanceSite" package="max.retail.stores.pos.services.tender"/>        
+        <SITEACTION class="MAXRefundOptionsUISite" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION  class="MAXFoodTotalTenderActionSite" package="max.retail.stores.pos.services.tender"/>			
+        <SITEACTION class="MAXPaidUpActionSite" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION class="MAXTenderOptionsUISite" package="max.retail.stores.pos.services.tender"/>
+      <!--  <SITEACTION class="MAXTenderOptionsUISite" package="max.retail.stores.pos.services.tender"/> -->
+        <SITEACTION  class="MAXEComPrepaidTenderActionSite" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION  class="MAXEComCODTenderActionSite" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION class="MAXReverseTendersActionSite" package="max.retail.stores.pos.services.tender"/>
+   		<!-- 	changes for rev 1.5 -->
+        <SITEACTION class="MAXForcedCashChangeActionSite" package="max.retail.stores.pos.services.tender"/>   
+        <!-- Changes for Code merging : Ends -->
+         <SITEACTION class="MAXPaytmReversalPrintSite" package="max.retail.stores.pos.services.tender.wallet.paytm"/>
+  		<SITEACTION class="MAXMobikwikReversalPrintSite" package="max.retail.stores.pos.services.tender.wallet.mobikwik"/>
+  		
+  		<SITEACTION class="MAXAmazonPayRefundPrintSite" package="max.retail.stores.pos.services.tender.wallet.amazonpay"/>
+  		
+        <SITEACTION class="DeleteTendersActionForTimeout"/>
+        <SITEACTION class="ForcedCashChangeActionSite"/>
+        <SITEACTION class="GiftCardEntryUISite"/>
+        <SITEACTION class="GiftCardTenderActionSite"/>        
+        <SITEACTION class="RedeemRefundOptionsUISite"/>
+        <SITEACTION class="RefundDueUISite"/>
+        <SITEACTION class="RefundLimitActionSite"/>
+        <SITEACTION class="RefundTenderOverrideActionSite"/>
+             
+        <SITEACTION class="TenderingInfoUISite"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="ValidateGiftCardEntrySite"/>
+        	<!-- 	changes for rev 1.7 :Start -->
+        	    
+		<SITEACTION class="MAXWalletTenderInfoSite" package="max.retail.stores.pos.services.tender.wallet"/>
+		
+		<SITEACTION class="MAXOxigenWalletTenderInfoSite" package="max.retail.stores.pos.services.tender.oxigenwallet"/>
+		
+		<LANEACTION class="MAXOxigenOTPRequestResponseDebitAisle" package="max.retail.stores.pos.services.tender.oxigenwallet"/>
+		
+		<!-- <SITEACTION class="MAXOxigenWalletDebitInfoSite" package="max.retail.stores.pos.services.tender.oxigenwallet"/> -->
+        	
+        		<!-- 	changes for rev 1.7 :End -->
+        <!-- changes for Rev 1.6 start -->
+		<SITEACTION class="MAXMcouponCapillaryRequestSite" package="max.retail.stores.pos.services.tender.mcoupon" />
+		
+		<!-- changes by Shyvanshu Mehra -->
+		
+	 <SITEACTION class="MAXCheckCustomerNumber" package="max.retail.stores.pos.services.tender" />
+	 <!--  <SITEACTION class="EnterCustomerInfoSite" package="oracle.retail.stores.pos.services.sale.demographic" /> -->
+	 <SITEACTION class="MAXEnterCustomerInfoSite" package="max.retail.stores.pos.services.tender" />
+	 
+	 <!-- <LANEACTION class="MAXTICRequestMobileNumberAisle" package="max.retail.stores.pos.services.sale" /> -->
+	 
+		
+		<SITEACTION class="MAXMcouponCheckForCustomerSite" package="max.retail.stores.pos.services.tender.mcoupon" />
+		<SITEACTION class="MAXMcouponMobleNumberEnterSite" package="max.retail.stores.pos.services.tender.mcoupon" />
+		<!-- Changes Start by Bhanu Priya for Capture PAN CARD CR -->
+		<SITEACTION class="MAXCaptureCustomerTypeSite" package="max.retail.stores.pos.services.tender.pancard" />
+		<LANEACTION class="MAXCustomerTypeSelectedAisle" package="max.retail.stores.pos.services.tender.pancard"/>
+		<SITEACTION class="MAXEnterPancardNumberSite" package="max.retail.stores.pos.services.tender.pancard" />
+		<LANEACTION class="MAXCustomerTypeWithPANCardAisle" package="max.retail.stores.pos.services.tender.pancard"/>
+		<SITEACTION class="MAXSelectCustTypeWithoutPANSite" package="max.retail.stores.pos.services.tender.pancard" />
+		<LANEACTION class="MAXEnterForm60IdentificationNumberAisle" package="max.retail.stores.pos.services.tender.pancard"/> 
+		<LANEACTION class="MAXSelectNonResidentCustomerAisle" package="max.retail.stores.pos.services.tender.pancard"/> 
+		<SITEACTION class="MAXEnterSelfDeclarationDetailsSite" package="max.retail.stores.pos.services.tender.pancard"/>  
+		<SITEACTION class="MAXCapturePassportDetailsAisle" package="max.retail.stores.pos.services.tender.pancard"/>
+		<!-- Changes End by Bhanu Priya for Capture PAN CARD CR -->
+		
+		<SITEACTION class="MAXCheckforRRPTaxSlabsSite" package="max.retail.stores.pos.services.tender"/> 
+		
+                <!--Changes by shyvanshu Mehra  -->
+		
+       <SITEACTION class="MAXCheckforCustomerNumberSite" package="max.retail.stores.pos.services.tender"/> 
+       
+       <SITEACTION class="MAXEnterCustomerNumberSite" package="max.retail.stores.pos.services.tender"/>  
+
+		<SITEACTION class="MAXCheckSBIThresholdPointSite" package="max.retail.stores.pos.services.tender.sbi" />
+	     <SITEACTION class="MAXSBIRedeemPartialPointSite" package="max.retail.stores.pos.services.tender.sbi" />
+	     <SITEACTION class="MAXSBICardNumberEnterSite" package="max.retail.stores.pos.services.tender.sbi" />
+	     <SITEACTION class="MAXSBIAmountEnterSite" package="max.retail.stores.pos.services.tender.sbi" />
+	     
+	     <LANEACTION class="MAXCheckSBIPointRedemptionAisle" package="max.retail.stores.pos.services.tender.sbi"/> 
+	    <LANEACTION class="MAXSBIPointRedemptionAisle" package="max.retail.stores.pos.services.tender.sbi"/> 
+	     <SITEACTION class="MAXEnterLoyaltySBIPointsAmountSite" package="max.retail.stores.pos.services.tender.sbi" />
+		 <SITEACTION class="MAXValidateLoyaltyPointsAmountSite" package="max.retail.stores.pos.services.tender.sbi" />  
+		
+		<!-- changes for Rev 1.6 end -->
+		<!-- sbi reward point changes start -->
+	     <SITEACTION class="MAXCheckSBIThresholdPointSite" package="max.retail.stores.pos.services.tender.sbi" />
+	     <SITEACTION class="MAXSBIRedeemPartialPointSite" package="max.retail.stores.pos.services.tender.sbi" />
+	     <SITEACTION class="MAXSBICardNumberEnterSite" package="max.retail.stores.pos.services.tender.sbi" />
+	     <SITEACTION class="MAXSBIAmountEnterSite" package="max.retail.stores.pos.services.tender.sbi" /> 
+	     <!-- <LANEACTION class="MAXCheckSBIPointRedemptionAisle" package="max.retail.stores.pos.services.tender.sbi"/> -->
+	  <!--   <LANEACTION class="MAXSBIPointRedemptionAisle" package="max.retail.stores.pos.services.tender.sbi"/> --> 
+	     <SITEACTION class="MAXEnterLoyaltySBIPointsAmountSite" package="max.retail.stores.pos.services.tender.sbi" />
+		<!-- <LANEACTION class="MAXValidateLoyaltyPointsAmountSite" package="max.retail.stores.pos.services.tender.sbi" />--> 
+		 <LANEACTION class="MAXWebRequestResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		 <SITEACTION class="MAXEnterOtpSite" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		 <LANEACTION class="MAXOTPRequestResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		 <LANEACTION class="MAXContinueWebResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		 <LANEACTION class="MAXLoyaltyOtpOverrideAisle" package="max.retail.stores.pos.services.tender.purchaseorder" />
+		    <!-- changes end here -->
+         <!-- below code is added by aks for oxyzen refund wallet  	  -->
+         <LANEACTION class="MAXOxigenWebRequestForOTPAisle" package="max.retail.stores.pos.services.tender.oxigenwallet" />
+         <LANEACTION class="MAXValidateOxigenOTPAisle" package="max.retail.stores.pos.services.tender.oxigenwallet" />
+         <SITEACTION class="MAXEnterOxigenWalletOTPForRefundSite" package="max.retail.stores.pos.services.tender.oxigenwallet" />
+      
+     	 <SITEACTION class="PurchaseOrderActionSite"  package="oracle.retail.stores.pos.services.tender.purchaseorder"/>
+     	 <SITEACTION class="MAXDisplayTimeout" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+         <SITEACTION class="MAXAddAmountLoyaltySite" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+         <SITEACTION class="PrintReceiptSite" package="oracle.retail.stores.pos.services.printing" />
+         <SITEACTION class="MAXOxigenWebRequestResponseSite" package="max.retail.stores.pos.services.tender.oxigenwallet"/>
+
+        <SITEACTION class="MAXEnterLoyaltyAmountSite" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+        <LANEACTION class="MAXValidateLoyaltyPointsAisle1" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+        <LANEACTION class="MAXWebRequestResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		<LANEACTION class="MAXContinueWebResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		<LANEACTION class="MAXReversalRequestAisle" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+		<LANEACTION class="MAXCustomerBalanceEnquiryAisle" package="max.retail.stores.pos.services.tender.loyaltypoints"/>
+         <!--  need to discuss
+         MAXLoyaltyRequestResponseInfoSite need to discuss  -->       
+         <!-- <LANEACTION class="MAXOTPRequestResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+              <SITEACTION class="MAXAddAmountLoyaltySite" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+               <LANEACTION class="MAXContinueWebResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+	       <LANEACTION class="MAXLoyaltyOtpOverrideAisle" package="max.retail.stores.pos.services.tender.purchaseorder" />
+               	 <LANEACTION class="MAXOTPRequestResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+               	 <SITEACTION class="MAXLoyaltyRequestResponseInfoSite" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+<SITEACTION class="PurchaseOrderActionSite"  package="oracle.retail.stores.pos.services.tender.purchaseorder"/>
+               	  <SITEACTION class="MAXDisplayTimeout" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+		   <SITEACTION class="MAXAddAmountLoyaltySite" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+               	   <SITEACTION class="MAXEnterOtpSite" package="max.retail.stores.pos.services.tender.loyaltypoints" />
+               	    <LANEACTION class="MAXWebRequestResponseInfoAisle" package="max.retail.stores.pos.services.tender.loyaltypoints" /> -->
+	     <!-- sbi reward point changes end -->
+    </SERVICECODE>
+    <MAP>
+    <!-- Changes Start by Bhanu Priya for Capture PAN CARD CR -->
+        <!-- <REGION  region="SERVICE" startsite="TenderingInfoUI">
+            <COMMON>
+                <ROAD
+                    name="Timeout"
+                    letter="Timeout"
+                    destination="ReverseTenderAuthStationForTimeout"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </COMMON>
+ -->
+ 
+<REGION  region="SERVICE" startsite="CheckforRRPTaxSlabs">
+            <COMMON>
+                <ROAD
+                    name="Timeout"
+                    letter="Timeout"
+                    destination="ReverseTenderAuthStationForTimeout"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </COMMON>
+ 
+      		<SITE name="CheckforRRPTaxSlabs" siteaction="MAXCheckforRRPTaxSlabsSite">
+            	 	
+				 <ROAD
+                    name="ProceedNext"
+                    letter="Continue"
+                    destination="CaptureCustomerType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                <ROAD
+                    name="DBError"
+                    letter="Ok"
+                    destination="CaptureCustomerType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            
+            </SITE> 
+  			<SITE name="CaptureCustomerType" siteaction="MAXCaptureCustomerTypeSite">
+             	
+			   	<AISLE  name="CaptureDetails"
+					 	letter="Next"
+						laneaction="MAXCustomerTypeSelectedAisle">
+				</AISLE>
+             
+               <ROAD
+                    name="PanCardCaptureDetails"
+                    letter="CustWithPAN"
+                    destination="EnterPancardNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="Form60CaptureDetails"
+                    letter="CustWithoutPAN"
+                    destination="SelectCustTypeWithoutPAN"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+              
+                 <AISLE
+                    name="SelectNonResidentCustomer"
+                    letter="NonResident"
+                    laneaction="MAXSelectNonResidentCustomerAisle">
+                    </AISLE>
+                    
+                <ROAD
+                    name="SelfDeclarationYes"
+                    letter="Add"
+                    destination="EnterSelfDeclarationDetails"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+              
+                <ROAD
+                    name="SelfDeclarationNo"
+                    letter="No"
+                    destination="CaptureCustomerType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+              <ROAD
+                    name="NoOptionSelected"
+                    letter="NoOptionSelected"
+                    destination="CaptureCustomerType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                 <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                <ROAD
+                    name="AmountNotExceeded"
+                    letter="NotExceed"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             </SITE>
+                
+             <SITE name="EnterPancardNumber" siteaction="MAXEnterPancardNumberSite">
+            	 <AISLE name="EnterPANCardDetails" letter="Next"
+					laneaction="MAXCustomerTypeWithPANCardAisle">
+				</AISLE> 
+				
+				<ROAD
+                    name="CapturePancard"
+                    letter="Continue"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            
+            	<ROAD
+                    name="PancardUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                  
+                <ROAD
+                    name="InValidPanNumber"
+                    letter="Invalid"
+                    destination="CaptureCustomerType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE> 
+            
+           <SITE name="SelectCustTypeWithoutPAN" siteaction="MAXSelectCustTypeWithoutPANSite">
+            	 <AISLE name="Form60IdentificationDetails" letter="Next"
+					laneaction="MAXEnterForm60IdentificationNumberAisle">
+				</AISLE> 
+				
+				  <ROAD
+                    name="Form60Identification"
+                    letter="Continue"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            
+            <ROAD
+                    name="Form60IdentificationUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE> 
+            <SITE name="EnterSelfDeclarationDetails" siteaction="MAXEnterSelfDeclarationDetailsSite">
+            	 <AISLE name="CapturePassportDetails" 
+            	 	letter="Next"
+					laneaction="MAXCapturePassportDetailsAisle">
+				</AISLE> 
+				
+				 <ROAD
+                    name="EnterPassportDetails"
+                    letter="Continue"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+         	   <ROAD
+                    name="PassportIdentificationUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>        
+                        
+  <!-- Changes End by Bhanu Priya for Capture PAN CARD CR -->
+            <STATION
+                name="ReverseTenderAuthStationForTimeout"
+                servicename="tender.reversal.reversal"
+                targettier="CURRENTTIER"
+                launchshuttle="ReversalLaunchShuttle">
+                <ROAD
+                    name="ReverseTendersForTimeoutSuccess"
+                    letter="Success"
+                    destination="DeleteTendersActionForTimeout"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SITE name="DeleteTendersActionForTimeout" siteaction="DeleteTendersActionSite">
+                <AISLE
+                    name="SendFinalResultForUndo"
+                    letter="Undo"
+                    laneaction="SendFinalResultAisle">
+                    <LIGHT signal="HasNotSentFinalResult"/>
+                </AISLE>
+                <AISLE
+                    name="SendFinalResultForCancel"
+                    letter="Undo"
+                    laneaction="SendFinalResultAisle">
+                    <LIGHT signal="HasNotSentFinalResult"/>
+                </AISLE>
+                <AISLE
+                    name="TimeoutForUndo"
+                    letter="Undo"
+                    laneaction="TimeoutLetterAisle">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </AISLE>
+                <AISLE
+                    name="TimeoutForCancel"
+                    letter="Cancel"
+                    laneaction="TimeoutLetterAisle">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </AISLE>
+                <AISLE
+                    name="TimeoutForExitTender"
+                    letter="ExitTender"
+                    laneaction="TimeoutLetterAisle">
+                </AISLE>
+                <ROAD name="Timeout"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="TenderingInfoUI" siteaction="TenderingInfoUISite">
+                <ROAD
+                    name="TenderingInfoUIShown"
+                    letter="Next"
+                    destination="EvaluateBalance"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="EvaluateBalance" siteaction="MAXEvaluateBalanceSite">
+                <ROAD
+                    name="CaptureCustomerInfoRoad"
+                    letter="CaptureCustomer"
+                    destination="CaptureCustomerStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <!--MAX Rev 1.0: Change: Start  -->
+                <ROAD 
+                    name="CashThresholdError"
+                    letter="Ok"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <!--MAX Rev 1.0: Change: End  -->
+                <ROAD
+                    name="CaptureIRSCustomerInfoRoad"
+                    letter="CaptureIRSCustomer"
+                    destination="CaptureIRSCustomerStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="BalanceDueRoad"
+                    letter="TenderOptions"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             	<!--  Rev 1.12 changes starts  -->
+                <ROAD 
+                    name="GiftcarsOffline"
+                    letter="offline"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		 		<!--  Rev 1.12 changes Ends  -->
+		 	    <ROAD
+                    name="RefundTendersRoad"
+                    letter="RefundOptions"
+                    destination="RefundOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ChangeDueRoad"
+                    letter="ChangeDue"
+                    destination="ForcedCashChangeAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SwipeAheadRoad"
+                    letter="SwipeAhead"
+                    destination="AuthorizationStation"
+                    laneaction="SetRequestTypeCreditAuthRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RefundDueRoad"
+                    letter="RefundDue"
+                    destination="RefundDueUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ZeroBalanceRoad"
+                    letter="PaidUp"
+                    destination="PaidUpAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RedeemTransactionRoad"
+                    letter="RedeemRefundOptions"
+                    destination="RedeemRefundOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="BalanceEvaluatedRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!--MAX Rev 1.1: Change: Start -->
+            <SITE  name="TenderOptionsUI" siteaction="MAXTenderOptionsUISite"> 
+            <!-- sbi reward point changes start here -->
+            <ROAD
+			        name="SbiPointsRoad"
+			        letter="sbiPoints" 
+			        destination="sbiPointsAction"
+					tape="ADVANCE" 
+					record="OFF" 
+					index="OFF">
+			   </ROAD> 
+             
+			      
+			<!-- sbi reward point changes end here -->
+			<!--MAX Rev 1.1: Change: End  -->
+			
+			<!-- changes by shyvanshu mehra... -->
+			<!-- <AISLE
+                    name="CashValidation"
+                    letter="Cash"
+                    laneaction="MAXCashValidationAisle">
+                </AISLE> -->
+                
+                <ROAD
+                    name="CashSelected"
+                    letter="Cash"
+                    destination="CashValidate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">                    
+                </ROAD>
+               <!--  <AISLE
+                    name="EnterCustomerNumber"
+                    letter="Cash"
+                    laneaction="MAXTICRequestMobileNumberAisle">
+                </AISLE>
+                <ROAD
+                    name="EnterMobileNumber"
+                    letter="Ok"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> -->
+                 <ROAD 
+                    name="ValidationFailed"
+                    letter="Ok"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--   <ROAD
+                    name="CashSelected"
+                    letter="Cash"
+                    destination="CashTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>-->
+                 <!-- changes by shyvanshu mehra  -->
+               <!-- <Site
+                    name="CouponValidation"
+                    letter="Coupon"
+                    siteaction="MAXCustomerNumberSite">
+                </Site> -->
+                <ROAD
+                    name="CouponSelected"
+                    letter="CouponValidated"
+                    destination="CheckMcouponCustomer"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               
+                 <ROAD 
+                    name="ValidationFailed"
+                    letter="Ok"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                <ROAD
+                    name="AlternateSelected"
+                    letter="Alternate"
+                    destination="ForeignCurrencyStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <!--  Changes starts for Rev 1.1 (Ashish : Credit Card) -->
+                <ROAD
+                    name="CreditDebitSelected"
+                    letter="CreditDebit"
+                    destination="CreditDebitTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditSelected"
+                    letter="Credit"
+                    destination="CreditDebitTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--  Changes starts for Rev 1.1 (Ashish : Credit Card) -->
+                <ROAD
+                    name="TravelCheckSelected"
+                    letter="TravelCheck"
+                    destination="TravelCheckTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MoneyOrderSelected"
+                    letter="MoneyOrder"
+                    destination="MoneyOrderTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderUndoSelected"
+                    letter="Undo"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             	<!-- Change for Rev 1.6: Start -->
+				<AISLE name="CheckPreTenderDelete" letter="Clear"
+					laneaction="MAXPreDeleteTenderActionAisle">
+				</AISLE>
+				<AISLE name="EDCTenderEnquiry" letter="EDCEnquiry"
+					laneaction="MAXPostEDCTenderEnquiryAisle">
+				</AISLE>
+				<ROAD name="DeleteTenderSelected" letter="EDCPostVoidedFail"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="DeleteTenderSelected" letter="EDCPostVoided"
+					destination="DeleteTenderAction" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<!-- Change for Rev 1.6: End 
+                <ROAD
+                    name="DeleteTenderSelected"
+                    letter="Clear"
+                    laneaction="MAXDeleteTenderActionAisle"   
+                    destination="DeleteTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DeleteTenderSelected1"
+                    letter="Clear"
+                     destination="DeletePaytmTender"
+                    laneaction="MAXDeleteTenderActionAisle"       
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                 -->
+                 <AISLE name="CheckPreTenderDeleteCheckPreTenderDelete"
+                 	 letter="Clear"
+					laneaction="MAXDeleteTenderActionAisle">
+				</AISLE>
+                 <ROAD
+                    name="NotToDeletePaytmTender"
+                    letter="No"
+               		destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                <ROAD
+                    name="PurchaseOrderSelected"
+                    letter="PurchaseOrder"
+                    destination="PurchaseOrderTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponSelected"
+                    letter="Coupon"
+                    destination="CouponTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditSelected"
+                    letter="InstantCredit"
+                    destination="InstantCreditStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountSelected"
+                    letter="HouseAccount"
+                    destination="HouseAccountTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CheckSelected"
+                    letter="Check"
+                    destination="CheckTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateSelected"
+                    letter="GiftCert"
+                    destination="GiftCertificateTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <!-- Changes for Rev 1.1 : Starts -->
+                <ROAD
+                    name="GiftCardSelected"
+                    letter="GiftCard"
+                    destination="GiftCardTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Changes for Rev 1.1 : Ends -->
+                <ROAD
+                    name="MallCertificateSelected"
+                    letter="MallCert"
+                    destination="MallCertificateTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditSelected"
+                    letter="StoreCredit"
+                    destination="StoreCreditTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelectedFromCPOI"
+                    letter="Cancel"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- MAX Rev 1.3 Change : Start -->
+                <ROAD
+	                name="LoyaltyPointsSelectedRoad"
+                    letter="LoyaltyPoints"
+                    destination="LoyaltyPointTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- MAX Rev 1.3 Change : End -->
+                
+                <!-- MAX Rev 1.9 Change : Start -->
+                
+                 <ROAD
+	                name="FoodTotalSelectedRoad"
+                    letter="FoodTotal"
+                    destination="FoodTotalTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    </ROAD>               
+                <!-- MAX Rev 1.9 Change : End -->
+                
+                	<!-- 	changes for rev 1.7 :Start -->
+                    <ROAD
+                    name="WalletSelected"
+                    letter="Wallet"
+                    destination="WalletTenderInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                	<!-- 	changes for rev 1.7 :End -->
+                
+                <ROAD
+                    name="OxigenWalletSelected"
+                    letter="OxigenWallet"
+                    destination="EnterOxigenOTP"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                 <!-- <ROAD name="ProcessOtp" letter="OxigenWallet" destination="EnterOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+                
+                   <!-- MAX Rev 1.13 Change : Start -->
+                <ROAD
+	                name="EComPrepaidSelectedRoad"
+                    letter="EComPrepaid"
+                    destination="EComPrepaidTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+	                name="EComCODSelectedRoad"
+                    letter="EComCOD"
+                    destination="EComCODTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- MAX Rev 1.13 Change : End -->
+                <!-- Added by atul shukla -->
+              	<ROAD name="DeletePaytmTender1" 
+              	letter="EDCPostVoided"
+					destination="DeletePaytmTenderConfirmation" 
+					tape="ADVANCE" record="OFF" index="OFF">
+					<LIGHT signal="MAXIsPaytmTenderSignal"/>
+				</ROAD>
+				<ROAD name="DeleteTenderSelected" 
+				letter="EDCPostVoided"
+					destination="DeleteTenderAction" 
+					tape="ADVANCE" record="OFF" index="OFF">
+					<LIGHT signal="MAXIsPaytmTenderSignal" negate="Y"/>
+				</ROAD>
+				</SITE>
+				
+				<!-- changes by Shyvanshu Mehra --> 
+				
+				<!-- <SITE name="CheckCustomerNumber" siteaction="MAXCheckCustomerNumber"> -->
+				<!--Changes by shyvanshu Mehra  -->
+				<SITE name="CashValidate" siteaction="MAXCashValidationSite">
+				<ROAD name="CashValidating" letter="CashValidated"
+				  destination="CashTenderAction" tape="ADVANCE" record="OFF" index="OFF">
+				  </ROAD>
+					<ROAD name="Custnumber" letter="Yes"
+				  destination="NewCustomerNumber" tape="ADVANCE" record="OFF" index="OFF">
+				  </ROAD>
+				  <ROAD name="Custnumber" letter="Ok"
+				  destination="TenderingInfoUI" tape="ADVANCE" record="OFF" index="OFF">
+				  </ROAD>
+				
+				</SITE>
+				
+				
+            <SITE name="CheckforCustomerNumber" siteaction="MAXCheckforCustomerNumberSite">
+                                  <ROAD name="Custnumber" letter="Yes"
+				  destination="MallCertificateTenderStation" tape="ADVANCE" record="OFF" index="OFF">
+				  </ROAD>
+				  <!-- <ROAD name="CheckMobileNumber" letter="OkK" destination="TenderOptionsUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+				<!-- <ROAD name="CheckMobileNumber" letter="Next" destination="TenderOptionsUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+                <!-- <ROAD name="Enternumber" letter="OK" destination="EnterCustomerNumber"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+                 <!-- </SITE> -->
+                <!-- qwerty -->
+                 <!-- <SITE name="EnterCustomerNumber" laneaction="MAXTICRequestMobileNumberAisle"> -->
+				<!--    <ROAD name="EnterMobileNumber" letter="Ok" destination="MAXCashValidationAisle"
+					tape="ADVANCE" record="OFF" index="OFF">-->
+				<!-- </ROAD> -->
+				
+				
+				<!-- <AISLE
+                    name="CheckCustomerNumber"
+                    letter="Next"
+                    laneaction="MAXTICRequestMobileNumberAisle">
+                </AISLE> -->
+                <ROAD
+                    name="CheckCustomerNumber"
+                    letter="OK"
+                    destination="EnterCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		      <ROAD name="Enternumber" 
+		            letter="Undo"
+						destination="EnterCustomerNumber" 
+						tape="ADVANCE"
+						 record="OFF"
+						  index="OFF">
+			    </ROAD>
+                <ROAD
+                    name="CheckCustomerNumber"
+                    letter="Yes"
+                    destination="CashTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                </SITE>
+                
+                <!-- shyvanshu -->
+                 <SITE  name="EnterCustomerInfo"  siteaction="MAXEnterCustomerInfoSite">
+                      <ROAD
+                    name="ValidInfoEntered"
+                    letter="Next"
+                    destination="CashTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed when the operator has entered
+                        valid customer info, or no customer info is required.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoCustomerInfoRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Leaves the service
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+	    <SITE name="EnterCustomerNumber" siteaction="MAXEnterCustomerNumberSite">
+			 
+           		 <ROAD name="Custnumber" letter="Next"
+						destination="MallCertificateTenderStation" tape="ADVANCE" record="OFF" index="OFF">
+					</ROAD>					 
+					
+			</SITE>
+             
+            <!-- Rev 1.7 changes starts -->
+			<SITE name="DeletePaytmTenderConfirmation" siteaction="MAXDeletePaytmTenderConfirmationSite">
+				<ROAD name="DeletePaytmTender11" letter="Yes"
+					destination="DeleteTenderAction" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="DeletePaytmTenderNo" letter="No" destination="TenderOptionsUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>
+			<!-- Rev 1.7 changes ends -->
+            <!-- MAX Rev 1.13 Change : Start -->
+             <SITE  name="EComPrepaidTenderAction" siteaction="MAXEComPrepaidTenderActionSite">
+                <ROAD 
+                    name="EComPrepaidAddedRoad"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="EComPrepaidTenderFailureRoad"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+             <SITE  name="EComCODTenderAction" siteaction="MAXEComCODTenderActionSite">
+                <ROAD 
+                    name="EComCODAddedRoad"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="EComCODTenderFailureRoad"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+	         <!-- MAX Rev 1.13 Change : End -->
+            <SITE  name="CreditDebitTenderActionSite" siteaction="CreditDebitTenderActionSite">
+                <ROAD
+                    name="CreditDebitAuthorizeRequest"
+                    letter="Success"
+                    destination="AuthorizationStation"
+                    laneaction="SetRequestTypeCreditAuthRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                   name="OvertenderNotAllowed"
+                   letter="Failure"
+                   destination="TenderOptionsUI"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="GiftCardTenderActionSite" siteaction="GiftCardTenderActionSite">
+                <ROAD
+                    name="GiftCardAuthorizeRequest"
+                    letter="Success"
+                    destination="GiftCardEntryUISite"
+                    laneaction="SetRequestTypeGiftCardAuthRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                   name="OvertenderNotAllowed"
+                   letter="Failure"
+                   destination="TenderOptionsUI"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="GiftCardEntryUISite" siteaction="GiftCardEntryUISite">
+                <ROAD
+                    name="GiftCardNumberEntered"
+                    letter="Next"
+                    destination="ValidateGiftCardEntry"
+                    laneaction="GetGiftCardEntryRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is used when configuration allows gift card
+                        number to be entered in the POS UI for tender.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="GiftCardNumberNotEntered"
+                    letter="Continue"
+                    destination="AuthorizationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is used when configuration requires the gift
+                        card number to be entered in 3rd party payment application.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="GiftCardEntryCancel"
+                    letter="Cancel"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is taken when operator chooses to cancel the
+                        gift card entry.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="GiftCardEntryUndo"
+                    letter="Undo"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is taken when the operator chooses to undo the
+                        gift card entry.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="ValidateGiftCardEntry" siteaction="ValidateGiftCardEntrySite">
+                <ROAD
+                    name="GiftCardIsValid"
+                    letter="Yes"
+                    destination="AuthorizationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardIsInvalid"
+                    letter="No"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="AlternateCurrencyTenderOptionsUI" siteaction="AlternateCurrencyTenderOptionsUISite">
+                <ROAD
+                    name="CashAlternateCurrencySelected"
+                    letter="Cash"
+                    destination="CashTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckAlternateCurrencySelected"
+                    letter="Check"
+                    destination="CheckTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TravelerCheckAlternateCurrencySelected"
+                    letter="TravelCheck"
+                    destination="TravelCheckTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateSelected"
+                    letter="GiftCert"
+                    destination="GiftCertificateTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditSelected"
+                    letter="StoreCredit"
+                    destination="StoreCreditTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoGetAlternateCurrency"
+                    letter="Undo"
+                    destination="ForeignCurrencyStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelGetAlternateCurrency"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AcknowledgeExchangeRateError"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+             <!--MAX Rev 1.1: Change: Start  -->
+            <SITE  name="DeleteTenderAction" siteaction="MAXDeleteTenderActionSite">
+			<!--MAX Rev 1.1: Change: End  -->
+	
+                 <ROAD  
+                    name="SelectWalletTenderToDelete"
+                    letter="OK"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		       <!-- below code added by atul shukla for paytm reversal tender slip -->
+                  <ROAD
+                    name="PaytmTenderDeleted"
+                    letter="PaytmPrint"
+                    destination="PrintPaytmReversal"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>	
+                
+                   <ROAD
+                    name="MobikwikTenderDeleted"
+                    letter="MobikwikPrint"
+                    destination="PrintMobikwikReversal"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>	
+                              
+                <ROAD
+                    name="AmazonPayTenderRefund"
+                    letter="AmazonPayRefundPrint"
+                    destination="PrintAmazonPayPayReversal"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>	
+                
+                      <AISLE
+                    name="CancelSelectedRoad"
+                    letter="Continue"
+                    laneaction="MAXCancelPlutusAisle"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </AISLE >
+                 <ROAD
+                    name="TenderDeleted"
+                    letter="VoidSuccess"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		<!-- Rev 1.6 changes end-->
+                <!--Rev 1.2 changes start here  -->
+                <ROAD 
+                    name="TenderNotDeleted"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--Rev 1.2 changes end here  -->
+				<!--Rev 1.6 changes start here  -->
+                <AISLE
+                    name="PlutusErrorAisle"
+                    letter="PlutusError"
+                    laneaction="MAXRetryPlutusAisle"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </AISLE>
+               <ROAD
+                    name="RetrySelectedRoad"
+                    letter="Retry"
+                    destination="DeleteTenderAction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="OfflineTransaction"
+                    letter="VoidOfflineTransaction"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <!--Rev 1.6 changes end here  -->
+               <ROAD
+                    name="SelectTenderToDelete"
+                    letter="SelectTender"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                 <!--Rev 1.6 changes start here  -->
+                <ROAD
+                    name="DeleteSelectedTender"
+                    letter="Delete"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <!--Rev 1.6 changes end here  -->
+                <!--  Rev 1.12 changes starts  -->
+                   <ROAD 
+                    name="GiftcarsOffline"
+                    letter="offline"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+			 <!--  Rev 1.12 changes Ends  -->
+			 
+			   <!-- <ROAD
+                    name="SelectWalletTenderToDelete"
+                    letter="OK"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD> -->
+            </SITE>
+             <!-- Changes for tender reversal receipt  starts :atul -->
+			<SITE name="PrintPaytmReversal" siteaction="MAXPaytmReversalPrintSite">
+				
+				<ROAD name="PaytmReversalPrintContinue" 
+					letter="Continue" 
+					destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="PaytmReversalPrintRetry" 
+					letter="Retry" 
+					destination="PrintPaytmReversal"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+			</SITE>
+			
+			<SITE name="PrintAmazonPayPayReversal" siteaction="MAXAmazonPayRefundPrintSite">
+				
+				<ROAD name="AmazonPayReversalPrintContinue" 
+					letter="Continue" 
+					destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="PrintAmazonPayPayReversalRetry" 
+					letter="Retry" 
+					destination="PrintAmazonPayPayReversal"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+			</SITE>
+			
+				<SITE name="PrintMobikwikReversal" siteaction="MAXMobikwikReversalPrintSite">
+				<ROAD name="MobikwikReversalPrintContinue" letter="Continue" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="MobikwikReversalPrintRetry" letter="Retry" destination="PrintMobikwikReversal"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>
+			
+            
+            <SITE  name="RefundOptionsUI" siteaction="MAXRefundOptionsUISite">
+                <AISLE
+                    name="RefundLetterSend"
+                    letter="Next"
+                    laneaction="RefundLetterSendAisle">
+                </AISLE>
+                <ROAD
+                    name="CashRefundSelected"
+                    letter="Cash"
+                    destination="MAXEWalletTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditRefundSelected"
+                    letter="Credit"
+                    destination="RefundLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+               <ROAD
+                    name="GiftCardRefundSelected"
+                    letter="GiftCard"
+                    destination="RefundLimitAction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+               </ROAD>
+                <ROAD
+                    name="CheckRefundSelected"
+                    letter="MailCheck"
+                    destination="RefundLimitAction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+               <!-- 	changes for rev 1.9 :Start -->
+                <ROAD
+                    name="StoreCreditRefundSelected"
+                    letter="StoreCredit"
+                    destination="RefundLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                   <!-- <LIGHT signal="MAXIsOxigenEWalletTenderSignal" negate="Y"  />-->
+                </ROAD>    
+                
+                <!-- <AISLE
+                    name="OxigenWalletRefundSelected"
+                    letter="EWallet"   
+                    laneaction="MAXOxigenWebRequestForOTPAisle" 
+                    destination="EnterOxigenOTPToRefund">
+                </AISLE> -->
+                     <ROAD
+                    name="OxigenWalletRefundSelected"
+                    letter="EWallet"
+                    laneaction="MAXOxigenWebRequestForOTPAisle" 
+                    destination="EnterOxigenOTPToRefund"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="MAXIsOxigenEWalletTenderSignal" />
+                </ROAD>  
+                
+                <ROAD
+                    name="OxigenWalletRefundSelected"
+                    letter="Cancel" 
+                    destination="RefundOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+               
+                 
+                 <!-- 	changes for rev 1.9 :End -->
+             <!--       changes end here  -->
+                <ROAD
+                    name="HouseCardRefundSelected"
+                    letter="HouseAccount"
+                    destination="RefundLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="PurchaseOrderRefundSelected"
+                    letter="PurchaseOrder"
+                    destination="RefundLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RefundUndoSelected"
+                    letter="Undo"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="RefundTenderManagerOverride"
+                    letter="ManagerOverride"
+                    destination="RefundTenderOverrideAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DeleteTenderSelected"
+                    letter="Clear"
+                    destination="DeleteTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <!-- 	changes for rev 1.9 :Start -->
+            <SITE name="EnterOxigenOTPToRefund" siteaction="MAXEnterOxigenWalletOTPForRefundSite">    
+            
+            <AISLE
+                    name="ValidateOtp"
+                    letter="Next"   
+                    laneaction="MAXValidateOxigenOTPAisle">  
+                  
+                </AISLE>
+                  <ROAD name="OxigenWalletSuccess"
+                   letter="Cash" 
+                   destination="MAXEWalletTenderAction"
+					tape="ADVANCE" 
+					record="OFF" 
+					index="OFF">
+				</ROAD>
+	             <ROAD name="Retrying" letter="Retry"
+	                destination="EnterOxigenOTP" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                
+				<ROAD name="Cancel" letter="Cancel" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="Failed" letter="Failure" destination="EnterOxigenOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+			</SITE>
+             <!-- 	changes for rev 1.9 :End -->
+            <!-- changes end here -->
+            <SITE  name="RedeemRefundOptionsUI" siteaction="RedeemRefundOptionsUISite">
+                <ROAD
+                    name="CashRedeemRefundSelected"
+                    letter="Cash"
+                    destination="CashChangeAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditRedeemRefundSelected"
+                    letter="Credit"
+                    destination="RefundLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RedeemRefundUndoSelected"
+                    letter="Undo"
+                    destination="CaptureCustomerStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckRedeemRefundSelected"
+                    letter="MailCheck"
+                    destination="RefundLimitAction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="RefundLimitAction" siteaction="RefundLimitActionSite">
+                <ROAD
+                    name="CreditRefundLimitsChecked"
+                    letter="Credit"
+                    destination="AuthorizationStation"
+                    laneaction="SetRequestTypeCreditAuthRefundRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitRefundLimitsChecked"
+                    letter="Debit"
+                    destination="AuthorizationStation"
+                    laneaction="SetRequestTypeDebitAuthRefundRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <ROAD name="GiftCardRefundLimitSuccess"
+                     letter="GiftCard"
+                     destination="GiftCardStation"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+               </ROAD>
+               <ROAD name="MailBankCheckRefundLimitSuccess"
+                     letter="MailCheck"
+                     destination="MailCheckRefundStation"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+               </ROAD>
+               <ROAD name="GiftCertRefundLimitSuccess"
+                     letter="GiftCert"
+                     destination="GiftCertificateRefundStation"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+               </ROAD>
+                <ROAD
+                    name="StoreCreditRefundLimitSuccess"
+                    letter="StoreCredit"
+                    destination="StoreCreditRefundStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderRefundLimitSuccess"
+                    letter="PurchaseOrder"
+                    destination="PurchaseOrderRefundStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="HouseAccountRefundLimitsChecked"
+                    letter="HouseAccount"
+                    laneaction="SetRequestTypeHouseAccountAuthRefundRoad"
+                    destination="AuthorizationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="RefundToOriginalCardWithTokenSignal"/>
+                </ROAD>
+                <ROAD
+                    name="HouseAccountRefundLimitsChecked"
+                    letter="HouseAccount"
+                    laneaction="SetRequestTypeHouseAccountAuthRefundRoad"
+                    destination="HouseAccountTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="RefundToOriginalCardWithTokenSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="RefundLimitOverrideRoad"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RefundTenderDiscardRoad"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    laneaction="RefundTenderDiscardRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RefundLimitsExceeded"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ChangeLimitAction" siteaction="ChangeLimitActionSite">
+                <ROAD
+                    name="ChangeLimitsExceeded"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ChangeLimitsOverride"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ChangeLimitOverrideNo"
+                    laneaction="RemoveTenderRoad"
+                    letter="No"
+                    destination="EvaluateBalance"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ChangeLimitOverrideSuccess"
+                    letter="Success"
+                    destination="PaidUpAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashChangeLimitSuccess"
+                    letter="Cash"
+                    destination="CashTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="GiftCardChangeLimitSuccess"
+                     letter="GiftCard"
+                     destination="GiftCardStation"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                </ROAD>
+                <ROAD name="MailBankCheckChangeLimitSuccess"
+                     letter="MailCheck"
+                     destination="MailCheckChangeStation"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                </ROAD>
+                <ROAD name="GiftCertChangeLimitSuccess"
+                     letter="GiftCert"
+                     destination="GiftCertificateRefundStation"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                </ROAD>
+            </SITE>
+            <!-- 	changes for rev 1.5 -->
+            <SITE  name="ForcedCashChangeAction" siteaction="MAXForcedCashChangeActionSite">
+                <ROAD
+                    name="ForcedCashChangeSuccess"
+                    letter="Success"
+                    destination="ChangeDueOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ForcedCashAuthorizationRequired"
+                    letter="Authorize"
+                    destination="AuthorizationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ChangeDueOptionsUI" siteaction="MAXChangeDueOptionsUISite">
+                <ROAD
+                    name="CashChangeSelected"
+                    letter="Cash"
+                    destination="ChangeLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ForcedCashChangeCreated"
+                    letter="ForcedCash"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardChangeSelected"
+                    letter="GiftCard"
+                    destination="GiftCardStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GiftCertChangeSelected"
+                    letter="GiftCert"
+                    destination="ChangeLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckChangeSelected"
+                    letter="MailCheck"
+                    destination="ChangeLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditChangedSelected"
+                    letter="StoreCredit"
+                    destination="StoreCreditChangeStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ChangeDueCancelSelected"
+                    letter="Cancel"
+                    destination="ReverseTendersAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="RefundDueUI" siteaction="RefundDueUISite">
+                <AISLE
+                    name="OpenCashDrawerForRefund"
+                    letter="Open"
+                    laneaction="OpenCashDrawerAisle">
+                </AISLE>
+                <AISLE
+                    name="DrawerRetryForRefund"
+                    letter="Retry"
+                    laneaction="CashDrawerRetryAisle">
+                </AISLE>
+                <AISLE
+                    name="DrawerContinueForRefund"
+                    letter="Continue"
+                    laneaction="CashDrawerContinueAisle">
+                </AISLE>
+                <AISLE
+                    name="SendFinalResult"
+                    letter="ExitTender"
+                    laneaction="SendFinalResultAisle">
+                    <LIGHT signal="HasNotSentFinalResult"/>
+                </AISLE>
+                   <!-- changes for rev 1.6 start  changed destination from final to  CheckMcouponCustomer-->
+                <!-- <ROAD
+                    name="RefundIssuedRoad"
+                    letter="ExitTender"
+                    laneaction="MAXTICRequestMobileNumberAisle"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD> -->
+				<ROAD name="RefundIssuedRoad" letter="ExitTender"
+					laneaction="MAXTICRequestMobileNumberAisle" destination="CheckMcouponCustomer"
+					tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+		    </ROAD>
+		
+		</SITE>
+	<SITE name="CheckMcouponCustomer" siteaction="MAXMcouponCheckForCustomerSite">
+				<!-- renamed destination from MobleNumberEnter to MobleNumberEnterSite -->
+				<ROAD name="PhoneEnquiryRoad" letter="MobleNumberEnter"
+					destination="MobleNumberEnterSite"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="customerFound" letter="CapillaryRequest"
+					destination="McouponCapillaryRequest"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="ExitTenderRoad" letter="ExitTender"
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>
+			
+					<!-- renamed name from MobleNumberEnter to MobleNumberEnterSite -->	
+			<SITE name="MobleNumberEnterSite" siteaction="MAXMcouponMobleNumberEnterSite">
+				<ROAD name="PhoneEnteredSuccessRoad" letter="Next"
+					destination="McouponCapillaryRequest"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="ExitTenderRoad" letter="ExitTender"
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				
+			</SITE>
+			
+			
+			
+			
+			<SITE name="McouponCapillaryRequest" siteaction="MAXMcouponCapillaryRequestSite">
+				<ROAD name="CapillaryFailure" letter="Failure"
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+				
+				<!-- <ROAD name="CapillarySuccess" letter="Success"
+					destination="McouponSaveCoupons"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+												
+				<ROAD name="ExitTenderRoad" letter="ExitTender"
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+								
+            </SITE>
+            
+            <!-- changes by Shyvanshu Mehra -->
+            
+            <!-- <SITE name="CheckCustomerNumber" siteaction="MAXCheckCustomerNumber">
+				<ROAD name="CheckMobileNumber" letter="Yes"
+					destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD> -->
+                
+                <!-- <ROAD name="Enternumber" letter="Undo"
+Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â Ã‚Â destination="EnterCustomerNumber" tape="ADVANCE" record="OFF" index="OFF">
+                
+                </ROAD> -->
+				
+				<!-- <ROAD name="CapillarySuccess" letter="Success"
+					destination="McouponSaveCoupons"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+												
+				<ROAD name="ExitTenderRoad" letter="ExitTender"
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+								
+            
+            
+            <!-- Changes for Rev 1.10 : Starts  -->
+            <SITE  name="PaidUpAction" siteaction="MAXPaidUpActionSite">
+            <!-- Changes for Rev 1.10 : Ends  -->
+                <AISLE
+                    name="OpenCashDrawerForPaidUp"
+                    letter="Open"
+                    laneaction="OpenCashDrawerAisle">
+                </AISLE>
+                <AISLE
+                    name="DrawerRetryForPaidUp"
+                    letter="Retry"
+                    laneaction="CashDrawerRetryAisle">
+                </AISLE>
+                <AISLE
+                    name="DrawerContinueForPaid"
+                    letter="Continue"
+                    laneaction="CashDrawerContinueAisle">
+                </AISLE>
+                <AISLE
+                    name="SendFinalResult"
+                    letter="ExitTender"
+                    laneaction="SendFinalResultAisle">
+                    <LIGHT signal="HasNotSentFinalResult"/>
+                </AISLE>
+                <!-- changes for rev 1.6 start  changed destination from final to  CheckMcouponCustomer-->
+                <!-- <ROAD
+                    name="ChangeIssuedRoad"
+                    letter="ExitTender"
+                    laneaction="MAXTICRequestMobileNumberAisle"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD> -->			
+                	<ROAD name="ChangeIssuedRoad" letter="ExitTender"
+					laneaction="MAXTICRequestMobileNumberAisle" 
+					destination="CheckMcouponCustomer"
+					tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD>
+                <ROAD
+                    name="PaidUpAuthorizationRequired"
+                    letter="Authorize"
+                    destination="AuthorizationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="ReverseTenderAuthStation"
+                servicename="tender.reversal.reversal" targettier="CURRENTTIER"
+                launchshuttle="ReversalLaunchShuttle">
+                <ROAD
+                    name="ReverseTendersAuthorizedRoad"
+                    letter="Success"
+                    destination="DeleteTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="CaptureCustomerStation"
+                servicename="tender.capturecustomerinfo.capturecustomerinfo"
+                targettier="CURRENTTIER"
+                launchshuttle="CaptureRefundCustomerLaunchShuttle"
+                returnshuttle="CaptureCustomerReturnShuttle">
+                <ROAD
+                   name="CustomerCapturedRoad"
+                   letter="Success"
+                   destination="EvaluateBalance"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD
+                   name="CaptureCustomerCanceledRoad"
+                   letter="Cancel"
+                   destination="ReverseTendersAction"
+                   laneaction="CancelSelectedRoad"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD
+                   name="CaptureCustomerFailureRoad"
+                   letter="Failure"
+                   destination="ReverseTendersAction"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD
+                   name="CaptureCustomerUndoRoad"
+                   letter="Undo"
+                   destination="ReverseTendersAction"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD
+                   name="CaptureCustomerSkipRoad"
+                   letter="Skip"
+                   destination="EvaluateBalance"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+            </STATION>
+             <!-- Rev 1.9 changes starts here -->
+            <SITE  name="FoodTotalTenderAction" siteaction="MAXFoodTotalTenderActionSite">
+                <ROAD 
+                    name="FoodTotalTenderAddedRoad"
+                    letter="Continue"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                 
+            </SITE>
+			<!-- Rev 1.9 changes end here -->
+            <SITE  name="CashTenderAction" siteaction="MAXCashTenderActionSite">
+                <ROAD
+                    name="CashTenderAddedRoad"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashTenderOverrideRoad"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CashTenderInvalidRoad"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CashChangeAction" siteaction="CashChangeActionSite">
+                <ROAD
+                    name="CashChangeAddedRoad"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashChangeOverrideSelected"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CashChangeInvalidRoad"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashChangeFailureRoad"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+           	<!-- 	changes for rev 1.7 :Start  atul-->
+             <SITE  name="WalletTenderInfo" siteaction="MAXWalletTenderInfoSite">
+                 <ROAD
+                    name="MobikwikTenderRoad"
+                    letter="Mobikwik"
+                    destination="MobikwikTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF"> 
+                </ROAD> 
+                
+                <ROAD
+                    name="PatymTenderAddedRoad"
+                    letter="Paytm"
+                    destination="PaytmTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                <ROAD
+                    name="AmazonPayTenderAddedRoad"
+                    letter="AmazonPay"
+                    destination="AmazonPayTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+       
+                <ROAD
+                    name="WalletTenderUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+               </ROAD>
+                    <!-- <ROAD
+                    name="WalletTenderCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+         		  -->
+	             <ROAD
+                    name="WalletTenderCancelled"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+           
+            </SITE>
+            
+            
+             <STATION
+                name="MobikwikTenderStation"
+                servicename="tender.mobikwik.mobikwik"
+                targettier="CURRENTTIER"
+                 launchshuttle="MAXChosenTenderLaunchShuttle"
+                returnshuttle="MAXChosenTenderReturnShuttle">
+                Changes end for rev 1.11
+               <ROAD 
+                    name="MobikwikFailure"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="MobikwikSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                  <ROAD      
+                    name="MobikwikUndo"
+                    letter="Final"
+                    destination="WalletTenderInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+    
+                <ROAD     
+                    name="MobikwikFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+			 <!-- added by atul for bugId 1854 -->
+			        <ROAD 
+                    name="MobikwikReentryTenderSuccess"
+                    letter="MobikwikReentry"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                          </STATION> 
+            
+            		changes for rev 1.7 :End  atul shukla
+    
+                     		changes for rev 1.8 :Start for patym integartion  atul shukla      
+                <STATION
+	                name="PaytmTenderStation"
+	                servicename="tender.paytm.paytm"
+	                targettier="CURRENTTIER"
+	                launchshuttle="MAXChosenTenderLaunchShuttle"
+	                returnshuttle="MAXChosenTenderReturnShuttle">
+                Changes end for rev 1.11
+                <ROAD 
+                    name="PaytmFailure"
+                    letter="Ok"
+                    destination     ="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="PaytmSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                  <ROAD      
+                    name="PaytmUndo"
+                    letter="Undo"
+                    destination="WalletTenderInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+    
+                <ROAD     
+                    name="PaytmFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+			 added by atul for bugId 1854
+			    <ROAD 
+                    name="PaytmReentryTenderSuccess"
+                    letter="PaytmReentry"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+              
+            </STATION> 
+            
+            	<!-- 	changes for rev 1.8 :End  atul shukla-->
+    
+   <!-- Changes Start for Amazon Pay Integration @Purushotham -->      
+                <STATION
+	                name="AmazonPayTenderStation"
+	                servicename="tender.amazonpay.amazonpay"
+	                targettier="CURRENTTIER"
+	                launchshuttle="MAXChosenTenderLaunchShuttle"
+	                returnshuttle="MAXChosenTenderReturnShuttle">
+                
+                <ROAD 
+                    name="AmazonPayError"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="AmazonPaySuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                  <ROAD      
+                    name="AmazonPayUndo"
+                    letter="Final"
+                    destination="WalletTenderInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+    
+                <ROAD     
+                    name="AmazonPayFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+			
+			    <ROAD 
+                    name="AmazonPayReEntryTenderSuccess"
+                    letter="AmazonPayReEntry"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+              
+            </STATION>
+           
+           
+          	<!-- Changes END for Amazon Pay Integration @Purushotham -->
+          	
+                <SITE  name="CashChangeAction" siteaction="CashChangeActionSite">
+                <ROAD
+                    name="CashChangeAddedRoad"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashChangeOverrideSelected"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CashChangeInvalidRoad"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashChangeFailureRoad"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+          
+            <SITE  name="ReverseTendersAction" siteaction="MAXReverseTendersActionSite">
+                <ROAD
+                    name="ReversalAuthorizationRequired"
+                    letter="Authorize"
+                    destination="ReverseTenderAuthStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NoReversalRequired"
+                    letter="Continue"
+                    destination="DeleteTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--MAX Rev 1.5 Change : Start-->
+                <ROAD 
+                    name="InvalidUndoRoad"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<!--MAX Rev 1.5 Change : End-->            
+			</SITE>
+            <!-- MAX Rev. 1.3 Change : Start -->
+            <SITE  name="DeleteTendersAction" siteaction="MAXDeleteTendersActionSite">
+             <!-- MAX Rev. 1.3 Change : End -->      
+                <AISLE
+                    name="SendFinalResultForUndo"
+                    letter="Undo"
+                    laneaction="SendFinalResultAisle">
+                    <LIGHT signal="HasNotSentFinalResult"/>
+                </AISLE>
+                <AISLE
+                    name="SendFinalResultForCancel"
+                    letter="Cancel"
+                    laneaction="SendFinalResultAisle">
+                    <LIGHT signal="HasNotSentFinalResult"/>
+                </AISLE>
+                <AISLE
+                    name="ConvertToUndoLetter"
+                    letter="ExitTender"
+                    laneaction="UndoLetterAisle">
+                    <LIGHT signal="IsTenderCanceledSignal" negate="Y"/>
+                </AISLE>
+                <AISLE
+                    name="ConvertToCancelLetter"
+                    letter="ExitTender"
+                    laneaction="CancelLetterAisle">
+                    <LIGHT signal="IsTenderCanceledSignal"/>
+                </AISLE>
+                <ROAD
+                    name="TendersDeletedByUndoRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD>
+                    <ROAD
+                    name="NotToDeletePaytmTender"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD>
+                <ROAD
+                    name="TendersDeletedByCancelRoad"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD>
+            </SITE>
+            <SITE  name="ReverseTendersAction2" siteaction="MAXReverseTendersActionSite">
+                <ROAD
+                    name="ReversalAuthorizationRequired"
+                    letter="Authorize"
+                    destination="ReverseTenderAuthStation2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <!--MAX Rev 1.5 Change : Start-->            
+          		<ROAD 
+                    name="InvalidUndoRoad"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+         		<!--MAX Rev 1.5 Change : End-->   
+                <ROAD
+                    name="NoReversalRequired"
+                    letter="Continue"
+                    destination="DeleteTendersAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ReverseTenderAuthStation2"
+                servicename="tender.reversal.reversal"
+                targettier="CURRENTTIER"
+                launchshuttle="ReversalLaunchShuttle">
+                <ROAD
+                    name="ReverseTendersAuthorizedRoad"
+                    letter="Success"
+                    destination="DeleteTendersAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <!-- MAX Rev 1.3 Change : Start -->
+            <SITE  name="DeleteTendersAction2" siteaction="MAXDeleteTendersActionSite">
+            <!-- MAX Rev 1.3 Change : End -->
+                <ROAD
+                    name="TendersDeletedRoad"
+                    letter="Undo"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="RefundCancelRoad"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="RefundTenderOverrideAction" siteaction="RefundTenderOverrideActionSite">
+                <ROAD
+                    name="DonotNeedOverride"
+                    letter="Success"
+                    destination="RefundOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NeedOverride"
+                    letter="Override"
+                    destination="CheckAccess"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="ManagerOverrideChosen"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		<!-- Changes for Rev 1.4 Starts-->
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="MAXIsCashRefundSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="AccessGranted1"
+                    letter="Continue"
+                    destination="CashChangeAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="MAXIsCashRefundSignal"/>
+                </ROAD>
+		<!-- Changes for Rev 1.4 Ends-->
+				<!--changes for rev 1.2 end-->
+            </SITE>
+            <!-- sbi reward point changes start
+			<SITE name="sbiPointsAction" siteaction="MAXCheckSBIThresholdPointSite"> 
+				<ROAD name="PointRedemptionRequired" letter="Yes"
+					destination="redeemSBIPartialPoints" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="PointRedemptionNotRequired" letter="No"
+					destination="TenderOptionsUI" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="PointRedemptionRequired" letter="Continue"
+					destination="TenderOptionsUI" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+			</SITE>
+			
+			<SITE name="redeemSBIPoints" siteaction="MAXSBIRedeemPartialPointSite"> 
+				<ROAD name="PointRedemptionRequired" letter="Yes"
+					destination="redeemSBIPartialPoints" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="PointRedemptionNotRequired" letter="No"
+					destination="EnterSBICardNumber" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+			</SITE>
+			<SITE name="redeemSBIPartialPoints" siteaction="MAXSBIAmountEnterSite"> 
+				<ROAD name="PointRedemptionRequired" letter="Next"
+					destination="EnterSBICardNumber" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="UndoPointRedemption" letter="Undo"
+					destination="sbiPointsAction" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+			</SITE>  -->
+			<!-- changes done -->
+			<SITE name="sbiPointsAction" siteaction="MAXCheckSBIThresholdPointSite"> 
+				<ROAD name="PointRedemptionRequired" letter="Yes"
+					destination="redeemSBIPartialPoints" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="PointRedemptionNotRequired" letter="No"
+					destination="TenderOptionsUI" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="PointRedemptionRequired" letter="Continue"
+					destination="TenderOptionsUI" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+			</SITE>
+			
+			<SITE name="redeemSBIPoints" siteaction="MAXSBIRedeemPartialPointSite"> 
+				<ROAD name="PointRedemptionRequired" letter="Yes"
+					destination="redeemSBIPartialPoints" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="PointRedemptionNotRequired" letter="No"
+					destination="EnterSBICardNumber" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+			</SITE>
+			<SITE name="redeemSBIPartialPoints" siteaction="MAXSBIAmountEnterSite"> 
+				<ROAD name="PointRedemptionRequired" letter="Next"
+					destination="EnterSBICardNumber" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="UndoPointRedemption" letter="Undo"
+					destination="sbiPointsAction" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				
+			 	
+			<!-- 	<ROAD name="invalidCardNumber" letter="Ok"
+					destination="MAXSBICardNumberEnterSite" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD> -->
+			</SITE>
+			
+		<SITE name="EnterSBICardNumber" siteaction="MAXSBICardNumberEnterSite"> 
+			
+				 <AISLE name="CheckSBIPointRedemption" letter="Next"
+					laneaction="MAXSBIPointRedemptionAisle">
+				</AISLE>
+				<!--  <Road name="SBIPointRedemptionDone" letter="Done"
+					destination="MAXSBICardNumberEnter">
+				</Road> -->
+			<!-- <ROAD name="invalidCardNumber" letter="RETRY"
+					destination="EnterSBICardNumber" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD> -->
+			 
+				<ROAD name="PointRedemptionRequired" letter="Failure"
+					destination="redeemSBIPartialPoints" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="PointRedemptionRequired" letter="No"
+					destination="TenderOptionsUI" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="LoyaltyPointRedemption" letter="Yes"
+					destination="LoyaltyPointTenderStation" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="PartialPointRedemption" letter="Partial"
+					destination="EnterLoyaltyAmount" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="ConvertedPointRedemption" letter="Converted"
+					destination="validateLoyaltyPoints" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="TotalPointRedemption" letter="Total"
+					destination="validateLoyaltyPoints" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<ROAD name="UndoPointRedemption" letter="Undo"
+					destination="redeemSBIPartialPoints" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+			</SITE>
+			
+					
+			<SITE name="EnterLoyaltyPointsAmount" siteaction="MAXEnterLoyaltySBIPointsAmountSite"> 
+				<ROAD name="PointRedemptionRequired" letter="Next"
+					destination="validateLoyaltyPoints" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+			</SITE>			
+			<SITE name="validateLoyaltyPoints" siteaction="MAXValidateLoyaltyPointsAmountSite">  
+				 <!--<AISLE name="ValidateLoyaltyPointsSelected" letter="Next"
+					laneaction="MAXValidateLoyaltyPointsAmountAisle">
+				</AISLE> -->
+				 <AISLE name="EncryptDecryptLoyaltyInfo" letter="Success"
+					laneaction="MAXWebRequestResponseInfoAisle">
+				</AISLE>
+			    <ROAD name="ProcessOtp" letter="Otp" destination="EnterOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="Succeed" letter="Continue" destination="PurchaseOrderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="Cancel" letter="Cancel" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="EnterLoyaltyPointsAmount"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="FailureLoyaltyPoints" letter="Ok" destination="TenderingInfoUI"
+				      tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="Timeout" letter="No"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="OverTenderLoyaltyPoints" letter="Reverse"
+					destination="EnterLoyaltyPointsAmount" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<AISLE name="ContiuneLoyaltyInfo" letter="Yes"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE>
+				<ROAD name="FailureTenderLoyaltyPoints" letter="Failure"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>  
+				
+				<!-- <ROAD name="EncryptDecryptLoyaltyInfo" letter="ProcessCapillaryRequest"
+					destination="LoyaltyRequestResponseInfo" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD> -->
+				
+				<ROAD name="EncryptDecryptLoyaltyInfo" letter="ProcessCapillaryRequest"
+				destination="Final" tape="ADVANCE" record="OFF"
+				index="OFF">
+				</ROAD>			
+		
+				<AISLE name="Retrying" letter="Retry"
+	                laneaction="MAXWebRequestResponseInfoAisle" tape="ADVANCE" record="OFF" index="OFF">
+                </AISLE>
+			</SITE> 
+			
+			<!-- changes by kamlesh -->
+			<SITE name="EnterLoyaltyAmount" siteaction="MAXEnterLoyaltyAmountSite">
+			<!-- Changes starts for Rev 1.0 -->
+			    <ROAD name="ProcessOtp" letter="Otp" destination="EnterOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			<!-- Changes ends for Rev 1.0 -->
+				<ROAD
+					name="ValidateLoyaltyPoints"
+					letter="Next"
+					destination="validateLoyaltyPoints">
+				</ROAD>
+				<AISLE
+					name="ValidateFromCRMAisle"
+					letter="Success"
+					laneaction="MAXWebRequestResponseInfoAisle">
+				</AISLE>
+				<!-- <ROAD name="LoyaltyCustomerContinue" letter="LoyaltyCustomerContinue" destination="EnterLoyaltyAmount"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+				<ROAD name="Succeed" letter="Continue" destination="TenderOptionsUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<AISLE name="FailureLoyaltyPoints" letter="Ok"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE>
+				
+				<ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="Final" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				
+				<AISLE name="SendReversalRequest" letter="No"
+					laneaction="MAXReversalRequestAisle">
+				</AISLE>
+				<ROAD name="OverTenderLoyaltyPoints" letter="Reverse"
+					destination="Final" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<AISLE name="ContiuneLoyaltyInfo" letter="Yes"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE>
+				<ROAD name="FailureTenderLoyaltyPoints" letter="Failure"
+					destination="TenderOptionsUI" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD
+					name="ValidationFailedRoad"
+					letter="Ok"
+					destination="Final">
+				</ROAD>
+			</SITE>
+			<!-- end here -->
+			
+			<SITE name="EnterOTP" siteaction="MAXEnterOtpSite">			 
+			 	<AISLE name="ValidateOtp" letter="Next"
+					laneaction="MAXOTPRequestResponseInfoAisle">
+				</AISLE>
+				<AISLE name="Succeed" letter="OtpSucessfull"  laneaction="MAXWebRequestResponseInfoAisle" 
+					tape="ADVANCE" record="OFF" index="OFF">
+				</AISLE>
+				<ROAD name="Cancel" letter="Cancel" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="FailureLoyaltyPoints" letter="Ok" destination="EnterOTP"
+				      tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="Retrying" letter="Retry"
+	                destination="EnterOTP" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+				<!-- <ROAD name="Succeed" letter="Cancel" laneaction="MAXLoyaltyOtpOverrideAisle" destination="CheckAccess"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+				<ROAD name="Succeed" letter="Continue" destination="AddLoyaltyPointsTender"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="EnterLoyaltyPointsAmount"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>  
+			 <ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="EnterLoyaltyPointsAmount" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>			
+				<ROAD name="Failed" letter="Failure" destination="EnterOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="TimeoutFaliure" letter="Done" destination="TimeoutDispaly"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="Timeout" letter="No"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="TimeoutFaliureError" letter="Invalid" destination="TimeoutDispaly"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>
+			
+			
+			<SITE name="EnterOxigenOTP" siteaction="MAXOxigenWebRequestResponseSite">
+
+	             <ROAD name="OTPSuccess" letter="Success" destination="MAXOxigenWalletTender"
+		          tape="ADVANCE" record="OFF" index="OFF">
+	             </ROAD>
+	             
+	             <ROAD name="Retrying" letter="Retry"
+	                destination="EnterOxigenOTP" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                
+				<ROAD name="Cancel" letter="Cancel" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="Failed" letter="Failure" destination="EnterOxigenOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+			</SITE>
+			
+			<SITE name="MAXOxigenWalletTender" siteaction="MAXOxigenWalletTenderInfoSite"> 
+				<AISLE name="ValidateOtp" letter="Next"
+					laneaction="MAXOxigenOTPRequestResponseDebitAisle">
+				</AISLE>
+				
+				<ROAD name="OTPSuccess" letter="Success" destination="MAXEWalletTenderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="Retrying" letter="Retry"
+	                destination="MAXOxigenWalletTender" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                
+				<ROAD name="Cancel" letter="Cancel" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="EWallet" letter="EWallet" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="FailureLoyaltyPoints" letter="Ok" destination="EnterOxigenOTP"
+				      tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				
+				<!-- <ROAD name="Succeed" letter="Cancel" laneaction="MAXLoyaltyOtpOverrideAisle" destination="CheckAccess"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+				<!-- <ROAD name="Succeed" letter="Continue" destination="PurchaseOrderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="EnterLoyaltyPointsAmount"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="EnterLoyaltyPointsAmount" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>		 -->		
+				<ROAD name="Failed" letter="Failure" destination="EnterOxigenOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="TimeoutFaliure" letter="Done" destination="TimeoutDispaly"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="Timeout" letter="No"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="TimeoutFaliureError" letter="Invalid" destination="TimeoutDispaly"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>	
+			
+			<SITE  name="MAXEWalletTenderAction" siteaction="MAXEWalletTenderActionSite">
+                <ROAD
+                    name="CashTenderAddedRoad"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashTenderOverrideRoad"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CashTenderInvalidRoad"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+			<!--
+			<SITE name="MAXOxigenWalletDebitInfoSite" siteaction="MAXOxigenWalletDebitInfoSite">
+			
+			<ROAD name="Success" letter="Success" destination="MAXCashTenderActionSite"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			
+			</SITE>
+			
+			<SITE name="MAXCashTenderActionSite" siteaction="MAXCashTenderActionSite">
+			
+			<ROAD name="Success" letter="Success" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			
+			</SITE>
+			-->
+		
+			<!-- <SITE name="LoyaltyRequestResponseInfo" siteaction="MAXLoyaltyRequestResponseInfoSite">
+
+				<ROAD name="Succeed" letter="Continue" destination="PurchaseOrderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+				<ROAD name="Error" letter="Failure" destination="Final" tape="ADVANCE"
+					record="OFF" index="OFF">
+				</ROAD>
+
+			</SITE> -->
+			
+			<SITE name="PurchaseOrderAction" siteaction="PurchaseOrderActionSite">
+				<ROAD name="PurchaseOrderAddedRoad" letter="PaidUp"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>
+				<SITE  name="TimeoutDispaly" siteaction="MAXDisplayTimeout">			
+				<AISLE name="TimeoutFaliure" letter="Ok"
+					laneaction="MAXWebRequestResponseInfoAisle">
+				</AISLE>	
+				<AISLE name="ContiuneLoyaltyInfo" letter="Yes"
+					laneaction="MAXContinueWebResponseInfoAisle">
+				</AISLE>			
+				<!-- <AISLE name="EncryptDecryptLoyaltyInfo" letter="Otp"
+					laneaction="EnterOTP">
+				</AISLE> -->
+				<ROAD name="Enterotp" letter="Otp" destination="EnterOTP"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="Succeed" letter="Continue" destination="PurchaseOrderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="UndoneLoyaltyPoints" letter="Undo" destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="InvalidLoyaltyPoints" letter="InsufficientPoints"
+					destination="EnterLoyaltyPointsAmount" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>		 	
+				<ROAD name="OverTenderLoyaltyPoints" letter="No"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				
+				<ROAD name="FailureTenderLoyaltyPoints" letter="Failure"
+					destination="TenderingInfoUI" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<!-- <ROAD name="EncryptDecryptLoyaltyInfo" letter="ProcessCapillaryRequest"
+					destination="LoyaltyRequestResponseInfo" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->   
+				
+				<ROAD name="EncryptDecryptLoyaltyInfo" letter="ProcessCapillaryRequest"
+				destination="Final" tape="ADVANCE" record="OFF"
+				index="OFF">
+				</ROAD>
+
+				
+			</SITE>
+			
+				<SITE  name="CheckLoyaltyAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="ManagerOverrideChosen"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="AddAmountLoyalty"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="AddAmountLoyalty" siteaction="MAXAddAmountLoyaltySite">				
+				<AISLE name="Succeed" letter="OverideSuccess" 
+				       laneaction="MAXWebRequestResponseInfoAisle">
+				</AISLE>
+				<ROAD name="AddLoyaltyAmount" letter="Continue" destination="PurchaseOrderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>
+			
+			
+			<!-- sbi reward point changes end -->
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="AdminAccessDenied"
+                    letter="Failure"
+                    destination="RefundOptionsUI">
+                </ROAD>
+                <ROAD
+                    name="ManagerOverrideSuccessful"
+                    letter="Success"
+                    destination="CashChangeAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="ForeignCurrencyStation"
+                servicename="services.foreigncurrency.foreigncurrency"
+                targettier="CURRENTTIER"
+                launchshuttle="ForeignCurrencyLaunchShuttle"
+                returnshuttle="ForeignCurrencyReturnShuttle">
+                <ROAD
+                    name="CurrencySelectedRoad"
+                    letter="Continue"
+                    destination="AlternateCurrencyTenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CurrencyUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CurrencyCancelled"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+
+            <STATION
+                name="TenderLimitOverrideStation"
+                servicename="tender.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLimitOverrideLaunchShuttle"
+                returnshuttle="TenderLimitOverrideReturnShuttle">
+                <ROAD
+                    name="TenderLimitOverrideSuccess"
+                    letter="Success"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideContinue"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="InstantCreditStation"
+                servicename="tender.instantcredit.instantcredit"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="InstantCreditContinue"
+                    letter="Continue"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditCancel"
+                    letter="Cancel"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditOffline"
+                    letter="Offline"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditDone"
+                    letter="Done"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditNoSwipe"
+                    letter="Noswipe"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditNext"
+                    letter="Next"
+                    destination="HouseAccountTenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotSupportedRoad"
+                    letter="NotSupported"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <!--  Changes starts for Rev 1.1 (Ashish :  Credit card) -->
+            <STATION
+                name="CreditDebitTenderStation"
+                servicename="tender.creditdebit.creditdebit"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD 
+                    name="CreditDebitSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitNext"
+                    letter="Next"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitInvalid"
+                    letter="Invalid"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitNo"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitDeclined"
+                    letter="Declined"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <!--  Changes ends for Rev 1.1 (Ashish : Credit card) -->
+            <STATION
+                name="CouponTenderStation"
+                servicename="tender.coupon.coupon"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="CouponSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponUndoSelected"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponCancelSelected"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                <!-- <ROAD
+                    name="CouponFailure"
+                    letter="2Wheeler"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> -->
+            </STATION>
+            <STATION
+                name="MoneyOrderTenderStation"
+                servicename="tender.moneyorder.moneyorder"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="MoneyOrderSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MoneyOrderSuccess"
+                    letter="Continue"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>    
+                <ROAD
+                    name="MoneyOrderSuccess"
+                    letter="Timeout"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MoneyOrderFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MoneyOrderDiscarded"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MoneyOrderDiscardedInvalid"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="PurchaseOrderTenderStation"
+                servicename="tender.purchaseorder.purchaseorder"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="PurchaseOrderFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderPaidUp"
+                    letter="PaidUp"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderOffline"
+                    letter="Offline"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="MallCertificateTenderStation"
+                servicename="tender.mallcertificate.mallcertificate"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="MallCertificateNoSelected"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertificateUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertificateCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertificateSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertificateFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertificateOffline"
+                    letter="Offline"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MallCertificateInvalid"
+                    letter="Invalid"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="MailCheckRefundStation"
+                servicename="tender.mailcheck.mailcheck"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="MailCheckUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MailCheckCancel"
+                    letter="Cancel"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MailCheckSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MailCheckOk"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MailCheckFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="MailCheckChangeStation"
+                servicename="tender.mailcheck.mailcheck"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="MailCheckUndo"
+                    letter="Undo"
+                    destination="ChangeDueOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MailCheckCancel"
+                    letter="Cancel"
+                    destination="ChangeDueOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MailCheckSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MailCheckOk"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MailCheckFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="StoreCreditTenderStation"
+                servicename="tender.storecredit.storecredit"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXChosenTenderSubTourLaunchShuttle"
+                returnshuttle="MAXChosenTenderReturnShuttle">
+                <ROAD
+                    name="StoreCreditSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditNo"
+                    letter="Yes"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditOk"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="StoreCreditExpired"
+                    letter="Stexpiredwithgraceperiod"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="StoreCreditRefundStation"
+                servicename="tender.storecredit.storecredit"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenRefundSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="StoreCreditSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditUndo"
+                    letter="Undo"
+                    destination="RefundOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditRefundOptions"
+                    letter="RefundOptions"
+                    destination="RefundOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditReverse"
+                    letter="Reverse"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            
+            <STATION
+                name="CheckTenderStation"
+                servicename="tender.check.check"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="CheckFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckAccepted"
+                    letter="Continue"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="CheckAuthNotRequired"
+                    letter="Success"
+                    laneaction="AcceptCheckWithoutAuthorizationAisle">
+                    <LIGHT signal="IsAuthorizationRequiredSignal" negate="Y"/>
+                </AISLE>
+                <ROAD
+                    name="CheckSuccess"
+                    letter="Success"
+                    destination="AuthorizationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsAuthorizationRequiredSignal"/>
+                </ROAD>
+                <ROAD
+                    name="CheckNo"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="SendFinalResult"
+                    letter="ExitTender"
+                    laneaction="SendFinalResultAisle">
+                    <LIGHT signal="HasNotSentFinalResult"/>
+                </AISLE>
+                 <!-- changes for rev 1.6 start  changed destination from final to  CheckMcouponCustomer-->
+                <!-- <ROAD
+                    name="CheckExitTender"
+                    letter="ExitTender"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD> -->
+				<ROAD name="CheckExitTender" letter="ExitTender" destination="CheckMcouponCustomer"
+					tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD>
+            </STATION>
+			<STATION
+                name="PurchaseOrderRefundStation"
+                servicename="tender.purchaseorder.purchaseorder"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenRefundSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="PurchaseOrderSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderUndo"
+                    letter="Undo"
+                    destination="RefundOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderRefundOptions"
+                    letter="RefundOptions"
+                    destination="RefundOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PurchaseOrderReverse"
+                    letter="Reverse"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="PurchaseOrderPaidUp"
+                    letter="PaidUp"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="StoreCreditChangeStation"
+                servicename="tender.storecredit.storecredit"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXChosenRefundSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                 <ROAD
+                    name="StoreCreditSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditUndo"
+                    letter="Undo"
+                    destination="ChangeDueOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditRefundOptions"
+                    letter="RefundOptions"
+                    destination="ChangeDueOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditReverse"
+                    letter="Reverse"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="CheckTenderStation"
+                servicename="tender.check.check"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="CheckFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckAccepted"
+                    letter="Continue"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="CheckAuthNotRequired"
+                    letter="Success"
+                    laneaction="AcceptCheckWithoutAuthorizationAisle">
+                    <LIGHT signal="IsAuthorizationRequiredSignal" negate="Y"/>
+                </AISLE>
+                <ROAD
+                    name="CheckSuccess"
+                    letter="Success"
+                    destination="AuthorizationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsAuthorizationRequiredSignal"/>
+                </ROAD>
+                <ROAD
+                    name="CheckNo"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="SendFinalResult"
+                    letter="ExitTender"
+                    laneaction="SendFinalResultAisle">
+                    <LIGHT signal="HasNotSentFinalResult"/>
+                </AISLE>
+                 <!-- changes for rev 1.6 start  changed destination from final to  CheckMcouponCustomer-->
+                <!-- <ROAD
+                    name="CheckExitTender"
+                    letter="ExitTender"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD> -->
+				<ROAD name="CheckExitTender" letter="ExitTender" destination="CheckMcouponCustomer"
+					tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="HasSentFinalResult"/>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="TravelCheckTenderStation"
+                servicename="tender.travelcheck.travelcheck"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="TravelCheckFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TravelCheckUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TravelCheckCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TravelCheckSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TravelCheckNo"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TravelCheckOk"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="GiftCardTenderStation"
+                servicename="tender.giftcard.giftcard"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="GiftCardFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardCancel"
+                    letter="Cancel"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardNo"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardOk"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- akanksha offline-->
+                 <ROAD 
+                    name="GiftcarsOffline"
+                    letter="offline"
+                    destination="TenderOptionsUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="GiftCardRefundStation"
+                servicename="tender.giftcard.giftcard"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenRefundSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="GiftCardRefundFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardRefundUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardRefundCancel"
+                    letter="Cancel"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardRefundSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="GiftCertificateTenderStation"
+                servicename="tender.giftcertificate.giftcertificate"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="GiftCertFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertNo"
+                    letter="No"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertInvalid"
+                    letter="Invalid"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertOverTenderNotAllowed"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="GiftCertificateRefundStation"
+                servicename="tender.giftcertificate.giftcertificate"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenRefundSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="GiftCertRefundSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertRefundInvalid"
+                    letter="Invalid"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertRefundUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="CaptureIRSCustomerStation"
+                servicename="tender.patriot.patriot"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenRefundSubTourLaunchShuttle"
+                >
+                <ROAD
+                    name="IRSCustomerCapturedRoad"
+                    letter="Continue"
+                    destination="EvaluateBalance"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="IRSCustomerCapturedRoadWithBadIDFormat"
+                    letter="Yes"
+                    destination="EvaluateBalance"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                   name="CaptureIRSCustomerCanceledRoad"
+                   letter="Cancel"
+                   destination="ReverseTendersAction"
+                   laneaction="CancelSelectedRoad"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="HouseAccountTenderStation"
+                servicename="tender.houseaccount.houseaccount"
+                targettier="CURRENTTIER"
+                launchshuttle="ChosenTenderSubTourLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <ROAD
+                    name="HouseAccountSuccess"
+                    letter="Success"
+                    destination="AuthorizationStation"
+                    laneaction="SetRequestTypeHouseAccountAuthRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountEnrollSuccess"
+                    letter="Continue"
+                    destination="AuthorizationStation"
+                    laneaction="SetRequestTypeHouseAccountAuthRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountInvalid"
+                    letter="Invalid"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="AuthorizationStation"
+                servicename="tender.authorization.authorization"
+                targettier="CURRENTTIER" 
+                launchshuttle="AuthorizationLaunchShuttle"
+                returnshuttle="AuthorizationReturnShuttle"
+                >
+                <ROAD
+                    name="AuthorizationSuccess"
+                    letter="Success"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AuthorizationFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AuthorizationDeclined"
+                    letter="Declined"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="GiftCardStation"
+                servicename="services.giftcard.giftcard"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardLaunchShuttle"
+                returnshuttle="GiftCardReturnShuttle"
+                >
+                <AISLE
+                    name="GiftCardConversion"
+                    letter="Continue"
+                    laneaction="GiftCardConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="GiftCardRefund"
+                    letter="GiftCard"
+                    destination="GiftCardRefundStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <!-- MAX Rev 1.2 Change : Start -->
+            <!-- Changes start for rev 1.11:add MAXChosenTenderLaunchShuttle -->
+            <STATION
+                name="LoyaltyPointTenderStation"
+                servicename="tender.loyaltypoint.loyaltypoint"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXChosenTenderLaunchShuttle"
+                returnshuttle="ChosenTenderReturnShuttle">
+                <!-- Changes end for rev 1.11 -->
+                <ROAD 
+                    name="LoyaltyPointsFailure"
+                    letter="Failure"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LoyaltyPointsSuccess"
+                    letter="Success"
+                    destination="EvaluateBalance"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LoyaltyPointsUndo"
+                    letter="Undo"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LoyaltyPointsCancel"
+                    letter="Ok"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LoyaltyPointsCancel"
+                    letter="Cancel"
+                    destination="ReverseTendersAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LoyaltyPointsPaidUp"
+                    letter="PaidUp"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="LoyaltyPointsOffline"
+                    letter="Offline"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="LoyaltyPointsInsufficientPointsRoad"
+                    letter="InsufficientPoints"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+          		<ROAD 
+                    name="LoyaltyPointsReversalRoad"
+                    letter="Reverse"
+                    destination="TenderingInfoUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Changes starts for Rev 1.3 (Ashish : Loyalty OTP) -->
+                <ROAD 
+                    name="LoyaltyFailureAfterTimeOut"
+                    letter="No"
+                    destination="TenderingInfoUI"
+		            tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Changes ends for Rev 1.3 (Ashish : Loyalty OTP) -->
+            </STATION>
+            
+            <SITE name="AddLoyaltyPointsTender" siteaction="MAXAddLoyaltyPointsTenderSite">
+				<ROAD
+					name="TenderAddedSuccessRoad"
+					letter="PaidUp"
+					destination="TenderingInfoUI">
+				</ROAD>
+				<ROAD
+					name="TenderAddedFailureRoad"
+					letter="Failure"
+					destination="TenderingInfoUI">
+				</ROAD>					
+			</SITE>
+			
+			
+			<SITE name="NewCustomerNumber" siteaction="MAXCustomerNumberSite">
+			 
+           		 <ROAD name="PhoneEnquiryRoad" letter="MobleNumberEnter"
+					destination="MobleNumberEnter"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>	
+				
+				<ROAD name="PhoneEnquiryRoad" letter="No"
+					destination="ConfirmCustomerRequest"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>	
+				
+				<ROAD name="customerFound" letter="CapillaryRequest"
+					destination="McouponCapillaryRequest"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="ExitTenderRoad" letter="ExitTender"
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>			 
+					
+			</SITE>
+			
+			
+			<SITE name="MobleNumberEnter" siteaction="MAXCustomerMobleNumberEnterSite">
+				<ROAD name="PhoneEnteredSuccessRoad" letter="Next"
+					destination="CashValidate"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="ExitTenderRoad" letter="ExitTender"
+					destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				
+			</SITE>
+			
+			<SITE name="ConfirmCustomerRequest" siteaction="MAXConfirmCustomerRequestSite">
+				
+				<ROAD name="ProceedWithoutNumber" letter="Yes"
+					destination="CashTender"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="ProceedWithoutNumber" letter="No"
+					destination="MobleNumberEnter"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				
+			</SITE>
+			
+			<SITE name="CashTender" siteaction="MAXCashTenderWithoutNumberSite">
+				
+				<ROAD name="ProceedWithoutNumber" letter="Yes"
+					destination="CashTenderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="ProceedWithoutNumber" letter="No"
+					destination="TenderingInfoUI"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				
+			</SITE>
+			
+			
+			
+            <!-- MAX Rev 1.2 Change : End -->
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+                    <!-- tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> -->
+                <!-- Changes ends for Rev 1.3 (Ashish : Loyalty OTP) -->
+         <!--    </STATION> -->
+            
+            <!-- <SITE name="AddLoyaltyPointsTender" siteaction="MAXAddLoyaltyPointsTenderSite">
+				<ROAD
+					name="TenderAddedSuccessRoad"
+					letter="PaidUp"
+					destination="TenderingInfoUI">
+				</ROAD>
+				<ROAD
+					name="TenderAddedFailureRoad"
+					letter="Failure"
+					destination="TenderingInfoUI">
+				</ROAD>					
+			</SITE>
+            MAX Rev 1.2 Change : End
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+ -->

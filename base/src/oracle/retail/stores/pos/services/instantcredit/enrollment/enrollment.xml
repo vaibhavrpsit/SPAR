@@ -1,0 +1,743 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/instantcredit/enrollment/enrollment.xml /main/19 2013/12/16 14:39:56 abhinavs Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhinavs  12/16/13 - Fix to save the txn when time out occurs
+ *    sgu       08/16/11 - print temporary shopping pass only once
+ *    sgu       07/22/11 - fix cancle flow for applying transactional discount
+ *    sgu       05/18/11 - remove major card swipe from enrollment flow
+ *    nkgautam  08/12/10 - added IsMSREnabledSignal class to fix unexpected
+ *                         expection
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+   $Log:
+    5    360Commerce 1.4         5/7/2008 8:55:11 PM    Alan N. Sinton  CR
+         30295: Code modified to present  Function Unavailable dialog for
+         House Account and Instant Credit when configured with ISD.  Code
+         reviewed by Anda Cadar.
+    4    360Commerce 1.3         12/19/2007 8:19:38 AM  Manikandan Chellapan
+         PAPB FR27 Bulk Checkin -2
+    3    360Commerce 1.2         3/31/2005 4:28:00 PM   Robert Pearse
+    2    360Commerce 1.1         3/10/2005 10:21:23 AM  Robert Pearse
+    1    360Commerce 1.0         2/11/2005 12:10:53 PM  Robert Pearse
+   $
+   Revision 1.16  2004/09/14 21:11:53  jdeleau
+   @scr 6873 Fix the undo destination of the EnterCardSite
+
+   Revision 1.15  2004/09/08 20:08:30  jdeleau
+   @scr 7069 Fix hang when user cancels out of the call error dialog.
+
+   Revision 1.14  2004/08/23 16:16:00  cdb
+   @scr 4204 Removed tab characters
+
+   Revision 1.13  2004/07/01 15:18:40  lzhao
+   @scr 3914: handle no name in card.
+
+   Revision 1.12  2004/06/25 22:54:54  cdb
+   @scr 1642 Updated so that Undo selected from Operator ID screen returns
+   to the calling service rather than prompting for another security override.
+
+   Revision 1.11  2004/06/14 13:17:24  dfierling
+   @scr 5486 - Fixed Undo button during ID entry (Identification)
+
+   Revision 1.10  2004/06/03 21:56:00  nrao
+   @scr 3916
+   Added new site CallErrorSite and the corresponding roads
+   and aisles.
+
+   Revision 1.9  2004/05/07 13:11:49  tfritz
+   @scr 3909 The exit of the enrollment use case now returns to the sell item screen.
+
+   Revision 1.8  2004/03/31 17:02:19  awilliam
+   @scr 4159 app crashes when selecting instant credit as tender
+
+   Revision 1.7  2004/03/26 00:24:17  aarvesen
+   @scr 0 updated tours to use the tourmap
+
+   Revision 1.6  2004/03/25 23:42:10  bjosserand
+   @scr 4093 Transaction Reentry
+
+   Revision 1.5  2004/03/25 22:56:57  bjosserand
+   @scr 4093 Transaction Reentry
+
+   Revision 1.4  2004/03/25 20:01:55  bjosserand
+   @scr 4093 Transaction Reentry
+
+   Revision 1.3  2004/03/16 18:42:43  cdb
+   @scr 0 Removed tabs from all java source code.
+
+   Revision 1.2  2004/02/12 16:50:42  mcs
+   Forcing head revision
+
+   Revision 1.1.1.1  2004/02/11 01:04:16  cschellenger
+   updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Enrollment"
+    package="oracle.retail.stores.pos.services.instantcredit.enrollment"
+    tourcam="OFF">
+    <CARGO  class="InstantCreditCargo" package="oracle.retail.stores.pos.services.instantcredit"/>
+    <SERVICECODE >
+        <LANEACTION class="EmployeeEnteredRoad" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="EnrollmentUnavailableRoad"/>
+        <LANEACTION class="ValidateCustomerInfoAisle"/>
+        <LANEACTION class="EnrollLaterAisle"/>
+        <LANEACTION class="EnrollNowAisle"/>
+        <LANEACTION class="CanceledEnrollmentRoad"/>
+        <LANEACTION class="EmployeeInvalidScanAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="TenderAmountAisle"/>
+        <LANEACTION class="RegisterClosedErrorAisle" package="oracle.retail.stores.pos.services.instantcredit.enrollment"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+
+        <LETTER name="Approved"/>
+        <LETTER name="Approve"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Declined"/>
+        <LETTER name="Enroll"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Frank"/>
+        <LETTER name="Inquiry"/>
+        <LETTER name="Next"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Reference"/>
+        <LETTER name="Retry"/>
+        <LETTER name="SalesAssoc"/>
+        <LETTER name="Success"/>
+        <LETTER name="TempPass"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Redo"/>
+        <LETTER name="Now"/>
+        <LETTER name="Later"/>
+        <LETTER name="Done"/>
+        <LETTER name="Discard"/>
+        <LETTER name="Ok"/>
+        <LETTER name="OperatorID"/>
+        <LETTER name="Bypass"/>
+        <LETTER name="InvalidIdScan"/>
+        <LETTER name="Closed"/>
+        <LETTER name="OpenTill"/>
+        <LETTER name="Error"/>
+        <LETTER name="Swipe"/>
+        <LETTER name="Noswipe"/>
+        <LETTER name="Valid"/>
+        <LETTER name="CallErr"/>
+        <LETTER name="NotSupported"/>
+
+        <SIGNAL  class="TransReentryLight">
+            <COMMENT >
+                Light is green we're in Transaction Reentry mode.
+            </COMMENT>
+        </SIGNAL>
+
+        <SITEACTION class="AuthorizeEnrollmentSite"/>
+        <SITEACTION class="CompleteEnrollmentSite"/>
+        <SITEACTION class="EnterEmployeeIDSite" package="oracle.retail.stores.pos.services.instantcredit.enrollment"/>
+        <SITEACTION class="FrankApplicationSite"/>
+        <SITEACTION class="GetCustomerInfoSite"/>
+        <SITEACTION class="OperatorRequiredSite"/>
+        <SITEACTION class="CheckOpenTillSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="POSErrorSite"/>
+        <SITEACTION class="ValidateSalesAssociateSite"/>
+        <SITEACTION class="DiscountApplySite"/>
+        <SITEACTION class="CallErrorSite"/>
+
+        <SHUTTLE class="ModifyTransactionDiscountPercentLaunchShuttle"/>
+        <SHUTTLE class="ModifyTransactionDiscountPercentReturnShuttle"/>
+        <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OperatorIdLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OpenTillLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OpenTillReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="OperatorRequired">
+            <SITE  name="OperatorRequired" siteaction="OperatorRequiredSite">
+                <ROAD
+                    name="OperatorRetryEnterCard"
+                    letter="Bypass"
+                    destination="CheckOpenTill"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OperatorCardInfoEntered"
+                    letter="OperatorID"
+                    destination="OperatorIdStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="ValidateSalesAssociate" siteaction="ValidateSalesAssociateSite">
+                <ROAD
+                    name="ValidSalesAssociate"
+                    letter="Valid"
+                    destination="GetCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InValidSalesAssociate"
+                    letter="Ok"
+                    destination="EnterEmployeeID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="OperatorIdStation"
+                servicename="services.operatorid.operatorid"
+                targettier="CURRENTTIER"
+                launchshuttle="OperatorIdLaunchShuttle"
+                returnshuttle="OperatorIdReturnShuttle">
+                <AISLE
+                    name="LoginUndo"
+                    letter="Undo"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to Failure
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LoginSucceeded"
+                    letter="Success"
+                    destination="CheckOpenTill"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LoginFailed"
+                    letter="Failure"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="CheckOpenTill" siteaction="CheckOpenTillSite">
+                <COMMENT >
+                    This site checks for an open till.
+                </COMMENT>
+                <AISLE
+                    name="RegisterClosed"
+                    letter="Closed"
+                    laneaction="RegisterClosedErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="ClosedErrorAcknowledged"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="TillOpen"
+                    letter="Success"
+                    destination="EnterEmployeeID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <LIGHT  signal="TransReentryLight" negate="Y"/>
+                </ROAD>
+                 <ROAD
+                    name="TillOpenForTransReentry"
+                    letter="Success"
+                    destination="GetCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <LIGHT  signal="TransReentryLight"/>
+                </ROAD>
+                <ROAD
+                    name="TillNotOpen"
+                    letter="OpenTill"
+                    destination="OpenTillStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TillOpenFailed"
+                    letter="Failure"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TillError"
+                    letter="Error"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="POSError"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="POSError" siteaction="POSErrorSite">
+                <AISLE
+                    name="PosErrorAcknowledged"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="PosErrorFinal"
+                    letter="Failure"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="OpenTillStation"
+                servicename="till.tillopen.tillopen"
+                targettier="CURRENTTIER"
+                launchshuttle="OpenTillLaunchShuttle"
+                returnshuttle="OpenTillReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the tillopen
+                    service.
+                </COMMENT>
+                <AISLE
+                    name="TillOpenFailure"
+                    letter="Failure"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="TillOpenUndo"
+                    letter="Undo"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="TillOpenCancel"
+                    letter="Cancel"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the Open Till service returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillOpenEvaluate"
+                    letter="Success"
+                    destination="EnterEmployeeID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="TransReentryLight" negate="Y"/>
+                    <COMMENT >
+                        This road is traveled when the TillOpen service returns
+                        with a Success letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillOpenEvaluateTransReentry"
+                    letter="Success"
+                    destination="GetCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="TransReentryLight"/>
+                    <COMMENT >
+                        This road is traveled when the TillOpen service returns
+                        with a Success letter.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SITE  name="GetCustomerInfo" siteaction="GetCustomerInfoSite">
+                <COMMENT >
+                    This site gets the card info from the user either by
+                    scanning it or manually entered
+                </COMMENT>
+                <AISLE
+                    name="ValidateCustomerInfo"
+                    letter="Next"
+                    laneaction="ValidateCustomerInfoAisle">
+                </AISLE>
+                <ROAD
+                    name="RedoCustomerInfo"
+                    letter="Redo"
+                    destination="GetCustomerInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SuccessfulCustomerInfo"
+                    letter="Success"
+                    destination="AuthorizeEnrollment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="TransReentryLight" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="BypassInstantCreditAuth"
+                    letter="Success"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="TransReentryLight"/>
+                </ROAD>
+                <ROAD
+                    name="UndoGetCustomerInfo"
+                    letter="Undo"
+                    destination="EnterEmployeeID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="TransReentryLight" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="UndoGetCustomerInfoTransReentry"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="TransReentryLight"/>
+                </ROAD>
+                <ROAD
+                    name="CancelGetCustomerInfo"
+                    letter="Cancel"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="EnrollmentUnavailable"
+                    letter="Frank"
+                    laneaction="EnrollmentUnavailableRoad"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD name="EnrollmentTimeout"
+                    letter="Timeout"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">             
+                </ROAD>
+            </SITE>
+            <SITE  name="AuthorizeEnrollment" siteaction="AuthorizeEnrollmentSite">
+                <AISLE
+                    name="EnrollLater"
+                    letter="Later"
+                    laneaction="EnrollLaterAisle">
+                </AISLE>
+                <AISLE
+                    name="EnrollNow"
+                    letter="Now"
+                    laneaction="EnrollNowAisle">
+                </AISLE>
+                <ROAD
+                    name="EnrollmentApproved"
+                    letter="Next"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ApproveEnrollment"
+                    letter="Approve"
+                    destination="AuthorizeEnrollment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="EnrollmentUnavailable"
+                    letter="Frank"
+                    laneaction="EnrollmentUnavailableRoad"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CallErrorReturned"
+                    letter="CallErr"
+                    destination="CallError"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelAuthorizeEnrollment"
+                    letter="Cancel"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotSupportedRoad"
+                    letter="NotSupported"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CallError" siteaction="CallErrorSite">
+                <AISLE
+                    name="EnrollLater2"
+                    letter="Later"
+                    laneaction="EnrollLaterAisle">
+                </AISLE>
+                <AISLE
+                    name="EnrollNow2"
+                    letter="Now"
+                    laneaction="EnrollNowAisle">
+                </AISLE>
+                <ROAD
+                    name="EnrollmentUnavailable"
+                    letter="Frank"
+                    laneaction="EnrollmentUnavailableRoad"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ApproveEnrollment"
+                    letter="Approve"
+                    destination="AuthorizeEnrollment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                	name="CancelCall"
+                	letter="Cancel"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="Final"
+                	tap="ADVANCE"
+                	record="OFF"
+                	index="OFF">
+               	</ROAD>
+            </SITE>
+            <SITE  name="FrankApplication" siteaction="FrankApplicationSite">
+                <ROAD
+                    name="SuccessfulFranking"
+                    letter="Done"
+                    destination="CompleteEnrollment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryFranking"
+                    letter="Retry"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DiscardFranking"
+                    letter="Discard"
+                    destination="CompleteEnrollment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DiscountApply" siteaction="DiscountApplySite">
+                <ROAD
+                    name="NonTransactionEnrollment"
+                    letter="Valid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ApplyTransDisc"
+                    letter="Yes"
+                    destination="DiscountPercentStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NoTransDisc"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CompleteEnrollment" siteaction="CompleteEnrollmentSite">
+                <ROAD
+                    name="ContinueCompleteEnrollment"
+                    letter="Continue"
+                    destination="DiscountApply"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryCompleteEnrollment"
+                    letter="Retry"
+                    destination="CompleteEnrollment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureCompleteEnrollment"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelCompleteEnrollment"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterEmployeeID" siteaction="EnterEmployeeIDSite">
+                <AISLE
+                    name="InvalidSalesAssociateScanAisle"
+                    letter="InvalidIdScan"
+                    laneaction="EmployeeInvalidScanAisle">
+                </AISLE>
+                <ROAD
+                    name="SalesAssociateInvalidError"
+                    letter="Ok"
+                    destination="EnterEmployeeID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoEmployeeID"
+                    letter="Undo"
+                    laneaction="CanceledEnrollmentRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+
+                <ROAD
+                    name="EmployeeEntered"
+                    letter="Next"
+                    laneaction="EmployeeEnteredRoad"
+                    destination="ValidateSalesAssociate"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CustomerInfoRequired"
+                    letter="Continue"
+                    destination="GetCustomerInfo"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+
+            <STATION name="DiscountPercentStation"
+                     servicename="modifytransaction.discount.modifytransactiondiscount"
+                     targettier="CURRENTTIER"
+                     launchshuttle="ModifyTransactionDiscountPercentLaunchShuttle"
+                     returnshuttle="ModifyTransactionDiscountPercentReturnShuttle">
+               <AISLE
+                    name="TenderAmountAisle"
+                    letter="Next"
+                    laneaction="TenderAmountAisle">
+               </AISLE>
+               <ROAD name="UndoDiscountPercent"
+                     letter="Undo"
+                     destination="DiscountApply"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+
+               <ROAD name="YesTenderAmount"
+                   letter="Yes"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+
+               <ROAD name="CancelDiscountPercent"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+
+               <ROAD name="FailureDiscountPercent"
+                   letter="Failure"
+                   destination="DiscountApply"
+                   tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

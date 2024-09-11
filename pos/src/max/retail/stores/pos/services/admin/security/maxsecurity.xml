@@ -1,0 +1,270 @@
+<?xml version='1.0' ?>
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Security" package="max.retail.stores.pos.services.admin.security" tourcam="OFF">
+     <COMMENT>
+          The security service is the entry point for employee
+          options., roles, parameters and reason codes.
+     </COMMENT>
+    <CARGO class="SecurityCargo" package="oracle.retail.stores.pos.services.admin.security">
+         <COMMENT>
+              The SecurityCargo holds data for the security service.
+         </COMMENT>
+    </CARGO>
+<SERVICECODE>
+     <LETTER name="Ok"/>
+     <LETTER name="Roles"/>
+     <LETTER name="Parameters"/>
+     <LETTER name="ReasonCodes"/>
+     <LETTER name="Success"/>
+     <LETTER name="EmployeeOptions"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Failure"/>
+     <LETTER name="IDError"/>
+
+     <SHUTTLE class="EmployeeLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security" />
+     <SHUTTLE class="RoleLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security" />
+     <SHUTTLE class="ReasonCodeLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security" />
+     <SHUTTLE class="ParameterLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security" />
+	<!-- Rev 1.0 changes start -->
+     <SITEACTION class="MAXSecurityMenuSite" package="max.retail.stores.pos.services.admin.security"/>
+     <!--  rev 1.0 end -->
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="SecurityMenu">
+     <!-- Rev 1.0 starrt -->
+          <SITE name="SecurityMenu" siteaction="MAXSecurityMenuSite"><!-- Rev 1.0 end -->
+               <ROAD name="EmployeeOptionsRoad"
+                     letter="EmployeeOptions"
+                     destination="EmployeeMainStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RolesRoad"
+                     letter="Roles"
+                     destination="RoleMainStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RetailParametersRoad"
+                     letter="Parameters"
+                     destination="RetailParameterStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+               <ROAD name="ReasonCodesRoad"
+                     letter="ReasonCodes"
+                     destination="ReasonCodesStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+
+               <ROAD name="SecurityMenuCancel"
+                     letter="Cancel"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SecurityMenuUndo"
+                     letter="Undo"
+                     destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <STATION
+            name="EmployeeMainStation"
+            servicename="employee.employeemain.employeemain"
+            targettier="CURRENTTIER"
+            launchshuttle="EmployeeLaunchShuttle">
+               <COMMENT>
+                    The EmployeeMain station is accessed to transfer
+                    to the EmployeeMain service.
+               </COMMENT>
+               <ROAD
+                    name="EmployeeStationUndo"
+                    letter="Undo"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The EmployeeStationUndo road is traversed when
+                         an Undo letter is received from the EmployeeMain
+                         service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="EmployeeStationCancelMenu"
+                    letter="CancelMenu"
+                    destination="Final"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The EmployeeStationCancel road is traversed when
+                         the UI returns a CancelMenu letter
+                    </COMMENT>
+               </ROAD>
+               
+               <ROAD
+                    name="EmployeeStationCancel"
+                    letter="Cancel"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The EmployeeStationCancel road is traversed when
+                         the UI returns a Cancel letter
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="EmployeeStationContinue"
+                    letter="Continue"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The EmployeeStationContinue road is traversed
+                         when the EmployeeStation returns a Continue letter.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="EmployeeStationFailure"
+                    letter="Failure"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The EmployeeStationFailure is traversed when a
+                         Failure letter is returned from the Employee service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="EmployeeStationIDError"
+                    letter="IDError"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The EmployeeStationIDError road is traversed when
+                         an IDError is returned from the Login service.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <STATION
+                name="RetailParameterStation"
+                servicename="admin.parametermanager.parametermanager"
+                targettier="APPLICATIONTIER"
+                launchshuttle="ParameterLaunchShuttle">
+               <COMMENT>
+                    Launch a service that lets the administrator change
+                    the values of various retail parameters, e.g., whether
+                    checks are accepted.
+               </COMMENT>
+               <ROAD
+                    name="ParameterManagerDone"
+                    letter="Cancel"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD
+                    name="ParameterManagerUndone"
+                    letter="Undo"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD
+                    name="ParameterManagerError"
+                    letter="Ok"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         May have been an error saving, or something else.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="ParameterManagerFailure"
+                    letter="Failure"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <STATION  name="ReasonCodesStation"
+                    servicename="admin.reasoncodemanager.reasoncodes"
+                    targettier="APPLICATIONTIER"
+                    launchshuttle="ReasonCodeLaunchShuttle">
+               <COMMENT>
+                    Launch a service that lets the administrator change
+                    the values of various reason codes.
+               </COMMENT>
+               <ROAD
+                    name="ReasonCodeManagerDone"
+                    letter="Cancel"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD
+                    name="ReasonCodeManagerUndone"
+                    letter="Undo"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD
+                    name="ReasonCodeManagerError"
+                    letter="Ok"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         May have been an error saving, or something else.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="ReasonCodeManagerFailure"
+                    letter="Failure"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <STATION
+                name="RoleMainStation"
+                servicename="admin.role.rolemain"
+                targettier="CURRENTTIER"
+                launchshuttle="RoleLaunchShuttle">
+               <COMMENT>
+                    This station is used to allow the user to add or edit
+                    roles.
+               </COMMENT>
+               <ROAD
+                    name="RoleStationUndo"
+                    letter="Undo"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if the user presses the Undo button.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="RoleStationCancel"
+                    letter="Cancel"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if the user presses the Cancel button.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="RoleStationContinue"
+                    letter="Continue"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if the RoleMain station returns
+                         a Continue letter.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="RoleStationFailure"
+                    letter="Failure"
+                    destination="SecurityMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if there is a failure in the Role
+                         Options station
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+
+          <SYSTEMSITE name="Final" action="RETURN"/>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+     </REGION>
+</MAP>
+</SERVICE>

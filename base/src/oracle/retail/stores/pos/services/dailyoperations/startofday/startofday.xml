@@ -1,0 +1,406 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/startofday/startofday.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="StartOfDay"
+         package="oracle.retail.stores.pos.services.dailyoperations.startofday"
+         tourcam="OFF">
+     <COMMENT>
+          This service handles opening the store and setting
+          the business date
+     </COMMENT>
+<CARGO class="StartOfDayCargo">
+     <COMMENT>
+          Cargo will hold the date information for opening the store.
+     </COMMENT>
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="No"/>
+     <LETTER name="Yes"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Success"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Offline"/>
+     <LETTER name="OpenStoreError"/>
+     <LETTER name="HardTotalsError"/>
+     <LETTER name="Override"/>
+
+     <SHUTTLE class="BusinessDateLaunchShuttle">
+          <COMMENT>
+               The shuttle conveys the cargo from the StartOfDay service to
+               the BusinessDate service.
+          </COMMENT>
+     </SHUTTLE>
+     <SHUTTLE class="BusinessDateReturnShuttle">
+          <COMMENT>
+               The shuttle conveys the cargo from the BusinessDate service
+               to the StartOfDay service.
+          </COMMENT>
+     </SHUTTLE>
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SHUTTLE class="PosCountSafeLaunchShuttle"/>
+     <SHUTTLE class="PosCountSafeReturnShuttle"/>
+     <SHUTTLE class="ResetHardTotalsLaunchShuttle" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+
+     <SITEACTION class="CheckOpenStoreSite" package="oracle.retail.stores.pos.services.common">
+          <COMMENT>
+               This site checks to see if the store is open
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="OpenStorePromptSite"/>
+     <SITEACTION class="StoreStatusUpdateSite"/>
+     <SITEACTION class="StoreOpenErrorSite">
+          <COMMENT>
+               This site displays an error message indicating that the store
+               is already open.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="AcknowledgeStoreOpenSite"/>
+     <SITEACTION class="WriteHardTotalsSite" package="oracle.retail.stores.pos.services.common">
+          <COMMENT>
+               This site writes data to the hard totals device.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SITEACTION class="JournalStoreStatusSite"/>
+     <SITEACTION class="SafeCountParamSite"/>
+
+     <LANEACTION class="StoreUpdateErrorAisle"/>
+     <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common">
+     </LANEACTION>
+     <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common">
+     </LANEACTION>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common">
+     </LANEACTION>
+     <LANEACTION class="WriteHardTotalsErrorAisle" package="oracle.retail.stores.pos.services.common">
+          <TRAVERSE>
+               <COMMENT>
+                    This aisle displays an error message when the
+                    hard-totals write fails.
+               </COMMENT>
+          </TRAVERSE>
+     </LANEACTION>
+     <LANEACTION class="JournalOverrideSuccessRoad"/>
+     
+     <SIGNAL class="ShowWarningSignal"/>
+     <SIGNAL class="ShowNoWarningSignal"/>
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="CheckOpenStore">
+          <SITE name="CheckOpenStore" siteaction="CheckOpenStoreSite">
+               <COMMENT>
+                    This site checks to see if the store is open
+               </COMMENT>
+               <ROAD name="StoreAlreadyOpen"
+                     letter="Success"
+                     destination="StoreOpenError"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the store is already open.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="StoreClosed"
+                     letter="Failure"
+                     destination="CheckAccess"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if all the status checks
+                         are passed.
+                    </COMMENT>
+                    <LIGHT signal="ShowNoWarningSignal"/>
+               </ROAD>
+               <ROAD name="StoreClosedConfirm"
+                     letter="Failure"
+                     destination="OpenStorePrompt"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if all the status checks
+                         are passed.
+                    </COMMENT>
+                    <LIGHT signal="ShowWarningSignal"/>
+               </ROAD>
+          </SITE>
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD 
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="BusinessDateStation">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD 
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="BusinessDateStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+          </STATION>                 
+          <SITE name="StoreOpenError" siteaction="StoreOpenErrorSite">
+               <AISLE name="StatusCheckFailed"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This aisle is taken when the store is already open.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="CheckFailed"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if the status check is
+                         not passed.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="OpenStorePrompt" siteaction="OpenStorePromptSite">
+               <AISLE name="NoOpenEntered"
+                      letter="No"
+                      laneaction="CancelLetterAisle">
+                    <COMMENT>
+                         This aisle is traveled when the store is not open
+                         and the user decides not to open it.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="YesOpenEntered"
+                     letter="Yes"
+                     destination="CheckAccess"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the store is not
+                         open and the user agrees to open it.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelOpen"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the user presses
+                         the Cancel key from the Confirmation screen.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="BusinessDateStation"
+                   servicename="dailyoperations.businessdate.businessdate"
+                   targettier="CURRENTTIER"
+                   launchshuttle="BusinessDateLaunchShuttle"
+                   returnshuttle="BusinessDateReturnShuttle">
+               <COMMENT>
+                    This station transfers control to the Business Date
+                    service.
+               </COMMENT>
+               <ROAD name="CountSafe"
+                     letter="Success"
+                     destination="SafeCountParam"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the Business Date
+                         service returns.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EnterBusinessDateCancelled"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the cancel key was pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EnterBusinessDateUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the undo key was pressed.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <SITE name="SafeCountParam" siteaction="SafeCountParamSite">
+               <COMMENT>
+                    This site checks the Store Safe count param
+               </COMMENT>
+               <ROAD name="Count"
+                     letter="Yes"
+                     destination="PosCountSafeStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NoCount"
+                     letter="No"
+                     destination="StoreStatusUpdate"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <STATION name="PosCountSafeStation"
+                   servicename="dailyoperations.poscount.poscount"
+                   targettier="CURRENTTIER"
+                   launchshuttle="PosCountSafeLaunchShuttle"
+                   returnshuttle="PosCountSafeReturnShuttle">
+               <ROAD name="SafeCountSucceeded"
+                     letter="Success"
+                     destination="StoreStatusUpdate"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+              <ROAD name="SafeCountUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="SafeCountCanceled"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SITE name="StoreStatusUpdate" siteaction="StoreStatusUpdateSite">
+               <COMMENT>
+                    This site sets the store status to open and sets the business
+                    date, writing both to the database. The site can mail either
+                    a Success or a Failure letter.
+               </COMMENT>
+               <AISLE name="StoreOpenFailed"
+                      letter="Failure"
+                      laneaction="StoreUpdateErrorAisle">
+                    <COMMENT>
+                         This road is taken when the store open fails.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="StoreAlreadyOpened"
+                     letter="OpenStoreError"
+                     destination="StoreOpenError"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the store is already open.
+                         Since a check was made at the start of this service,
+                         the only way this can happen is if two operators 
+                         attempt to open the store at the same time.  One
+                         of them may open the store while the other is at
+                         the business date prompt.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="StoreOpenSucceeded"
+                     letter="Success"
+                     destination="AcknowledgeStoreOpen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken when the store open succeeds.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="StoreOpenFailedOk"
+                     letter="Ok"
+                     destination="JournalStoreStatus"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken when the store open fails.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="AcknowledgeStoreOpen" siteaction="AcknowledgeStoreOpenSite">
+               <ROAD name="StoreOpenAcknowledged"
+                     letter="Ok"
+                     destination="ResetHardTotalsStation"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <STATION name="ResetHardTotalsStation"
+                   servicename="admin.resethardtotals.resethardtotals"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ResetHardTotalsLaunchShuttle">
+               <ROAD name="HardTotalsReset"
+                     letter="Continue"
+                     destination="WriteHardTotals"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SITE name="WriteHardTotals" siteaction="WriteHardTotalsSite">
+               <COMMENT>
+                    This site writes to the hard totals device.
+               </COMMENT>
+               <AISLE name="WriteHardTotalsError"
+                      letter="HardTotalsError"
+                      laneaction="WriteHardTotalsErrorAisle">
+                    <COMMENT>
+                         This aisle displays a message when the hard-totals write fails.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="WriteHardTotalsOk"
+                      letter="Ok"
+                      laneaction="SuccessConversionAisle">
+                    <COMMENT>
+                         Ailsle to traverse when an error occurs writing to the hard totals.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="HardTotalsWritten"
+                     letter="Success"
+                     destination="JournalStoreStatus"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if the operator wants to open the
+                         register immediately after opening the store.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="JournalStoreStatus" siteaction="JournalStoreStatusSite">
+               <AISLE name="JournalContinue"
+                      letter="Continue"
+                      laneaction="SuccessConversionAisle">
+                    <COMMENT>
+                         Ailsle to traverse when an error occurs writing to the hard totals.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="JournalSuccess"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="JournalFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+     </REGION>
+</MAP>
+</SERVICE>

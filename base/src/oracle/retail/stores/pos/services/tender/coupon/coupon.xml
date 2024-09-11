@@ -1,0 +1,173 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/coupon/coupon.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 7:51:14 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:27:31 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:20:25 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:10:13 PM  Robert Pearse
+     $
+     Revision 1.2  2004/08/16 21:42:51  bwf
+     @scr 6580 Now check limits for coupon.
+
+     Revision 1.1  2004/04/02 20:17:27  epd
+     @scr 4263 Refactored coupon tender into sub service
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.coupon"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Tender Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+
+        <SITEACTION class="CouponLimitActionSite"/>
+        <SITEACTION class="CouponTenderActionSite"/>
+        <SITEACTION class="GetCouponAmountSite"/>
+        <SITEACTION class="GetCouponNumberSite"/>
+    </SERVICECODE>
+
+    <MAP >
+         <REGION  region="SERVICE" startsite="CouponLimitAction">
+            <SITE  name="CouponLimitAction" siteaction="CouponLimitActionSite">
+                <ROAD
+                    name="CouponAmountOK"
+                    letter="Success"
+                    destination="GetCouponNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponInvalidAmount"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetCouponNumber" siteaction="GetCouponNumberSite">
+                <ROAD
+                    name="CouponNumberEntered"
+                    letter="Next"
+                    destination="GetCouponAmount"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponNumberUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetCouponAmount" siteaction="GetCouponAmountSite">
+                <ROAD
+                    name="CouponAmountEntered"
+                    letter="Next"
+                    destination="CouponTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponAmountContinue"
+                    letter="Continue"
+                    destination="CouponTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponAmountFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponAmountUndo"
+                    letter="Undo"
+                    destination="GetCouponNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponAmountCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CouponTenderAction" siteaction="CouponTenderActionSite">
+                <ROAD
+                    name="CouponTenderAddedRoad"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CouponTenderFailureRoad"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

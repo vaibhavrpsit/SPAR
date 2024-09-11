@@ -1,0 +1,36 @@
+<!--NOTES:
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 1998-2002 360Commerce, Inc.    All Rights Reserved.
+  $Log: posui.dtd,v $
+  Revision 1.2  2004/02/12 16:48:32  mcs
+  Forcing head revision
+
+  Revision 1.1.1.1  2004/02/11 01:04:13  cschellenger
+  updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+UICFG.DTD
+
+This file contains the parameter entities used by the EYSPOS UI Framework
+specification types, and is a driver for the DTD modules STD.MOD
+(containing the DTD for screens, templates, and displays) and BEANS.MOD
+(containing the DTD for beans).
+-->
+
+<!ENTITY % STD SYSTEM "classpath://oracle/retail/stores/foundation/dtd/std.mod">
+<!ENTITY % BEANS SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/beans.mod">
+<!ENTITY % name "specName ID    #REQUIRED">
+<!ELEMENT UICFG (COMMENT?, (DISPLAY | BEAN | POPUPMENU | TEMPLATE | DEFAULTSCREEN | OVERLAYSCREEN | INCLUDE)*)>
+<!ELEMENT BEANPROPERTY EMPTY>
+<!ATTLIST BEANPROPERTY
+  propName CDATA #REQUIRED
+  propValue CDATA #REQUIRED
+>
+<!ELEMENT COMMENT EMPTY>
+<!ELEMENT INCLUDE (COMMENT?)>
+<!ATTLIST INCLUDE
+  filename CDATA #REQUIRED
+>
+%STD;
+%BEANS;

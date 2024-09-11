@@ -1,0 +1,462 @@
+<?xml version='1.0' ?>
+
+<!DOCTYPE DATATECHNICIAN SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/datascript.dtd">
+
+<!-- This technician configuration is used by POS client to get access to the
+    local database. -->
+<DATATECHNICIAN
+    package="oracle.retail.stores.domain.arts">
+
+    <TRANSACTION name="AdvancedInquiryDataTransaction" command="jdbccommand"/>
+
+<!-- As of Release 13.1 the codelist no longer uses a flat file; however,
+     the configuration for this transaction is left as an example.-->
+<!-- <TRANSACTION name="LocalCodeDataTransaction"  command="flatfilecommand"/> -->
+
+    <TRANSACTION name="PLUTransaction" command="jdbccommand"/>
+    <TRANSACTION name="EmployeeFindForLoginTransaction" command="jdbccommand"/>
+    <TRANSACTION name="ReadTaxRuleTransaction" command="jdbccommand"/>
+    <TRANSACTION name="ReadNewTaxRuleTransaction" command="jdbccommand"/>
+    <TRANSACTION name="EmployeeFindForUpdateTransaction" command="jdbccommand"/>
+    <TRANSACTION name="RegisterMetaDataLookupTransaction" command="jdbccommand"/>
+    <TRANSACTION name="RegisterIDDIVersionTransaction" command="jdbccommand"/>
+    <TRANSACTION name="CurrencyDataTransaction" command="jdbccommand"/>
+    <TRANSACTION name="SCLU" command="jdbccommand"/>
+    <TRANSACTION name="RoleTransaction" command="jdbccommand"/>
+    <TRANSACTION name="StoreDataTransaction" command="jdbccommand"/>
+    <TRANSACTION name="MerchandiseHierarchyDataTransaction" command="jdbccommand"/>
+    <TRANSACTION name="ReadShippingMethodTransaction" command="jdbccommand"/>
+	 <!--Changes for bug reason codes not coming in offline Abhishek Starts-->
+<!-- 	  <TRANSACTION name="CodeListDataTransaction" command="jdbccommand"/> -->
+    <TRANSACTION name="MAXCodeListDataTransaction" command="jdbccommand"/>
+	 <!--Changes for bug reason codes not coming in offline Abhishek Ends-->
+    <TRANSACTION name="CustomerReadPricingGroupTransaction" command="jpacommand"/>
+    <TRANSACTION name="CustomerReadCustomerGroupsDataTransaction" command="jpacommand"/>
+    <TRANSACTION name="CurrencyRoundingRuleDataTransaction" command="jpacommand"/>
+	<!-- Changes start for code merging  :Ashish-->
+    <TRANSACTION name="MAXHotKeysTransaction" command="jdbccommand"/>
+    <TRANSACTION name="MAXTransactionReadCustomDiscountRules"
+		command="jdbccommand" />
+	<TRANSACTION name="MAXTransactionReadPrintedItemFreeDiscountRule"
+		command="jdbccommand" />
+		<TRANSACTION name="MAXTransactionReadSrcandTgtDiscountPerc"
+		command="jdbccommand" />
+	<!-- Changes ends for code merging : Ashish-->
+
+	<TRANSACTION name="MAXReadTaxOnPLUItem" command="jdbccommand" />
+    <COMMAND name="jdbccommand"
+            class="DataCommand"
+            package="oracle.retail.stores.foundation.manager.data"
+         >
+        <COMMENT>
+            This command contains all operations supported on a JDBC
+            database connection.
+        </COMMENT>
+        <POOLREF pool="offlinepool"/>
+
+        <OPERATIONCOMMON>
+             <PROPERTY propname="jdbcHelperClass" propvalue="oracle.retail.stores.common.data.jdbchelper.Db2Helper" />
+        </OPERATIONCOMMON>
+<!-- Changes start for code merging : Ashish -->
+        <OPERATION class="MAXJdbcPLUOperation" package="max.retail.stores.domain.arts"
+            name="PLULookup">
+<!-- Changes ends for code merging : Ashish -->
+            <COMMENT>
+                This operation retrieves a priced item from a jdbc database,
+                 given a string lookup key.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcSCLUOperation" package="oracle.retail.stores.domain.arts"
+            name="SCLULookup">
+            <COMMENT>
+                This operation retrieves a Store Coupon PLUItem from a jdbc database,
+                 given a string lookup key.
+            </COMMENT>
+        </OPERATION>
+<!-- Changes start for bug item enquiry in offline : Abhishek starts -->
+		<OPERATION class="MAXJdbcReadItemInfo" package="max.retail.stores.domain.arts"
+            name="ReadItemInfo">
+        <!-- <OPERATION class="JdbcReadItemInfo" package="oracle.retail.stores.domain.arts"
+            name="ReadItemInfo"> -->
+	<!-- Changes start for bug item enquiry in offline : Abhishek ends -->
+            <COMMENT>
+                This operation retrieves a priced item from a jdbc database,
+                 given a string lookup key.
+            </COMMENT>
+        </OPERATION>
+		
+		<OPERATION class="MAXJdbcReadTax"
+      			 package="max.retail.stores.domain.arts" 
+      			 name="ReadTaxOnPLUItem">
+		</OPERATION>
+
+        <OPERATION class="JdbcReadServiceItems" package="oracle.retail.stores.domain.arts"
+            name="ReadServiceItems">
+            <COMMENT>
+                This operation retrieves all service items from a jdbc database.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadItemSizes"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadItemSizes">
+            <COMMENT>
+                This operation looks up all the size codes.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadCurrencyType"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadCurrencyType">
+            <COMMENT>
+                This operation reads a currency type by country code.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadCurrencyTypeList"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadCurrencyTypeList">
+            <COMMENT>
+                This operation reads a currency list.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadDepartmentList"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadDepartmentList">
+            <COMMENT>
+                This operation retrieves a department by name or ID.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcEmployeeLookupOperation" package="oracle.retail.stores.domain.arts"
+            name="employeelookup">
+            <COMMENT>
+                This operation retrieves an Employee from a jdbc database,
+                 given a string loginID.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcSelectEmployees" package="oracle.retail.stores.domain.arts"
+            name="SelectEmployees">
+            <COMMENT>
+                This operation retrieves a list ofEmployees from a jdbc database,
+                 given a first and last name.
+            </COMMENT>
+        </OPERATION>
+        
+        <OPERATION class="JdbcReadNewTaxRules"
+                   package="oracle.retail.stores.domain.arts"
+                   name="ReadNewTaxRules">
+            <COMMENT>
+                New for 7.0, replaces previous 2 classes (ReadTaxRules, ReadTaxRulesByPostalCode)
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcSelectIDDIInfo" package="oracle.retail.stores.domain.arts"
+            name="RegisterMetaDataLookup">
+            <COMMENT>
+                This operation retrieves register metadata from offline database.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcSaveIDDIRegisterVersion" package="oracle.retail.stores.domain.arts"
+            name="SaveRegisterIDDIVersion">
+            <COMMENT>
+                This operation saves dataset meta data to offline database
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadAllDataSets" package="oracle.retail.stores.domain.arts" name="ReadAllDataSets">
+            <COMMENT>
+                This operation reads dataset metadata for all datasets
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadTaxHistory"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadTaxHistory">
+            <COMMENT>
+                This operation reads tax history.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadRoles"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadRoles">
+            <COMMENT>
+                This operation performs SELECT statements
+            </COMMENT>
+        </OPERATION>
+
+       <OPERATION class="JdbcReadRoleFunctions"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadRoleFunctions">
+            <COMMENT>
+                This operation performs SELECT statements
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadShippingMethod"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadShippingMethod">
+            <COMMENT>
+                This operation retrieves shipping methods
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcSelectCustomerGroups" 
+            name="SelectCustomerGroups" 
+            package="oracle.retail.stores.domain.arts">
+            <COMMENT>
+                This operation retrieves the available customer groups.
+            </COMMENT>
+        </OPERATION>
+        
+         <OPERATION class="JdbcReadPricingGroup"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadPricingGroup">
+            <COMMENT>
+                This operation retrieves a PricingGroup.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadItemStyles"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadItemStyles">
+            <COMMENT>
+                This operation reads item styles
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadItemTypes"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadItemTypes">
+            <COMMENT>
+                This operation reads item styles
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadItemColors"
+            package="oracle.retail.stores.domain.arts"
+            name="ReadItemColors">
+            <COMMENT>
+                This operation reads item colors
+            </COMMENT>
+        </OPERATION>
+
+        <!-- BEGIN - CodeList Data Operations -->
+        <OPERATION class="JdbcReadCodeList"
+                   package="oracle.retail.stores.domain.arts"
+                   name="ReadCodeList" >
+            <COMMENT>
+                This operation reads a specific code list.
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="MAXJdbcReadCodeListDepartment"
+                   package="max.retail.stores.domain.arts"
+                   name="ReadCodeListDepartment" >
+            <COMMENT>
+                This operation reads a code list for Department
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadCodeListShippingMethod"
+                   package="oracle.retail.stores.domain.arts"
+                   name="ReadCodeListShippingMethod" >
+            <COMMENT>
+                This operation reads a code list for Shipping Method
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadCodeListDiscount"
+                   package="oracle.retail.stores.domain.arts"
+                   name="ReadCodeListDiscount" >
+            <COMMENT>
+                This operation reads a code list for Manual Discounts
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcReadCodeListUnitOfMeasure"
+                   package="oracle.retail.stores.domain.arts"
+                   name="ReadCodeListUnitOfMeasure" >
+            <COMMENT>
+                This operation reads a code list for Unit Of Measure
+            </COMMENT>
+        </OPERATION>
+<!-- Change starts for code merging : Ashish-->
+<OPERATION class="MAXJdbcHotKeysLookup" package="max.retail.stores.domain.arts"
+            name="HotKeyItemIdLookup">
+         </OPERATION>
+        <OPERATION class="MAXJdbcLiquorUMAndCategoryLookup" package="max.retail.stores.domain.arts"
+            name="MAXJdbcLiquorUMAndCategoryLookup">
+        </OPERATION>
+        <OPERATION class="MAXJdbcGetPromotionUtil" name="GetPromotionComparisonValue"
+			package="max.retail.stores.domain.arts">
+			<COMMENT>
+				This operation insert the manager override accesss log
+				</COMMENT>
+		</OPERATION>
+		<OPERATION class="MAXJdbcReadPrintedItemFreeDiscountRule" name="ReadPrintedItemFreeDiscountRule"
+			package="max.retail.stores.domain.arts">
+			<COMMENT>
+				This operation insert the manager override accesss log
+				</COMMENT>
+		</OPERATION>
+		<OPERATION class="MAXJdbcReadSrcandTgtDiscountPerc" name="ReadSrcandTgtDiscountPerc"
+			package="max.retail.stores.domain.arts">
+			<COMMENT>
+				This operation insert the manager override accesss log
+				</COMMENT>
+		</OPERATION>
+ <!-- Changes ends for code merging: Ashish-->
+    <!-- CodeList Data Operations - END -->
+
+    <!-- Start PSI Data operations
+
+       <OPERATION class="JdbcReadStoreInfo"
+           package="oracle.retail.stores.domain.arts"
+           name="ReadStoreInfo">
+           <COMMENT>
+                This operation returns the totals for a store
+           </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcFetchChildrenMerchandiseHierarchyGroupIDs"
+            package="oracle.retail.stores.domain.arts"
+            name="FetchChildrenMerchandiseHierarchyGroupIDs">
+            <COMMENT>
+               Fetches the definitions for the set of child merchandise classification hierarchy
+               group ids that're chilren of a particular group in the MerchandiseHierarchy tables of
+               the ARTS data model (Release 4.0).
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcFetchMerchandiseHierarchyLevelGroups"
+            package="oracle.retail.stores.domain.arts"
+            name="FetchMerchandiseHierarchyLevelGroups">
+            <COMMENT>
+               Fetches the levles for the given merchandise classification hierarchy from the
+               MerchandiseHierarchy tables in the ARTS data model (Release 4.0).
+            </COMMENT>
+        </OPERATION>
+
+       <OPERATION class="JdbcFetchAllLevelItems"
+            package="oracle.retail.stores.domain.arts"
+            name="FetchAllLevelItems">
+            <COMMENT>
+               Fetches the ItemDetails for the set of Items that're assigned to the merchandise classification
+               hierarchy group (and it's children groups) from the MerchandiseHierarchy tables in the
+               ARTS data model (Release 4.0).
+            </COMMENT>
+        </OPERATION>
+
+        <OPERATION class="JdbcFetchItemPriceInfo"
+            package="oracle.retail.stores.domain.arts"
+            name="FetchItemPriceInfo">
+            <COMMENT>
+                This operation fetches items actual price and promotion end date
+            </COMMENT>
+        </OPERATION>
+
+    END PSI Data operations -->
+
+    </COMMAND>
+
+    <POOL name="offlinepool"
+            class="DerbyDataConnectionPool"
+            package="oracle.retail.stores.foundation.manager.data"
+            >
+        <POOLPROPERTY propname="numConnections" propvalue="2" proptype="INTEGER"/>
+        <CONNECTION class="JdbcDataConnection"
+            package="oracle.retail.stores.foundation.manager.data"
+            >
+            <CONNECTIONPROPERTY propname="driver" propvalue="org.apache.derby.jdbc.EmbeddedDriver" />
+            <CONNECTIONPROPERTY propname="databaseUrl" propvalue="jdbc:derby:offlinedb" />
+            <CONNECTIONPROPERTY propname="userid" propvalue="POS" />
+            <CONNECTIONPROPERTY propname="password" propvalue="offlineDerbyUser"  />
+            <CONNECTIONPROPERTY propname="exceptionMappingClass" propvalue="oracle.retail.stores.foundation.manager.data.JdbcSQLState"/>
+            <CONNECTIONPROPERTY propname="exceptionMapping" propvalue="classpath://oracle/retail/stores/domain/arts/db2exceptionmap.xml"/>
+        </CONNECTION>
+    </POOL>
+    
+    <JPACOMMAND name="jpacommand"
+        class="JpaDataCommand"
+        package="oracle.retail.stores.foundation.manager.data">
+        <COMMENT>
+            This command contains operations supported by JPA services.
+        </COMMENT>
+
+        <JPASERVICEHELPERREF helperRef="jpahelper"/>
+        
+        <JPAOPERATION name="SelectCustomerGroups"
+                   class="JpaReadCustomerGroups"
+                   package="oracle.retail.stores.domain.arts.jpa"
+                   serviceRef="jpaservice_CustomerService">
+            <COMMENT>
+                This operation retrieves the available customer groups.
+            </COMMENT>
+        </JPAOPERATION>
+        
+        <JPAOPERATION name="ReadPricingGroup"
+                   class="JpaReadPricingGroup"
+                   package="oracle.retail.stores.domain.arts.jpa"
+                   serviceRef="jpaservice_CustomerService">
+            <COMMENT>
+                This operation retrieves the available customer pricing groups.
+            </COMMENT>
+        </JPAOPERATION>
+        
+        <JPAOPERATION name="ReadMetaTagItemInfo"
+                   class="JpaReadMetaTagItemInfo"
+                   package="oracle.retail.stores.domain.arts.jpa"
+                   serviceRef="jpaservice_ItemService">
+            <PROPERTY propname="offlineDBUsed" propvalue="true" proptype="boolean"/>
+            <COMMENT>
+                This operation retrieves item information from database.
+            </COMMENT>
+        </JPAOPERATION>
+        
+        <JPAOPERATION name="PLULookup"
+                   class="JpaPLUOperation"
+                   package="oracle.retail.stores.domain.arts.jpa"
+                   serviceRef="jpaservice_ItemService">
+            <PROPERTY propname="offlineDBUsed" propvalue="true" proptype="boolean"/>
+            <COMMENT>
+                This operation retrieves a priced item from the item service.
+            </COMMENT>
+        </JPAOPERATION>
+        
+        <JPAOPERATION name="ReadItemInfo"
+                   class="JpaReadItemInfo"
+                   package="oracle.retail.stores.domain.arts.jpa"
+                   serviceRef="jpaservice_ItemService">
+            <COMMENT>
+                This operation retrieves item information from the item service.
+            </COMMENT>
+        </JPAOPERATION>
+        
+        <JPAOPERATION name="ReadCurrencyRoundingRuleList"
+                   class="JpaReadCurrencyRoundingRuleList"
+                   package="oracle.retail.stores.domain.arts.jpa"
+                   serviceRef="jpaservice_CurrencyRoundingRuleService">
+            <COMMENT>
+                This operation retrieves Currency Rounding Rule information from database.
+            </COMMENT>
+        </JPAOPERATION>
+        
+    </JPACOMMAND>
+
+    <JPASERVICEHELPER name="jpahelper"
+        class="AppManagedJPAHelper" package="oracle.retail.stores.storeservices.services.common">
+        <CONNECTION class="JpaConnectionProperties" package="oracle.retail.stores.foundation.manager.data">
+            <CONNECTIONPROPERTY propname="driver" propvalue="org.apache.derby.jdbc.EmbeddedDriver" />
+            <CONNECTIONPROPERTY propname="databaseUrl" propvalue="jdbc:derby:offlinedb" />
+            <CONNECTIONPROPERTY propname="userid" propvalue="POS" />
+            <CONNECTIONPROPERTY propname="password" propvalue="offlineDerbyUser"  />
+        </CONNECTION>
+    </JPASERVICEHELPER>
+    
+   </DATATECHNICIAN>

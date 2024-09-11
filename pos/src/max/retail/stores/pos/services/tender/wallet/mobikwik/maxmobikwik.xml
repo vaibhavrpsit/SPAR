@@ -1,0 +1,102 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2017 - 2018 MAX Hypermarket, Inc.    All Rights Reserved.
+ *	
+ *	Rev 1.0     Oct 06, 2017		Atul Shukla		Mobikwik Integration FES
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Tender"
+	package="oracle.retail.stores.pos.services.tender.wallet.mobikwik" tourcam="ON">
+	<COMMENT>
+		This service implements the Tender Use Case of the
+		Tender Package.
+    </COMMENT>
+	<CARGO class="MAXTenderCargo" package="max.retail.stores.pos.services.tender" />
+
+	<SERVICECODE>
+		<LETTER name="Next" />
+		  <LANEACTION class="MAXMobikwikRequestInfoAisle" package="max.retail.stores.pos.services.tender.wallet.mobikwik"/>
+	<SITEACTION class="MAXEnterMobikwikMobileNumberTotpSite" package="max.retail.stores.pos.services.tender.wallet.mobikwik"/>
+	<SITEACTION class="MAXMobikwikTenderActionSite" package="max.retail.stores.pos.services.tender.wallet.mobikwik"/>
+	<SITEACTION class="MAXMobikwikWithdrawPrintSite" package="max.retail.stores.pos.services.tender.wallet.mobikwik"/>
+	<LANEACTION class="MAXMobikwikWebRequestResponseAisle" package="max.retail.stores.pos.services.tender.wallet.mobikwik"/>		
+	
+	</SERVICECODE>
+
+	<MAP>
+		<REGION region="SERVICE" startsite="EnterMobikwikMobileTotp">
+			<SITE name="EnterMobikwikMobileTotp" siteaction="MAXEnterMobikwikMobileNumberTotpSite">
+			<!-- Changes starts for Rev 1.0 -->
+			   <AISLE
+                    name="ValidateOtp"
+                    letter="Next"   
+                    laneaction="MAXMobikwikRequestInfoAisle">  
+                  
+                </AISLE>
+                    <AISLE
+                    name="TotpSuccess"
+                    letter="TotpSuccess"
+                    laneaction="MAXMobikwikWebRequestResponseAisle">  
+                </AISLE> 
+                
+			  <ROAD name="MobikwikSuccess" letter="Success" destination="MobikwikTenderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			 
+				<ROAD name="MobikwikError" letter="Ok" destination="EnterMobikwikMobileTotp"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="MobikwikFailure" letter="Failure" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+					<ROAD name="MobikwikUndo" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+			</SITE>		
+              
+			
+			 <SITE  name="MobikwikTenderAction" siteaction="MAXMobikwikTenderActionSite">
+            <ROAD 
+                    name="MobikwikTenderSuccess"
+                    letter="Success"
+                    destination="PrintMobikWithdraw"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                    <ROAD 
+                    name="MobikwikReentryTenderSuccess"
+                    letter="MobikwikReentry"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>	
+			 <SITE name="PrintMobikWithdraw" siteaction="MAXMobikwikWithdrawPrintSite">
+				<ROAD 
+				name="MobikwikWithdrawPrintContinue" 
+				letter="Success" 
+				destination="Final"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+				<ROAD 
+				name="MobikwikWithdrawPrintRetry" 
+				letter="Retry" 
+				destination="PrintMobikWithdraw"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+			</SITE> 
+			<SYSTEMSITE name="Final" action="RETURN" />
+		</REGION>
+	</MAP>
+</SERVICE>

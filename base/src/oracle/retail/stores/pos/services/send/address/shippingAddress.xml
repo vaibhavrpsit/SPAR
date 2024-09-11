@@ -1,0 +1,185 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/send/address/shippingAddress.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:44:42 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin-4
+      3    360Commerce 1.2         3/31/2005 4:29:58 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:25:16 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:14:12 PM  Robert Pearse
+     $
+     Revision 1.10  2004/06/22 17:28:10  lzhao
+     @scr 4670: code review
+
+     Revision 1.9  2004/06/16 13:42:07  lzhao
+     @scr 4670: refactoring Send for 7.0.
+
+     Revision 1.8  2004/06/04 20:23:44  lzhao
+     @scr 4670: add Change send functionality.
+
+     Revision 1.7  2004/05/26 19:28:51  lzhao
+     @scr 4670: clean up send.
+
+     Revision 1.6  2004/05/26 16:37:46  lzhao
+     @scr 4670: add capture customer and bill addr. same as shipping for send
+
+     Revision 1.5  2004/05/25 21:04:41  rsachdeva
+     @scr 4670 Send: Multiple Sends As per requirements, Tax Override Station Removed
+
+     Revision 1.4  2004/05/18 21:40:43  rsachdeva
+     @scr 4670 Send: Multiple Sends As per requirements / BA, Undo Returns to Sell Item Screen
+
+     Revision 1.3  2004/03/26 00:24:23  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:51:55  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:20  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="shippingaddress"
+    package="oracle.retail.stores.pos.services.send.address"
+    tourcam="ON">
+    <COMMENT>
+        This services displays the linked customer's address
+        and allows update. Once the customer's send address
+        is confirmed, the service will let the operator to
+        choose one shipping method, and then the shipping
+        charges are calculated.
+    </COMMENT>
+    <CARGO class="SendCargo" package="oracle.retail.stores.pos.services.send.address"/>
+
+    <SERVICECODE>
+    <!-- Sites -->
+        <SITEACTION class="DisplayShippingAddressSite"/>
+        <SITEACTION class="CheckShippingAddressSite"/>
+
+    <!-- Letters -->
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Done"/>
+        <LETTER name="Next"/>
+        <LETTER name="Retry"/>
+
+    <!-- Roads and Aisles -->
+
+    <!-- Shuttle -->
+    <SHUTTLE class="DisplaySendMethodLaunchShuttle"/>
+    <SHUTTLE class="DisplaySendMethodReturnShuttle"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="DisplayShippingAddress">
+            <SITE name="DisplayShippingAddress" siteaction="DisplayShippingAddressSite">
+                <ROAD
+                    name="ShippingAddressEntered"
+                    letter="Next"
+                    destination="CheckShippingAddress"
+                    tape="ADVANCE"     record="OFF"   index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoShippingAddress"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"     record="OFF"      index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelShippingAddress"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckShippingAddress" siteaction="CheckShippingAddressSite">
+                <ROAD
+                    name="RetryShippingAddress"
+                    letter="Retry"
+                    destination="DisplayShippingAddress"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ShippingAddressEntered"
+                    letter="Next"
+                    destination="DisplaySendMethodStation"
+                    tape="ADVANCE"     record="OFF"   index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="DisplaySendMethodStation"
+                servicename="send.displaysendmethod.displaysendmethod"
+                targettier="CURRENTTIER"
+                launchshuttle="DisplaySendMethodLaunchShuttle"
+                returnshuttle="DisplaySendMethodReturnShuttle">
+                <COMMENT>
+                    This station goes to check address station.
+                </COMMENT>
+                <ROAD
+                    name="DoneSelectedRoad"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoSelectedRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelSelectedRoad"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

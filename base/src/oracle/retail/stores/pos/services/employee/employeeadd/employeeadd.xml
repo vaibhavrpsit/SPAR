@@ -1,0 +1,787 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/employee/employeeadd/employeeadd.xml /main/18 2014/03/27 14:23:06 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   03/27/14 - Make flow go to Admin Opt screen when clicking on
+ *                         Cancel button.
+ *    yiqzhao   06/25/13 - Remove sliding buttons while clicking on Cancel.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   05/14/10 - added missing sites
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="EmployeeAdd"
+	package="oracle.retail.stores.pos.services.employee.employeeadd"
+	tourcam="OFF">
+	<COMMENT>
+		The employeeadd service is called when the user wants to add an
+		employee to the system.
+	</COMMENT>
+
+    <CARGO class="EmployeeCargo" package="oracle.retail.stores.pos.services.employee.employeemain">
+        <COMMENT>
+            The EmployeeAddCargo contains the employee information
+            required to add an employee.
+        </COMMENT>
+    </CARGO>
+
+    <SERVICECODE>
+        <!-- Letters -->
+        <LETTER name="Add">
+            <COMMENT>
+                The Add letter is mailed when the system needs to add an
+                employee
+            </COMMENT>
+        </LETTER>
+        <LETTER name="AddStandard">
+            <COMMENT>
+                Display the Employee Master screen with standard
+                employee context
+            </COMMENT>
+        </LETTER>
+        <LETTER name="AddTemporary">
+            <COMMENT>
+                Display the Employee Master screen with temporary
+                employee context
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Undo">
+            <COMMENT>
+                The Undo letter is sent when the user selects the Undo
+                button.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Cancel">
+            <COMMENT>
+                The Cancel letter is sent when the user selects the
+                Cancel button.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Continue">
+            <COMMENT>
+                The Continue letter is mailed when the system needs to
+                move on to the next site.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Exit">
+            <COMMENT>
+                The Exit letter indicates that the service has
+                completed.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="DbError">
+            <COMMENT>
+                The DBError letter will be mailed when there is a
+                database error that is not specifically handled.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="DoSearch">
+            <COMMENT>
+                The DoSearch letter is mailed to indicate that
+                appropriate data has been entered.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="DuplicateID">
+            <COMMENT>
+                The DuplicateID letter is mailed when a duplicate
+                employee ID located in the database.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Failure">
+            <COMMENT>
+                A failure letter is mailed when a fatal error is
+                encountered.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Match">
+            <COMMENT>
+                The Match letter is sent when there was a match in the
+                database for an employee name.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="New" />
+        <LETTER name="Next">
+            <COMMENT>
+                The Accept letter is mailed when an action is completed,
+                and the system needs to go forward to the next logical
+                step.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="No">
+            <COMMENT>
+                The No letter is returned from the UI when the user
+                enters "No".
+            </COMMENT>
+        </LETTER>
+        <LETTER name="NotFatal">
+            <COMMENT>
+                The NotFatal letter is mailed by an Ok aisle finding a
+                non-fatal error.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Ok" />
+        <LETTER name="Override" />
+        <LETTER name="Save">
+            <COMMENT>
+                The Save letter is mailed when an action is completed,
+                and the system needs to go forward to the next logical
+                step.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="TempIDForStandard">
+            <COMMENT>
+                The TempIDForStandardletter is mailed when a user
+                attemps to use an ID reserved for temporary employees
+                while adding a standard employee.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="TooMany">
+            <COMMENT>
+                The TooMany letter is mailed when too many matches have
+                been discovered to proceed.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Yes">
+            <COMMENT>
+                The UI returns a Yes letter when the user selects Yes.
+            </COMMENT>
+        </LETTER>
+        
+
+        <!-- Site Actions -->
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common">
+            <COMMENT>Site to Check Access to secure areas</COMMENT>
+        </SITEACTION>
+        <SITEACTION class="CheckDuplicateIDSite"
+            template="siteaction.tpl">
+            <COMMENT>
+                The CheckDuplicateID site checks to see if the Employee
+                Login Id entered duplicates one already in the system.
+                If so, the user will be informed and returned to
+                EmployeeMaster. Otherwise the flow continues to
+                EmployeeAddLookup.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    The CheckDuplicateID site checks to see if the
+                    Employee Login Id entered duplicates one already in
+                    the system. If so, the user will be informed and
+                    returned to EmployeeMaster. Otherwise the flow
+                    continues to EmployeeAddLookup
+                </COMMENT>
+            </ARRIVE>
+            <DEPART>
+            </DEPART>
+            <UNDO>
+            </UNDO>
+            <RESET>
+            </RESET>
+        </SITEACTION>
+        <SITEACTION class="DisplayTemporaryPasswordSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        <SITEACTION class="EmployeeAddLookupSite"
+            template="siteaction.tpl">
+            <COMMENT>
+                The Employee Lookup site accesses the employee data to
+                see if the entered name matches an employee name that is
+                already in the database. If the employee Login ID
+                already exisits in the system, the system displays an
+                error and returns to the EmployeeMaster screen. If the
+                name is a duplicate, but the ID is unique, the system
+                will proceed to the EmployeeMatchsFound site. So there.
+            </COMMENT>
+
+        </SITEACTION>
+        <SITEACTION class="EmployeeAddOptionsSite" package="oracle.retail.stores.pos.services.employee.employeeadd">
+            <COMMENT>
+                Displays the options for adding an employee including
+                standard and temporary.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    Displays the options for adding an employee
+                    including standard and temporary.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="EmployeeMasterSite"
+            template="siteaction.tpl">
+            <COMMENT>
+                The EmployeeMaster site allows the user to enter the new
+                employee information.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EmployeeMatchesFoundSite"
+            template="siteaction.tpl">
+            <COMMENT>
+                The EmployeeMatchesFound site allows the user to view
+                the employees who match the name entered for the new
+                employee. If the user decides that the employee has
+                already been added the user can press Accept to continue
+                without adding the new name, or New to add an additional
+                employee with that name to the system.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="SaveEmployeeSite"
+            template="siteaction.tpl">
+            <COMMENT>
+                The SaveEmployee site is used to make the database call
+                that saves the employee.
+            </COMMENT>
+        </SITEACTION>
+
+        <!-- Shuttles -->
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common" />
+
+        <!-- Lane Actions -->
+        <LANEACTION class="EmployeeAddLetterConversionAisle" />
+        <LANEACTION class="EmployeeLookupTooManyAisle" />
+        <LANEACTION class="EmployeeAddInformationEnteredAisle">
+            <COMMENT>
+                The EmployeeAddInformationEntered aisle is traversed
+                when an Accept letter is received.
+            </COMMENT>
+            <TRAVERSE>
+                <CODE name="TRAVERSE" />
+            </TRAVERSE>
+            <BACKUP>
+                <CODE name="BACKUP" />
+            </BACKUP>
+        </LANEACTION>
+        <LANEACTION class="EmployeeAddStandardAisle"/>
+        <LANEACTION class="EmployeeAddTemporaryAisle"/>
+        <LANEACTION class="EmployeeSaveNotCompletedAisle"/>
+        <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common">
+            <COMMENT>
+                The DataBaseErrorAisle is traversed when the database
+                returns a message indicating that the save was not
+                successful. An error message will be displayed here
+            </COMMENT>
+            <TRAVERSE>
+                <CODE name="TRAVERSE" />
+            </TRAVERSE>
+            <BACKUP>
+                <CODE name="BACKUP" />
+            </BACKUP>
+        </LANEACTION>
+        <LANEACTION class="DuplicateIDFoundAisle">
+            <TRAVERSE>
+                <COMMENT>
+                    The DuplicateIDFound aisle is travesred when a
+                    duplicate ID was found.
+                </COMMENT>
+                <CODE name="TRAVERSE" />
+            </TRAVERSE>
+            <BACKUP>
+                <CODE name="BACKUP" />
+            </BACKUP>
+        </LANEACTION>
+        <LANEACTION class="OverrideCheckAccessRequiredRoad" />
+        <LANEACTION class="ProcessOkAisle">
+            <COMMENT>
+                The ProcessOkAisle is traversed when an Ok letter is
+                received. It checks the cargo to see if the error was
+                fatal or non-fatal.
+            </COMMENT>
+            <TRAVERSE>
+                <CODE name="TRAVERSE" />
+            </TRAVERSE>
+            <BACKUP>
+                <CODE name="BACKUP" />
+            </BACKUP>
+        </LANEACTION>
+        <LANEACTION class="TerminateServiceAisle" package="oracle.retail.stores.pos.services.common">
+            <TRAVERSE>
+                <CODE name="TRAVERSE" />
+            </TRAVERSE>
+            <BACKUP>
+                <CODE name="BACKUP" />
+            </BACKUP>
+        </LANEACTION>
+    </SERVICECODE>
+
+    <MAP>
+        <REGION region="SERVICE" startsite="EmployeeAddOptions">
+            <SITE name="CheckDuplicateID"
+                siteaction="CheckDuplicateIDSite">
+                <COMMENT>
+                    The CheckDuplicateID site checks to see if the
+                    Employee Login Id entered duplicates one already in
+                    the system. If so, the user will be informed and
+                    returned to EmployeeMaster. Otherwise the flow
+                    continues to EmployeeAddLookup.
+                </COMMENT>
+                <MOCKUP image="" />
+                <AISLE name="CheckDuplicateIDProcessOk"
+                    letter="Ok"
+                    laneaction="ProcessOkAisle">
+                    <COMMENT>
+                        The CheckDuplicateIDProcessOk aisle is traversed
+                        when an Ok letter is received. The letter is
+                        checked to see if it is a fatal or non-fatal
+                        error and the appropriate letter is mailed.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="CheckDuplicateIDDBErrorAisle"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        The CheckDuplicateIDDBErrorAisle is traversed
+                        when a database error is encountered.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DuplicateIDFound"
+                    letter="DuplicateID"
+                    laneaction="DuplicateIDFoundAisle">
+                    <COMMENT>
+                        The DuplicateIDFound aisle is traversed when a
+                        duplicate ID is found.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="CheckDuplicateFatalError"
+                    letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        The CheckDuplicateFatalError road is traversed
+                        when a fatal error has been detected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CheckDuplicateIDNonFatalRoad"
+                    letter="NotFatal" 
+                    destination="EmployeeMaster" tape="ADVANCE"
+                    record="OFF" index="OFF">
+                    <COMMENT>
+                        The CheckDuplicateIDNonFatalRoad is traversed
+                        when a non-fatal error was encountered.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="ContinueOntoLookup"
+                    letter="Save"
+                    destination="EmployeeAddLookup" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The ContinueOntoLookup road is traversed when
+                        there is no duplicate ID.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <AISLE name="EmployeeAddTemporary"
+                    letter="Continue"
+                    laneaction="EmployeeAddTemporaryAisle">
+                    <COMMENT>
+                        Display the Employee Master screen with
+                        temporary employee context
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="OverrideLoginRequired"
+                    letter="Override"
+                    destination="SecurityOverrideStation" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="EmployeeAddRoad"
+                    letter="Add"
+                    destination="EmployeeMaster" tape="ADVANCE" record="ON"
+                    index="ON">
+                    <COMMENT>User wants to add an employee.</COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayTemporaryPassword"
+                siteaction="DisplayTemporaryPasswordSite">
+                <COMMENT>
+                    The DisplayTemporaryPassword site displays the temporary 
+                    password that was given to the newly added employee. The
+                    employee information has now been saved and flow will return
+                    to EmployeeAddLookup.
+                </COMMENT>
+                <ROAD name="DisplayTemporaryPasswordContinue"
+                    letter="Ok"
+                    destination="EmployeeAddOptions" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="EmployeeAddOptions"
+                siteaction="EmployeeAddOptionsSite">
+                <COMMENT>
+                    Displays the options for adding an employee
+                    including standard and temporary.
+                </COMMENT>
+                <MOCKUP image="EMPLOYEE_ADD_OPTIONS" />
+                <AISLE name="EmployeeAddStandard"
+                    letter="AddStandard"
+                    laneaction="EmployeeAddStandardAisle">
+                    <COMMENT>
+                        Display the Employee Master screen with standard
+                        employee context
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="EmployeeAddOptionsUndoAisle"
+                    letter="Undo"
+                    laneaction="TerminateServiceAisle">
+                    <COMMENT>
+                        Undo was hit on the UI go back to the last
+                        traversed site.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="EmployeeAddRoad"
+                    letter="Add"
+                    destination="EmployeeMaster" tape="ADVANCE" record="ON"
+                    index="ON">
+                    <COMMENT>User wants to add an employee.</COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeAddOptionsCancelRoad"
+                    letter="Cancel" destination="Final">
+                    <COMMENT>Cancel out of this service.</COMMENT>
+                </ROAD>                
+                <ROAD name="OverrideCheckAccessRequired"
+                    letter="AddTemporary" destination="CheckAccess"
+                    laneaction="OverrideCheckAccessRequiredRoad">
+                </ROAD>
+            </SITE>
+            <SITE name="EmployeeMaster"
+                siteaction="EmployeeMasterSite">
+                <COMMENT>
+                    The EmployeeMaster site allows the user to enter the
+                    new employee information.
+                </COMMENT>
+                <MOCKUP image="employee_master.gif" />
+                <AISLE name="EmployeeAddInformationEntered"
+                    letter="Next"
+                    laneaction="EmployeeAddInformationEnteredAisle">
+                    <COMMENT>
+                        The EmployeeAddInformationEntered aisle is
+                        traversed when an Accept letter is received. The
+                        information is saved to the cargo and a DoSearch
+                        letter is mailed.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DataBaseErrorAisle"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        If the connection to the database (store server) is not possible
+                        then show the dialog indicating the condition.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="EmployeeAddLetterConversionAisle"
+                    letter="Ok"
+                    laneaction="EmployeeAddLetterConversionAisle">
+                    <COMMENT>
+                        If the DataBaseErrorAisle was visited then we need to handle
+                        the Ok letter to escape back to the calling use case.  We do
+                        this by converting the Ok letter to a Cancel letter.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="DBErrorSoFinal"
+                    letter="Continue"
+                    destination="Final">
+                    <COMMENT>
+                        Because of the Database error, return to calling use case.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="TempIDForStandardError"
+                    letter="TempIDForStandard"
+                    destination="EmployeeMaster">
+                    <COMMENT>
+                        The TempIDForStandardError road is traversed
+                        when a user attemps to use an ID reserved for
+                        temporary employees while adding a standard
+                        employee.
+                    </COMMENT>
+                </ROAD>
+                <!--  ROAD name="TemporaryPasswordDialog"
+                    letter="TemporaryPassword"
+                    destination="EmployeeAddLookup">
+                    <COMMENT>
+                        The TemporaryPasswordDialog road is traversed
+                        after the employee information is gathered.  The temp
+                        login password is displayed to show to employee. The
+                        employee information has now been saved and flow will
+                        return to EmployeeAddLookup.
+                    </COMMENT>
+                </ROAD -->
+                <ROAD name="EmployeeMasterUndo"
+                    letter="Undo"
+                    destination="EmployeeAddOptions">
+                    <COMMENT>
+                        The EmployeeMasterUndo road is traversed when an
+                        undo letter is received from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeAddDoSearch"
+                    letter="DoSearch"
+                    destination="CheckDuplicateID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The EmployeeAddDoSearch road is traversed when
+                        the DoSearch letter is received.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeAddCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" 
+                    record="OFF" 
+                    index="OFF">
+                    <COMMENT>
+                        The EmployeeAddCancel road is traversed when a
+                        cancel letter is returned from the UI.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="EmployeeAddLookup"
+                siteaction="EmployeeAddLookupSite">
+                <COMMENT>
+                    The Employee Lookup site accesses the employee data
+                    to see if the entered name matches an employee name
+                    that is already in the database. If the employee
+                    Login ID already exisits in the system, the system
+                    displays an error and returns to the EmployeeMaster
+                    screen. If the name is a duplicate, but the ID is
+                    unique, the system will proceed to the
+                    EmployeeMatchsFound site. So there.
+                </COMMENT>
+                <MOCKUP image="" />
+                <AISLE name="EmployeeLookupTooMany"
+                    letter="TooMany"
+                    laneaction="EmployeeLookupTooManyAisle">
+                    <COMMENT>
+                        The EmployeeLookupTooMany aisle is traversed
+                        when the number of matches for the employee name
+                        exceeded the number in the Employee Maximum
+                        Matches parameter
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="EmployeeAddLookupProcessOk"
+                    letter="Ok"
+                    laneaction="ProcessOkAisle">
+                    <COMMENT>
+                        The EmployeeAddLookupProcessOk aisle is
+                        traversed when an Ok letter is received. The
+                        letter is checked to see if it is a fatal or
+                        non-fatal error and the appropriate letter is
+                        mailed.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="EmployeeAddDataBaseError"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        The EmployeeAddDataBaseError Aisle is traversed
+                        when a database error occurs that is not handled
+                        specifically byt the application.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="EmployeeAddFatalError"
+                    letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        The EmployeeAddFatalError road is traversed when
+                        a fatal error has been detected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="MatchesFound"
+                    letter="Match"
+                    destination="EmployeeMatchesFound" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        One or more matches of the employee name was
+                        found. This road takes the user to the
+                        EmployeeMatchesFound site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeAddNonFatalRoad"
+                    letter="NotFatal"
+                    destination="EmployeeMaster" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The EmployeeAddEatOk road is taken when an Ok
+                        letter is returned from the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="ContinueOntoSave"
+                    letter="Save"
+                    destination="SaveEmployee" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The ContinueOntoSave road is traversed when the
+                        database lookup returns with no data for an add.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeAddLookupTerminate"
+                    letter="Continue" destination="Final" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The EmployeeAddLookupTerminate road is traversed
+                        when an Continue letter is received from the
+                        TerminateServiceAisle.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="EmployeeMatchesFound"
+                siteaction="EmployeeMatchesFoundSite">
+                <COMMENT>
+                    The EmployeeMatchesFound site allows the user to
+                    view the employees who match the name entered for
+                    the new employee. If the user decides that the
+                    employee has already been added the user can press
+                    Accept to continue without adding the new name, or
+                    New to add an additional employee with that name to
+                    the system.
+                </COMMENT>
+                <MOCKUP image="employee_select_add.gif" />
+                <ROAD name="EmployeeMatchesFoundUndo"
+                    letter="Undo"
+                    destination="EmployeeMaster">
+                    <COMMENT>
+                        Travel Back to EmployeeMaster when the user
+                        selects Undo.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeMatchesFoundAccept"
+                    letter="Next"
+                    destination="SaveEmployee" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The EmployeeMatchesFoundAccept road will be
+                        traversed when a Accept letter is received.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeMatchesFoundAccept"
+                    letter="Yes"
+                    destination="SaveEmployee" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The EmployeeMatchesFoundAccept road will be
+                        traversed when a Accept letter is received.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeMatchesFoundUndo"
+                    letter="No"
+                    destination="EmployeeMaster">
+                    <COMMENT>
+                        Travel Back to EmployeeMaster when the user
+                        selects no at duplicate name screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeMatchesFoundTerminate"
+                    letter="Continue" destination="Final" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The EmployeeMatchesFoundTerminate road is
+                        traversed when an Continue letter is received
+                        from the TerminateServiceAisle.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EmployeeMatchesFoundCancel"
+                    letter="Cancel"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        The EmployeeMasterCancel road is traversed when
+                        a cancel letter is returned from the UI.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="SaveEmployee" siteaction="SaveEmployeeSite">
+                <COMMENT>
+                    The SaveEmployee site is used to make the database
+                    call that saves the employee.
+                </COMMENT>
+                <MOCKUP image="" />
+                <AISLE name="EmployeeSaveDBError"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        The EmployeeSaveNotCompleted is traversed when
+                        the database returns a message indicating that
+                        the save was not successful. An error message
+                        will be displayed here
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="SaveEmployeeProcessOk"
+                    letter="Ok"
+                    laneaction="ProcessOkAisle">
+                    <COMMENT>
+                        The SaveEmployeeProcessOk aisle handles the Ok
+                        response from any error messages at this site.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="SaveEmployeeFatalError"
+                    letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        The SaveEmployeeFatalError road is traversed
+                        when a fatal error has been detected.
+                    </COMMENT>
+                </ROAD>
+                <!-- ROAD name="SaveEmployeeTerminate"
+                    letter="Continue"
+                    destination="EmployeeAddOptions" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The SaveEmployeeeTerminate road is traversed
+                        when an Continue letter is received from the
+                        TerminateServiceAisle.
+                    </COMMENT>
+                </ROAD -->
+                <ROAD name="ContinueOntoPassword"
+                    letter="Continue"
+                    destination="DisplayTemporaryPassword" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The ContinueOntoPassword road is traversed when a 
+                        Continue letter is received from the TerminateServiceAisle.
+                        The employee is successfully saved and the temporary
+                        password can be saved.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="APPLICATIONTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <AISLE name="EmployeeAddTemporary"
+                    letter="Success"
+                    laneaction="EmployeeAddTemporaryAisle">
+                    <COMMENT>
+                        Display the Employee Master screen with
+                        temporary employee context
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="EmployeeAddOptions" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD name="EmployeeAddRoad"
+                    letter="Add"
+					destination="EmployeeMaster" tape="ADVANCE" record="ON"
+					index="ON">
+					<COMMENT>User wants to add an employee.</COMMENT>
+				</ROAD>
+			</STATION>
+
+			<SYSTEMSITE name="Final" action="RETURN" />
+			<SYSTEMSITE name="LastIndexed" action="BACKUP" />
+
+		</REGION>
+	</MAP>
+</SERVICE>

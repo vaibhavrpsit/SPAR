@@ -1,0 +1,373 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/parametervaluelisteditor/listeditor.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ListEditor" 
+         package="oracle.retail.stores.pos.services.admin.parametervaluelisteditor" tourcam="OFF">
+     <COMMENT>
+          This services lets one inspect and edit retail reason 
+          codes. Retail Reason Codes contain data that help 
+          control store operations.
+     </COMMENT>
+     
+<CARGO class="ListEditorCargo"/> 
+
+<SERVICECODE>
+
+     <LETTER name="Next"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Done"/>
+     <LETTER name="Delete"/>
+     <LETTER name="DeleteFailed"/>
+     <LETTER name="MoveUp"/>
+     <LETTER name="MoveDown"/>
+     <LETTER name="Add"/>
+     <LETTER name="Edit"/>
+     <LETTER name="AcceptData"/>
+     <LETTER name="ShowAddScreen"/>
+     <LETTER name="ShowEditScreen"/>
+     <LETTER name="DuplicateName"/>
+     <LETTER name="Yes"/>
+     <LETTER name="No"/>
+     <LETTER name="ConfirmDelete"/>
+     
+     <SITEACTION class="EditReasonCodeSite" >
+          <COMMENT>
+               Edit a parameter value.
+          </COMMENT>
+     </SITEACTION>
+
+     <SITEACTION class="BadReasonCodeValueSite" >
+          <COMMENT>
+               This site informs the user that the new value he attempted 
+               to give to the parameter value is illegitimate.
+          </COMMENT>
+     </SITEACTION>
+
+     <SITEACTION class="ReasonCodeListSite" >
+          <COMMENT>
+               Modify the parameter value group.
+          </COMMENT>
+     </SITEACTION>
+
+     <SITEACTION class="ConfirmDeletionSite" >
+          <COMMENT>
+               Confirm that the user wants to delete the parameter value. 
+          </COMMENT>
+          <ARRIVE>
+               <COMMENT>
+                    Display a dialog to confirm that the user wants to 
+                    delete the parameter value.
+               </COMMENT>
+          </ARRIVE>
+     </SITEACTION>
+
+     <SITEACTION class="NoValuesSite" >
+          <COMMENT>
+               This site presents an error screen after the user 
+               has attempted to delete the last parameter value.
+          </COMMENT>
+     </SITEACTION>
+
+     <SIGNAL class="LegalValueLight"
+         package="oracle.retail.stores.pos.services.admin.listeditor" >
+          <COMMENT>
+               This light is green when the value supplied by the 
+               user for the parameter value values (for example, database 
+               ID) is not a duplicate.
+          </COMMENT>
+     </SIGNAL>
+
+     <SIGNAL  class="HasValuesLight">
+            <COMMENT >
+                Light is green when the parameter has at least one
+                parameter value.
+            </COMMENT>
+     </SIGNAL>
+
+     <SIGNAL  class="NoValuesLight">
+            <COMMENT >
+                Light is green when the parameter has no parameter values.
+            </COMMENT>
+     </SIGNAL>
+
+     <SIGNAL class="IllegalValueLight"
+         package="oracle.retail.stores.pos.services.admin.listeditor" >
+          <COMMENT>
+               This light is green when the user has supplied a bad 
+               value, for eaxample, a duplicate database ID for 
+               a parameter value.
+          </COMMENT>
+     </SIGNAL>
+     
+     <LANEACTION class="StoreNewValuesAisle" >
+          <COMMENT>
+               Store the values the user has entered.
+          </COMMENT>
+     </LANEACTION>
+
+     <LANEACTION class="StoreAddReasonCodeChosenAisle" >
+          <COMMENT>
+               Record in the cargo that the user wants to add a new 
+               parameter value.
+          </COMMENT>
+     </LANEACTION>
+
+     <LANEACTION class="StoreEditReasonCodeChosenAisle" >
+          <COMMENT>
+               Record in the cargo that the user wants to edit a reason 
+               code.
+          </COMMENT>
+     </LANEACTION>
+
+     <LANEACTION class="StoreDoneChosenAisle" >
+          <COMMENT>
+               Update the cargo when the user says he's done.
+          </COMMENT>
+     </LANEACTION>
+
+     <LANEACTION class="StoreDeleteChosenAisle" >
+          <COMMENT>
+               Record in the cargo that the user wants to delete a 
+               parameter value.
+          </COMMENT>
+     </LANEACTION>
+
+     <LANEACTION class="StoreMoveUpChosenAisle" >
+          <COMMENT>
+               Record in the cargo that the user wants to move a reason 
+               code up in the list.
+          </COMMENT>
+     </LANEACTION>
+
+     <LANEACTION class="StoreMoveDownChosenAisle" >
+          <COMMENT>
+               Record in the cargo that the user wants to move a reason 
+               code down in the list.
+          </COMMENT>
+     </LANEACTION>
+
+     <LANEACTION class="DeletionConfirmedAisle" >
+          <COMMENT>
+               Delete the parameter value from the group.
+          </COMMENT>
+     </LANEACTION>
+
+</SERVICECODE>
+
+<MAP>
+    <REGION region="SERVICE" 
+            startsite="ReasonCodeList">
+            
+        <SITE   name="ReasonCodeList" 
+                siteaction="ReasonCodeListSite">
+            <COMMENT>
+                Select the parameter value to be edited.
+            </COMMENT>
+
+            <AISLE  name="StoreEditReasonCodeChosen" 
+                    letter="Edit" 
+                    laneaction="StoreEditReasonCodeChosenAisle">
+            </AISLE>
+
+            <AISLE  name="StoreAddReasonCodeChosen" 
+                    letter="Add" 
+                    laneaction="StoreAddReasonCodeChosenAisle">
+            </AISLE>
+
+            <AISLE  name="StoreDeleteChosen" 
+                    letter="Delete" 
+                    laneaction="StoreDeleteChosenAisle">
+            </AISLE>
+            
+            <AISLE  name="StoreMoveUpChosen" 
+                    letter="MoveUp" 
+                    laneaction="StoreMoveUpChosenAisle">
+            </AISLE>
+            <AISLE  name="StoreMoveDownChosen" 
+                    letter="MoveDown" 
+                    laneaction="StoreMoveDownChosenAisle">
+            </AISLE>
+<!--
+            <AISLE  name="DoneChosen" 
+                    letter="Next" 
+                    laneaction="StoreDoneChosenAisle">
+            </AISLE>
+-->
+            <ROAD
+               name="ListValuesAccepted"
+               letter="Next"
+               destination="Final"
+               tape="ADVANCE"
+               record="ON"
+               index="ON">
+               <LIGHT  signal="HasValuesLight"/>
+            </ROAD>
+
+            <ROAD
+               name="ListAcceptedNoValues"
+               letter="Next"
+               destination="NoValues"
+               tape="ADVANCE"
+               record="ON"
+               index="ON">
+               <LIGHT  signal="NoValuesLight"/>
+            </ROAD>
+
+            <ROAD   name="BackToReasonCodeGroup" 
+                    letter="Undo" 
+                    destination="Final" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            
+            <ROAD   name="CancelReasonCodeList" 
+                    letter="Cancel" 
+                    destination="Final" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            
+            <ROAD   name="EditReasonCodeChosen" 
+                    letter="ShowEditScreen" 
+                    destination="EditReasonCode" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            
+            <ROAD   name="AddReasonCodeChosen" 
+                    letter="ShowAddScreen" 
+                    destination="EditReasonCode" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD   name="UpdateUIForGroup" 
+                    letter="AcceptData" 
+                    destination="ReasonCodeList" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD   name="ConfirmDeleteNeeded" 
+                    letter="ConfirmDelete" 
+                    destination="ConfirmDeletion" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE   name="NoValues" 
+                siteaction="NoValuesSite">
+            <COMMENT>
+                This site presents an error screen after the user 
+                has attempted to save after deleting the last parameter value.
+            </COMMENT>
+
+            <ROAD   name="NoValuesOk" 
+                    letter="Ok" 
+                    destination="ReasonCodeList" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+        
+        <SITE   name="EditReasonCode" 
+                siteaction="EditReasonCodeSite">
+            <COMMENT>
+                Edit (or Add) a parameter value.
+            </COMMENT>
+
+            <AISLE  name="StoreNewValues" 
+                    letter="Next" 
+                    laneaction="StoreNewValuesAisle">
+                <COMMENT>
+                        Store the values the user has entered.
+                </COMMENT>
+            </AISLE>
+            
+            <ROAD   name="BackToSelectReasonCode" 
+                    letter="Undo" 
+                    destination="ReasonCodeList" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+
+            <ROAD   name="CancelEditReasonCode" 
+                    letter="Cancel" 
+                    destination="Final" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+
+            <ROAD   name="EditReasonCodeBadValueAccepted" 
+                    letter="AcceptData" 
+                    destination="BadReasonCodeValue" 
+                    tape="ADVANCE" record="ON" index="ON">
+                <LIGHT signal="IllegalValueLight"/>
+            </ROAD>
+
+            <ROAD   name="EditReasonCodeGoodValueAccepted" 
+                    letter="AcceptData" 
+                    destination="ReasonCodeList" 
+                    tape="ADVANCE" record="ON" index="ON">
+                <LIGHT signal="LegalValueLight"/>
+            </ROAD>
+        </SITE>
+
+        <SITE   name="BadReasonCodeValue" 
+                siteaction="BadReasonCodeValueSite">
+            <COMMENT>
+                This site informs the user that the new value he attempted 
+                to give to the parameter value is illegitimate.
+            </COMMENT>
+
+            <ROAD   name="BadReasonCodeValueOk" 
+                    letter="Ok" 
+                    destination="EditReasonCode" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="ConfirmDeletion" siteaction="ConfirmDeletionSite">
+            <COMMENT>
+                Confirm that the user wants to delete the parameter value. 
+            </COMMENT>
+
+            <AISLE  name="DeletionConfirmed" 
+                    letter="Yes" 
+                    laneaction="DeletionConfirmedAisle">
+                <COMMENT>
+                        Delete the parameter value from the group.
+                </COMMENT>
+            </AISLE>
+            <ROAD   name="DeletionAborted" 
+                    letter="No" 
+                    destination="ReasonCodeList" 
+                    tape="ADVANCE" record="ON" index="ON">
+                <COMMENT>
+                        The user changed his mind about deleting the reason 
+                        code.
+                </COMMENT>
+            </ROAD>
+            <ROAD   name="ShowPostDeleteScreen" 
+                    letter="AcceptData" 
+                    destination="ReasonCodeList" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+
+        <SYSTEMSITE name="Final" action="RETURN"/>
+    
+    </REGION>
+
+</MAP>
+
+</SERVICE>

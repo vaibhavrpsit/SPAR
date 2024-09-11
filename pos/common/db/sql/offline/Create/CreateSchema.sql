@@ -1,0 +1,2521 @@
+DROP TABLE CO_DT_ST_IDDI;
+DROP TABLE MA_WS_VN_IDDI;
+DROP TABLE CO_DTA_BMC;
+DROP TABLE PA_EM;
+DROP TABLE CO_ACS_GP_RS;
+DROP TABLE CO_ACS_GP_RS_LS;
+DROP TABLE CO_ACS_GP_RS_LS_I8;
+DROP TABLE PA_RS;
+DROP TABLE PA_RS_I8;
+DROP TABLE CO_GP_WRK;
+DROP TABLE CO_GP_WRK_I8;
+DROP TABLE TR_CHN_CLR_PRC;
+DROP TABLE MA_ITM_CLR_PRC_CHN;
+DROP TABLE DO_MSG;
+DROP TABLE DO_MSG_I8;
+DROP TABLE CO_EV;
+DROP TABLE CO_EV_I8;
+DROP TABLE AS_ITM;
+DROP TABLE CO_CLN_ITM;
+DROP TABLE CO_CLR;
+DROP TABLE CO_CLR_I8;
+DROP TABLE AS_ITM_I8;
+DROP TABLE AS_ITM_IMG;
+DROP TABLE AS_ITM_STRC_ASC;
+DROP TABLE AS_ITM_ASCTN_MSG;
+DROP TABLE AS_ITM_META_TAG;
+DROP TABLE AS_ITM_ASCTN_POG;
+DROP TABLE MA_PRC_ITM;
+DROP TABLE CO_SZ;
+DROP TABLE CO_SZ_I8;
+DROP TABLE CO_STYL;
+DROP TABLE CO_STYL_I8;
+DROP TABLE CO_EV_MNT;
+DROP TABLE CO_EV_MNT_I8;
+DROP TABLE PA_MF;
+DROP TABLE PA_MF_I8;
+DROP TABLE TR_CHN_PRN_PRC;
+DROP TABLE MA_ITM_PRN_PRC_ITM;
+DROP TABLE AS_POG;
+DROP TABLE ID_DPT_PS;
+DROP TABLE ID_DPT_PS_I8;
+DROP TABLE ID_IDN_PS;
+DROP TABLE CO_ASC_RLTD_ITM;
+DROP TABLE AS_ITM_RTL_STR;
+DROP TABLE AS_ITM_SRZ_LB;
+DROP TABLE AS_ITM_SRZ_LB_I8;
+DROP TABLE AS_ITM_STK;
+DROP TABLE TR_CHN_TMP_PRC;
+DROP TABLE MA_ITM_TMP_PRC_CHN;
+DROP TABLE CO_UOM;
+DROP TABLE CO_UOM_I8;
+DROP TABLE CD_GEO;
+DROP TABLE GEO_TX_JUR;
+DROP TABLE PA_ATHY_TX;
+DROP TABLE RU_TX_GP;
+DROP TABLE CO_TX_JUR_ATHY_LNK;
+DROP TABLE RU_TX_RT;
+DROP TABLE PA_TY_TX;
+DROP TABLE CO_GP_TX_ITM;
+DROP TABLE CO_GP_TX_ITM_I8;
+DROP TABLE CO_EL_CTAF_PRDV;
+DROP TABLE PA_GP_CT;
+DROP TABLE PA_GP_CT_I8;
+DROP TABLE CO_EL_PRDV_DPT;
+DROP TABLE CO_PRDV_ITM;
+DROP TABLE CO_EL_PRDV_ITM;
+DROP TABLE CO_NEL_PRDV_ITM;
+DROP TABLE CO_EL_MRST_PRDV;
+DROP TABLE TR_ITM_MXMH_PRDV;
+DROP TABLE RU_PRDVC_MXMH;
+DROP TABLE RU_PRDV;
+DROP TABLE RU_PRDV_I8;
+DROP TABLE CO_PRCGP;
+DROP TABLE CO_PRCGP_I8;
+DROP TABLE CO_EL_PRDV_TH;
+DROP TABLE CO_EL_TM_PRDV;
+DROP TABLE CO_CNY;
+DROP TABLE CO_CNY_DNM;
+DROP TABLE CO_CNY_DNM_I8;
+DROP TABLE CO_CNY_RND;
+DROP TABLE CO_RT_EXC;
+DROP TABLE LO_ADS;
+DROP TABLE PA_STR_RTL;
+DROP TABLE PA_STR_RTL_I8;
+DROP TABLE ST_ASCTN_MRHRC;
+DROP TABLE CO_MRHRC_FNC;
+DROP TABLE CO_MRHRC_FNC_I8;
+DROP TABLE CO_MRHRC_GP;
+DROP TABLE CO_MRHRC_GP_I8;
+DROP TABLE CO_MRHRC_LV;
+DROP TABLE CO_MRHRC_LV_I8;
+DROP TABLE CO_SHP_MTH;
+DROP TABLE CO_SHP_MTH_I8;
+DROP TABLE ID_LU_CD;
+DROP TABLE ID_LU_CD_I8;
+DROP TABLE LO_DPT_POS_RTL_STR;
+DROP TABLE CO_CTAF;
+DROP TABLE TX_ASGMT;
+DROP TABLE TR_LTM_TX_BRKUP;
+DROP TABLE MAX_GST_REG_MAP;
+-- iddi tables
+
+
+CREATE TABLE CO_DT_ST_IDDI 
+(
+       ID_DT_ST             INTEGER     NOT NULL,
+       ID_STR_RT            VARCHAR(5)  NOT NULL,
+       NM_DT_ST             VARCHAR(20) NOT NULL,
+       TS_CRT_RCRD          TIMESTAMP,
+       TS_MDF_RCRD          TIMESTAMP
+);
+
+CREATE TABLE MA_WS_VN_IDDI
+(
+    ID_DT_ST            INTEGER         NOT NULL,
+    ID_STR_RT           VARCHAR(5)      NOT NULL,
+    ID_WS               VARCHAR(3)      NOT NULL,
+    ID_BTCH             VARCHAR(14)     NOT NULL,
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP
+);
+
+
+
+
+
+-- employee tables
+
+CREATE TABLE  CO_DTA_BMC 
+(
+    ID_EM           VARCHAR(10)   NOT NULL,
+    VL_ACS_EM_BMC   BLOB(1000M)
+);
+
+
+
+
+
+
+
+DROP SEQUENCE PA_EM_SEQ;
+
+CREATE TABLE PA_EM
+(
+    ID_EM           VARCHAR(10)   NOT NULL,
+    ID_PRTY         INTEGER       DEFAULT 0,
+    ID_LOGIN        VARCHAR(120),
+    ID_ALT          VARCHAR(120),
+    PW_SLT_EM       VARCHAR(250),
+    PW_ACS_EM       VARCHAR(250),
+    NM_EM           VARCHAR(250),
+    LN_EM           VARCHAR(120),
+    FN_EM           VARCHAR(120),
+    MD_EM           VARCHAR(120),
+    SC_EM           VARCHAR(20),
+    ID_GP_WRK       INTEGER       NOT NULL,
+    LCL             VARCHAR(10),
+    NUMB_DYS_VLD    INTEGER       DEFAULT 0 NOT NULL ,
+    DC_EXP_TMP      DATE,
+    TYPE_EMP        INTEGER       DEFAULT 0 NOT NULL ,
+    ID_STR_RT       VARCHAR(5),
+    FL_PW_NW_REQ    CHAR(1)       DEFAULT '0' NOT NULL,
+    TS_CRT_PW       TIMESTAMP,
+    NUMB_FLD_PW     INTEGER       DEFAULT 0 NOT NULL,
+    TS_LOGIN_LST    TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL
+);
+
+
+CREATE SEQUENCE PA_EM_SEQ START WITH 10000 INCREMENT BY 1;
+
+
+CREATE UNIQUE INDEX IDX_PA_EM_2 ON PA_EM (ID_LOGIN);
+
+
+
+
+
+
+
+CREATE TABLE CO_ACS_GP_RS
+(
+    ID_RS         INTEGER       NOT NULL,
+    ID_GP_WRK     INTEGER       NOT NULL,
+    ID_APP        INTEGER       DEFAULT 0 NOT NULL,
+    DE_RS         VARCHAR(250)   NOT NULL,
+    FL_ACS_GP_WR  CHAR(1)       DEFAULT '0',
+    FL_ACS_GP_RD  CHAR(1)       DEFAULT '0',
+    ID_RS_PRNT    INTEGER       DEFAULT 1 NOT NULL,
+    CD_GP_VSBT    INTEGER       DEFAULT 0
+);
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_ACS_GP_RS_LS
+(
+    ID_RS         INTEGER       NOT NULL,
+    ID_RS_PRNT    INTEGER       DEFAULT 1 NOT NULL,
+    ID_APP        INTEGER       DEFAULT 0 NOT NULL,
+    DE_RS         VARCHAR(250)  NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_ACS_GP_RS_LS_I8
+(
+    DE_RS         VARCHAR(250)  NOT NULL,
+    LCL           VARCHAR(10)   NOT NULL,
+    DE_RS_DISP    VARCHAR(250)  NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE PA_RS
+(
+    ID_RS_PRNT      INTEGER      DEFAULT 1 NOT NULL ,
+    DE_RS_PRNT      VARCHAR(250) DEFAULT 'POS'
+);
+
+
+
+
+
+
+
+
+CREATE TABLE PA_RS_I8
+(
+    ID_RS_PRNT      INTEGER      DEFAULT 1 NOT NULL,
+    LCL             VARCHAR(10)  NOT NULL,
+    DE_RS_PRNT      VARCHAR(250) DEFAULT 'POS'
+);
+
+
+
+
+
+
+DROP SEQUENCE CO_GP_WRK_SEQ;
+
+CREATE TABLE CO_GP_WRK
+(
+    ID_GP_WRK       INTEGER      NOT NULL,
+    ID_GP_WRK_PRNT  INTEGER,
+    DE_GP_WRK       VARCHAR(250) NOT NULL
+);
+
+
+CREATE SEQUENCE CO_GP_WRK_SEQ START WITH 16 INCREMENT BY 1;
+
+
+
+
+
+
+
+CREATE TABLE CO_GP_WRK_I8
+(
+    ID_GP_WRK       INTEGER      NOT NULL,
+    LCL             VARCHAR(10)  NOT NULL,
+    DE_GP_WRK       VARCHAR(250) NOT NULL
+);
+
+
+
+
+
+-- item tables
+
+
+CREATE TABLE TR_CHN_CLR_PRC
+(
+    ID_EV              INTEGER          NOT NULL,
+    ID_STR_RT          VARCHAR(5)       NOT NULL,
+    MO_UN_CLR_PRC_CHN  DECIMAL(10,4),
+    TY_UN_CLR_PRC_CHN  VARCHAR(20),
+    ID_CLR             INTEGER          DEFAULT 0 NOT NULL,
+    TS_CRT_RCRD        TIMESTAMP,
+    TS_MDF_RCRD        TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE MA_ITM_CLR_PRC_CHN
+(
+    ID_EV           INTEGER         NOT NULL,
+    ID_STR_RT       VARCHAR(5)      NOT NULL,
+    ID_ITM          VARCHAR(14)     NOT NULL,
+    MO_OVRD_PRC     DECIMAL(13,2),
+    ID_TMPLT_LB     VARCHAR(8),    
+    TS_CRT_RCRD     TIMESTAMP,
+    TS_MDF_RCRD     TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE DO_MSG
+(
+    ID_MSG      INTEGER     NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE DO_MSG_I8
+(
+    ID_MSG        INTEGER     NOT NULL,
+    LCL           VARCHAR(10) NOT NULL,
+    NM_MSG_DPLY   VARCHAR(120),
+    NA_MSG_DPLY   CLOB
+);
+
+
+
+
+
+
+DROP SEQUENCE CO_EV_SEQ;
+
+CREATE TABLE CO_EV
+(
+    ID_EV               INTEGER      NOT NULL,
+    ID_STR_RT           VARCHAR(5)   NOT NULL,
+    NM_EV               VARCHAR(120),
+    DE_EV               VARCHAR(250),
+    TY_EV               VARCHAR(20),
+    SC_EV               VARCHAR(20),
+    CC_EV               VARCHAR(20),
+    NM_EV_OWNR          VARCHAR(120),
+    DC_DY_BSN_SS        VARCHAR(10),
+    DC_DY_BSN_SE        VARCHAR(10),
+    DC_DY_BSN_AS        VARCHAR(10),
+    DC_DY_BSN_AE        VARCHAR(10),
+    TS_EV_PL_EF         TIMESTAMP,
+    TS_EV_PL_EP         TIMESTAMP,
+    TS_EV_ACT_EF        TIMESTAMP,
+    TS_EV_ACT_EP        TIMESTAMP,
+    ID_EV_EXT           VARCHAR(20),
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP
+);
+
+
+
+CREATE SEQUENCE CO_EV_SEQ START WITH 2000 INCREMENT BY 1;
+
+
+
+
+
+
+
+
+CREATE TABLE CO_EV_I8
+(
+    ID_EV               INTEGER      NOT NULL,
+    ID_STR_RT           VARCHAR(5)   NOT NULL,
+    LCL                 VARCHAR(10)  NOT NULL,
+    NM_EV               VARCHAR(120),
+    DE_EV               VARCHAR(250)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM
+(
+    ID_ITM              VARCHAR(14)     NOT NULL,
+    ID_ITM_PDT          VARCHAR(14),
+    FL_ITM_DSC          CHAR(1),
+    FL_ITM_DSC_DMG      CHAR(1),
+    FL_ADT_ITM_PRC      CHAR(1),
+    FL_ITM_SZ_REQ       CHAR(1)         DEFAULT '0',
+    ID_DPT_POS          VARCHAR(14),
+    FL_AZN_FR_SLS       CHAR(1),
+    LU_EXM_TX           VARCHAR(20),
+    LU_ITM_USG          VARCHAR(20),
+    NM_ITM              VARCHAR(120),
+    DE_ITM              VARCHAR(250),
+    DE_ITM_SHRT         VARCHAR(120),
+    TY_ITM              VARCHAR(20),
+    LU_KT_ST            VARCHAR(20)     DEFAULT '0',
+    FL_ITM_SBST_IDN     CHAR(1)         DEFAULT '0',
+    LU_CLN_ORD          VARCHAR(20),
+    ID_STRC_MR          INTEGER,
+    ID_LN_PRC           INTEGER,
+    NM_BRN              VARCHAR(120),
+    LU_SN               VARCHAR(20),
+    FY                  VARCHAR(4),
+    LU_HRC_MR_LV        VARCHAR(4),
+    LU_SBSN             VARCHAR(20),
+    ID_GP_TX            INTEGER         DEFAULT 0,
+    FL_ACTVN_RQ         CHAR(1),
+    FL_ITM_RGSTRY       CHAR(1),
+    ID_MRHRC_GP         VARCHAR(14)         DEFAULT '0',
+    ID_MF               INTEGER,
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP       DEFAULT CURRENT TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_CLN_ITM
+(
+    ID_ITM              VARCHAR(14)  NOT NULL,
+    ID_CLN              VARCHAR(14)  NOT NULL,
+    ID_ITM_MBR          VARCHAR(14)  NOT NULL,
+    TY_CLN              VARCHAR(2)   DEFAULT ' ' NOT NULL,
+    QU_ITM_PR_ASMB      SMALLINT     DEFAULT 1 NOT NULL,
+    PE_BLN              DECIMAL(5,2) DEFAULT 0,
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_CLR
+(
+    ED_CLR         VARCHAR(20)  NOT NULL,
+    NM_CLR         VARCHAR(120),
+    DE_CLR         VARCHAR(250),
+    TS_CRT_RCRD    TIMESTAMP,
+    TS_MDF_RCRD    TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_CLR_I8
+(
+    ED_CLR         VARCHAR(20)  NOT NULL,
+    LCL            VARCHAR(10)  NOT NULL,
+    NM_CLR         VARCHAR(120),
+    DE_CLR         VARCHAR(250)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM_I8
+(
+    ID_ITM          VARCHAR(14)   NOT NULL,
+    LCL             VARCHAR(10)   NOT NULL,
+    DE_ITM          VARCHAR(250),
+    NM_ITM          VARCHAR(120),
+    DE_ITM_SHRT     VARCHAR(120),
+    NM_BRN          VARCHAR(120)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM_IMG
+(
+        ID_ITM           VARCHAR(14) NOT NULL,
+        ITM_IMG_LOC      VARCHAR(200),
+        ITM_DET_IMG      BLOB(1000M)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM_STRC_ASC
+(
+     ID_ITM          VARCHAR(14)      NOT NULL,
+     ID_STRC_MR_CD   VARCHAR(10)      NOT NULL
+);
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM_ASCTN_MSG
+(
+    ID_ITM          VARCHAR(14)       NOT NULL,
+    ID_MSG          INTEGER           NOT NULL,
+    TY_TRN_USG      SMALLINT          NOT NULL,
+    TY_DPLY_LOC     SMALLINT          NOT NULL
+);
+
+
+
+DROP SEQUENCE AS_ITM_META_TAG_SEQ;
+
+CREATE SEQUENCE AS_ITM_META_TAG_SEQ START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE AS_ITM_META_TAG
+  (
+    ID_ITM            VARCHAR(14) NOT NULL,
+    TX_META_TAG       VARCHAR(120) NOT NULL,
+    CD_META_TAG_SRC   VARCHAR(120) NOT NULL,
+    ID_REF            VARCHAR(20),
+    CD_LANG           VARCHAR(3),
+    CD_CO             VARCHAR(3),
+    TS_CRT_RCRD       TIMESTAMP
+  );
+  
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM_ASCTN_POG (
+       ID_ITM      VARCHAR(14)  NOT NULL,
+       ID_STR_RT   VARCHAR(5)   NOT NULL,
+       ID_POG      INTEGER      NOT NULL
+);
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE MA_PRC_ITM
+(
+    ID_EV         INTEGER      NOT NULL,
+    ID_STR_RT     VARCHAR(5)   NOT NULL,
+    TY_PRC_MNT    VARCHAR(20),
+    UN_PRI_EV     INTEGER,
+    UN_DG_LS_PRC  CHAR(1),
+    ID_TMPLT_LB   VARCHAR(8),
+    ID_PRCGP      INTEGER      DEFAULT -1 NOT NULL,
+    TS_CRT_RCRD   TIMESTAMP,
+    TS_MDF_RCRD   TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_SZ
+(
+    ED_SZ              VARCHAR(10)    NOT NULL,
+    DE_PRPTN_ACT_SZ    VARCHAR(250),
+    DE_TYP_ACT_SZ      VARCHAR(250),
+    ED_SZ_ACT          VARCHAR(20),
+    NM_TB_SZ           VARCHAR(120),
+    ED_TB_SZ           VARCHAR(20),
+    DE_TB_SZ           VARCHAR(250),
+    TS_CRT_RCRD        TIMESTAMP,
+    TS_MDF_RCRD        TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_SZ_I8
+(
+    ED_SZ              VARCHAR(10)      NOT NULL,
+    LCL                VARCHAR(10)      NOT NULL,
+    DE_PRPTN_ACT_SZ    VARCHAR(250),
+    DE_TYP_ACT_SZ      VARCHAR(250),
+    NM_TB_SZ           VARCHAR(120),
+    DE_TB_SZ           VARCHAR(250)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_STYL
+(
+    LU_STYL        VARCHAR(4)    NOT NULL,
+    NM_STYL        VARCHAR(120),
+    DE_STYL        VARCHAR(250),
+    TS_CRT_RCRD    TIMESTAMP,
+    TS_MDF_RCRD    TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_STYL_I8
+(
+    LU_STYL        VARCHAR(4)    NOT NULL,
+    LCL            VARCHAR(10)   NOT NULL,
+    NM_STYL        VARCHAR(120),
+    DE_STYL        VARCHAR(250)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_EV_MNT
+(
+    ID_EV           INTEGER      NOT NULL,
+    ID_STR_RT       VARCHAR(5)   NOT NULL,
+    NM_EV_MNT       VARCHAR(120),
+    DE_EV_MNT       VARCHAR(250),
+    TS_EV_MNT_EF    TIMESTAMP,
+    TS_EV_MNT_EP    TIMESTAMP,
+    TY_EV_MNT       VARCHAR(20),
+    SC_EV_MNT       VARCHAR(20),
+    RC_EV_MNT       VARCHAR(20),
+    TY_EV_MNT_ORG   VARCHAR(20),
+    ID_EM           VARCHAR(10),
+    ID_CMP          INTEGER,
+    TS_EV_MNT_CRT   TIMESTAMP,
+    TS_EV_MNT_APLY  TIMESTAMP,
+    ID_JOB_ST       VARCHAR(12),
+    ID_JOB_END      VARCHAR(12),
+    SC_EV_MNT_EF    VARCHAR(20),
+    SC_EV_MNT_EP    VARCHAR(20),
+    TS_CRT_RCRD     TIMESTAMP,
+    TS_MDF_RCRD     TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_EV_MNT_I8
+(
+    ID_EV           INTEGER      NOT NULL,
+    ID_STR_RT       VARCHAR(5)   NOT NULL,
+    LCL             VARCHAR(10)  NOT NULL,
+    NM_EV_MNT       VARCHAR(120),
+    DE_EV_MNT       VARCHAR(250)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE PA_MF 
+(
+    ID_MF    INTEGER       NOT NULL,
+    NM_MF    VARCHAR(120),
+    ID_PRTY  INTEGER
+);
+
+
+
+
+
+
+
+
+CREATE TABLE PA_MF_I8 
+(
+   ID_MF    INTEGER      NOT NULL,
+   LCL      VARCHAR(10)  NOT NULL,
+   NM_MF    VARCHAR(120)
+);
+
+
+
+
+
+
+
+
+
+CREATE TABLE TR_CHN_PRN_PRC
+(
+    ID_EV              INTEGER      NOT NULL,
+    ID_STR_RT          VARCHAR(5)   NOT NULL,
+    MO_CHN_PRN_UN_PRC  DECIMAL(10,4),
+    TY_CHN_PRN_UN_PRC  VARCHAR(20),
+    TS_CRT_RCRD        TIMESTAMP,
+    TS_MDF_RCRD        TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+CREATE TABLE MA_ITM_PRN_PRC_ITM
+(
+    ID_EV        INTEGER      NOT NULL,
+    ID_STR_RT    VARCHAR(5)   NOT NULL,
+    ID_ITM       VARCHAR(14)  NOT NULL,
+    ID_TMPLT_LB  VARCHAR(8),
+    MO_OVRD_PRC  DECIMAL(13,2),
+    TS_CRT_RCRD  TIMESTAMP,
+    TS_MDF_RCRD  TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE AS_POG 
+(
+   ID_POG       INTEGER      NOT NULL,
+   ID_EXT_POG   VARCHAR(120) NOT NULL,
+   NM_POG       VARCHAR(120),
+   DE_POG       VARCHAR(250)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE ID_DPT_PS
+(
+    ID_DPT_POS          VARCHAR(14)  NOT NULL,
+    ID_DPT_POS_PRNT     VARCHAR(14),
+    NM_DPT_POS          VARCHAR(120),
+    ID_GP_TX            INTEGER      DEFAULT 0 NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE ID_DPT_PS_I8
+(
+    ID_DPT_POS    VARCHAR(14)  NOT NULL,
+    LCL           VARCHAR(10)  NOT NULL,
+    NM_DPT_POS    VARCHAR(120)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE ID_IDN_PS
+(
+    ID_STR_RT             VARCHAR(5)    NOT NULL,
+    ID_ITM_POS            VARCHAR(14)   NOT NULL,
+    ID_ITM                VARCHAR(14)   NOT NULL,
+    DE_ITM_POS            VARCHAR(250),
+    RP_SLS_POS_CRT        DECIMAL(8,2)  DEFAULT 0,
+    FL_PNT_FQ_SHPR_EL     CHAR(1),
+    ID_MF                 INTEGER       DEFAULT 0,
+    ID_ITM_MF_UPC         VARCHAR(14),
+    ID_AGNT_RTN           INTEGER       DEFAULT 0,
+    FL_DSC_AF_DSC_ALW     CHAR(1),
+    LU_VT_PS_CPN          CHAR(2)       DEFAULT '00',
+    DT_END_PS_CPN_OFR     VARCHAR(4),
+    QU_UN_BLK_MNM         DECIMAL(5,2)  DEFAULT 1,
+    QU_UN_BLK_MXM         DECIMAL(5,2)  DEFAULT -1,
+    FL_DSC_MRK_BSK_ALW    CHAR(1),
+    FL_DSC_CT_ACNT_ALW    CHAR(1),
+    FL_DSC_EM_ALW         CHAR(1)       DEFAULT '1',
+    FL_CPN_ALW_MULTY      CHAR(1)       DEFAULT '0',
+    FL_FD_STP_ALW         CHAR(1),
+    FL_CPN_ELNTC          CHAR(1)       DEFAULT '0',
+    FL_CPN_RST            CHAR(1)       DEFAULT '0',
+    FL_ENTR_PRC_RQ        CHAR(1),
+    FL_QR_ENR_WT          CHAR(1),
+    FL_KY_PRH_QTY         CHAR(1),
+    FL_RTN_PRH            CHAR(1),
+    FL_ITM_GWY            CHAR(1),
+    FL_ITM_WIC            CHAR(1),
+    FL_PRC_VS_VR          CHAR(1),
+    FL_KY_PRH_RPT         CHAR(1),
+    FL_SPO_ITM            CHAR(1)       DEFAULT '0',
+    QU_PNT_FQ_SHPR        DECIMAL(9,2)  DEFAULT 0,
+    LU_GP_TND_RST         VARCHAR(20),
+    FC_FMY_MF             VARCHAR(3),
+    FL_MDFR_RT_PRC        CHAR(1),
+    ID_PRM                INTEGER       DEFAULT 0 NOT NULL,
+    ID_PRM_CMP            INTEGER       DEFAULT 0 NOT NULL,
+    ID_PRM_CMP_DTL        INTEGER       DEFAULT 0 NOT NULL,
+    TS_CRT_RCRD           TIMESTAMP,
+    TS_MDF_RCRD           TIMESTAMP     DEFAULT CURRENT TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_ASC_RLTD_ITM
+(
+    ID_ITM              VARCHAR(14) NOT NULL,
+    ID_ITM_RLTD         VARCHAR(14) NOT NULL,
+    CD_TY_RLTD_ITM      VARCHAR(10)  NOT NULL,
+    FL_RLTD_ITM_RTN     CHAR(1)     DEFAULT '0' NOT NULL,
+    FL_RLTD_ITM_RM      CHAR(1)     DEFAULT '1' NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM_RTL_STR
+(
+    ID_STR_RT           VARCHAR(5)      NOT NULL,
+    ID_ITM              VARCHAR(14)     NOT NULL,
+    FL_STK_UPT_ON_HD    CHAR(1),
+    DC_ITM_SLS          DATE,
+    SC_ITM_SLS          VARCHAR(2),
+    RP_PRC_CMPR_AT_SLS  DECIMAL(8,2),
+    DC_PRC_MF_REC_RT    DATE,
+    RP_PRC_MF_REC_RT    DECIMAL(8,2),
+    ID_GP_TX            INTEGER         DEFAULT 0,
+    DC_PRC_SLS_EP_CRT   DATE,
+    DC_PRC_SLS_EF_CRT   DATE,
+    FL_PRC_RT_PNT_ALW   CHAR(1),
+    TY_PRC_RT           VARCHAR(2),
+    RP_SLS_CRT          DECIMAL(8,2),
+    DC_PRC_EF_PRN_RT    DATE,
+    QU_MKD_PR_PRC_PR    DECIMAL(7,3),
+    FL_MKD_ORGL_PRC_PR  CHAR(1),
+    RP_PR_SLS           DECIMAL(8,2),
+    SC_ITM              VARCHAR(2),
+    IDN_SLS_AG_RST      INTEGER         DEFAULT 0 NOT NULL,
+    ID_TMPLT_LB         VARCHAR(8),
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP       DEFAULT CURRENT TIMESTAMP
+);
+
+
+
+
+
+
+
+DROP SEQUENCE AS_ITM_SRZ_LB_SEQ;
+
+CREATE TABLE AS_ITM_SRZ_LB
+(
+    ID_SRZ_ITM_LB   INTEGER      NOT NULL,
+    NM_SRZ_ITM_LB   VARCHAR(120)
+);
+
+
+CREATE SEQUENCE AS_ITM_SRZ_LB_SEQ START WITH 1 INCREMENT BY 1;
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM_SRZ_LB_I8
+(
+    ID_SRZ_ITM_LB   INTEGER      NOT NULL,
+    LCL             VARCHAR(10)  NOT NULL,
+    NM_SRZ_ITM_LB   VARCHAR(120)
+);
+
+
+
+
+
+
+
+CREATE TABLE AS_ITM_STK
+(
+    ID_ITM                  VARCHAR(14)         NOT NULL,
+    LU_UOM_SLS              VARCHAR(20)         NOT NULL,
+    ED_CLR                  VARCHAR(20),
+    ED_SZ                   VARCHAR(10),
+    LU_STYL                 VARCHAR(4),
+    ID_STR_RT               VARCHAR(5)          DEFAULT '0',
+    QL_HT_PCKG_CNS          DECIMAL(9,2)        DEFAULT 0,
+    ID_SPR                  VARCHAR(20)         DEFAULT '0',
+    NM_NMB_SRZ_ITM_MDL      VARCHAR(40),
+    QL_UOM_WD_PCKG_CNS      DECIMAL(9,2)        DEFAULT 0,
+    TY_WST_BLK_SLS          VARCHAR(20),
+    CY_MDL_SRZ_ITM          VARCHAR(4),
+    QU_CPC_HLD              DECIMAL(9,2)        DEFAULT 0,
+    LU_UOM                  VARCHAR(2),
+    QW_ITM_PCK              DECIMAL(9,2)        DEFAULT 0,
+    TY_UN_DPLY              VARCHAR(20),
+    QU_CB_PCK_ITM           DECIMAL(9,2)        DEFAULT 0,
+    QL_PCKG_CNS             DECIMAL(9,2)        DEFAULT 0,
+    DE_CLR_MF_SRZ_ITM       VARCHAR(250),
+    TY_ITM_STK              VARCHAR(20),
+    PE_WST_BLK_SLS          DECIMAL(5,2)        DEFAULT 0,
+    LU_UOM_PCKG_CNS_DMN     VARCHAR(20),
+    LU_SYS_PRMRY_MS         VARCHAR(20),
+    DE_SZ_MF_SRZ_ITM        VARCHAR(250),
+    QU_UN_PCK_ITM           DECIMAL(9,2)        DEFAULT 0,
+    DC_UN_DPLY_ST_UP        DATE,
+    LU_WRTY_MF_SRZ_ITM      VARCHAR(20),
+    QW_WT_PCKG_CNS          DECIMAL(9,2)        DEFAULT 0,
+    DC_UN_DPLY_TK_DWN       DATE,
+    DE_FBRC                 VARCHAR(250),
+    DP_UN_DPLY              VARCHAR(20),
+    LU_CNT_SLS_WT_UN        VARCHAR(20),
+    LU_WRTY_STR_SRZ         VARCHAR(20),
+    LU_UOM_WT_PCKG_CNS      VARCHAR(20),
+    TY_PKP_CT_STK_ITM       VARCHAR(20),
+    LU_UOM_SZ_PCKG_CNS      VARCHAR(20),
+    DE_SLH                  VARCHAR(250),
+    FL_VLD_SRZ_ITM          CHAR(1),
+    TY_SRZ_ITM              VARCHAR(40),
+    ID_SRZ_ITM_LB           INTEGER,
+    CD_SRZ_CPT_TM           VARCHAR(20)         DEFAULT 'Sale',
+    FL_SRZ_CRT_EXT          CHAR(1)             DEFAULT '1',
+    FA_PRC_UN_STK_ITM       DECIMAL(9,2)        DEFAULT 0,
+    FL_DSD_AZN              CHAR(1),
+    DI_PRD_SH_LF            DECIMAL(3,0)        DEFAULT 0,
+    DI_LF_SH                DECIMAL(3,0)        DEFAULT 0,
+    ID_BRKR                 INTEGER             DEFAULT 0,
+    DC_AVLB_FR_SLS          DATE,
+    TY_ITM_STPL_PRSH        VARCHAR(20),
+    TY_ENV_STK_ITM          VARCHAR(20),
+    NM_LCN_ASL              VARCHAR(250),
+    TY_SCTY_RQ              VARCHAR(20),
+    NM_LCN_SH               VARCHAR(250),
+    NM_LCN_SID              VARCHAR(250),
+    TY_MTR_HZ_STK_ITM       VARCHAR(20),
+    QU_FCG                  DECIMAL(9,2)        DEFAULT 0,
+    CP_UN_SL_LS_RCV_BS      DECIMAL(7,3)        DEFAULT 0,
+    CP_CST_NT_LS_RCV        DECIMAL(7,3)        DEFAULT 0,
+    CP_UN_SL_LND            DECIMAL(7,3)        DEFAULT 0,
+    DC_CST_EST_LS_RCV       DATE,
+    FL_SHRK_SH_ITM          CHAR(1),
+    FL_SWL_SH_ITM           CHAR(1),
+    FL_RQ_UN_PRC            CHAR(1),
+    FL_FE_RSTK              CHAR(1),
+    FL_WLL_CLL              CHAR(1)             DEFAULT '0',
+    TS_CRT_RCRD             TIMESTAMP,
+    TS_MDF_RCRD             TIMESTAMP           DEFAULT CURRENT TIMESTAMP
+);
+
+
+
+
+
+
+
+CREATE TABLE TR_CHN_TMP_PRC
+(
+    ID_EV              INTEGER          NOT NULL,
+    ID_STR_RT          VARCHAR(5)       NOT NULL,
+    MO_UN_TMP_PRC_CHN  DECIMAL(10,4),
+    TY_UN_TMP_PRC_CHN  VARCHAR(20),
+    ITM_PRC_CTGY       VARCHAR(10),
+    TS_CRT_RCRD        TIMESTAMP,
+    TS_MDF_RCRD        TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE MA_ITM_TMP_PRC_CHN
+(
+    ID_EV           INTEGER         NOT NULL,
+    ID_STR_RT       VARCHAR(5)      NOT NULL,
+    ID_ITM          VARCHAR(14)     NOT NULL,
+    ID_CNT_TMP_PRC  INTEGER         NOT NULL,
+    TS_TPC_ITM_EF   TIMESTAMP       NOT NULL,
+    TS_TPC_ITM_EP   TIMESTAMP       NOT NULL,
+    MO_OVRD_PRC     DECIMAL(13,2),
+    ID_TMPLT_LB     VARCHAR(8),
+    ID_PRM          INTEGER         DEFAULT 0 NOT NULL,
+    ID_PRM_CMP      INTEGER         DEFAULT 0 NOT NULL,
+    ID_PRM_CMP_DTL  INTEGER         DEFAULT 0 NOT NULL,
+    TS_CRT_RCRD     TIMESTAMP,
+    TS_MDF_RCRD     TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_UOM
+(
+    LU_UOM          VARCHAR(2)      NOT NULL,
+    FL_UOM_ENG_MC   CHAR(1)         DEFAULT '0',
+    NM_UOM          VARCHAR(120)    NOT NULL,
+    TY_UOM          VARCHAR(2),
+    DE_UOM          VARCHAR(250),
+    FL_DFLT_UOM     CHAR(1)         DEFAULT '0',
+    FL_CD_ENT_DFLT  CHAR(1)         NOT NULL,
+    FL_CD_ENT_ENAB  CHAR(1)         NOT NULL,
+    CD_ENT_SRT      SMALLINT        NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_UOM_I8
+(
+    LU_UOM     VARCHAR(2)       NOT NULL,
+    LCL        VARCHAR(10)      NOT NULL,
+    NM_UOM     VARCHAR(120)     NOT NULL,
+    DE_UOM     VARCHAR(250)
+);
+
+
+
+
+
+-- tax tables
+
+
+CREATE TABLE CD_GEO
+(
+   ID_CD_GEO   VARCHAR(10)  NOT NULL,
+   NM_TX_JUR   VARCHAR(120) NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE GEO_TX_JUR
+(
+    ID_CD_GEO    VARCHAR(10) NOT NULL,
+    PC_CNCT      VARCHAR(30)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE PA_ATHY_TX
+(
+    ID_ATHY_TX   INTEGER        NOT NULL,
+    TY_RO_PRTY   VARCHAR(20),
+    ID_PRTY      INTEGER        NOT NULL,
+    NM_ATHY_TX   VARCHAR(120),
+    SC_RND       INTEGER        DEFAULT 1 NOT NULL,
+    QU_DGT_RND   DECIMAL(9,3),
+    TS_CRT_RCRD  TIMESTAMP,
+    TS_MDF_RCRD  TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE RU_TX_GP
+(
+    ID_ATHY_TX      INTEGER         NOT NULL,
+    ID_GP_TX        INTEGER         NOT NULL,
+    TY_TX           INTEGER         DEFAULT 0 NOT NULL,
+    FLG_TX_HDY      CHAR(1)         DEFAULT '0' NOT NULL,
+    NM_RU_TX        VARCHAR(120),
+    DE_RU_TX        VARCHAR(250),
+    AI_CMPND        SMALLINT        DEFAULT 0 NOT NULL,
+    FL_TX_GS_AMT    CHAR(1)         DEFAULT '0' NOT NULL,
+    CD_CAL_MTH      INTEGER         DEFAULT 1 NOT NULL,
+    CD_TX_RT_RU_USG INTEGER         DEFAULT 1 NOT NULL,
+    FL_TX_INC       CHAR(1)         DEFAULT '0' NOT NULL,
+    TS_CRT_RCRD     TIMESTAMP,
+    TS_MDF_RCRD     TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_TX_JUR_ATHY_LNK
+(
+   ID_CD_GEO     VARCHAR(10)  NOT NULL,
+   ID_ATHY_TX    INTEGER      NOT NULL
+);
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE RU_TX_RT
+(
+    ID_ATHY_TX         INTEGER          NOT NULL,
+    ID_GP_TX           INTEGER          NOT NULL,
+    TY_TX              INTEGER          DEFAULT 0 NOT NULL,
+    FLG_TX_HDY         CHAR(1)          DEFAULT '0' NOT NULL,
+    AI_TX_RT_RU        SMALLINT         DEFAULT 1 NOT NULL,
+    CD_TYP             INTEGER          DEFAULT 1 NOT NULL,
+    PE_TX              DECIMAL(8,5)     DEFAULT 0 NOT NULL,
+    MO_TX              DECIMAL(13,2),
+    FL_TX_ABV_TH_MO    CHAR(1)          DEFAULT '0' NOT NULL,
+    MO_TX_TH           DECIMAL(8,2)     DEFAULT 0 NOT NULL,
+    MO_TXBL_MIN        DECIMAL(8,2),
+    MO_TXBL_MAX        DECIMAL(8,2),
+    TS_RT_TX_EF        TIMESTAMP        NOT NULL,
+    TS_RT_TX_EP        TIMESTAMP        NOT NULL,
+    TS_CRT_RCRD        TIMESTAMP,
+    TS_MDF_RCRD        TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE PA_TY_TX
+(
+    TY_TX      INTEGER NOT NULL,
+    NM_TY_TX   VARCHAR(30)
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_GP_TX_ITM
+(
+    ID_GP_TX     INTEGER        NOT NULL,
+    NM_GP_TX     VARCHAR(120),
+    CD_RCV_PRT   INTEGER,
+    DE_GP_TX     VARCHAR(250),
+    TS_CRT_RCRD  TIMESTAMP,
+    TS_MDF_RCRD  TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_GP_TX_ITM_I8
+(
+    ID_GP_TX     INTEGER        NOT NULL,
+    LCL          VARCHAR(10)    NOT NULL,
+    NM_GP_TX     VARCHAR(120),
+    DE_GP_TX     VARCHAR(250)
+);
+
+
+
+
+
+-- pricing tables
+
+
+CREATE TABLE CO_EL_CTAF_PRDV
+(
+    ID_STR_RT           VARCHAR(5)   NOT NULL,
+    ID_CT               VARCHAR(14)  NOT NULL,
+    ID_GP_ID            INTEGER      DEFAULT 0 NOT NULL,
+    ID_RU_PRDV          INTEGER      NOT NULL,
+    TS_EL_CTAF_PRDV_EF  TIMESTAMP,
+    ID_EV               INTEGER      DEFAULT 0 NOT NULL,
+    TS_EL_CTAF_PRDV_EP  TIMESTAMP,
+    DP_ACNT_CTAF_PRDV   VARCHAR(4),
+    LU_CNCRN_CTAF_PRDV  VARCHAR(4),
+    ID_ACTN_LDG         INTEGER      DEFAULT 0 NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE PA_GP_CT
+(
+    ID_GP_ID    INTEGER     NOT NULL,
+    NM_GP       VARCHAR(120) NOT NULL,
+    DE_GP_CT    VARCHAR(250) NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE PA_GP_CT_I8
+(
+    ID_GP_ID    INTEGER     NOT NULL,
+    LCL         VARCHAR(10) NOT NULL,
+    NM_GP       VARCHAR(120) NOT NULL,
+    DE_GP_CT    VARCHAR(250) NOT NULL
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_EL_PRDV_DPT
+(
+    ID_DPT_POS          VARCHAR(14)   NOT NULL,
+    ID_RU_PRDV          INTEGER       NOT NULL,
+    ID_STR_RT           VARCHAR(5)    NOT NULL,
+    ID_ACTN_LDG         INTEGER       DEFAULT 0 NOT NULL,
+    ID_EV               INTEGER       DEFAULT 0 NOT NULL,
+    DP_ACNT_DPT_PRDV    VARCHAR(4),
+    MO_TH               DECIMAL(13,2) DEFAULT 0.0 NOT NULL,
+    QU_TH               INTEGER       DEFAULT 0 NOT NULL,
+    QU_UL               DECIMAL(9,2)  DEFAULT 0.0 NOT NULL,
+    MO_UL               DECIMAL(13,2) DEFAULT 0.0 NOT NULL,
+    TS_RU_MRST_EF       TIMESTAMP     NOT NULL,
+    TS_RU_MRST_EP       TIMESTAMP     NOT NULL,
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP
+);
+
+
+
+
+
+
+
+CREATE TABLE CO_PRDV_ITM
+(
+    ID_STR_RT               VARCHAR(5)      NOT NULL,
+    ID_RU_PRDV              INTEGER         NOT NULL,
+    MO_UN_ITM_PRDV_SLS      DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    PE_UN_ITM_PRDV_SLS      DECIMAL(5,2)    DEFAULT 0.0 NOT NULL,
+    PNT_PRC_UN_ITM_PRDV_SLS DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    TS_CRT_RCRD             TIMESTAMP,
+    TS_MDF_RCRD             TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_EL_PRDV_ITM
+(
+    ID_ITM          VARCHAR(14)     NOT NULL,
+    ID_RU_PRDV      INTEGER         NOT NULL,
+    ID_STR_RT       VARCHAR(5)      NOT NULL,
+    ID_ACTN_LDG     INTEGER,
+    ID_EV           INTEGER         DEFAULT 0 NOT NULL,
+    DP_RU_PRC_DRVN  VARCHAR(4),
+    MO_TH           DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    QU_TH           INTEGER         DEFAULT 0 NOT NULL,
+    QU_UL           DECIMAL(9,2)    DEFAULT 0.0 NOT NULL,
+    MO_UL           DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    TS_RU_DRVN_EF   TIMESTAMP       NOT NULL,
+    TS_RU_DRVN_EP   TIMESTAMP       NOT NULL,
+    TS_CRT_RCRD     TIMESTAMP,
+    TS_MDF_RCRD     TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_NEL_PRDV_ITM
+(
+    ID_ITM          	VARCHAR(14)     NOT NULL,
+    ID_RU_PRDV      	INTEGER         NOT NULL,
+    ID_STR_RT       	VARCHAR(5)      NOT NULL,
+    TS_NEL_EF		 	TIMESTAMP    	NOT NULL,
+    TS_CRT_RCRD     	TIMESTAMP,
+    TS_MDF_RCRD     	TIMESTAMP
+);
+
+
+
+
+
+
+
+CREATE TABLE CO_EL_MRST_PRDV
+(
+    ID_RU_PRDV      INTEGER         NOT NULL,
+    ID_STR_RT       VARCHAR(5)      NOT NULL,
+    ID_STRC_MR_CD   VARCHAR(10)     NOT NULL,
+    ID_ACTN_LDG     INTEGER         DEFAULT 0 NOT NULL,
+    ID_EV           INTEGER         DEFAULT 0 NOT NULL,
+    TS_RU_MRST_EF   TIMESTAMP       NOT NULL,
+    TS_RU_MRST_EP   TIMESTAMP       NOT NULL,
+    DP_ACNT_MRST    VARCHAR(4),
+    MO_TH           DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    QU_TH           INTEGER         DEFAULT 0 NOT NULL,
+    MO_UL           DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    QU_UL           DECIMAL(9,2)    DEFAULT 0.0 NOT NULL,
+    TS_CRT_RCRD     TIMESTAMP,
+    TS_MDF_RCRD     TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE TR_ITM_MXMH_PRDV
+(
+    ID_RU_PRDV          INTEGER         NOT NULL,
+    ID_STR_RT           VARCHAR(5)      NOT NULL,
+    ID_PRM_PRD          VARCHAR(14)     NOT NULL,
+    MO_RDN_PRC_MXMH     DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    PE_RDN_PRC_MXMH     DECIMAL(5,2)    DEFAULT 0.0 NOT NULL,
+    PNT_PRC_RDN_MXMH    DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    QU_LM_MXMH          INTEGER         DEFAULT 0,
+    CD_BAS_CMP          VARCHAR(20)     NOT NULL,
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE RU_PRDVC_MXMH
+(
+    ID_RU_PRDV  INTEGER     NOT NULL,
+    ID_STR_RT   VARCHAR(5)  NOT NULL
+);
+
+
+
+
+
+
+DROP SEQUENCE RU_PRDV_SEQ;
+
+CREATE TABLE RU_PRDV
+(
+    ID_STR_RT           VARCHAR(5)      NOT NULL,
+    ID_RU_PRDV          INTEGER         NOT NULL,
+    LU_CBRK_PRDV_TRN    VARCHAR(2)      NOT NULL,
+    SC_RU_PRDV          VARCHAR(20)     NOT NULL,
+    TY_RU_PRDV          VARCHAR(2)      NOT NULL,
+    DC_RU_PRDV_EP       TIMESTAMP       NOT NULL,
+    DC_RU_PRDV_EF       TIMESTAMP       NOT NULL,
+    DE_RU_PRDV          VARCHAR(250)    NOT NULL,
+    ID_EV               INTEGER         DEFAULT -1,
+    NM_RU_PRDV          VARCHAR(120)    NOT NULL,
+    RC_RU_PRDV          INTEGER         DEFAULT -1  NOT NULL,
+    FL_DL_ADVN_APLY     CHAR(1)         DEFAULT '0' NOT NULL,
+    CD_BAS_PRDV         INTEGER         NOT NULL,
+    CD_SCP_PRDV         INTEGER         NOT NULL,
+    CD_MTH_PRDV         INTEGER         NOT NULL,
+    FL_CD_ENT_DFLT      CHAR(1)         DEFAULT '0' NOT NULL,
+    DP_LDG_STK_MDFR     VARCHAR(20)     DEFAULT '0' NOT NULL,
+    CD_ENT_SRT          SMALLINT        DEFAULT 0   NOT NULL,
+    QU_LM_APLY          SMALLINT        DEFAULT -1  NOT NULL,
+    MO_TH_SRC           DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    MO_LM_SRC           DECIMAL(13,2)   DEFAULT -1.0 NOT NULL,
+    MO_TH_TGT           DECIMAL(13,2)   DEFAULT 0.0 NOT NULL,
+    MO_LM_TGT           DECIMAL(13,2)   DEFAULT -1.0 NOT NULL,
+    CD_TY_TH_PRDV       VARCHAR(4)      DEFAULT '0' NOT NULL,
+    FL_DL_DST           CHAR(1)         DEFAULT '0',
+    FL_ALW_RPT_SRC      CHAR(1)         DEFAULT '1',
+    ID_TY_DISC          INTEGER         DEFAULT 0 NOT NULL,
+    CD_BAS_CMP_SRC      VARCHAR(20),
+    CD_BAS_CMP_TGT      VARCHAR(20),
+    QU_AN_SRC           SMALLINT,
+    QU_AN_TGT           SMALLINT,
+    ID_PRM              INTEGER         DEFAULT 0 NOT NULL,
+    ID_PRM_CMP          INTEGER         DEFAULT 0 NOT NULL,
+    ID_PRM_CMP_DTL      INTEGER         DEFAULT 0 NOT NULL,
+    ID_PRCGP            INTEGER,
+    ITM_PRC_CTGY_SRC    VARCHAR(10)     DEFAULT 'Both',
+    ITM_PRC_CTGY_TGT    VARCHAR(10)     DEFAULT 'Both',
+    CD_PRDV             VARCHAR(10)     DEFAULT 'NONE',
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP
+);
+
+
+
+
+CREATE SEQUENCE RU_PRDV_SEQ START WITH 24000 INCREMENT BY 1;
+
+
+
+
+
+
+CREATE TABLE RU_PRDV_I8
+(
+    ID_STR_RT    VARCHAR(5)   NOT NULL,
+    ID_RU_PRDV   INTEGER      NOT NULL,
+    LCL          VARCHAR(10)  NOT NULL,
+    NM_RU_PRDV   VARCHAR(120) NOT NULL
+);
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_PRCGP
+(
+        ID_PRCGP    INTEGER      NOT NULL,
+        NM_PRCGP    VARCHAR(120),
+        DE_PRCGP    VARCHAR(250)
+);
+
+
+
+
+
+
+
+CREATE TABLE CO_PRCGP_I8
+(
+    ID_PRCGP       INTEGER      NOT NULL,
+    LCL            VARCHAR(10)  NOT NULL,
+    NM_PRCGP       VARCHAR(120) NOT NULL,
+    DE_PRCGP       VARCHAR(250) NOT NULL
+);
+
+
+
+
+
+
+
+
+
+CREATE TABLE CO_EL_PRDV_TH 
+(   
+    ID_RU_PRDV                INTEGER          NOT NULL,
+    ID_PRDV_TH                INTEGER          NOT NULL,
+    ID_STR_RT                 VARCHAR(5)       NOT NULL,
+    TH_VAL                    SMALLINT,    
+    MO_UN_TH_PRDV_SLS         DECIMAL(13,2),    
+    PE_UN_TH_PRDV_SLS         DECIMAL(5,2), 
+    PT_PRC_TH_PRDV_SLS        DECIMAL(13,2),
+    TS_CRT_RCRD               TIMESTAMP,
+    TS_MDF_RCRD               TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_EL_TM_PRDV
+(
+    ID_RU_PRDV         INTEGER      NOT NULL,
+    ID_STR_RT          VARCHAR(5)   NOT NULL,
+    DC_RU_PRDV_EF      TIMESTAMP    NOT NULL,
+    DC_RU_PRDV_EP      TIMESTAMP    NOT NULL,
+	TM_RU_PRDV_EF 	   VARCHAR(6)   NOT NULL,
+	TM_RU_PRDV_EP	   VARCHAR(6)   NOT NULL
+);
+
+
+
+
+
+-- currency tables
+DROP SEQUENCE CO_CNY_SEQ;
+
+CREATE TABLE CO_CNY
+(
+    ID_CNY_ICD      INTEGER     NOT NULL,
+    LU_CNY_ISSG_CY  VARCHAR(4)  NOT NULL,
+    CD_CNY_ISO      VARCHAR(3)  NOT NULL,
+    DE_CNY          VARCHAR(250),
+    DE_CNY_ISSG_NAT VARCHAR(120),
+    FL_CNY_BASE     CHAR(1),
+    QU_CNY_SCLE     INTEGER,
+    AI_CNY_PRI      INTEGER,
+    CD_CNY_ISO_NMB  VARCHAR(3)
+);
+
+
+CREATE SEQUENCE CO_CNY_SEQ START WITH 10 INCREMENT BY 1;
+
+
+
+
+
+
+
+CREATE TABLE CO_CNY_DNM
+(
+    ID_CNY_ICD      INTEGER     NOT NULL,
+    ID_CNY_DNM      INTEGER     NOT NULL,
+    NM_DNM          VARCHAR(120),
+    VL_DNM          VARCHAR(40),
+    CD_DNM_DPLY_PRI INTEGER
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_CNY_DNM_I8
+(
+    ID_CNY_ICD      INTEGER     NOT NULL,
+    ID_CNY_DNM      INTEGER     NOT NULL,
+    LCL             VARCHAR(10) NOT NULL,
+    NM_DNM          VARCHAR(120)
+);
+
+
+
+
+
+CREATE TABLE CO_CNY_RND
+(
+    TY_CNY_RND        VARCHAR(40)  NOT NULL,
+    MO_DNM_RND        DECIMAL(4,2) NOT NULL,
+    CD_CNY_ISO        VARCHAR(3)   NOT NULL,
+    AI_RND            INTEGER      NOT NULL,
+    MO_VL_MIN         DECIMAL(4,2) DEFAULT 0,
+    MO_VL_MAX         DECIMAL(4,2) DEFAULT 0,
+    TY_RND_CLC        SMALLINT     DEFAULT 0      
+);
+
+
+
+
+
+
+
+CREATE TABLE CO_RT_EXC
+(
+    DC_RT_EXC_EF    DATE            NOT NULL,
+    DC_RT_EXC_EP    DATE            NOT NULL,
+    ID_CNY_ICD      INTEGER         NOT NULL,
+    LL_CNY_EXC      DECIMAL(13,2)   DEFAULT 0 NOT NULL,
+    MO_RT_TO_BUY    DECIMAL(13,6)   NOT NULL,
+    MO_RT_TO_SL     DECIMAL(13,6)   NOT NULL,
+    MO_FE_SV_EXC    DECIMAL(13,2)   NOT NULL
+);
+
+
+
+
+
+-- address tables
+DROP SEQUENCE LO_ADS_SEQ;
+
+CREATE TABLE LO_ADS
+(
+    ID_ADS      INTEGER     NOT NULL,
+    ID_PRTY     INTEGER     NOT NULL,
+    TY_ADS      VARCHAR(30) NOT NULL,
+    A1_CNCT     VARCHAR(240),
+    A2_CNCT     VARCHAR(240),
+    A3_CNCT     VARCHAR(240),
+    CI_CNCT     VARCHAR(120),
+    ST_CNCT     VARCHAR(30),
+    PC_CNCT     VARCHAR(30),
+    TE_CNCT     VARCHAR(120),
+    CO_CNCT     VARCHAR(30),
+    CC_CNCT     VARCHAR(30),
+    TA_CNCT     VARCHAR(3),
+    TL_CNCT     VARCHAR(30)
+);
+
+
+
+
+CREATE SEQUENCE LO_ADS_SEQ START WITH 100 INCREMENT BY 1;
+
+
+
+
+
+
+
+CREATE TABLE PA_STR_RTL
+(
+    ID_STR_RT           VARCHAR(5)   NOT NULL,
+    ID_PRTY             INTEGER      DEFAULT 0,
+    TY_RO_PRTY          VARCHAR(20),
+    ID_STRGP            VARCHAR(14),
+    DC_OPN_RT_STR       DATE,
+    DC_CL_RT_STR        DATE,
+    QU_FT_SQ_RT_STR     DECIMAL(9,2) DEFAULT 0,
+    QU_AR_SL_SQ_FT      DECIMAL(9,2) DEFAULT 0,
+    LU_ZN_PRC_RT_STR    VARCHAR(20),
+    NM_LOC              VARCHAR(150),
+    ID_STR_DSTRCT       VARCHAR(14),
+    ID_STR_RGN          VARCHAR(14),
+    ID_CD_GEO           VARCHAR(10),
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE PA_STR_RTL_I8
+(
+    ID_STR_RT    VARCHAR(5)   NOT NULL,
+    LCL          VARCHAR(10)  NOT NULL,
+    NM_LOC       VARCHAR(150),
+    UPR_NM_LOC   VARCHAR(150) generated always as (UPPER(NM_LOC))
+);
+
+
+
+
+
+-- merch.hier tables
+
+
+CREATE TABLE ST_ASCTN_MRHRC
+(
+    ID_MRHRC_GP_PRNT     VARCHAR(14) NOT NULL,
+    ID_MRHRC_GP_CHLD     VARCHAR(14) NOT NULL,
+    ID_MRHRC_FNC         INTEGER     NOT NULL,
+    ID_MRHRC_LV          INTEGER     NOT NULL,
+    TS_CRT_RCRD          TIMESTAMP,
+    TS_MDF_RCRD          TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+DROP SEQUENCE CO_MRHRC_FNC_SEQ;
+
+CREATE TABLE CO_MRHRC_FNC
+(
+   ID_MRHRC_FNC        INTEGER       NOT NULL,
+   NM_MRHRC_FNC        VARCHAR(250),
+   TS_CRT_RCRD         TIMESTAMP,
+   TS_MDF_RCRD         TIMESTAMP
+);
+
+
+CREATE SEQUENCE CO_MRHRC_FNC_SEQ START WITH 1000 INCREMENT BY 1;
+
+
+
+
+ 
+
+
+
+
+CREATE TABLE CO_MRHRC_FNC_I8
+(
+   ID_MRHRC_FNC        INTEGER       NOT NULL,
+   LCL                 VARCHAR(10)   NOT NULL,
+   NM_MRHRC_FNC        VARCHAR(250)
+);
+
+
+
+
+
+
+DROP SEQUENCE CO_MRHRC_GP_SEQ;
+
+CREATE TABLE CO_MRHRC_GP
+(
+    ID_MRHRC_GP     VARCHAR(14)   NOT NULL,
+    NM_MRHRC_GP     VARCHAR(120),
+    ID_PST          INTEGER,
+    DE_MRHRC_GP     VARCHAR(250),
+    TS_CRT_RCRD     TIMESTAMP,
+    TS_MDF_RCRD     TIMESTAMP
+);
+
+
+CREATE SEQUENCE CO_MRHRC_GP_SEQ START WITH 1000 INCREMENT BY 1;
+
+
+
+
+
+
+
+CREATE TABLE CO_MRHRC_GP_I8
+(
+    ID_MRHRC_GP     VARCHAR(14)     NOT NULL,
+    LCL             VARCHAR(10)     NOT NULL,
+    NM_MRHRC_GP     VARCHAR(120),
+    DE_MRHRC_GP     VARCHAR(250)
+);
+
+
+
+
+
+
+DROP SEQUENCE CO_MRHRC_LV_SEQ;
+
+CREATE TABLE CO_MRHRC_LV
+(
+    ID_MRHRC_LV          INTEGER    NOT NULL,
+    ID_MRHRC_FNC         INTEGER    NOT NULL,
+    NM_MRHRC_LV          VARCHAR(120),
+    ID_MRHRC_LV_PRNT     INTEGER,
+    TS_CRT_RCRD          TIMESTAMP,
+    TS_MDF_RCRD          TIMESTAMP
+);
+
+
+
+CREATE SEQUENCE CO_MRHRC_LV_SEQ START WITH 1000 INCREMENT BY 1;
+
+
+
+
+
+
+
+CREATE TABLE CO_MRHRC_LV_I8
+(
+    ID_MRHRC_LV          INTEGER      NOT NULL,
+    ID_MRHRC_FNC         INTEGER      NOT NULL,
+    LCL                  VARCHAR(10)  NOT NULL,
+    NM_MRHRC_LV          VARCHAR(120)
+);
+
+
+
+
+
+-- shipping.method tables
+
+
+CREATE TABLE CO_SHP_MTH
+(
+    ID_SHP_MTH        INTEGER        NOT NULL,
+    SHP_CRR           VARCHAR(120),
+    SHP_TYP           VARCHAR(120),
+    SHP_CHG           DECIMAL(13,2),
+    SHP_CHG_RT_BY_WT  DECIMAL(13,2),
+    FLT_RT            DECIMAL(13,2),
+    LU_EXM_TX         VARCHAR(20),
+    ID_GP_TX          INTEGER        DEFAULT 0,
+    TY_SHP_CAL        SMALLINT       DEFAULT 0,
+    TS_CRT_RCRD       TIMESTAMP,
+    TS_MDF_RCRD       TIMESTAMP
+);
+
+
+
+
+
+
+
+
+CREATE TABLE CO_SHP_MTH_I8
+(
+    ID_SHP_MTH    INTEGER          NOT NULL,
+    LCL           VARCHAR(10)      NOT NULL,
+    SHP_CRR       VARCHAR(120),
+    SHP_TYP       VARCHAR(120)
+);
+
+
+
+
+
+-- reason.code tables
+
+
+CREATE TABLE ID_LU_CD
+(
+    ID_STR_RT           VARCHAR(5)      NOT NULL,
+    DE_CD_LST           VARCHAR(255)    NOT NULL,
+    NM_CD_GP            VARCHAR(40)     NOT NULL,
+    LU_CD_ENT           VARCHAR(20)     NOT NULL,
+    FL_CD_ENT_DFLT      CHAR(1)         NOT NULL,
+    DE_CD_ENT           VARCHAR(40)     NOT NULL,
+    CD_ENT_SRT          SMALLINT        NOT NULL,
+    FL_CD_ENT_ENAB      CHAR(1)         NOT NULL,
+    FL_CD_NUM           CHAR(1)         NOT NULL,
+    ID_RU_PRDV          INTEGER,
+    TS_CRT_RCRD         TIMESTAMP,
+    TS_MDF_RCRD         TIMESTAMP
+);
+
+
+
+
+
+
+
+
+
+CREATE TABLE ID_LU_CD_I8
+(
+    ID_STR_RT           VARCHAR(5)      NOT NULL,
+    DE_CD_LST           VARCHAR(250)    NOT NULL,
+    NM_CD_GP            VARCHAR(40)     NOT NULL,
+    LU_CD_ENT           VARCHAR(20)     NOT NULL,
+    LCL                 VARCHAR(10)     NOT NULL,
+    DE_CD_ENT           VARCHAR(250)    NOT NULL
+);
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE LO_DPT_POS_RTL_STR
+(
+    ID_DPT_POS      VARCHAR(14) NOT NULL,
+    ID_STR_RT       VARCHAR(5)  NOT NULL,
+    FL_CD_ENT_DFLT  CHAR(1)     NOT NULL,
+    FL_CD_ENT_ENAB  CHAR(1)     NOT NULL,
+    CD_ENT_SRT      SMALLINT    NOT NULL
+);
+
+
+
+
+
+-- customer.affiliation tables
+
+
+CREATE TABLE CO_CTAF
+(
+    ID_CT               VARCHAR(14) NOT NULL,
+    ID_GP_ID            INTEGER NOT NULL,
+    FL_IDN_CTAF_VR_RQ   CHAR(1)
+);
+
+-- Changes For Offline DB Starts
+
+CREATE TABLE TX_ASGMT 
+   (	ID_CTGY_TX INTEGER NOT NULL, 
+	ID_RN_FM_TX INTEGER, 
+	ID_RN_TO_TX INTEGER, 
+	TX_CD VARCHAR(6) NOT NULL, 
+	TX_CD_DSCR VARCHAR(120), 
+	APLY_ON VARCHAR(500), 
+	APLN_ORD INTEGER, 
+	TX_RT DECIMAL(20,10), 
+	TXBL_FCT DECIMAL(20,10), 
+	TX_FCT DECIMAL(20,10), 
+	TAX_INC_EX VARCHAR(1), 
+	TS_CRT_RCRD TIMESTAMP, 
+	TS_MDF_RCRD TIMESTAMP, 
+	MAX_TX_FRM_AMT DECIMAL(10,2) DEFAULT 0, 
+	MAX_TX_TO_AMT DECIMAL(10,2) DEFAULT 0
+  );
+   
+ CREATE TABLE TR_LTM_TX_BRKUP 
+   (	ID_STR_RT VARCHAR(5) NOT NULL , 
+	ID_WS VARCHAR(3) NOT NULL , 
+	AI_TRN INTEGER NOT NULL , 
+	DC_DY_BSN VARCHAR(10) NOT NULL , 
+	AI_LN_ITM INTEGER NOT NULL , 
+	ID_ITM VARCHAR(14), 
+	ID_ITM_POS VARCHAR(14), 
+	QU_ITM_LM_RTN_SLS DECIMAL(10,3), 
+	TX_BRKUP_TX_CD VARCHAR(6), 
+	TX_BRKUP_TX_CD_DSCR VARCHAR(120), 
+	TX_BRKUP_TX_RT DECIMAL(20,10), 
+	TX_BRKUP_TXBL_AMT DECIMAL(13,2), 
+	TX_BRKUP_TX_AMT DECIMAL(13,2), 
+	TS_CRT_RCRD TIMESTAMP, 
+	TS_MDF_RCRD TIMESTAMP DEFAULT CURRENT TIMESTAMP, 
+	TXBL_FCT DECIMAL(20,10) DEFAULT 0, 
+	TX_FCT DECIMAL(20,10) DEFAULT 0
+	);
+	
+	 CREATE TABLE RU_TY_PRDV
+   (	ID_STR_RT VARCHAR(5), 
+	ID_TY_PRDV INTEGER, 
+	NM_TY_PRDV VARCHAR(120), 
+	FL_SR_TGT CHAR(1), 
+	CD_MTH_PRDV INTEGER, 
+	CD_TY_TH_PRDV VARCHAR(4), 
+	CD_SCP_PRDV INTEGER, 
+	ID_TY_DISC INTEGER, 
+	TS_CRT_RCRD TIMESTAMP, 
+	TS_MDF_RCRD TIMESTAMP
+   );
+  
+  CREATE TABLE RU_TY_PRDV_I8
+   (	ID_STR_RT VARCHAR(5), 
+	ID_TY_PRDV INTEGER, 
+	LCL VARCHAR(10), 
+	NM_DISP_TY_PRDV VARCHAR(250)
+   );
+   
+   
+	CREATE TABLE MAX_GST_REG_MAP (
+	GST_REG_CODE VARCHAR(4), 
+	GST_REG_DESC VARCHAR(120)
+);
+
+-- Changes for offline DB ends
+
+/* CREATE INDEX IDX_CO_DTA_BMC_1 ON CO_DTA_BMC (ID_EM);
+CREATE INDEX IDX_PA_EM_1 ON PA_EM (ID_LOGIN, ID_EM);
+CREATE INDEX IDX_CO_ACS_GP_RS_1 ON CO_ACS_GP_RS (ID_GP_WRK, ID_APP);
+CREATE INDEX IDX_MA_ITM_CLR_PRC_CHN_1 ON MA_ITM_CLR_PRC_CHN (ID_STR_RT, ID_ITM);
+CREATE INDEX IDX_CO_EV_1 ON CO_EV (ID_EV_EXT, ID_STR_RT);
+CREATE INDEX IDX_AS_ITM_1 ON AS_ITM (TY_ITM, ID_ITM);
+CREATE INDEX IDX_AS_ITM_2 ON AS_ITM (ID_DPT_POS);
+CREATE INDEX IDX_AS_ITM_3 ON AS_ITM (ID_MRHRC_GP);
+CREATE INDEX IDX_AS_ITM_STRC_ASC_1 ON AS_ITM_STRC_ASC (ID_ITM, ID_STRC_MR_CD);
+CREATE INDEX IDX_AS_ITM_META_TAG_1 on AS_ITM_META_TAG(TX_META_TAG);
+CREATE INDEX IDX_AS_ITM_META_TAG_2 on AS_ITM_META_TAG(ID_ITM,CD_META_TAG_SRC,CD_LANG,CD_CO);
+CREATE INDEX IDX_AS_ITM_ASCTN_POG_1 ON AS_ITM_ASCTN_POG (ID_POG);
+CREATE INDEX IDX_CO_EV_MNT_1 ON CO_EV_MNT (TS_EV_MNT_EF, TS_EV_MNT_EP);
+CREATE INDEX IDX_CO_EV_MNT_2 ON CO_EV_MNT (TS_EV_MNT_EF);
+CREATE INDEX IDX_MA_ITM_PRN_PRC_ITM_1 ON MA_ITM_PRN_PRC_ITM (ID_ITM, ID_STR_RT);
+CREATE INDEX IDX_ID_IDN_PS_1 on ID_IDN_PS (ID_ITM, ID_STR_RT);
+CREATE INDEX IDX_ID_IDN_PS_2 on ID_IDN_PS (ID_ITM_POS);
+CREATE INDEX IDX_AS_ITM_RTL_STR_1 ON AS_ITM_RTL_STR (ID_ITM, ID_STR_RT, RP_PRC_CMPR_AT_SLS, IDN_SLS_AG_RST);
+CREATE INDEX IDX_MA_ITM_TMP_PRC_CHN_1 ON MA_ITM_TMP_PRC_CHN (ID_STR_RT, ID_ITM);
+CREATE INDEX IDX_RU_TX_GP_1 ON RU_TX_GP (ID_GP_TX);
+CREATE INDEX IDX_RU_TX_GP_2 ON RU_TX_GP (TY_TX);
+CREATE INDEX IDX_CO_TX_JUR_ATHY_LNK_1 ON CO_TX_JUR_ATHY_LNK (ID_CD_GEO);
+CREATE INDEX IDX_CO_TX_JUR_ATHY_LNK_2 ON CO_TX_JUR_ATHY_LNK (ID_ATHY_TX);
+CREATE INDEX IDX_RU_TX_RT_1 ON RU_TX_RT (MO_TXBL_MIN);
+CREATE INDEX IDX_RU_TX_RT_2 ON RU_TX_RT (MO_TXBL_MAX);
+CREATE INDEX IDX_RU_TX_RT_3 ON RU_TX_RT (TS_RT_TX_EF);
+CREATE INDEX IDX_RU_TX_RT_4 ON RU_TX_RT (TS_RT_TX_EP);
+CREATE INDEX IDX_CO_PRDV_ITM_1 ON CO_PRDV_ITM (ID_RU_PRDV);
+CREATE INDEX IDX_CO_EL_PRDV_ITM_1 ON CO_EL_PRDV_ITM (ID_RU_PRDV);
+CREATE INDEX IDX_RU_PRDV_1 ON RU_PRDV (ID_RU_PRDV);
+CREATE INDEX IDX_LO_ADS_1 ON LO_ADS (PC_CNCT);
+CREATE INDEX IDX_LO_ADS_2 ON LO_ADS (ID_PRTY);
+CREATE INDEX IDX_PA_STR_RTL_I8_1 ON PA_STR_RTL_I8 (UPR_NM_LOC);
+CREATE INDEX IDX_ST_ASCTN_MRHRC_1 ON ST_ASCTN_MRHRC (ID_MRHRC_FNC, ID_MRHRC_LV);
+CREATE INDEX IDX_ST_ASCTN_MRHRC_2 ON ST_ASCTN_MRHRC (ID_MRHRC_GP_PRNT);
+CREATE INDEX IDX_ST_ASCTN_MRHRC_3 ON ST_ASCTN_MRHRC (ID_MRHRC_GP_CHLD);
+CREATE INDEX IDX_CO_MRHRC_LV_1 ON CO_MRHRC_LV (ID_MRHRC_FNC, ID_MRHRC_LV_PRNT);
+CREATE INDEX IDX_ID_LU_CD_1 ON ID_LU_CD (ID_STR_RT, DE_CD_LST);
+CREATE INDEX IDX_ID_LU_CD_I8_1 ON ID_LU_CD_I8 (ID_STR_RT, DE_CD_LST);
+CREATE INDEX IDX_ID_LU_CD_I8_2 ON ID_LU_CD_I8 (ID_STR_RT, DE_CD_LST, LU_CD_ENT, LCL); */
+
+ALTER TABLE CO_DT_ST_IDDI ADD CONSTRAINT CO_DT_ST_IDDI_PK PRIMARY KEY (ID_DT_ST, ID_STR_RT);
+ALTER TABLE MA_WS_VN_IDDI ADD CONSTRAINT MA_WS_VN_IDDI_PK PRIMARY KEY (ID_DT_ST, ID_STR_RT, ID_WS);
+ALTER TABLE PA_EM ADD CONSTRAINT PA_EM_PK PRIMARY KEY (ID_EM);
+ALTER TABLE CO_ACS_GP_RS ADD CONSTRAINT CO_ACS_GP_RS_PK PRIMARY KEY (ID_RS, ID_GP_WRK, ID_APP);
+ALTER TABLE CO_ACS_GP_RS_LS ADD CONSTRAINT CO_ACS_GP_RS_LS_PK PRIMARY KEY (ID_RS, ID_RS_PRNT, ID_APP);
+ALTER TABLE CO_ACS_GP_RS_LS_I8 ADD CONSTRAINT CO_ACS_GP_RS_LS_I8_PK PRIMARY KEY (DE_RS, LCL);
+ALTER TABLE PA_RS ADD CONSTRAINT PA_RS_PK PRIMARY KEY (ID_RS_PRNT);
+ALTER TABLE PA_RS_I8 ADD CONSTRAINT PA_RS_I8_PK PRIMARY KEY (ID_RS_PRNT, LCL);
+ALTER TABLE CO_GP_WRK ADD CONSTRAINT CO_GP_WRK_PK PRIMARY KEY (ID_GP_WRK);
+ALTER TABLE CO_GP_WRK_I8 ADD CONSTRAINT PCO_GP_WRK_I8_PK PRIMARY KEY (ID_GP_WRK, LCL);
+ALTER TABLE TR_CHN_CLR_PRC ADD CONSTRAINT TR_CHN_CLR_PRC_PK PRIMARY KEY (ID_EV, ID_STR_RT);
+ALTER TABLE MA_ITM_CLR_PRC_CHN ADD CONSTRAINT MA_ITM_CLR_PRC_CHN_PK PRIMARY KEY (ID_EV, ID_STR_RT, ID_ITM);
+ALTER TABLE DO_MSG ADD CONSTRAINT DO_MSG_PK PRIMARY KEY(ID_MSG);
+ALTER TABLE DO_MSG_I8 ADD CONSTRAINT DO_MSG_I8_PK PRIMARY KEY(ID_MSG, LCL);
+ALTER TABLE CO_EV ADD CONSTRAINT CO_EV_PK PRIMARY KEY (ID_EV, ID_STR_RT);
+ALTER TABLE CO_EV_I8 ADD CONSTRAINT CO_EV_I8_PK PRIMARY KEY (ID_EV, ID_STR_RT, LCL);
+ALTER TABLE AS_ITM ADD CONSTRAINT AS_ITM_PK PRIMARY KEY (ID_ITM);
+ALTER TABLE CO_CLN_ITM ADD CONSTRAINT CO_CLN_ITM_PK PRIMARY KEY (ID_ITM, ID_CLN, ID_ITM_MBR);
+ALTER TABLE CO_CLR ADD CONSTRAINT CO_CLR_PK PRIMARY KEY (ED_CLR);
+ALTER TABLE CO_CLR_I8 ADD CONSTRAINT CO_CLR_I8_PK PRIMARY KEY (ED_CLR, LCL);
+ALTER TABLE AS_ITM_I8 ADD CONSTRAINT AS_ITM_I8_PK PRIMARY KEY (ID_ITM,LCL);
+ALTER TABLE AS_ITM_IMG ADD CONSTRAINT AS_ITM_IMG_PK PRIMARY KEY (ID_ITM);
+ALTER TABLE AS_ITM_ASCTN_MSG ADD CONSTRAINT AS_ITM_ASCTN_MSG_PK PRIMARY KEY (ID_ITM, ID_MSG, TY_TRN_USG, TY_DPLY_LOC);
+ALTER TABLE AS_ITM_ASCTN_POG ADD CONSTRAINT AS_ITM_ASCTN_POG_PK PRIMARY KEY (ID_ITM, ID_STR_RT, ID_POG);
+ALTER TABLE MA_PRC_ITM ADD CONSTRAINT MA_PRC_ITM_PK PRIMARY KEY (ID_EV, ID_STR_RT);
+ALTER TABLE CO_SZ ADD CONSTRAINT CO_SZ_PK PRIMARY KEY (ED_SZ);
+ALTER TABLE CO_SZ_I8 ADD CONSTRAINT CO_SZ_I8_PK PRIMARY KEY (ED_SZ, LCL);
+ALTER TABLE CO_STYL ADD CONSTRAINT CO_STYL_PK PRIMARY KEY (LU_STYL);
+ALTER TABLE CO_STYL_I8 ADD CONSTRAINT CO_STYL_I8_PK PRIMARY KEY (LU_STYL, LCL);
+ALTER TABLE CO_EV_MNT ADD CONSTRAINT CO_EV_MNT_PK PRIMARY KEY (ID_EV, ID_STR_RT);
+ALTER TABLE CO_EV_MNT_I8 ADD CONSTRAINT CO_EV_MNT_I8_PK PRIMARY KEY (ID_EV, ID_STR_RT, LCL);
+ALTER TABLE PA_MF ADD CONSTRAINT PA_MF_PK PRIMARY KEY (ID_MF);
+ALTER TABLE PA_MF_I8 ADD CONSTRAINT PA_MF_I8_PK PRIMARY KEY (ID_MF, LCL);
+ALTER TABLE TR_CHN_PRN_PRC ADD CONSTRAINT TR_CHN_PRN_PRC_PK PRIMARY KEY (ID_EV, ID_STR_RT);
+ALTER TABLE MA_ITM_PRN_PRC_ITM ADD CONSTRAINT MA_ITM_PRN_PRC_ITM_PK PRIMARY KEY (ID_EV, ID_STR_RT, ID_ITM);
+ALTER TABLE AS_POG ADD CONSTRAINT AS_POG_PK PRIMARY KEY (ID_POG);
+ALTER TABLE ID_DPT_PS ADD CONSTRAINT ID_DPT_PS_PK PRIMARY KEY (ID_DPT_POS);
+ALTER TABLE ID_DPT_PS_I8 ADD CONSTRAINT ID_DPT_PS_I8_PK PRIMARY KEY (ID_DPT_POS,LCL);
+ALTER TABLE ID_IDN_PS ADD CONSTRAINT ID_IDN_PS_PK PRIMARY KEY (ID_STR_RT, ID_ITM_POS, ID_ITM);
+ALTER TABLE CO_ASC_RLTD_ITM ADD CONSTRAINT CO_ASC_RLTD_ITM_PK PRIMARY KEY (ID_ITM, ID_ITM_RLTD, CD_TY_RLTD_ITM);
+ALTER TABLE AS_ITM_RTL_STR ADD CONSTRAINT AS_ITM_RTL_STR_PK PRIMARY KEY (ID_ITM, ID_STR_RT);
+ALTER TABLE AS_ITM_SRZ_LB ADD CONSTRAINT AS_ITM_SRZ_LB_PK PRIMARY KEY (ID_SRZ_ITM_LB);
+ALTER TABLE AS_ITM_SRZ_LB_I8 ADD CONSTRAINT AS_ITM_SRZ_LB_I8_PK PRIMARY KEY (ID_SRZ_ITM_LB, LCL);
+ALTER TABLE AS_ITM_STK ADD CONSTRAINT AS_ITM_STK_PK PRIMARY KEY (ID_ITM);
+ALTER TABLE TR_CHN_TMP_PRC ADD CONSTRAINT TR_CHN_TMP_PRC_PK PRIMARY KEY (ID_EV, ID_STR_RT);
+ALTER TABLE MA_ITM_TMP_PRC_CHN ADD CONSTRAINT MA_ITM_TMP_PRC_CHN_PK PRIMARY KEY (ID_EV, ID_STR_RT, ID_ITM, ID_CNT_TMP_PRC);
+ALTER TABLE CO_UOM ADD CONSTRAINT CO_UOM_PK PRIMARY KEY (LU_UOM);
+ALTER TABLE CO_UOM_I8 ADD CONSTRAINT CO_UOM_I8_PK PRIMARY KEY (LU_UOM, LCL);
+ALTER TABLE CD_GEO ADD CONSTRAINT CD_GEO_PK PRIMARY KEY (ID_CD_GEO);
+ALTER TABLE GEO_TX_JUR ADD CONSTRAINT GEO_TX_JUR_PK PRIMARY KEY (ID_CD_GEO);
+ALTER TABLE PA_ATHY_TX ADD CONSTRAINT PA_ATHY_TX_PK PRIMARY KEY (ID_ATHY_TX);
+ALTER TABLE RU_TX_GP ADD CONSTRAINT RU_TX_GP_PK PRIMARY KEY (ID_ATHY_TX, ID_GP_TX, TY_TX, FLG_TX_HDY);
+ALTER TABLE CO_TX_JUR_ATHY_LNK ADD CONSTRAINT CO_TX_JUR_ATHY_LNK_PK PRIMARY KEY (ID_CD_GEO, ID_ATHY_TX);
+ALTER TABLE RU_TX_RT ADD CONSTRAINT RU_TX_RT_PK PRIMARY KEY (ID_ATHY_TX, ID_GP_TX, TY_TX, FLG_TX_HDY, AI_TX_RT_RU);
+ALTER TABLE PA_TY_TX ADD CONSTRAINT PA_TY_TX_PK PRIMARY KEY (TY_TX);
+ALTER TABLE CO_GP_TX_ITM ADD CONSTRAINT CO_GP_TX_ITM_PK PRIMARY KEY (ID_GP_TX);
+ALTER TABLE CO_GP_TX_ITM_I8 ADD CONSTRAINT CO_GP_TX_ITM_I8_PK PRIMARY KEY (ID_GP_TX, LCL);
+ALTER TABLE CO_EL_CTAF_PRDV ADD CONSTRAINT CO_EL_CTAF_PRDV_PK PRIMARY KEY (ID_STR_RT, ID_CT, ID_GP_ID, ID_RU_PRDV);
+ALTER TABLE PA_GP_CT ADD CONSTRAINT PA_GP_CT_PK PRIMARY KEY (ID_GP_ID);
+ALTER TABLE PA_GP_CT_I8 ADD CONSTRAINT PA_GP_CT_I8_PK PRIMARY KEY (ID_GP_ID, LCL);
+ALTER TABLE CO_EL_PRDV_DPT ADD CONSTRAINT CO_EL_PRDV_DPT_PK PRIMARY KEY (ID_DPT_POS, ID_RU_PRDV, ID_STR_RT);
+ALTER TABLE CO_PRDV_ITM ADD CONSTRAINT CO_PRDV_ITM_PK PRIMARY KEY (ID_STR_RT, ID_RU_PRDV);
+ALTER TABLE CO_EL_PRDV_ITM ADD CONSTRAINT CO_EL_PRDV_ITM_PK PRIMARY KEY (ID_ITM, ID_RU_PRDV, ID_STR_RT);
+ALTER TABLE CO_NEL_PRDV_ITM ADD CONSTRAINT CO_NEL_PRDV_ITM_PK PRIMARY KEY (ID_ITM, ID_RU_PRDV, ID_STR_RT);
+ALTER TABLE CO_EL_MRST_PRDV ADD CONSTRAINT CO_EL_MRST_PRDV_PK PRIMARY KEY (ID_RU_PRDV, ID_STR_RT, ID_STRC_MR_CD);
+ALTER TABLE TR_ITM_MXMH_PRDV ADD CONSTRAINT TR_ITM_MXMH_PRDV_PK PRIMARY KEY (ID_RU_PRDV, ID_STR_RT, ID_PRM_PRD);
+ALTER TABLE RU_PRDVC_MXMH ADD CONSTRAINT RU_PRDVC_MXMH_PK PRIMARY KEY (ID_RU_PRDV, ID_STR_RT);
+ALTER TABLE RU_PRDV ADD CONSTRAINT RU_PRDV_PK PRIMARY KEY (ID_STR_RT, ID_RU_PRDV);
+ALTER TABLE RU_PRDV_I8 ADD CONSTRAINT RU_PRDV_I8_PK PRIMARY KEY (ID_STR_RT, ID_RU_PRDV, LCL);
+ALTER TABLE CO_PRCGP ADD CONSTRAINT CO_PRCGP_PK PRIMARY KEY (ID_PRCGP);
+ALTER TABLE CO_PRCGP_I8 ADD CONSTRAINT CO_PRCGP_I8_PK PRIMARY KEY (ID_PRCGP, LCL);
+ALTER TABLE CO_EL_PRDV_TH ADD CONSTRAINT CO_EL_PRDV_TH_PK PRIMARY KEY (ID_RU_PRDV, ID_PRDV_TH, ID_STR_RT);
+ALTER TABLE CO_EL_TM_PRDV ADD CONSTRAINT CO_EL_TM_PRDV_PK PRIMARY KEY (ID_RU_PRDV, ID_STR_RT, DC_RU_PRDV_EF);
+ALTER TABLE CO_CNY ADD CONSTRAINT CO_CNY_PK PRIMARY KEY (ID_CNY_ICD);
+ALTER TABLE CO_CNY_DNM ADD CONSTRAINT CO_CNY_DNM_PK PRIMARY KEY (ID_CNY_ICD, ID_CNY_DNM);
+ALTER TABLE CO_CNY_DNM_I8 ADD CONSTRAINT CO_CNY_DNM_I8_PK PRIMARY KEY (ID_CNY_ICD, ID_CNY_DNM, LCL);
+ALTER TABLE CO_CNY_RND ADD CONSTRAINT CO_CNY_RND_PK PRIMARY KEY (TY_CNY_RND, MO_DNM_RND, CD_CNY_ISO, AI_RND);
+ALTER TABLE CO_RT_EXC ADD CONSTRAINT CO_RT_EXC_PK PRIMARY KEY (DC_RT_EXC_EF, DC_RT_EXC_EP, ID_CNY_ICD);
+ALTER TABLE LO_ADS ADD CONSTRAINT LO_ADS_PK PRIMARY KEY (ID_ADS, ID_PRTY, TY_ADS);
+ALTER TABLE PA_STR_RTL ADD CONSTRAINT PA_STR_RTL_PK PRIMARY KEY (ID_STR_RT);
+ALTER TABLE PA_STR_RTL_I8 ADD CONSTRAINT PA_STR_RTL_I8_PK PRIMARY KEY (ID_STR_RT, LCL);
+ALTER TABLE ST_ASCTN_MRHRC ADD CONSTRAINT ST_ASCTN_MRHRC_PK PRIMARY KEY (ID_MRHRC_FNC, ID_MRHRC_GP_PRNT, ID_MRHRC_GP_CHLD, ID_MRHRC_LV);
+ALTER TABLE CO_MRHRC_FNC ADD CONSTRAINT CO_MRHRC_FNC_PK PRIMARY KEY (ID_MRHRC_FNC);
+ALTER TABLE CO_MRHRC_FNC_I8 ADD CONSTRAINT CO_MRHRC_FNC_I8_PK PRIMARY KEY (ID_MRHRC_FNC, LCL);
+ALTER TABLE CO_MRHRC_GP ADD CONSTRAINT CO_MRHRC_GP_PK PRIMARY KEY (ID_MRHRC_GP);
+ALTER TABLE CO_MRHRC_GP_I8 ADD CONSTRAINT CO_MRHRC_GP_I8_PK PRIMARY KEY (ID_MRHRC_GP, LCL);
+ALTER TABLE CO_MRHRC_LV ADD CONSTRAINT CO_MRHRC_LV_PK PRIMARY KEY (ID_MRHRC_FNC, ID_MRHRC_LV);
+ALTER TABLE CO_MRHRC_LV_I8 ADD CONSTRAINT CO_MRHRC_LV_I8_PK PRIMARY KEY (ID_MRHRC_FNC, ID_MRHRC_LV, LCL);
+ALTER TABLE CO_SHP_MTH ADD CONSTRAINT CO_SHP_MTH_PK PRIMARY KEY (ID_SHP_MTH);
+ALTER TABLE CO_SHP_MTH_I8 ADD CONSTRAINT CO_SHP_MTH_I8_PK PRIMARY KEY (ID_SHP_MTH, LCL);
+ALTER TABLE ID_LU_CD ADD CONSTRAINT ID_LU_CD_PK PRIMARY KEY (ID_STR_RT, DE_CD_LST, NM_CD_GP, LU_CD_ENT);
+ALTER TABLE ID_LU_CD_I8 ADD CONSTRAINT ID_LU_CD_I8_PK PRIMARY KEY (ID_STR_RT, DE_CD_LST, NM_CD_GP, LU_CD_ENT, LCL);
+ALTER TABLE LO_DPT_POS_RTL_STR ADD CONSTRAINT LO_DPT_POS_RTL_STR_PK PRIMARY KEY (ID_DPT_POS, ID_STR_RT);
+ALTER TABLE CO_CTAF ADD CONSTRAINT CO_CTAF_PK PRIMARY KEY (ID_CT, ID_GP_ID);
+
+-- Changes for offline DB Starts
+
+ALTER TABLE MA_ITM_PRN_PRC_ITM ADD COLUMN TS_PRC_MXM_RT_EF  TIMESTAMP;
+ALTER TABLE MA_ITM_PRN_PRC_ITM ADD COLUMN TS_PRC_MXM_RT_EP  TIMESTAMP;
+ALTER TABLE MA_ITM_PRN_PRC_ITM ADD COLUMN FL_PRMRY_PRC_MXM_RT  CHAR(1);
+ALTER TABLE MA_ITM_PRN_PRC_ITM ADD COLUMN FL_ACTV_PRC_MXM_RT  CHAR(1);
+ALTER TABLE MA_ITM_PRN_PRC_ITM ADD COLUMN RP_MXM  DECIMAL(11,2) DEFAULT 0.00 NOT NULL;
+ALTER TABLE MA_ITM_PRN_PRC_ITM DROP PRIMARY KEY;
+ALTER TABLE MA_ITM_PRN_PRC_ITM ADD CONSTRAINT MA_ITM_PRN_PRC_ITM_PK PRIMARY KEY (RP_MXM,ID_STR_RT,ID_EV,ID_ITM);
+ALTER TABLE MA_ITM_TMP_PRC_CHN ADD COLUMN TS_PRC_MXM_RT_EF  TIMESTAMP;
+ALTER TABLE MA_ITM_TMP_PRC_CHN ADD COLUMN TS_PRC_MXM_RT_EP  TIMESTAMP;
+ALTER TABLE MA_ITM_TMP_PRC_CHN ADD COLUMN FL_PRMRY_PRC_MXM_RT  CHAR(1) DEFAULT '1';
+ALTER TABLE MA_ITM_TMP_PRC_CHN ADD COLUMN FL_ACTV_PRC_MXM_RT  CHAR(1)DEFAULT '1';
+ALTER TABLE MA_ITM_TMP_PRC_CHN ADD COLUMN RP_MXM  DECIMAL(11,2) DEFAULT 0.00 NOT NULL;
+ALTER TABLE MA_ITM_TMP_PRC_CHN DROP PRIMARY KEY;
+ALTER TABLE MA_ITM_TMP_PRC_CHN ADD CONSTRAINT MA_ITM_TMP_PRC_CHN_PK PRIMARY KEY (RP_MXM,ID_STR_RT,ID_EV,ID_ITM);
+
+ALTER TABLE RU_PRDV ADD COLUMN MAX_FREE_ITEM  VARCHAR(80);
+ALTER TABLE RU_PRDV ADD COLUMN ID_EMP_MDF_RCRD VARCHAR(10);
+ALTER TABLE RU_PRDV ADD COLUMN ID_EMP_CRT_RCRD VARCHAR(10);
+--ALTER TABLE RU_PRDV ADD COLUMN SRC_ADD_SEL_OPT CHAR(1);
+--ALTER TABLE RU_PRDV ADD COLUMN TARGET_ADD_SEL_OPT CHAR(1);
+
+--ALTER TABLE RU_PRDV ADD COLUMN RULE_QTY INTEGER;
+--ALTER TABLE RU_PRDV ADD COLUMN EX_LIST_ADD_STATUS CHAR(1);
+
+--ALTER TABLE RU_PRDV ADD COLUMN MAX_ALL_SOURCES VARCHAR(20);
+--ALTER TABLE RU_PRDV ADD COLUMN MAX_ALL_TARGETS VARCHAR(20);
+
+ALTER TABLE TR_CHN_PRN_PRC ADD COLUMN TY_PRC_APLY  VARCHAR(20) DEFAULT 'MRP';
+ALTER TABLE TR_CHN_TMP_PRC ADD COLUMN TY_PRM_APLY  VARCHAR(20) DEFAULT 'SR';
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD5 VARCHAR(10);
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD0 VARCHAR(10);
+ALTER TABLE as_itm ADD COLUMN ID_CTGY_TX INTEGER;
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD4 VARCHAR(10);
+ALTER TABLE TR_ITM_MXMH_PRDV ALTER COLUMN ID_PRM_PRD SET DATA TYPE VARCHAR(40);
+ALTER TABLE PA_EM ADD COLUMN ELG_AMT INTEGER;
+ALTER TABLE PA_EM ADD COLUMN AVL_AMT INTEGER;
+ALTER TABLE PA_EM ADD COLUMN ID_TR_EN VARCHAR(100);
+ALTER TABLE PA_EM ADD COLUMN UN_NMB_SCL_SCTY CHAR(9); 
+ALTER TABLE PA_EM ADD COLUMN SPL_EMP_DSC	VARCHAR(10);
+ALTER TABLE PA_EM ADD COLUMN ROLE_EM	VARCHAR(50); 
+--ALTER TABLE PA_EM ADD COLUMN ID_DIV	VARCHAR(10);
+ALTER TABLE PA_EM ADD COLUMN ID_STRGP VARCHAR(14);
+
+-- Changes for Offline DB ends
+
+-- SEED DATA FOR DERBY VERSION TABLE CO_DT_ST_IDDI
+
+
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (1,'20015','EMPLOYEE',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (2,'20015','ITEM',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (3,'20015','TAX',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (4,'20015','ADVANCED_PRICING',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (5,'20015','CURRENCY',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (6,'20015','MERCHANDISE',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (7,'20015','STORE_INFO',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (8,'20015','SHIPPING_METHOD',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (9,'20015','REASON_CODE',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (10,'20015','DISCOUNT',null,null);
+Insert into "CO_DT_ST_IDDI" ("ID_DT_ST","ID_STR_RT","NM_DT_ST","TS_CRT_RCRD","TS_MDF_RCRD") values (11,'20015','EXPORT_DB',null,null);
+
+--Abhishek Changes Starts
+
+DROP TABLE MAX_CO_EL_PRDV_BRN;
+DROP TABLE MAX_CO_EL_PRDV_ITM_GRP;
+DROP TABLE MAX_GRP_ITM;
+DROP TABLE MAX_GRP_ITM_LST;
+DROP TABLE LMG_PA_EM_DIV;
+DROP TABLE LMG_PA_EM_RTL_STR;
+DROP TABLE LMG_RU_PRDV_MX_MH;
+DROP TABLE LMG_TRANSFER_ENTITY;
+
+CREATE TABLE MAX_CO_EL_PRDV_BRN 
+   (	NM_BRN VARCHAR(40) NOT NULL,
+	ID_RU_PRDV INTEGER NOT NULL,
+	ID_STR_RT VARCHAR(5) NOT NULL,
+	ID_ACTN_LDG INTEGER NOT NULL,
+	ID_EV INTEGER NOT NULL,
+	DP_ACNT_DPT_PRDV VARCHAR(4),
+	MO_TH DECIMAL(13,2) NOT NULL,
+	QU_TH INTEGER NOT NULL,
+	QU_UL DECIMAL(9,2) NOT NULL,
+	MO_UL DECIMAL(13,2) NOT NULL,
+	TS_RU_MRST_EF TIMESTAMP NOT NULL,
+	TS_RU_MRST_EP TIMESTAMP NOT NULL,
+	TS_CRT_RCRD TIMESTAMP,
+	TS_MDF_RCRD TIMESTAMP
+   );
+   
+     CREATE TABLE MAX_CO_EL_PRDV_ITM_GRP 
+   (	ID_GRP VARCHAR(14) NOT NULL,
+	ID_RU_PRDV INTEGER NOT NULL,
+	ID_STR_RT VARCHAR(5) NOT NULL,
+	ID_ACTN_LDG INTEGER NOT NULL,
+	ID_EV INTEGER NOT NULL,
+	ITEM_GRP_TYPE VARCHAR(25) DEFAULT 'InclusionList',
+	DP_ACNT_DPT_PRDV VARCHAR(4),
+	MO_TH DECIMAL(13,2) NOT NULL,
+	QU_TH DECIMAL(13,3) NOT NULL,
+	QU_UL DECIMAL(9,2) NOT NULL,
+	MO_UL DECIMAL(13,2) NOT NULL,
+	TS_RU_MRST_EF TIMESTAMP NOT NULL,
+	TS_RU_MRST_EP TIMESTAMP NOT NULL,
+	TS_CRT_RCRD TIMESTAMP,
+	TS_MDF_RCRD TIMESTAMP
+   );
+   CREATE TABLE MAX_GRP_ITM 
+   (	ID_GRP INTEGER NOT NULL,
+	CO_ID_GRP INTEGER,
+	NM_GRP VARCHAR(255) NOT NULL,
+	DE_GRP VARCHAR(255) NOT NULL,
+	ID_EM VARCHAR(10) NOT NULL,
+	CREATED_BY VARCHAR(255),
+	SC_EXP INTEGER,
+	TS_CRT_RCRD TIMESTAMP NOT NULL,
+	TS_MDF_RCRD TIMESTAMP,
+	ITEM_GRP_STATUS VARCHAR(10) DEFAULT 'Active',
+	ITEM_GRP_TYPE VARCHAR(25),
+	ID_DIV VARCHAR(10)
+   );
+   
+     CREATE TABLE MAX_GRP_ITM_LST 
+   (	ID_GRP INTEGER NOT NULL,
+	ID_ITM VARCHAR(40) NOT NULL,
+	TS_CRT_RCRD TIMESTAMP NOT NULL,
+	TS_MDF_RCRD TIMESTAMP
+   );
+   
+     CREATE TABLE LMG_PA_EM_DIV 
+   (	ID_EM VARCHAR(10) NOT NULL,
+	ID_DIV VARCHAR(10) NOT NULL,
+	TS_CRT_RCRD TIMESTAMP,
+	TS_MDF_RCRD TIMESTAMP
+   );
+   
+     CREATE TABLE LMG_PA_EM_RTL_STR 
+   (	ID_EM VARCHAR(10) NOT NULL,
+	ID_STR_RT VARCHAR(5) NOT NULL,
+	TS_CRT_RCRD TIMESTAMP,
+	TS_MDF_RCRD TIMESTAMP,
+	CONSTRAINT "LMG_PA_EM_RTL_STR_PK" PRIMARY KEY ("ID_EM","ID_STR_RT")
+   );
+   
+     CREATE TABLE LMG_RU_PRDV_MX_MH 
+   (	ID_RU_PRDV INTEGER NOT NULL,
+	ID_STR_RT VARCHAR(5) NOT NULL,
+	FL_MX_MH CHAR(1) DEFAULT '0' NOT NULL,
+	MX_MH_QU DECIMAL(13,3) NOT NULL,
+	SC_EXP INTEGER DEFAULT 0 NOT NULL,
+	ID_ITM_GRP INTEGER NOT NULL,
+	TY_SRC_TGT CHAR(1) DEFAULT '0' NOT NULL,
+	TS_CRT_RCRD TIMESTAMP,
+	TS_MDF_RCRD TIMESTAMP
+   );
+   
+     CREATE TABLE LMG_TRANSFER_ENTITY 
+   (	ID_TR_EN VARCHAR(100) NOT NULL,
+	DE_TR_EN VARCHAR(100) NOT NULL,
+	TS_CRT_RCRD TIMESTAMP,
+	TS_MDF_RCRD TIMESTAMP
+   );
+   
+ALTER TABLE AS_ITM ALTER COLUMN DE_ITM SET DATA TYPE VARCHAR(255);
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD1 VARCHAR(10);
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD2 VARCHAR(10);
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD3 VARCHAR(10);
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD6 VARCHAR(10);
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD7 VARCHAR(10);
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD8 VARCHAR(10);
+ALTER TABLE AS_ITM ADD COLUMN ID_STRC_MR_CD9 VARCHAR(10);
+ALTER TABLE AS_ITM ADD COLUMN FL_MRP_MU CHAR(1) DEFAULT '0';
+ALTER TABLE AS_ITM ADD COLUMN FL_MRP_RT_LT CHAR(1) DEFAULT '0';
+
+ALTER TABLE AS_ITM_I8 ALTER COLUMN DE_ITM SET DATA TYPE VARCHAR(255);
+
+ALTER TABLE AS_ITM_RTL_STR ADD COLUMN PRC_MXM_RT DECIMAL(20,4) DEFAULT 0.00;
+
+ALTER TABLE AS_ITM_STK ALTER COLUMN DE_CLR_MF_SRZ_ITM SET DATA TYPE VARCHAR(255);
+ALTER TABLE AS_ITM_STK ALTER COLUMN DE_SZ_MF_SRZ_ITM SET DATA TYPE VARCHAR(255);
+ALTER TABLE AS_ITM_STK ALTER COLUMN DE_FBRC SET DATA TYPE VARCHAR(255);
+ALTER TABLE AS_ITM_STK ALTER COLUMN DE_SLH SET DATA TYPE VARCHAR(255);
+ALTER TABLE AS_ITM_STK ALTER COLUMN NM_LCN_ASL SET DATA TYPE VARCHAR(255);
+ALTER TABLE AS_ITM_STK ALTER COLUMN NM_LCN_SH SET DATA TYPE VARCHAR(255);
+ALTER TABLE AS_ITM_STK ALTER COLUMN NM_LCN_SID SET DATA TYPE VARCHAR(255);
+
+ALTER TABLE CO_ASC_RLTD_ITM ADD COLUMN ASC_GP_RLTD_ITM INTEGER DEFAULT -1 NOT NULL;
+ALTER TABLE CO_ASC_RLTD_ITM ADD COLUMN CO_DPLY_PRI INTEGER DEFAULT -1 NOT NULL;
+ALTER TABLE CO_CLR ALTER COLUMN DE_CLR SET DATA TYPE VARCHAR(255);
+
+ALTER TABLE CO_CNY ALTER COLUMN DE_CNY SET DATA TYPE VARCHAR(255);
+
+
+
+ALTER TABLE CO_EV ALTER COLUMN NM_EV SET DATA TYPE VARCHAR(160);
+ALTER TABLE CO_EV ALTER COLUMN DE_EV SET DATA TYPE VARCHAR(640);
+
+ALTER TABLE CO_EV ADD COLUMN LMG_PARENT_ID INTEGER;
+
+ALTER TABLE CO_EV_MNT ALTER COLUMN DE_EV_MNT SET DATA TYPE VARCHAR(255);
+ALTER TABLE CO_GP_TX_ITM ALTER COLUMN DE_GP_TX SET DATA TYPE VARCHAR(255);
+
+ALTER TABLE CO_GP_WRK ALTER COLUMN DE_GP_WRK SET DATA TYPE VARCHAR(255);
+ALTER TABLE CO_GP_WRK_I8 ALTER COLUMN DE_GP_WRK SET DATA TYPE VARCHAR(255);
+ALTER TABLE CO_MRHRC_FNC ALTER COLUMN NM_MRHRC_FNC SET DATA TYPE VARCHAR(255);
+
+ALTER TABLE CO_MRHRC_GP ALTER COLUMN DE_MRHRC_GP SET DATA TYPE VARCHAR(255);
+ALTER TABLE CO_STYL ALTER COLUMN DE_STYL SET DATA TYPE VARCHAR(255);
+ALTER TABLE CO_SZ ALTER COLUMN DE_PRPTN_ACT_SZ SET DATA TYPE VARCHAR(255);
+ALTER TABLE CO_SZ ALTER COLUMN DE_TB_SZ SET DATA TYPE VARCHAR(255);
+ALTER TABLE CO_UOM ALTER COLUMN DE_UOM SET DATA TYPE VARCHAR(255);
+ALTER TABLE ID_IDN_PS ALTER COLUMN DE_ITM_POS SET DATA TYPE VARCHAR(255);
+
+ALTER TABLE LO_ADS ALTER COLUMN TA_CNCT SET DATA TYPE  VARCHAR(30);
+
+
+ALTER TABLE MA_ITM_PRN_PRC_ITM DROP CONSTRAINT MA_ITM_PRN_PRC_ITM_PK;
+ALTER TABLE MA_ITM_PRN_PRC_ITM ADD CONSTRAINT MA_ITM_PRN_PRC_ITM_PK PRIMARY KEY (RP_MXM,ID_STR_RT,ID_EV,ID_ITM);
+
+ALTER TABLE TX_ASGMT ADD CONSTRAINT TX_ASGMT_PK PRIMARY KEY (ID_CTGY_TX, TX_CD, MAX_TX_TO_AMT, MAX_TX_FRM_AMT, ID_RN_FM_TX, ID_RN_TO_TX,TX_DIFF);
+
+ALTER TABLE PA_EM ADD COLUMN ID_DIV VARCHAR(10) DEFAULT 'All';
+ALTER TABLE PA_EM ADD COLUMN ID_TR_EN VARCHAR(100) DEFAULT '83';
+
+ALTER TABLE PA_STR_RTL ADD COLUMN ID_IDTN_TX_NMB1 VARCHAR(100);
+ALTER TABLE PA_STR_RTL ADD COLUMN ID_IDTN_TX_NMB2 VARCHAR(100);
+ALTER TABLE PA_STR_RTL ADD COLUMN ID_IDTN_TX_NMB3 VARCHAR(100);
+ALTER TABLE PA_STR_RTL ADD COLUMN ID_IDTN_TX_NMB4 VARCHAR(100);
+ALTER TABLE PA_STR_RTL ADD COLUMN ID_IDTN_TX_NMB5 VARCHAR(100);
+
+
+ALTER TABLE RU_PRDV ALTER COLUMN DE_RU_PRDV SET DATA TYPE VARCHAR(255);
+ALTER TABLE RU_PRDV ALTER COLUMN NM_RU_PRDV SET DATA TYPE VARCHAR(160);
+
+ALTER TABLE RU_PRDV ADD COLUMN SRC_ADD_SEL_OPT CHAR(1) DEFAULT '0';
+ALTER TABLE RU_PRDV ADD COLUMN TARGET_ADD_SEL_OPT CHAR(1) DEFAULT '0';
+ALTER TABLE RU_PRDV ADD COLUMN MAX_PARENT_ID INTEGER;
+ALTER TABLE RU_PRDV ADD COLUMN RULE_QTY INTEGER DEFAULT 0;
+ALTER TABLE RU_PRDV ADD COLUMN EX_LIST_ADD_STATUS CHAR(1) DEFAULT '0';
+
+ALTER TABLE RU_PRDV ADD COLUMN MAX_VENDOR_ID VARCHAR(30);
+ALTER TABLE RU_PRDV ADD COLUMN MAX_VENDOR_SRC_PRCNT DECIMAL(13,2);
+ALTER TABLE RU_PRDV ADD COLUMN MAX_VENDOR_TRGT_PRCNT DECIMAL(13,2);
+ALTER TABLE RU_PRDV ADD COLUMN MAX_VENDOR_CONT_PRCNT DECIMAL(13,2);
+ALTER TABLE RU_PRDV ADD COLUMN MAX_VENDOR_CONT_AMT DECIMAL(13,2);
+ALTER TABLE RU_PRDV ADD COLUMN MAX_VENDOR_FUNDED CHAR(4);
+ALTER TABLE RU_PRDV ADD COLUMN MAX_VENDOR_NAME VARCHAR(40);
+ALTER TABLE RU_PRDV ADD COLUMN MAX_ALL_SOURCES VARCHAR(20) DEFAULT 'sourceAnyQuantity';
+ALTER TABLE RU_PRDV ADD COLUMN MAX_ALL_TARGETS VARCHAR(20) DEFAULT 'targetAnyQuantity';
+ALTER TABLE RU_PRDV ADD COLUMN FL_CUST_TY VARCHAR(1);
+ALTER TABLE RU_PRDV ADD COLUMN LMG_PARENT_ID INTEGER DEFAULT 0;
+ALTER TABLE RU_PRDVC_MXMH ADD COLUMN QU_LM_MXMH INTEGER DEFAULT 0;
+
+ALTER TABLE RU_TX_GP ALTER COLUMN DE_RU_TX SET DATA TYPE VARCHAR(255);
+
+ALTER TABLE RU_TY_PRDV ALTER COLUMN NM_TY_PRDV SET DATA TYPE VARCHAR(160);
+
+ALTER TABLE TR_LTM_TX_BRKUP ALTER COLUMN ID_ITM SET DATA TYPE VARCHAR(20);
+ALTER TABLE TR_LTM_TX_BRKUP ALTER COLUMN ID_ITM_POS SET DATA TYPE VARCHAR(20);
+ALTER TABLE TX_ASGMT ADD COLUMN TX_DIFF CHAR(1);
+
+/*12 version indexes*/
+CREATE INDEX EMPLOYEE ON PA_EM (ID_EM);
+
+CREATE INDEX ITEM ON AS_ITM(ID_ITM);
+CREATE INDEX IDX_AS_ITM_1 ON AS_ITM (TY_ITM, ID_ITM);
+CREATE INDEX AS_ITM_IDX1 ON AS_ITM (ID_ITM ASC, DE_ITM ASC);
+
+CREATE INDEX AS_ITM_ASCTN_POG_I ON AS_ITM_ASCTN_POG (ID_POG);
+CREATE INDEX AS_ITM_ASCTN_POG_IDX ON AS_ITM_ASCTN_POG(ID_POG,ID_ITM,ID_STR_RT);
+
+CREATE INDEX AS_ITM_STK_IDX ON AS_ITM_STK(LU_UOM_SLS,ID_ITM);
+
+CREATE INDEX IDX_ID_IDN_PS_1 ON ID_IDN_PS (ID_ITM_POS);
+CREATE INDEX IDX_ID_IDN_PS_2 ON ID_IDN_PS (ID_ITM,ID_ITM_POS);
+CREATE INDEX IDX_ID_IDN_PS_3 ON ID_IDN_PS (ID_ITM_POS,ID_ITM);
+CREATE INDEX IDX_ID_IDN_PS_4 ON ID_IDN_PS (ID_ITM);
+
+CREATE INDEX IDX_AS_ITM_RTL_STR_1 ON AS_ITM_RTL_STR (ID_ITM, ID_STR_RT, RP_PRC_CMPR_AT_SLS, IDN_SLS_AG_RST);
+CREATE INDEX IDX_AS_ITM_RTL_STR_2 ON AS_ITM_RTL_STR (ID_ITM);
+
+CREATE INDEX IDX_MA_ITM_PRN_PRC_ITM_1 ON MA_ITM_PRN_PRC_ITM (ID_ITM, ID_STR_RT);
+CREATE INDEX IDX_MA_ITM_PRN_PRC_CHN_2 ON MA_ITM_PRN_PRC_ITM (ID_EV);
+CREATE INDEX IDX_MA_ITM_TMP_PRC_CHN_1 ON MA_ITM_TMP_PRC_CHN (ID_STR_RT, ID_ITM);
+
+CREATE INDEX IDX_MA_PRC_ITM_1 ON MA_PRC_ITM (ID_EV);
+
+CREATE INDEX IDX_TR_CHN_PRN_PRC_1 ON TR_CHN_PRN_PRC (ID_EV);
+
+CREATE INDEX EVENT ON CO_EV(ID_EV);
+CREATE INDEX CO_EV_IDX ON CO_EV (ID_EV_EXT, ID_STR_RT);
+CREATE INDEX CO_EV_IND ON CO_EV(ID_EV DESC,ID_STR_RT);
+
+CREATE INDEX IDX_CO_EV_MNT_1 ON CO_EV_MNT(TS_EV_MNT_EF, TS_EV_MNT_EP);
+CREATE INDEX IDX_CO_EV_MNT_2 ON CO_EV_MNT(TS_EV_MNT_EF);
+
+CREATE INDEX IDX_RU_PRDV_1 ON RU_PRDV(ID_RU_PRDV);
+CREATE INDEX RU_PRDV_IDX ON RU_PRDV(ID_RU_PRDV,DC_RU_PRDV_EF,DC_RU_PRDV_EP,SC_RU_PRDV);
+
+CREATE INDEX MO_TXBL_MIN_IDX ON RU_TX_RT (MO_TXBL_MIN);
+CREATE INDEX MO_TXBL_MAX_IDX ON RU_TX_RT (MO_TXBL_MAX);
+CREATE INDEX TS_RT_TX_EF_IDX ON RU_TX_RT (TS_RT_TX_EF);
+CREATE INDEX TS_RT_TX_EP_IDX ON RU_TX_RT (TS_RT_TX_EP);
+
+CREATE INDEX IDX_CO_EL_PRDV_ITM_1 ON CO_EL_PRDV_ITM (ID_RU_PRDV);
+
+CREATE INDEX IDX_TR_ITM_MXMH_PRDV_1 ON TR_ITM_MXMH_PRDV (ID_RU_PRDV,ID_STR_RT);
+
+CREATE INDEX IDX_MAX_GRP_ITM_LST_1 ON MAX_GRP_ITM_LST (ID_ITM);
+
+CREATE INDEX IDX_MAX_GRP_ITM_1 ON MAX_GRP_ITM (ID_GRP,CO_ID_GRP);
+
+CREATE INDEX IDX_MAX_GRP_ITM_2 ON MAX_GRP_ITM (CO_ID_GRP);
+
+CREATE INDEX IDX_MAX_CO_EL_PRDV_ITM_GRP_1 ON MAX_CO_EL_PRDV_ITM_GRP (ID_RU_PRDV,ID_STR_RT);
+
+CREATE INDEX IDX_MAX_CO_EL_PRDV_ITM_GRP_2 ON MAX_CO_EL_PRDV_ITM_GRP (ID_GRP);

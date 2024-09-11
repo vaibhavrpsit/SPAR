@@ -1,0 +1,153 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/specialorder/cancel/specialordercancel.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="specialordercancel"
+    package="oracle.retail.stores.pos.services.specialorder.cancel"
+    tourcam="OFF">
+    <COMMENT>
+        This service cancels a  special order.
+    </COMMENT>
+    <CARGO class="SpecialOrderCargo" package="oracle.retail.stores.pos.services.specialorder"/>
+    <SERVICECODE>
+    <!-- Letters -->
+    <LETTER name="Failure"/>
+    <LETTER name="Continue"/>
+    <LETTER name="Success"/>
+    <LETTER name="Cancel"/>
+    <LETTER name="Override"/>
+    <LETTER name="ExitTender"/>
+    <LETTER name="Undo"/>
+
+    <!-- Lanes -->
+    <LANEACTION class="SpecialOrderRefundRoad" package="oracle.retail.stores.pos.services.specialorder.cancel"/>
+    <LANEACTION class="TenderCompletedRoad" package="oracle.retail.stores.pos.services.specialorder.deposit"/>
+
+    <!-- Sites -->
+    <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    <SITEACTION class="ConfirmCancelSite"/>
+
+    <!-- Shuttles -->
+    <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    <SHUTTLE class="TenderLaunchShuttle" package="oracle.retail.stores.pos.services.specialorder.deposit"/>
+    <SHUTTLE class="TenderReturnShuttle" package="oracle.retail.stores.pos.services.specialorder.deposit"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess"  siteaction="CheckAccessSite">
+                <ROAD
+                    name="CheckAccessContinue"
+                    letter="Continue"
+                    destination="ConfirmCancel"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckAccessOverride"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="ConfirmCancel"  siteaction="ConfirmCancelSite">
+                <ROAD
+                    name="ContinueCancelSpecialOrder"
+                    letter="Continue"
+                    laneaction="SpecialOrderRefundRoad"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSpecialOrderFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD
+                    name="SuccessSecurityOverride"
+                    letter="Success"
+                    destination="ConfirmCancel"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureSecurityOverride"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="TenderStation"
+                servicename="services.tender.tender"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLaunchShuttle"
+                returnshuttle="TenderReturnShuttle">
+                <COMMENT>
+                    This station is the transfer point for the tender
+                    service
+                </COMMENT>
+                <ROAD
+                    name="TenderUndo"
+                    letter="Undo"
+                    destination="CheckAccess"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when undo is selected from the tender service
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when a tender is canceled
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCompleted"
+                    letter="ExitTender"
+                    laneaction="TenderCompletedRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when a tender is completed
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

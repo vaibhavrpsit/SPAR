@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CONFIG>
+   <OBJECT name="PriceOverrideReasonCodes" store_dflt="1" dir="in">
+      <MAPPING atg="manuallyApplied" store="1"/>
+   </OBJECT>
+   <OBJECT name="TransactionDiscountByAmount" store_dflt="2121" dir="in">
+      <MAPPING atg="Appeasement" store="2121"/>
+   </OBJECT>
+   <OBJECT name="CreditCardType" store_dflt="Unknown" dir="in">
+      <MAPPING atg="amex" store="AmEx"/>
+      <MAPPING atg="AmEx" store="AmEx"/>
+      <MAPPING atg="discover" store="Discover"/>
+      <MAPPING atg="Discover" store="Discover"/>
+      <MAPPING atg="mastercard" store="MasterCard"/>
+      <MAPPING atg="MasterCard" store="MasterCard"/>
+      <MAPPING atg="visa" store="Visa"/>
+      <MAPPING atg="Visa" store="Visa"/>
+   </OBJECT>
+   <OBJECT name="TaxAuthorityID" store_dflt="2222" dir="in"/>
+   <OBJECT name="TaxAuthorityName" store_dflt="CSCTaxAuthority" dir="in"/>
+   <OBJECT name="TaxTypeCode" store_dflt="0" dir="in"/>
+   <OBJECT name="TaxRuleName" store_dflt="CSCTaxRule" dir="in"/>
+   <OBJECT name="TaxRate" store_dflt="5.25" dir="in"/>
+   <OBJECT name="TaxHoliday" store_dflt="false" dir="in"/>
+</CONFIG>

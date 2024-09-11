@@ -1,0 +1,29 @@
+----------------------------------------------------------------
+Wed Aug 17 23:41:06 PDT 2022:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.1.1 - (1458268): instance a816c00e-0182-afaf-21ef-00000d6f6a10 
+on database directory C:\OracleRetailStore\Client\pos\bin\offlinedb with class loader sun.misc.Launcher$ExtClassLoader@4669b7fe 
+Loaded from file:/C:/OracleRetailStore/Client/common/lib/ext/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.7.0_79-b15
+user.dir=C:\OracleRetailStore\Client\pos\bin
+os.name=Windows 8.1
+os.arch=amd64
+os.version=6.3
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Wed Aug 17 23:41:07 PDT 2022:
+Shutting down instance a816c00e-0182-afaf-21ef-00000d6f6a10 on database directory C:\OracleRetailStore\Client\pos\bin\offlinedb with class loader sun.misc.Launcher$ExtClassLoader@4669b7fe 
+----------------------------------------------------------------
+Wed Aug 17 23:41:07 PDT 2022:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.1.1 - (1458268): instance 601a400f-0182-afaf-21ef-00000d6f6a10 
+on database directory C:\OracleRetailStore\Client\pos\bin\offlinedb with class loader sun.misc.Launcher$ExtClassLoader@4669b7fe 
+Loaded from file:/C:/OracleRetailStore/Client/common/lib/ext/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.7.0_79-b15
+user.dir=C:\OracleRetailStore\Client\pos\bin
+os.name=Windows 8.1
+os.arch=amd64
+os.version=6.3
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

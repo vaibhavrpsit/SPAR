@@ -1,0 +1,764 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/********************************************************************************
+ *
+ * Copyright (c) 2016-2017 Max Hypermarket.    All Rights Reserved. 
+ *
+ *  Rev 1.6  10 Apr, 2017	    Hitesh Dua	    	Changes for Reprint : added entry for customized MAXPrintTransactionReceiptAisle 
+ *  Rev 1.5	 17 Feb, 2017	    Nitesh Kumar	    Changes for Gift certificate  
+ *  Rev 1.4	 17 Feb, 2017	    Nadia Arora	        Changes for Advanced Search - item not getting added and for exception
+ *	Rev 1.3  02 Jan, 2016	    Ashishi Yadav	    Changes for Item Inquiry
+ * 	Rev 1.2  09 Dec, 2016	    Nitesh Kumar	    Changes for Capillary Coupon Redemption
+ * 	Rev 1.1  06 Dec, 2016       Ashish             	Changes done for Employee Discount
+ * 	Rev 1.0  08 Nov, 2016       Nadia              	MAX-StoreCredi_Return requirement.
+ *
+ ********************************************************************************/
+ -->
+<tourmap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="classpath://oracle/retail/stores/foundation/tour/dtd/tourmap.xsd">
+    <tour name="admin.admin.about">
+        <file>classpath://oracle/retail/stores/pos/services/admin/about/about.xml</file>
+    </tour>
+    <tour name="admin.ejournal.ejournal">
+        <file>classpath://oracle/retail/stores/pos/services/admin/ejournal/ejournal.xml</file>
+    </tour>
+    <tour name="admin.listeditor.listeditor">
+        <file>classpath://oracle/retail/stores/pos/services/admin/listeditor/listeditor.xml</file>
+    </tour>
+    <tour name="admin.parametermanager.parametermanager">
+        <file>classpath://oracle/retail/stores/pos/services/admin/parametermanager/parametermanager.xml</file>
+    </tour>
+    <tour name="admin.parametervaluelisteditor.listeditor">
+        <file>classpath://oracle/retail/stores/pos/services/admin/parametervaluelisteditor/listeditor.xml</file>
+    </tour>
+    <tour name="admin.queue.queue">
+        <file>classpath://oracle/retail/stores/pos/services/admin/queue/queue.xml</file>
+    </tour>
+    <tour name="admin.reasoncodemanager.reasoncodes">
+        <file>classpath://oracle/retail/stores/pos/services/admin/reasoncodemanager/reasoncodes.xml</file>
+    </tour>
+    <tour name="admin.resethardtotals.resethardtotals">
+        <file>classpath://oracle/retail/stores/pos/services/admin/resethardtotals/resethardtotals.xml</file>
+    </tour>
+    <tour name="admin.role.rolemain">
+        <file>classpath://oracle/retail/stores/pos/services/admin/role/rolemain.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="admin.security.security">
+        <file>classpath://max/retail/stores/pos/services/admin/security/maxsecurity.xml</file>
+    </tour>
+    <tour name="customer.add.customeradd">
+        <file>classpath://max/retail/stores/pos/services/customer/add/maxcustomeradd.xml</file>
+    </tour>
+    <tour name="customer.addbusiness.businessadd">
+        <file>classpath://max/retail/stores/pos/services/customer/addbusiness/maxbusinessadd.xml</file>
+    </tour>
+    <tour name="customer.delete.customerdelete">
+        <file>classpath://max/retail/stores/pos/services/customer/delete/maxcustomerdelete.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="customer.find.customerfind">
+        <file>classpath://max/retail/stores/pos/services/customer/find/maxcustomerfind.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="customer.history.customerhistory">
+        <file>classpath://oracle/retail/stores/pos/services/customer/history/customerhistory.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="customer.lookup.customerlookup">
+        <file>classpath://max/retail/stores/pos/services/customer/lookup/maxcustomerlookup.xml</file>
+    </tour>
+    <tour name="customer.main.customermain">
+        <file>classpath://max/retail/stores/pos/services/customer/main/maxcustomermain.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="dailyoperations.businessdate.businessdate">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/businessdate/businessdate.xml</file>
+    </tour>
+    <tour name="dailyoperations.common.setupregister">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/common/setupregister.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="dailyoperations.endofday.endofday">
+        <file>classpath://max/retail/stores/pos/services/dailyoperations/endofday/maxendofday.xml</file>
+    </tour>
+    <tour name="dailyoperations.poscount.poscount">
+        <file>classpath://max/retail/stores/pos/services/dailyoperations/poscount/maxposcount.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="dailyoperations.startofday.startofday">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/startofday/startofday.xml</file>
+    </tour>
+    <tour name="dailyoperations.startofday.offlinestartofday">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/startofday/offlinestartofday.xml</file>
+    </tour>
+
+    <tour name="delivery.address.deliveryAddress">
+        <file>classpath://oracle/retail/stores/pos/services/order/createdelivery/address/deliveryAddress.xml</file>
+    </tour>
+    <tour name="email.detail.emaildetail">
+        <file>classpath://oracle/retail/stores/pos/services/email/detail/emaildetail.xml</file>
+    </tour>
+    <tour name="email.find.emailfind">
+        <file>classpath://oracle/retail/stores/pos/services/email/find/emailfind.xml</file>
+    </tour>
+    <tour name="employee.clockentry.clockentry">
+        <file>classpath://oracle/retail/stores/pos/services/employee/clockentry/clockentry.xml</file>
+    </tour>
+    <tour name="employee.employeeadd.employeeadd">
+        <file>classpath://oracle/retail/stores/pos/services/employee/employeeadd/employeeadd.xml</file>
+    </tour>
+    <tour name="employee.employeefind.employeefind">
+        <file>classpath://oracle/retail/stores/pos/services/employee/employeefind/employeefind.xml</file>
+    </tour>
+    <tour name="employee.employeemain.employeemain">
+        <file>classpath://oracle/retail/stores/pos/services/employee/employeemain/employeemain.xml</file>
+    </tour>
+    <!-- Changes for Rev 1.1 : Starts-->
+    <!--<tour name="giftcard.issue.issue">
+        <file>classpath://oracle/retail/stores/pos/services/giftcard/issue/issue.xml</file>
+    </tour>-->
+    <!-- Changes for Rev 1.1 : Ends-->
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="giftcard.reload.reload">
+        <file>classpath://max/retail/stores/pos/services/giftcard/reload/maxreload.xml</file>
+    </tour>
+    <!-- Changes for Rev 1.1 : Starts-->
+    <tour name="giftcard.issue.issue">
+        <file>classpath://max/retail/stores/pos/services/giftcard/issue/maxissue.xml</file>
+    </tour>
+    <!-- Changes for Rev 1.1 : Ends-->
+    <tour name="giftcertificate.issue.issue">
+        <file>classpath://oracle/retail/stores/pos/services/giftcertificate/issue/issue.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="giftreceipt.inquiry.giftreceiptinquiry">
+        <file>classpath://oracle/retail/stores/pos/services/inquiry/giftreceipt/inquiry/giftreceiptinquiry.xml</file>
+    </tour>
+    <tour name="inquiry.giftcardinquiry.inquiry">
+        <file>classpath://oracle/retail/stores/pos/services/inquiry/giftcardinquiry/inquiry.xml</file>
+    </tour>
+    <!-- changes starts for Rev 1.3 (Ashish) -->
+    <tour name="inquiry.iteminquiry.ItemInquiry">
+        <file>classpath://max/retail/stores/pos/services/inquiry/iteminquiry/maxItemInquiry.xml</file>
+    </tour>
+    <!-- changes ends for Rev 1.3 (Ashish) -->
+    <tour name="services.uinlookup.uinlookup">
+        <file>classpath://oracle/retail/stores/pos/services/uinlookup/uinlookup.xml</file>
+    </tour>
+    <tour name="instantcredit.enrollment.enrollment">
+        <file>classpath://oracle/retail/stores/pos/services/instantcredit/enrollment/enrollment.xml</file>
+    </tour>
+    <tour name="instantcredit.reference.reference">
+        <file>classpath://oracle/retail/stores/pos/services/instantcredit/reference/reference.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="iteminquiry.itemcheck.itemcheck">
+        <file>classpath://max/retail/stores/pos/services/inquiry/iteminquiry/itemcheck/maxitemcheck.xml</file>
+    </tour>
+    <tour name="iteminquiry.itemlookup.itemlookup">
+        <file>classpath://max/retail/stores/pos/services/inquiry/iteminquiry/itemlookup/maxitemlookup.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="iteminquiry.itemvalidate.itemvalidate">
+        <file>classpath://max/retail/stores/pos/services/inquiry/iteminquiry/itemvalidate/maxitemvalidate.xml</file>
+    </tour>
+    <tour name="layaway.create.layawaycreate">
+        <file>classpath://max/retail/stores/pos/services/layaway/create/maxlayawaycreate.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+	<!--  Changes start for Rev 1.1 (Ashish : Employee Discount) -->
+    <tour name="layaway.delete.layawaydelete">
+        <file>classpath://max/retail/stores/pos/services/layaway/delete/maxlayawaydelete.xml</file>
+    </tour>
+    <!--  Changes start for Rev 1.1 (Ashish : Employee Discount) -->
+    <tour name="layaway.find.layawayfind">
+        <file>classpath://oracle/retail/stores/pos/services/layaway/find/layawayfind.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="layaway.payment.layawaypayment">
+        <file>classpath://max/retail/stores/pos/services/layaway/payment/maxlayawaypayment.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="manager.registerreports.registerreports">
+        <file>classpath://oracle/retail/stores/pos/services/manager/registerreports/registerreports.xml</file>
+    </tour>
+    <tour name="modifyitem.kit.components">
+        <file>classpath://oracle/retail/stores/pos/services/modifyitem/kit/components.xml</file>
+    </tour>
+    <tour name="modifyitem.serialnumber.serializedItem">
+        <file>classpath://oracle/retail/stores/pos/services/modifyitem/serialnumber/serializedItem.xml</file>
+    </tour>
+    <tour name="modifyitem.tax.ModifyItemTax">
+        <file>classpath://oracle/retail/stores/pos/services/modifyitem/tax/ModifyItemTax.xml</file>
+    </tour>
+    <tour name="modifyitem.relateditem.relateditem">
+        <file>classpath://oracle/retail/stores/pos/services/modifyitem/relateditem/relateditem.xml</file>
+         <!-- Rev 1.4 chnages starts -->
+            <SITEACTION
+                class="AddAutoRelatedItemSite"
+                replacewith="max.retail.stores.pos.services.modifyitem.relateditem.MAXAddAutoRelatedItemSite" />
+         <!-- Rev 1.4 changes ends -->
+    </tour>
+    <!-- BEGIN Bill Pay  -->
+    <tour name="modifytransaction.billpay.billpay">
+        <file>classpath://oracle/retail/stores/pos/services/modifytransaction/billpay/billpay.xml</file>
+    </tour>
+    <!-- changes start for code  merging :Ashish -->
+    <tour name="modifytransaction.discount.modifytransactiondiscount">
+        <file>classpath://max/retail/stores/pos/services/modifytransaction/discount/maxmodifytransactiondiscount.xml</file>
+    </tour>
+    <tour name="modifytransaction.employeediscount.modifyemployeetransactiondiscount">
+        <file>classpath://max/retail/stores/pos/services/modifytransaction/employeediscount/maxmodifyemployeetransactiondiscount.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="modifytransaction.registry.ModifyTransactionGiftRegistry">
+        <file>classpath://oracle/retail/stores/pos/services/modifytransaction/registry/ModifyTransactionGiftRegistry.xml</file>
+    </tour>
+    <tour name="modifytransaction.resume.resume">
+        <file>classpath://oracle/retail/stores/pos/services/modifytransaction/resume/resume.xml</file>
+        <SITEACTION
+                class="RefreshSuspendedLineItemsSite"
+                replacewith="max.retail.stores.pos.services.modifytransaction.resume.MAXRefreshSuspendedLineItemsSite" />
+    </tour>
+    <tour name="modifytransaction.resume.resumeSuspendedTransaction">
+        <file>classpath://oracle/retail/stores/pos/services/modifytransaction/resume/resumeSuspendedTransaction.xml</file>
+    </tour>
+    <tour name="modifytransaction.salesassociate.ModifyTransactionSalesAssociate">
+        <file>classpath://oracle/retail/stores/pos/services/modifytransaction/salesassociate/ModifyTransactionSalesAssociate.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="modifytransaction.suspend.suspend">
+        <file>classpath://max/retail/stores/pos/services/modifytransaction/suspend/maxsuspend.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="modifytransaction.tax.modifytransactiontax">
+        <file>classpath://oracle/retail/stores/pos/services/modifytransaction/tax/modifytransactiontax.xml</file>
+    </tour>
+    <tour name="order.search.searchorder">
+        <file>classpath://oracle/retail/stores/pos/services/order/search/searchorder.xml</file>
+    </tour>
+    <tour name="order.cancel.cancelorder">
+        <file>classpath://oracle/retail/stores/pos/services/order/cancel/cancelorder.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="order.fill.fillorder">
+        <file>classpath://max/retail/stores/pos/services/order/fill/maxfillorder.xml</file>
+    </tour>
+    <tour name="order.lookup.lookuporder">
+        <file>classpath://max/retail/stores/pos/services/order/lookup/maxlookuporder.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="order.picklist.picklist">
+        <file>classpath://oracle/retail/stores/pos/services/order/picklist/picklist.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="order.pickup.pickuporder">
+        <file>classpath://max/retail/stores/pos/services/order/pickup/maxpickuporder.xml</file>
+    </tour>
+    <tour name="order.print.printorder">
+        <file>classpath://max/retail/stores/pos/services/order/print/maxprintorder.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="order.view.vieworder">
+        <file>classpath://oracle/retail/stores/pos/services/order/view/vieworder.xml</file>
+    </tour>
+    <tour name="order.view.vieworderbyid">
+        <file>classpath://oracle/retail/stores/pos/services/order/view/vieworderbyid.xml</file>
+    </tour>
+    <tour name="pricing.damagediscount.damagediscount">
+        <file>classpath://oracle/retail/stores/pos/services/pricing/damagediscount/damagediscount.xml</file>
+    </tour>
+    <tour name="pricing.damagediscount.damagediscountoptions">
+        <file>classpath://oracle/retail/stores/pos/services/pricing/damagediscount/damagediscountoptions.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="pricing.employeediscount.employeediscount">
+        <file>classpath://max/retail/stores/pos/services/pricing/employeediscount/maxemployeediscount.xml</file>
+    </tour>
+    <tour name="pricing.employeediscount.employeediscountoptions">
+        <file>classpath://max/retail/stores/pos/services/pricing/employeediscount/maxemployeediscountoptions.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="pricing.itemdiscount.itemdiscount">
+        <file>classpath://oracle/retail/stores/pos/services/pricing/itemdiscount/itemdiscount.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="pricing.itemdiscount.itemdiscountoptions">
+        <file>classpath://max/retail/stores/pos/services/pricing/itemdiscount/maxitemdiscountoptions.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="pricing.markdown.markdown">
+        <file>classpath://oracle/retail/stores/pos/services/pricing/markdown/markdown.xml</file>
+    </tour>
+    <tour name="pricing.markdown.markdownoptions">
+        <file>classpath://oracle/retail/stores/pos/services/pricing/markdown/markdownoptions.xml</file>
+    </tour>
+    <!-- <tour name="pricing.priceoverride.priceoverride">
+        <file>classpath://oracle/retail/stores/pos/services/pricing/priceoverride/priceoverride.xml</file>
+    </tour> -->
+    <tour name="pricing.priceoverride.priceoverride">
+        <file>classpath://max/retail/stores/pos/services/pricing/priceoverride/maxpriceoverride.xml</file>
+    </tour>
+    <tour name="redeem.giftcard.giftcardredeem">
+        <file>classpath://oracle/retail/stores/pos/services/redeem/giftcard/giftcardredeem.xml</file>
+    </tour>
+    <tour name="redeem.giftcertificate.giftcertificateredeem">
+        <file>classpath://oracle/retail/stores/pos/services/redeem/giftcertificate/giftcertificateredeem.xml</file>
+    </tour>
+    <tour name="register.registerclose.registerclose">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/register/registerclose/registerclose.xml</file>
+    </tour>
+    <tour name="register.registeropen.registeropen">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/register/registeropen/registeropen.xml</file>
+    </tour>
+    <!--  Chnages start for Rev 1.0 (Ashish : Employee Discount) -->
+    <tour name="returns.returncustomer.returncustomer">
+        <file>classpath://max/retail/stores/pos/services/returns/returncustomer/maxreturncustomer.xml</file>
+    </tour>
+     <!--  Chnages ends for Rev 1.0 (Ashish : Employee Discount) -->
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="returns.returnfindtrans.returnfindtrans">
+        <file>classpath://max/retail/stores/pos/services/returns/returnfindtrans/maxreturnfindtrans.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="returns.returnfindorder.returnfindorder">
+        <file>classpath://oracle/retail/stores/pos/services/returns/returnfindorder/returnfindorder.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="returns.returnitem.returnitem">
+        <file>classpath://max/retail/stores/pos/services/returns/returnitem/maxreturnitem.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="returns.returnkit.returnkit">
+        <file>classpath://oracle/retail/stores/pos/services/returns/returnkit/returnkit.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="returns.returnoptions.returnoptions">
+        <file>classpath://max/retail/stores/pos/services/returns/returnoptions/maxreturnoptions.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="returns.returntransaction.returntransaction">
+        <file>classpath://oracle/retail/stores/pos/services/returns/returntransaction/returntransaction.xml</file>
+    </tour>
+     <tour name="returns.returnsfindtrans.crossborderreturn">
+        <file>classpath://oracle/retail/stores/pos/services/returns/returnfindtrans/crossborderreturn/crossborderreturn.xml</file>
+    </tour>
+    <!--<tour name="returns.returntransaction.returndisplayedtransaction">
+        <file>classpath://oracle/retail/stores/pos/services/returns/returntransaction/returndiplayedtransaction.xml</file>
+    </tour>-->
+    <tour name="returns.returntransaction.returniteminfotransaction">
+        <file>classpath://oracle/retail/stores/pos/services/returns/returntransaction/returniteminfotransaction.xml</file>
+    </tour>
+    <tour name="role.roleadd.roleadd">
+        <file>classpath://oracle/retail/stores/pos/services/admin/role/roleadd/roleadd.xml</file>
+    </tour>
+    <tour name="role.roleedit.roleedit">
+        <file>classpath://oracle/retail/stores/pos/services/admin/role/roleedit/roleedit.xml</file>
+    </tour>
+    <tour name="role.setaccess.setaccess">
+        <file>classpath://oracle/retail/stores/pos/services/admin/role/setaccess/setaccess.xml</file>
+    </tour>
+    <tour name="sale.cancel.cancelsale">
+        <file>classpath://oracle/retail/stores/pos/services/sale/cancel/cancelsale.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="sale.complete.completesale">
+        <file>classpath://max/retail/stores/pos/services/sale/complete/maxcompletesale.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="sale.demographic.demographic">
+        <file>classpath://oracle/retail/stores/pos/services/sale/demographic/demographic.xml</file>
+    </tour>
+    <!-- changes start for Rev 1.3 (Ashish)-->
+    <!-- <tour name="sale.initialize.initialize">
+        <file>classpath://oracle/retail/stores/pos/services/sale/initialize/initialize.xml</file>
+    </tour> -->
+    <tour name="sale.initialize.initialize">
+        <file>classpath://max/retail/stores/pos/services/sale/initialize/maxinitialize.xml</file>
+    </tour>
+    <!-- changes ends for Rev 1.3 (Ashish)-->
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="sale.validate.validate">
+        <file>classpath://max/retail/stores/pos/services/sale/validate/maxvalidate.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="security.override.override">
+        <file>classpath://oracle/retail/stores/pos/services/admin/security/override/override.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="send.address.shippingAddress">
+        <file>classpath://max/retail/stores/pos/services/send/address/maxshippingAddress.xml</file>
+    </tour>
+    <tour name="send.displaysendmethod.displaysendmethod">
+        <file>classpath://max/retail/stores/pos/services/send/displaysendmethod/maxdisplaysendmethod.xml</file>
+        <!-- BEGIN ADDED FOR VAT -->
+            <SITEACTION
+                class="GetDestinationTaxRuleSite"
+                replacewith="oracle.retail.stores.pos.services.send.displaysendmethod.GetVatRulesSite" />
+         <!-- END ADDED FOR VAT -->
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.admin.admin">
+        <file>classpath://oracle/retail/stores/pos/services/admin/admin.xml</file>
+    </tour>
+    <tour name="services.alterations.alterations">
+        <file>classpath://oracle/retail/stores/pos/services/alterations/alterations.xml</file>
+    </tour>
+    <tour name="services.browser.browser">
+        <file>classpath://oracle/retail/stores/pos/services/browser/browser.xml</file>
+    </tour>
+    <tour name="services.browserfoundation.browserfoundation">
+        <file>classpath://oracle/retail/stores/pos/services/browserfoundation/browserfoundation.xml</file>
+    </tour>
+    <tour name="services.dailyoperations.dailyoperations">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/dailyoperations.xml</file>
+    </tour>
+    <tour name="services.delivery.delivery">
+        <file>classpath://oracle/retail/stores/pos/services/order/createdelivery/delivery.xml</file>
+    </tour>
+    <tour name="services.foreigncurrency.foreigncurrency">
+        <file>classpath://oracle/retail/stores/pos/services/foreigncurrency/foreigncurrency.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.giftcard.giftcard">
+        <file>classpath://max/retail/stores/pos/services/giftcard/maxgiftcard.xml</file>
+    </tour>
+    <tour name="services.giftoptions.giftoptions">
+        <file>classpath://max/retail/stores/pos/services/giftoptions/maxgiftoptions.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.inquiry.inquiryoptions">
+        <file>classpath://oracle/retail/stores/pos/services/inquiry/inquiryoptions.xml</file>
+    </tour>
+    <tour name="services.instantcredit.instantcredit">
+        <file>classpath://oracle/retail/stores/pos/services/instantcredit/instantcredit.xml</file>
+    </tour>
+    <tour name="services.inventoryinquiry.inventoryinquiry">
+        <file>classpath://oracle/retail/stores/pos/services/inventoryinquiry/inventoryinquiry.xml</file>
+    </tour>
+        <tour name="services.inventoryuinlookup.inventoryuinlookup">
+        <file>classpath://oracle/retail/stores/pos/services/inventoryuinlookup/inventoryuinlookup.xml</file>
+    </tour>
+    <tour name="services.itembasket.itembasket">
+        <file>classpath://oracle/retail/stores/pos/services/itembasket/itembasket.xml</file>
+    </tour>
+    <tour name="services.layaway.layawayoptions">
+        <file>classpath://oracle/retail/stores/pos/services/layaway/layawayoptions.xml</file>
+		   <SITEACTION
+                class="DisplayLayawayOptionsSite"
+                replacewith="max.retail.stores.pos.services.layaway.MAXDisplayLayawayOptionsSite" />
+    </tour>
+    <tour name="services.logoff.Logoff">
+        <file>classpath://oracle/retail/stores/pos/services/logoff/Logoff.xml</file>
+    </tour>
+    <tour name="services.manager.manager">
+        <file>classpath://oracle/retail/stores/pos/services/manager/manager.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.modifyitem.modifyitem">
+        <file>classpath://max/retail/stores/pos/services/modifyitem/maxmodifyitem.xml</file>
+    </tour>
+    <tour name="services.modifytransaction.ModifyTransaction">
+        <file>classpath://max/retail/stores/pos/services/modifytransaction/maxmodifytransaction.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.nosale.nosale">
+        <file>classpath://oracle/retail/stores/pos/services/nosale/nosale.xml</file>
+    </tour>
+    <tour name="services.notifications.retrieve">
+        <file>classpath://oracle/retail/stores/pos/services/notifications/notifications.xml</file>
+    </tour>     
+    <tour name="services.operatorid.checklogin">
+        <file>classpath://oracle/retail/stores/pos/services/operatorid/checklogin.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.operatorid.operatorid">
+        <file>classpath://max/retail/stores/pos/services/operatorid/maxoperatorid.xml</file>
+    </tour>
+    <tour name="services.order.order">
+        <file>classpath://max/retail/stores/pos/services/order/maxorder.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.houseaccount.payment">
+        <file>classpath://oracle/retail/stores/pos/services/houseaccount/payment/payhouseaccount.xml</file>
+    </tour>
+    <tour name="services.pickup.pickup">
+        <file>classpath://oracle/retail/stores/pos/services/order/createpickup/pickup.xml</file>
+    </tour>
+    <tour name="services.order.xchannelpickup">
+        <file>classpath://oracle/retail/stores/pos/services/order/xchannelcreatepickup/xchannelcreatepickup.xml</file>
+    </tour>
+    <tour name="services.order.xchannelshipping">
+        <file>classpath://oracle/retail/stores/pos/services/order/xchannelcreateshipping/xchannelcreateshipping.xml</file>
+        <!-- BEGIN ADDED FOR VAT -->
+            <SITEACTION
+                class="GetDestinationTaxRuleSite"
+                replacewith="oracle.retail.stores.pos.services.order.xchannelcreateshipping.GetVatRulesSite" />
+         <!-- END ADDED FOR VAT -->
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.postvoid.void">
+        <file>classpath://max/retail/stores/pos/services/postvoid/maxvoid.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.priceadjustment.priceadjustment">
+        <file>classpath://oracle/retail/stores/pos/services/priceadjustment/priceadjustment.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.pricing.pricing">
+        <file>classpath://max/retail/stores/pos/services/pricing/maxpricing.xml</file>
+    </tour>
+    <tour name="services.printing.printing">
+        <file>classpath://max/retail/stores/pos/services/printing/maxprinting.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.redeem.redeem">
+        <file>classpath://oracle/retail/stores/pos/services/redeem/redeem.xml</file>
+    </tour>
+    <tour name="services.reprintreceipt.reprintreceipt">
+        <file>classpath://oracle/retail/stores/pos/services/reprintreceipt/reprintreceipt.xml</file>
+        <!-- BEGIN ADDED FOR VAT -->
+        <SITEACTION
+            class="DisplayReprintSelectSite"
+            replacewith="oracle.retail.stores.pos.services.reprintreceipt.VATDisplayReprintSelectSite" />
+        <LANEACTION
+            class="GiftReceiptCheckEligibilityAisle"
+            replacewith="oracle.retail.stores.pos.services.reprintreceipt.VATGiftReceiptCheckEligibilityAisle" />
+        <LANEACTION
+            class="PrintGiftReceiptAisle"
+            replacewith="oracle.retail.stores.pos.services.reprintreceipt.VATPrintGiftReceiptAisle" />
+          <!-- END ADDED FOR VAT -->
+          <!-- changes for rev 1.6 -->
+        <LANEACTION
+            class="PrintTransactionReceiptAisle"
+            replacewith="max.retail.stores.pos.services.printing.MAXPrintTransactionReceiptAisle" />
+    </tour>
+    <tour name="services.returnauthorization.returnauthorization">
+        <file>classpath://oracle/retail/stores/pos/services/returnauthorization/returnauthorization.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.sale.sale">
+        <file>classpath://max/retail/stores/pos/services/sale/maxsale.xml</file>
+        <!-- BEGIN ADDED FOR VAT -->
+        <SITEACTION
+            class="ShowSaleScreenSite"
+            replacewith="oracle.retail.stores.pos.services.sale.VATShowSaleScreenSite" />
+          <!-- END ADDED FOR VAT -->
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.serialvalidation.serialvalidation">
+        <file>classpath://oracle/retail/stores/pos/services/serialvalidation/serialvalidation.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.send.send">
+        <file>classpath://max/retail/stores/pos/services/send/maxsend.xml</file>
+    </tour>
+    <tour name="services.send.transactionlevelsend">
+        <file>classpath://max/retail/stores/pos/services/send/transactionlevel/maxtransactionlevelsend.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.servicealert.servicealert">
+        <file>classpath://oracle/retail/stores/pos/services/servicealert/servicealert.xml</file>
+    </tour>
+    <tour name="services.signaturecapture.signaturecapture">
+        <file>classpath://oracle/retail/stores/pos/services/signaturecapture/signaturecapture.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.specialorder.specialorder">
+        <file>classpath://max/retail/stores/pos/services/specialorder/maxspecialorder.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="services.tender.tender">
+        <file>classpath://max/retail/stores/pos/services/tender/maxtender.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="services.validateid.validateid">
+        <file>classpath://oracle/retail/stores/pos/services/validateid/validateid.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="specialorder.add.specialorderadd">
+        <file>classpath://max/retail/stores/pos/services/specialorder/add/maxspecialorderadd.xml</file>
+    </tour>
+    <tour name="specialorder.deposit.specialorderdeposit">
+        <file>classpath://max/retail/stores/pos/services/specialorder/deposit/maxspecialorderdeposit.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="tender.capturecustomerinfo.capturecustomerinfo">
+        <file>classpath://max/retail/stores/pos/services/tender/capturecustomerinfo/maxcapturecustomerinfo.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="tender.check.check">
+        <file>classpath://oracle/retail/stores/pos/services/tender/check/check.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="tender.coupon.coupon">
+        <file>classpath://max/retail/stores/pos/services/tender/coupon/maxcoupon.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="tender.authorization.authorization">
+        <file>classpath://oracle/retail/stores/pos/services/tender/authorization/authorization.xml</file>
+    </tour>
+    <tour name="tender.authorization.referral">
+        <file>classpath://oracle/retail/stores/pos/services/tender/authorization/referral/referral.xml</file>
+    </tour>
+    <tour name="tender.houseaccount.houseaccount">
+        <file>classpath://oracle/retail/stores/pos/services/tender/houseaccount/houseaccount.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="tender.giftcard.giftcard">
+        <file>classpath://max/retail/stores/pos/services/tender/giftcard/maxgiftcard.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="tender.giftcertificate.giftcertificate">
+        <file>classpath://oracle/retail/stores/pos/services/tender/giftcertificate/giftcertificate.xml</file>
+        <!-- Rev 1.5 chnages starts -->
+            <SITEACTION
+                class="GiftCertificateTenderActionSite"
+                replacewith="max.retail.stores.pos.services.tender.giftcertificate.MAXGiftCertificateTenderActionSite" />
+         <!-- Rev 1.5 changes ends -->
+    </tour>
+    <tour name="tender.instantcredit.instantcredit">
+        <file>classpath://oracle/retail/stores/pos/services/tender/instantcredit/instantcredit.xml</file>
+    </tour>
+    <tour name="tender.mailcheck.mailcheck">
+        <file>classpath://oracle/retail/stores/pos/services/tender/mailcheck/mailcheck.xml</file>
+    </tour>
+    <tour name="tender.mallcertificate.mallcertificate">
+        <file>classpath://oracle/retail/stores/pos/services/tender/mallcertificate/mallcertificate.xml</file>
+    </tour>
+    <tour name="tender.moneyorder.moneyorder">
+        <file>classpath://oracle/retail/stores/pos/services/tender/moneyorder/moneyorder.xml</file>
+    </tour>
+    <tour name="tender.override.override">
+        <file>classpath://oracle/retail/stores/pos/services/tender/override/override.xml</file>
+    </tour>
+    <tour name="tender.patriot.patriot">
+        <file>classpath://oracle/retail/stores/pos/services/tender/patriot/patriot.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="tender.purchaseorder.purchaseorder">
+        <file>classpath://max/retail/stores/pos/services/tender/purchaseorder/maxpurchaseorder.xml</file>
+    </tour>
+    <tour name="tender.storecredit.storecredit">
+        <file>classpath://max/retail/stores/pos/services/tender/storecredit/maxstorecredit.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="tender.reversal.reversal">
+        <file>classpath://oracle/retail/stores/pos/services/tender/reversal/reversal.xml</file>
+    </tour>
+    <tour name="tender.travelcheck.travelcheck">
+        <file>classpath://oracle/retail/stores/pos/services/tender/travelcheck/travelcheck.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="till.tillclose.tillclose">
+        <file>classpath://max/retail/stores/pos/services/dailyoperations/till/tillclose/maxtillclose.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+	<!-- changes start for code  merging :AshishInot present in base 14) -->
+	<tour name="tender.tenderauth.tenderauth">
+        <file>classpath://max/retail/stores/pos/services/tender/tenderauth/maxtenderauth.xml</file>
+    </tour>
+	<tour name="order.alter.alterorder">
+        <file>classpath://max/retail/stores/pos/services/order/alter/maxalterorder.xml</file>
+    </tour>
+	<tour name="order.displaysendmethod.displaysendmethod">
+        <file>classpath://max/retail/stores/pos/services/order/pickup/displaysendmethod/maxorderdisplaysendmethod.xml</file>
+    </tour>
+	<tour name="tender.loyaltypoint.loyaltypoint">
+        <file>classpath://max/retail/stores/pos/services/tender/loyaltypoints/maxloyaltypoints.xml</file>
+    </tour>
+	 <tour name="tender.creditdebit.creditdebit">
+        <file>classpath://max/retail/stores/pos/services/tender/creditdebit/maxcreditdebit.xml</file>
+    </tour>
+	<tour name="services.printing.chargeprinting">
+        <file>classpath://max/retail/stores/pos/services/printing/maxchargeprinting.xml</file>
+    </tour>
+	<tour name="sale.multiplemrp.mrpselection">
+        <file>classpath://max/retail/stores/pos/services/sale/multiplemrp/maxmultiplemrp.xml</file>
+    </tour>
+	<tour name="sale.adv.search">
+        <file>classpath://max/retail/stores/pos/services/sale/advsearch/maxadvsearch.xml</file>
+    </tour>
+		<tour name="modifytransaction.retrieve.retrieve">
+        <file>classpath://max/retail/stores/pos/services/modifytransaction/retrieve/maxretrieve.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="till.tillloan.tillloan">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/till/tillloan/tillloan.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="till.tillopen.tillopen">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/till/tillopen/tillopen.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="till.tilloptions.tilloptions">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/till/tilloptions/tilloptions.xml</file>
+    </tour>
+    <tour name="till.tillpayin.tillpayin">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/till/tillpayin/tillpayin.xml</file>
+    </tour>
+    <tour name="till.tillpayout.tillpayout">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/till/tillpayout/tillpayout.xml</file>
+    </tour>
+    <tour name="till.tillpayrollpayout.tillpayrollpayout">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/till/tillpayrollpayout/tillpayrollpayout.xml</file>
+    </tour>
+	<!-- changes start for code  merging :Ashish -->
+    <tour name="till.tillpickup.tillpickup">
+        <file>classpath://max/retail/stores/pos/services/dailyoperations/till/tillpickup/MAXtillpickup.xml</file>
+    </tour>
+    <tour name="till.tillreconcile.tillreconcile">
+        <file>classpath://max/retail/stores/pos/services/dailyoperations/till/tillreconcile/maxtillreconcile.xml</file>
+    </tour>
+	<!-- changes end for code  merging :Ashish -->
+    <tour name="till.tillresume.tillresume">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/till/tillresume/tillresume.xml</file>
+    </tour>
+    <tour name="till.tillsuspend.tillsuspend">
+        <file>classpath://oracle/retail/stores/pos/services/dailyoperations/till/tillsuspend/tillsuspend.xml</file>
+    </tour>
+    <!--  External Order Services -->
+    <tour name="externalorder.searchorder.searchorder">
+        <file>classpath://oracle/retail/stores/pos/services/externalorder/searchorder/searchorder.xml</file>
+    </tour>
+    <tour name="externalorder.processorder.processorder">
+        <file>classpath://oracle/retail/stores/pos/services/externalorder/processorder/processorder.xml</file>
+    </tour>
+    <tour name="externalorder.processordersend.processordersend">
+        <file>classpath://oracle/retail/stores/pos/services/externalorder/processordersend/processordersend.xml</file>
+        <!-- BEGIN ADDED FOR VAT -->
+            <SITEACTION
+                class="GetDestinationTaxRuleSite"
+                replacewith="oracle.retail.stores.pos.services.externalorder.processordersend.GetVatRulesSite" />
+         <!-- END ADDED FOR VAT -->
+    </tour>
+    <tour name="externalorder.sellorderitem.sellorderitem">
+        <file>classpath://oracle/retail/stores/pos/services/externalorder/sellorderitem/sellorderitem.xml</file>
+    </tour>
+    <tour name="sale.scansheet.scansheet">
+        <file>classpath://max/retail/stores/pos/services/sale/scansheet/maxscansheet.xml</file>
+    </tour>
+    <tour name="destinationtaxrule.destinationtaxrule">
+        <file>classpath://oracle/retail/stores/pos/services/destinationtaxrule/destinationtaxrule.xml</file>
+    </tour>
+	<tour name="tender.paytm.paytm">
+		<file>classpath://max/retail/stores/pos/services/tender/wallet/paytm/maxpaytm.xml</file>  
+	</tour>
+	<tour name="tender.mobikwik.mobikwik">
+		<file>classpath://max/retail/stores/pos/services/tender/wallet/mobikwik/maxmobikwik.xml</file>  
+	</tour>
+	
+	<tour name="tender.amazonpay.amazonpay">
+		<file>classpath://max/retail/stores/pos/services/tender/wallet/amazonpay/maxamazonpay.xml</file>  
+	</tour>
+	
+  <!-- Changes Starts for PAN card CR -->
+      <tour name="returns.returntransaction.returndisplayedtransaction">
+        <file>classpath://max/retail/stores/pos/services/returns/returntransaction/maxreturndiplayedtransaction.xml</file>
+    </tour>
+      <!-- Changes End for PAN card CR -->
+</tourmap>

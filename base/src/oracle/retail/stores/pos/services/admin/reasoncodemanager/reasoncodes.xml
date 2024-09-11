@@ -1,0 +1,314 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/reasoncodemanager/reasoncodes.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+     $Log:
+      4    360Commerce 1.3         12/19/2007 7:57:07 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:29:34 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:24:32 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:13:34 PM  Robert Pearse
+     $
+     Revision 1.4  2004/04/19 18:48:56  awilliam
+     @scr 4374 Reason Code featrure work
+
+     Revision 1.3  2004/03/26 00:24:11  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:48:53  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:14  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ReasonCodeManager"
+    package="oracle.retail.stores.pos.services.admin.reasoncodemanager"
+    tourcam="OFF">
+    <COMMENT >
+        This services lets one inspect and edit retail reason
+        codes. Retail Reason Codes contain data that help
+        control store operations.
+    </COMMENT>
+    <CARGO  class="ReasonCodeCargo"/>
+    <SERVICECODE >
+        <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="StoreReasonCodeGroupAisle"/>
+        <LANEACTION class="StoreReasonCodeLevelAisle"/>
+
+        <LETTER name="AcceptData"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="DbError"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Next"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Override"/>
+        <LETTER name="ReallyDone"/>
+        <LETTER name="SaveFailed"/>
+        <LETTER name="SaveSucceeded"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+
+        <SHUTTLE class="ListEditorLaunchShuttle"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="SaveReasonCodeGroupSite"/>
+        <SITEACTION class="SelectReasonCodeGroupSite"/>
+        <SITEACTION class="SelectReasonCodeLevelSite"/>
+        <SITEACTION class="UnmodifiableReasonCodeGroupSite"/>
+
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="CheckAccess">
+            <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="SelectReasonCodeLevel"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="SecurityOverrideGranted"
+                    letter="Success"
+                    destination="SelectReasonCodeLevel"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideDenied"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="SelectReasonCodeLevel" siteaction="SelectReasonCodeLevelSite">
+                <AISLE
+                    name="StoreReasonCodeLevel"
+                    letter="Next"
+                    laneaction="StoreReasonCodeLevelAisle">
+                </AISLE>
+                <AISLE
+                    name="DatabaseError"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="DatabaseOrAccessErrorOk"
+                    letter="Ok"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        An error occured retrieving the Reason code lists
+                        from the DB.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="ReasonCodeLevelAccepted"
+                    letter="AcceptData"
+                    destination="SelectReasonCodeGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="BackOutOfReasonCodes"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelReasonCodeLevel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="SelectReasonCodeGroup" siteaction="SelectReasonCodeGroupSite">
+                <COMMENT >
+                    Choose which reason code group (e.g. tender) will
+                    be edited.
+                </COMMENT>
+                <AISLE
+                    name="StoreReasonCodeGroup"
+                    letter="Next"
+                    laneaction="StoreReasonCodeGroupAisle">
+                    <COMMENT >
+                        Store the parameter group as entered at the UI.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="ReasonCodeGroupAccepted"
+                    letter="AcceptData"
+                    destination="EditListStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GroupBackToReasonCodeLevel"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelReasonCodeGroup"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="EditListStation"
+                servicename="admin.listeditor.listeditor"
+                targettier="CURRENTTIER"
+                launchshuttle="ListEditorLaunchShuttle">
+                <ROAD
+                    name="EditListCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditListReallyDone"
+                    letter="ReallyDone"
+                    destination="SaveReasonCodeGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditListUndo"
+                    letter="Undo"
+                    destination="SelectReasonCodeGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditNextGroup"
+                    letter="Next"
+                    destination="SelectReasonCodeGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditListDoneProcessing"
+                    letter="AcceptData"
+                    destination="SaveReasonCodeGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Currently deleting a reason code will send AcceptData
+                        letter from the listeditor service.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SITE  name="SaveReasonCodeGroup" siteaction="SaveReasonCodeGroupSite">
+                <COMMENT >
+                    Save the user's changes to the reason code group.
+                </COMMENT>
+                <AISLE
+                    name="DatabaseWriteError"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                    <COMMENT >
+                        An error occured retrieving the Reason code lists
+                        from the DB.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="DatabaseErrorOk"
+                    letter="Ok"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        An error occured retrieving the Reason code lists
+                        from the DB.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="CancelReasonCodeSave"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SaveGroupSucceeded"
+                    letter="SaveSucceeded"
+                    destination="SelectReasonCodeGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

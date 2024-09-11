@@ -1,0 +1,125 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/operatorid/checklogin.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="OperatorIdService" package="oracle.retail.stores.pos.services.operatorid" tourcam="OFF">
+     <COMMENT>
+          This service excutes the Operator Identification Package
+          cases.
+     </COMMENT>
+<CARGO class="OperatorIdCargo" package="oracle.retail.stores.pos.services.operatorid">
+     <COMMENT>
+          This cargo contains the login information.
+     </COMMENT>
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Next"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Password"/>
+     <LETTER name="Continue"/>
+     
+     <SITEACTION class="EnterEmployeeIDSite" />
+     <SITEACTION class="EnterPasswordSite" />
+     <SITEACTION class="CheckUserLoginSite" />
+     
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="EmployeeEnteredRoad" />
+     <LANEACTION class="PasswordEnteredRoad" />
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="EnterEmployeeID">
+          <SITE name="EnterEmployeeID" siteaction="EnterEmployeeIDSite">
+               <COMMENT>
+                    This site displays the LOGIN screen.
+               </COMMENT>
+               <AISLE name="EmployeeUndo" letter="Undo" laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This ailse is traveled when Store/Register are not open and the 
+                         use desides not to open them.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="EmployeeEntered" 
+                     letter="Next" 
+                     laneaction="EmployeeEnteredRoad" 
+                     destination="EnterPassword" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the employee ID has been 
+                         entered.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EmployeeFailure" 
+                     letter="Failure" 
+                     destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the employee ID has been 
+                         entered.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="EnterPassword" siteaction="EnterPasswordSite">
+               <COMMENT>
+                    This site displays the PASSWORD screen.
+               </COMMENT>
+               <ROAD name="PasswordEntered" 
+                     letter="Next" 
+                     laneaction="PasswordEnteredRoad" 
+                     destination="CheckUserLogin" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the password has been entered. 
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoPassword" 
+                     letter="Undo" 
+                     destination="EnterEmployeeID" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traveled when the Undo key has been pressed 
+                         from the PASSWORD Screen.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="CheckUserLogin" siteaction="CheckUserLoginSite">
+               <COMMENT>
+                    This site validates the login information.
+               </COMMENT>
+               <ROAD name="ValidUser" 
+                     letter="Success" 
+                     destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Successful login.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="InvalidUser" 
+                     letter="Failure" 
+                     destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Failed login. 
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

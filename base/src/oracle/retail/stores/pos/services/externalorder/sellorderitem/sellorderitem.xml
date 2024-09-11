@@ -1,0 +1,328 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2010, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/externalorder/sellorderitem/sellorderitem.xml /main/8 2012/10/22 15:36:21 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   10/19/12 - Refactor by using DestinationTaxRule station to get
+ *                         new tax rules from shipping destination postal code.
+ *    yiqzhao   09/27/12 - use modifyitem/relateditem tour.
+ *    sgu       06/09/10 - merge after refresh to latest
+ *    sgu       06/03/10 - remove invalid letters
+ *    acadar    06/03/10 - refresh to tip
+ *    sgu       06/01/10 - check in after merge
+ *    sgu       06/01/10 - check in order sell item flow
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    acadar    05/21/10 - initial version
+ *    acadar    05/21/10 - initial version
+ *    acadar    05/14/10 - initial version for process external order tour
+ *    acadar    05/14/10 - initial version
+ *
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="sellorderitem"
+    package="oracle.retail.stores.pos.services.externalorder.sellorderitem"
+    tourcam="OFF">
+    <COMMENT>
+        This is the service that does an UI validation for all the items in the order
+    </COMMENT>
+    <CARGO class="SellOrderItemCargo" package="oracle.retail.stores.pos.services.externalorder.sellorderitem"/>
+
+    <SERVICECODE>
+    <!-- Lanes -->
+        <LANEACTION class="ItemInfoEnteredAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CheckIfSizeRequiredAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ValidateItemSizeAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="DisplayItemSizeDialogAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="PrintItemRoad"/>
+        <LANEACTION class="DoneLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+
+    <!-- Sites -->
+    	<SITEACTION class="CheckPLUItemSite" />
+    	<SITEACTION class="EnterItemInfoSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="EnterItemSizeSite" package="oracle.retail.stores.pos.services.common"/>
+		<SITEACTION class="AddItemSite" />
+
+ 	<!-- Shuttles -->
+  		<SHUTTLE class="CheckItemTypeLaunchShuttle" package="oracle.retail.stores.pos.services.externalorder.sellorderitem"/>
+     	<SHUTTLE class="CheckItemTypeReturnShuttle" package="oracle.retail.stores.pos.services.externalorder.sellorderitem"/>
+        <SHUTTLE class="ModifyItemSerialNumberLaunchShuttle" package="oracle.retail.stores.pos.services.sale"/>
+        <SHUTTLE class="RelatedItemLaunchShuttle" package="oracle.retail.stores.pos.services.sale"/>
+
+    <!-- Letters -->
+    	<LETTER name="OneItemFound"/>
+    	<LETTER name="MultipleItemsFound"/>
+    	<LETTER name="ItemNotFound"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="No"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Next"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Search"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckPLUItem">
+             <SITE name="CheckPLUItem" siteaction="CheckPLUItemSite">
+                <ROAD
+                    name="OneItemFound"
+                    letter="OneItemFound"
+                    destination="CheckItemTypeStation"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="MultipleItemsFound"
+                    letter="MultipleItemsFound"
+                    destination="CheckItemTypeStation"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="ItemNotFound"
+                    letter="ItemNotFound"
+                    destination="EnterItemInfo"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterItemSize" siteaction="EnterItemSizeSite">
+                <AISLE
+                    name="ValidateItemSize"
+                    letter="Next"
+                    laneaction="ValidateItemSizeAisle">
+                </AISLE>
+                <AISLE
+                    name="DisplayItemSizeDialog"
+                    letter="Invalid"
+                    laneaction="DisplayItemSizeDialogAisle">
+                </AISLE>
+                <ROAD
+                    name="ItemSizeReenter"
+                    letter="Ok"
+                    destination="EnterItemSize"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AddItemRoad"
+                    letter="Search"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelEnterItemSize"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnterItemSize"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterItemInfo" siteaction="EnterItemInfoSite">
+                <COMMENT >
+                    This site displays the ITEM_NOT_FOUND form to allow
+                    the user to enter the required information for the
+                    item.
+                </COMMENT>
+                <AISLE
+                    name="ItemInfoEntered"
+                    letter="Next"
+                    laneaction="ItemInfoEnteredAisle">
+                    <COMMENT >
+                        This aisle is traversed after the user entered the
+                        item information. It adds the item to the item list
+                        in the cargo.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="NewItemAdded"
+                    letter="Continue"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the new item information
+                        has been stored in the cargo.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ValidationError"
+                    letter="Ok"
+                    destination="EnterItemInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoItem"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the user presses the Undo
+                        key in the ITEM_NOT_FOUND form.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="InvalidItem"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelEnterItem"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the user presses the Cancel
+                        key from the EnterItemInfo screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="AddItem" siteaction="AddItemSite">
+                <ROAD
+                    name="ItemInfoCaptured"
+                    letter="Continue"
+                    laneaction="PrintItemRoad"
+                    destination="RelatedItemStation">
+                </ROAD>
+                <ROAD
+                    name="GetSerialNumbers"
+                    letter="GetSerialNumbers"
+                    destination="SerializedItemStation">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="CheckItemTypeStation"
+                servicename="iteminquiry.itemcheck.itemcheck"
+                targettier="CURRENTTIER"
+                launchshuttle="CheckItemTypeLaunchShuttle"
+                returnshuttle="CheckItemTypeReturnShuttle">
+  				<AISLE
+                    name="CheckForSizeRequired"
+                    letter="Continue"
+                    laneaction="CheckIfSizeRequiredAisle">
+                </AISLE>
+                <ROAD
+                    name="EnterSize"
+                    letter="Size"
+                    destination="EnterItemSize"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+               <ROAD  name="ItemAdd"
+                      letter="Continue2"
+                      destination="AddItem"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+               <ROAD  name="CheckItemTypeCanceled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+               <ROAD name="UndoCheckItemType"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+                <ROAD
+                    name="CancelAlterationsNoCustomer"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+              </ROAD>
+              <ROAD  name="CheckItemInvalid"
+                      letter="Invalid"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+          </STATION>
+          <STATION
+                 name="SerializedItemStation"
+                 servicename="modifyitem.serialnumber.serializedItem"
+                 targettier="CURRENTTIER"
+                 launchshuttle="ModifyItemSerialNumberLaunchShuttle">
+                 <COMMENT>
+                     This service prompts the user for serial number input and sets the serial number attribute
+                     for one or more line items.
+                 </COMMENT>
+                 <ROAD
+                     name="SerializedItemUndo"
+                     letter="Undo"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="SerializedItemCancel"
+                     letter="Cancel"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="SerialNumbersEntered"
+                     letter="Ok"
+                     laneaction="PrintItemRoad"
+                     destination="RelatedItemStation">
+                 </ROAD>
+                 <ROAD name="UINSuccessRoad"
+                     letter="Success"
+                     laneaction="PrintItemRoad"
+                     destination="RelatedItemStation">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="RelatedItemStation"
+                servicename="modifyitem.relateditem.relateditem"
+                targettier="CURRENTTIER"
+                launchshuttle="RelatedItemLaunchShuttle">
+                <COMMENT>
+                    This station goes to the related item services to add all
+                    related items.
+                </COMMENT>
+                <ROAD
+                    name="RelatedItemsAdded"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <AISLE name="RelatedItemsUndo"
+                    letter="Undo"
+                    laneaction ="DoneLetterAisle">
+                </AISLE>                
+            </STATION>
+
+          <SYSTEMSITE name="Final" action="RETURN"/>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

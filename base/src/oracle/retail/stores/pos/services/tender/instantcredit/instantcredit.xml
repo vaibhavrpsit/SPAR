@@ -1,0 +1,223 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/instantcredit/instantcredit.xml /rgbustores_13.4x_generic_branch/2 2011/08/29 10:56:04 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   08/29/11 - implement new access point function for house
+ *                         account
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      5    360Commerce 1.4         5/7/2008 8:55:11 PM    Alan N. Sinton  CR
+           30295: Code modified to present  Function Unavailable dialog for
+           House Account and Instant Credit when configured with ISD.  Code
+           reviewed by Anda Cadar.
+      4    360Commerce 1.3         12/19/2007 7:52:06 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:28:23 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:22:07 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:11:25 PM  Robert Pearse
+     $
+     Revision 1.2  2004/07/06 18:15:27  lzhao
+     @scr 6006: use Noswipe replace NoSwipe.
+
+     Revision 1.1  2004/04/06 20:22:50  epd
+     @scr 4263 Updates to move instant credit enroll to sub tour
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="TenderInstantCredit"
+    package="oracle.retail.stores.pos.services.tender.instantcredit"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Instant Credit Use Case of the Tender Package.
+    </COMMENT>
+    <CARGO class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Continue"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Done"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Next"/>
+        <LETTER name="Noswipe"/>
+
+        <SHUTTLE class="EnrollmentLaunchShuttle"/>
+        <SHUTTLE class="EnrollmentReturnShuttle"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="GetInstantCreditAmountSite"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="OverrideRequired"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditAccessGranted"
+                    letter="Continue"
+                    destination="EnrollmentStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="EnrollmentStation"
+                servicename="instantcredit.enrollment.enrollment"
+                targettier="CURRENTTIER"
+                launchshuttle="EnrollmentLaunchShuttle"
+                returnshuttle="EnrollmentReturnShuttle">
+                <ROAD
+                    name="ContinueWithEnrollment"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnrollment"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelEnrollment"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OfflineEnrollment"
+                    letter="Offline"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DoneEnrollment"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureEnrollment"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureCardSwipe"
+                    letter="Noswipe"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NoDiscountEnrollment"
+                    letter="No"
+                    destination="GetInstantCreditAmount"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinueEnrollment"
+                    letter="Next"
+                    destination="GetInstantCreditAmount"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="YesContinueEnrollment"
+                    letter="Yes"
+                    destination="GetInstantCreditAmount"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotSupportedRoad"
+                    letter="NotSupported"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE name="GetInstantCreditAmount" siteaction="GetInstantCreditAmountSite">
+                <ROAD
+                    name="AmountApplied"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="InstantCreditSecurityOverrideSucceeded"
+                    letter="Success"
+                    destination="EnrollmentStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditSecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

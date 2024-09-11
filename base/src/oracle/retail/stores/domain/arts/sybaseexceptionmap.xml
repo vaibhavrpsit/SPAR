@@ -1,0 +1,87 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/modules/domain/src/oracle/retail/stores/domain/arts/sybaseexceptionmap.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 12:32:07 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  $Revision: /rgbustores_13.4x_generic_branch/1 $
+  $Log:
+   3    360Commerce 1.2         3/31/2005 4:30:17 PM   Robert Pearse
+   2    360Commerce 1.1         3/10/2005 10:25:42 AM  Robert Pearse
+   1    360Commerce 1.0         2/11/2005 12:14:37 PM  Robert Pearse
+  $
+  Revision 1.3  2004/03/16 18:41:50  cdb
+  @scr 0 Removed tabs from all java source code.
+
+  Revision 1.2  2004/02/12 17:13:20  mcs
+  Forcing head revision
+
+  Revision 1.1.1.1  2004/02/11 01:04:29  cschellenger
+  updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE JDBCEXCEPTIONMAPPING SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/jdbcexceptionmapping.dtd">
+
+<JDBCEXCEPTIONMAPPING>
+    <COMMENT>
+              SQLAnywhere specific exceptions.
+    </COMMENT>
+
+    <ADDMAPPING
+        sqlstate="JZ006"
+        description="Error generated when SQL Anywhere: fails to connect"
+        crsexception="CONNECTION_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="52W02"
+        description="Error generated from SQL Anywhere: Correlation name 'name' not found"
+        crsexception="SQL_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="23W01"
+        description="Error generated from SQL Anywhere: Primary key is not unique"
+        crsexception="REFERENTIAL_INTEGRITY_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="23505"
+        description="Error generated from SQL Anywhere: Primary key is not unique"
+        crsexception="REFERENTIAL_INTEGRITY_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="42818"
+        description="The data types of the operands for the operation '=' are not compatible."
+        crsexception="SQL_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="42601"
+        description="An unexpected token was found."
+        crsexception="SQL_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="42522"
+        description="INTEGER is not valid in the context where it is used."
+        crsexception="SQL_ERROR"
+    />
+
+</JDBCEXCEPTIONMAPPING>
+

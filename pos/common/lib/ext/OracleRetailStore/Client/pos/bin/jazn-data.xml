@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jazn-data>
+	<policy-store>
+		<applications>
+		</applications>
+	</policy-store>
+	<jazn-policy>
+	  <grant>
+			<grantee>
+				<codesource>
+					<url>file:///D:/Development/Main/secret-store/classes/-</url>
+				</codesource>
+			</grantee>
+			<permissions>
+				<permission>
+					<class>oracle.security.jps.service.credstore.CredentialAccessPermission</class>
+					<name>context=SYSTEM,mapName=*,keyName=*</name>
+					<actions>read,write,update,delete</actions>
+				</permission>
+		</permissions>
+		</grant> 
+	</jazn-policy>
+</jazn-data>

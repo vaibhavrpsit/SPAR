@@ -1,0 +1,502 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/layaway/payment/layawaypayment.xml /main/19 2012/02/21 14:35:49 asinton Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole		09/03/14 - added serial number collection when balance paid in full.
+ *    asinton   02/21/12 - XbranchMerge asinton_bug-13719807 from
+ *                         rgbustores_13.4x_generic_branch
+ *    asinton   02/21/12 - changed tour to go to CloseCashDrawer before
+ *                         PrintingStation
+ *    nkgautam  09/20/10 - refactored code to have a single class to check cash
+ *                         in drawer
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    nkgautam  02/01/10 - Added new site to check for cash drawer warnings
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="layawaypayment"
+    package="oracle.retail.stores.pos.services.layaway.payment"
+    tourcam="OFF">
+    <COMMENT>
+        This service handles a layaway payment.
+    </COMMENT>
+    <CARGO class="LayawayCargo" package="oracle.retail.stores.pos.services.layaway"/>
+    <SERVICECODE>
+        <LETTER name="Success"/>
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Loop"/>
+        <LETTER name="ExitTender"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Save"/>
+        <LETTER name="ExitLayaway"/>
+        <LETTER name="Ok"/>
+        <LETTER name="ExitPrinting"/>
+        <LETTER name="OfflinePayment"/>
+        <LETTER name="Override"/>
+        <LETTER name="Failure"/>
+        <LETTER name="CheckAccess"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Online"/>
+        <LETTER name="QueueFull"/>
+        <LETTER name="Retry"/>
+
+        <LANEACTION class="SaveFailedAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ValidatePaymentEnteredAisle"/>
+        <LANEACTION class="TenderCanceledRoad"/>
+        <LANEACTION class="TenderCompletedRoad">
+            <COMMENT>
+                Updates the status of the layaway after tender
+                has been completed.
+            </COMMENT>
+        </LANEACTION>
+        <LANEACTION class="CancelOfflineLayawayRoad"/>
+        <LANEACTION class="PaymentEnteredRoad"/>
+        <LANEACTION class="UndoPaymentRoad"/>
+        <LANEACTION class="SaveRetailTransactionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SaveTenderableTransactionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ValidateOfflinePaymentAisle"/>
+        <LANEACTION class="CheckPaymentEnteredAisle"/>
+        <LANEACTION class="OfflinePaymentRoad"/>
+        <LANEACTION class="ExitLayawayConversionAisle" package="oracle.retail.stores.pos.services.layaway"/>
+        <LANEACTION class="CheckForSerialisedItemAisle" package="oracle.retail.stores.pos.services.layaway.find"/>        
+
+        <SITEACTION class="LayawayPaymentSite"/>
+        <SITEACTION class="ValidateLayawayPaymentSite"/>
+        <SITEACTION class="WriteTransactionSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+        <SITEACTION class="CloseCashDrawerSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CheckCashInDrawerSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+        <SITEACTION class="EnterSerialNumberSite" package="oracle.retail.stores.pos.services.layaway.find"/>
+        <SITEACTION class="ModifySerialisedItemCounterSite" package="oracle.retail.stores.pos.services.layaway.find"/>
+        <SITEACTION class="SerialNumberSite"/>
+
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="TenderLaunchShuttle"/>
+        <SHUTTLE class="TenderReturnShuttle"/>
+        <SHUTTLE class="PrintingLaunchShuttle"/>
+        <SHUTTLE class="SerialValidationLaunchShuttle" package="oracle.retail.stores.pos.services.layaway.find"/>
+        <SHUTTLE class="SerialValidationReturnShuttle" package="oracle.retail.stores.pos.services.layaway.find"/>
+                
+        <SIGNAL class="IsRetailTransactionSignal"/>
+        <SIGNAL class="IsNotRetailTransactionSignal"/>
+        <SIGNAL class="IsOnlineSignal" package="oracle.retail.stores.pos.services.common"/>
+        <SIGNAL class="IsOfflineSignal" package="oracle.retail.stores.pos.services.common" />
+        <SIGNAL class="IsSerialisationEnabledSignal"   package="oracle.retail.stores.pos.services.common"/>        
+        <SIGNAL class="IsSerialisationDisabledSignal"  package="oracle.retail.stores.pos.services.common"/>        
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="LayawayPayment">
+            <SITE name="LayawayPayment" siteaction="LayawayPaymentSite">
+                <COMMENT>
+                    This site displays the layaway payment details.
+                </COMMENT>
+                <AISLE
+                    name="CheckPaymentEntered"
+                    letter="Next"
+                    laneaction="CheckPaymentEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed after the user entered the
+                        payment information. It makes sure the payment amount
+                        is greater than the minimum down payment.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="UndoPayment"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelLayawayPayment"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityAccessRequired"
+                    letter="CheckAccess"
+                    destination="CheckSecurityAccess"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityAccessNotRequired"
+                    letter="Continue"
+                    destination="ValidatePayment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="ValidatePayment" siteaction="ValidateLayawayPaymentSite">
+                <AISLE
+                    name="ValidatePaymentEntered"
+                    letter="Online"
+                    laneaction="ValidatePaymentEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed after the user entered the
+                        payment information. It makes sure the payment amount
+                        is greater than the minimum down payment.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="ValidateOfflinePayment"
+                    letter="Offline"
+                    laneaction="ValidateOfflinePaymentAisle">
+                    <COMMENT>
+                        This aisle is traversed after the user entered the
+                        payment information. It makes sure the payment amount
+                        is greater than the minimum down payment.
+                    </COMMENT>
+                 </AISLE>
+                <ROAD
+                     name="InvalidPayment"
+                     letter="Loop"
+                     destination="LayawayPayment"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+                 <ROAD
+                     name="PaymentEntered"
+                     letter="Success"
+                     laneaction="PaymentEnteredRoad"
+                     destination="SerialNumber"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+                 <ROAD
+                     name="PaymentOffline"
+                     letter="OfflinePayment"
+                     laneaction="OfflinePaymentRoad"
+                     destination="TenderStation"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="SerialNumber" siteaction="SerialNumberSite">
+                <AISLE name="CheckForSerialisedItem"
+                      letter="Continue"
+                      laneaction="CheckForSerialisedItemAisle">
+                    <COMMENT>
+                        This Aisle will check for serialized items in transaction.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="GetSerialNumber"
+                      letter="SerialNumber"
+                      destination="EnterSerialNumber"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        This road will be taken when serialized items are present in
+                        the transaction.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="NoSerialisedItemRoad"
+                      letter="NoSerialisedItem"
+                      destination="TenderStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        When the transaction contains no serialized item.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="EnterSerialNumber"
+                  siteaction="EnterSerialNumberSite">
+                <COMMENT>
+                    This site prompts the user to enter the serial
+                    number of the serialized items in transaction.
+                </COMMENT>
+                <ROAD name="SerialNumberEntered"
+                      letter="Next"
+                      destination="ValidateSerialStation"
+                      record="OFF" index="OFF">
+                      <LIGHT signal="IsSerialisationEnabledSignal"/>
+                      <COMMENT>
+                          This road is traversed when serialization is enabled
+                      </COMMENT>
+                </ROAD>
+                <ROAD name="SerialNumberEntered"
+                      letter="Next"
+                      destination="EnterSerialNumber"
+                      record="OFF" index="OFF">
+                      <LIGHT signal="IsSerialisationEnabledSignal" negate="Y"/>
+                      <COMMENT>
+                          This road is traversed when serialization is disabled
+                      </COMMENT>
+                </ROAD>
+                <ROAD name="SerialNumbersEntryCompleted"
+                      letter="Continue"
+                      destination="TenderStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        All serial number entry is completed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterSerialNumberUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="EnterSerialNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="ModifySerialisedItemCounter" siteaction="ModifySerialisedItemCounterSite">
+                <ROAD name="ItemCounterDecrement"
+                     letter="Continue"
+                     destination="EnterSerialNumber"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </SITE>            
+            <STATION name="ValidateSerialStation"
+                   servicename="services.serialvalidation.serialvalidation"
+                   targettier="CURRENTTIER"
+                   launchshuttle="SerialValidationLaunchShuttle"
+                   returnshuttle="SerialValidationReturnShuttle">
+               <COMMENT>
+                    This station goes to the Validate Serial Station
+               </COMMENT>
+               <ROAD name="SellableRoad"
+                     letter="Sellable"
+                     destination="EnterSerialNumber"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="ValidationErrorRoad"
+                     letter="Invalid"
+                     destination="ModifySerialisedItemCounter"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+           </STATION>            
+            <SITE name="CheckSecurityAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ModifyLayawayFeeAuthorized"
+                    letter="Continue"
+                    destination="ValidatePayment">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                     servicename="security.override.override"
+                     targettier="CURRENTTIER"
+                     launchshuttle="SecurityOverrideLaunchShuttle" >
+
+                <ROAD name="ModifyLayawayFeeSuccessSecurityOverride"
+                      letter="Success"
+                      destination="ValidatePayment"
+                      tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="LayawayPayment"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="TenderStation"
+                servicename="services.tender.tender"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLaunchShuttle"
+                returnshuttle="TenderReturnShuttle">
+                <COMMENT>
+                    This station is the transfer point for the tender
+                    service
+                </COMMENT>
+                <ROAD
+                    name="LayawayPaymentUndo"
+                    letter="Undo"
+                    laneaction="UndoPaymentRoad"
+                    destination="LayawayPayment"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when undo is selected from
+                        the tender service
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCanceledOffline"
+                    letter="Cancel"
+                    laneaction="CancelOfflineLayawayRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a tender is canceled
+                    </COMMENT>
+                <LIGHT signal="IsOfflineSignal"/>
+                </ROAD>
+                <ROAD
+                    name="TenderCanceledOnline"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a tender is canceled
+                    </COMMENT>
+                <LIGHT signal="IsOnlineSignal"/>
+                </ROAD>
+                <ROAD
+                    name="TenderCompleted"
+                    letter="ExitTender"
+                    laneaction="TenderCompletedRoad"
+                    destination="CloseCashDrawer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a tender is completed
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="PrintingStation"
+                servicename="services.printing.printing"
+                targettier="CURRENTTIER"
+                launchshuttle="PrintingLaunchShuttle">
+                <COMMENT>
+                    This station is the transfer point for the Printing
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="PrintingReturned"
+                    letter="ExitPrinting"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled when the Printing service returns.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SITE name="WriteTransaction" siteaction="WriteTransactionSite">
+                <COMMENT>
+                    This site writes the transaction to the database.
+                </COMMENT>
+                <AISLE
+                    name="SaveRetailTransaction"
+                    letter="Save"
+                    laneaction="SaveRetailTransactionAisle">
+                    <LIGHT signal="IsRetailTransactionSignal"/>
+                </AISLE>
+                <AISLE
+                    name="SaveTenderableTransaction"
+                    letter="Save"
+                    laneaction="SaveTenderableTransactionAisle">
+                    <LIGHT signal="IsNotRetailTransactionSignal"/>
+                </AISLE>
+                <AISLE
+                    name="SaveFailed"
+                    letter="Ok"
+                    laneaction="SaveFailedAisle">
+                </AISLE>
+                <ROAD
+                    name="WriteCompleted"
+                    letter="Continue"
+                    destination="CheckCashInDrawer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="WriteTransactionQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="WriteTransactionRetry"
+                    letter="Retry"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CloseCashDrawer" siteaction="CloseCashDrawerSite">
+                <ROAD
+                    name="CashDrawerClosed"
+                    letter="Continue"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+
+            <SITE name="CheckCashInDrawer" siteaction="CheckCashInDrawerSite">
+                <ROAD
+                    name="CashCheckDone"
+                    letter="ExitLayaway"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <AISLE
+                    name="CashLevelsOK"
+                    letter="Continue"
+                    laneaction="ExitLayawayConversionAisle">
+                </AISLE>
+                <AISLE
+                    name="CashDrawerClosedConversion"
+                    letter="Ok"
+                    laneaction="ExitLayawayConversionAisle">
+                </AISLE>
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,221 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/sale/scansheet/scansheet.xml /main/4 2013/03/06 12:53:25 mchellap Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mchellap  03/06/13 - Scansheet tour refactoring
+ *    mchellap  03/04/13 - Scansheet refactoring
+ *    cgreene   09/04/12 - Code cleanup, method name cleanup and refactor to
+ *                         allow for single-clicks and ESC back to previous
+ *                         category
+ *    asinton   02/28/12 - XbranchMerge asinton_bug-13732985 from
+ *                         rgbustores_13.4x_generic_branch
+ *    asinton   02/27/12 - refactored the flow so that items added from scan
+ *                         sheet doesn't allow for a hang or mismatched letter.
+ *    jkoppolu  03/02/11 - New scan sheet tour xml
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE
+        name="ScanSheet"
+        package="oracle.retail.stores.pos.services.sale.scansheet"
+        tourcam="OFF">
+    <CARGO class="ScanSheetCargo"
+            package="oracle.retail.stores.pos.services.sale.scansheet"/>
+    <SERVICECODE >
+        <LETTER name="Add" />
+        <LETTER name="CategorySelected" />
+        <LETTER name="Continue"/>
+        <LETTER name="FirstPage" />
+        <LETTER name="LastPage" />
+        <LETTER name="Next"/>
+        <LETTER name="NextPage" />
+        <LETTER name="PreviousPage" />
+        <LETTER name="Return"/>
+        <LETTER name="Undo"/>
+
+        <SITEACTION class="StartScanSheetSite"/>
+        <SITEACTION class="ProcessUndoSite"/>
+        <SITEACTION class="DisplayScanSheetSite"/>
+        <SITEACTION class="DisplayCategorySite"/>
+        <SITEACTION class="TurnScanSheetPageSite"/>
+        <SITEACTION class="GetSelectedScanSheetCategorySite"/>
+        <SITEACTION class="GetSelectedScanSheetItemSite"/>
+        <LANEACTION class="ScanSheetItemEnteredAisle"/>
+                
+    </SERVICECODE>
+    <MAP >
+        <REGION region="SERVICE" startsite="StartScanSheet">
+            
+            <SITE name="StartScanSheet" siteaction="StartScanSheetSite">
+                <ROAD
+                    name="DisplayScanSheetRoad"
+                    letter="Continue"
+                    destination="DisplayScanSheet"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="DisplayScanSheet" siteaction="DisplayScanSheetSite">
+                <AISLE
+                    name="ScanSheetItemEntered"
+                    letter="Add"
+                    laneaction="ScanSheetItemEnteredAisle">
+                    <COMMENT >
+                        This aisle is traveled when scan sheet item has been entered
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="ScanSheetItemSelected"
+                    letter="Next"
+                    destination="GetSelectedScanSheetItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="Return"
+                    letter="Return"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+                <ROAD
+                    name="CategorySelected"
+                    letter="CategorySelected"
+                    destination="DisplayCategory"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FirstPageSelected"
+                    letter="FirstPage"
+                    destination="TurnScanSheetPage"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                <ROAD
+                    name="LastPageSelected"
+                    letter="LastPage"
+                    destination="TurnScanSheetPage"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>         
+                <ROAD
+                    name="NextPageSelected"
+                    letter="NextPage"
+                    destination="TurnScanSheetPage"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PreviousPageSelected"
+                    letter="PreviousPage"
+                    destination="TurnScanSheetPage"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+                <ROAD 
+                    name="ReturntoParentCategory"
+                    letter="Undo"
+                    destination="ProcessUndoSite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="ProcessUndoSite" siteaction="ProcessUndoSite">
+                <ROAD
+                    name="UndoSelected"
+                    letter="Return"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DisplayScanSheet"
+                    letter="Continue"
+                    destination="DisplayScanSheet"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="TurnScanSheetPage" siteaction="TurnScanSheetPageSite">
+                <ROAD 
+                    name="DisplayScanSheet"
+                    letter="Continue"
+                    destination="DisplayScanSheet"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="DisplayCategory" siteaction="DisplayCategorySite">
+                <ROAD
+                    name="DisplayScanSheet"
+                    letter="Continue"
+                    destination="DisplayScanSheet"
+                    tape="ADVANCE"
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="ProcessUndoSite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="GetSelectedScanSheetItem" siteaction="GetSelectedScanSheetItemSite">
+                <ROAD 
+                    name="SelectedScanSheetItemRetrieved"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="GetSelectedScanSheetCategory" siteaction="GetSelectedScanSheetCategorySite">
+                <ROAD 
+                    name="SelectedScanSheetCategoryRetrieved"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

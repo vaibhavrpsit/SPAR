@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/manager/manageruicfg.xml /main/18 2013/06/05 09:23:47 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   06/05/13 - removed status panel from popup dialog
+ *    cgreene   12/14/12 - Button image and plaf loading updates
+ *    mjwallac  11/12/12 - ui button changes
+ *    mkutiana  08/04/11 - Added CONNECTION to
+ *                         StatusBean.OnlineDeviceStatusListener for update of
+ *                         statuses of 'last known status' set of devices
+ *    cgreene   07/02/10 - added DEVICE_STATUS_DIALOG
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/16/09 - add Keys button
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="ManagerOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            labelTag="ReportsLabel"
+            actionName="Reports"
+            enabled="true"
+            iconName="buttonIconReports"
+            keyName="F2"/>
+
+        <BUTTON
+            labelTag="SystemStatusLabel"
+            actionName="Device"
+            enabled="true"
+            iconName="buttonIconSystemStatus"
+            keyName="F3"/>
+
+        <BUTTON
+            labelTag="RegisterStatusLabel"
+            actionName="Register"
+            enabled="true"
+            iconName="buttonIconRegisterStatus"
+            keyName="F4"/>
+
+        <BUTTON
+            labelTag="TillStatusLabel"
+            actionName="Till"
+            enabled="true"
+            iconName="buttonIconTillStatus"
+            keyName="F5"/>
+    </BEAN>
+
+    <BEAN
+        specName="DeviceStatusPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DetailStatusBean">
+        <BEANPROPERTY propName="renderer" propValue="oracle.retail.stores.pos.ui.beans.StatusRenderer"/>
+        <BEANPROPERTY propName="labelTags" propValue="DeviceDb,DeviceStatus"/>
+        <BEANPROPERTY propName="labelWeights" propValue="60,40"/>
+        <BEANPROPERTY propName="selectionMode" propValue="none"/>
+    </BEAN>
+
+    <BEAN
+        specName="TillStatusPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ListBean">
+        <BEANPROPERTY propName="renderer" propValue="oracle.retail.stores.pos.ui.beans.TillStatusRenderer"/>
+        <BEANPROPERTY propName="labelTags" propValue="TillIDLabel,TillStatusLabel,CashiersLabel"/>
+        <BEANPROPERTY propName="labelWeights" propValue="20,20,60"/>
+        <BEANPROPERTY propName="selectionMode" propValue="none"/>
+    </BEAN>
+
+    <BEAN
+        specName="RegisterStatusPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DataInputBean">
+
+        <FIELD fieldName="storeID"
+               fieldType="displayField"
+               labelText="Store ID:"
+               labelTag="StoreIDLabel"
+               paramList="storeNumberField"/>
+
+        <FIELD fieldName="businessDate"
+               fieldType="displayField"
+               labelText="Business date:"
+               labelTag="BusinessDateLabel"
+               paramList="businessDateField"/>
+
+        <FIELD fieldName="storeStatus"
+               fieldType="displayField"
+               labelText="Store status:"
+               labelTag="StoreStatusLabel"
+               paramList="storeStatusField"/>
+
+        <FIELD fieldName="registerID"
+               fieldType="displayField"
+               labelText="Register ID:"
+               labelTag="RegisterIDLabel"
+               paramList="registerNumberField"/>
+
+        <FIELD fieldName="registerStatus"
+               fieldType="displayField"
+               labelText="Register status:"
+               labelTag="RegisterStatusLabel"
+               paramList="registerStatusField"/>
+
+        <FIELD fieldName="tillID"
+               fieldType="displayField"
+               labelText="Current till ID:"
+               labelTag="TillIDLabel"
+               paramList="tillNumberField"/>
+
+        <FIELD fieldName="tillStatus"
+               fieldType="displayField"
+               labelText="Current till status:"
+               labelTag="TillStatusLabel"
+               paramList="tillStatusField"/>
+
+        <FIELD fieldName="accountability"
+               fieldType="displayField"
+               labelText="Accountability:"
+               labelTag="AccountabilityLabel"
+               paramList="accountabilityField"/>
+
+        <FIELD fieldName="cashiers"
+               fieldType="displayField"
+               labelText="Cashiers:"
+               labelTag="CashiersLabel"
+               paramList="cashiersField"/>
+
+    </BEAN>
+
+    <POPUPMENU
+        specName="MANAGER_OPTIONS"
+        resourceBundleFilename="managerText"
+        defaultScreenSpecName="EYSPOSDefaultSpec" >
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ManagerOptionsButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+    <OVERLAYSCREEN
+        specName="DEVICE_STATUS"
+        resourceBundleFilename="managerText"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="DetailStatusBeanModel"
+        defaultScreenSpecName="EYSPOSDefaultSpec" >
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="DeviceStatusPanelSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="PressNextAfterViewPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="DeviceStatusScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION sourceBeanSpecName="StatusPanelSpec"
+                targetBeanSpecName="DeviceStatusPanelSpec"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                listenerInterfaceName="OnlineDeviceStatusListener"/>
+
+    </OVERLAYSCREEN>
+
+    <!-- This dialog displays the work area from the DEVICE_STATUS screen defined
+      below. Clicking the item description on the sale screen will produce this
+      dialog. -->
+    <OVERLAYSCREEN
+        specName="DEVICE_STATUS_DIALOG"
+        resourceBundleFilename="managerText"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="DetailStatusBeanModel"
+        defaultScreenSpecName="DefaultDialogSpec" >
+        <ASSIGNMENT
+            areaName="DialogMainPanel"
+            beanSpecName="DeviceStatusPanelSpec" />
+        <ASSIGNMENT
+            areaName="DialogButtonsPanel"
+            beanSpecName="DialogOneButtonSpec"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        specName="REGISTER_STATUS"
+        resourceBundleFilename="managerText"
+        defaultScreenSpecName="EYSPOSDefaultSpec" >
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="RegisterStatusPanelSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="PressNextAfterViewPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="RegisterStatusPanelScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        specName="TILL_STATUS"
+        resourceBundleFilename="managerText"
+        defaultScreenSpecName="EYSPOSDefaultSpec" >
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="TillStatusPanelSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="PressNextAfterViewPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="TillStatusPanelScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+</UICFG>

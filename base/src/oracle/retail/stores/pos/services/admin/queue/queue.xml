@@ -1,0 +1,192 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/queue/queue.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     Header:   $KW=@(#); $FN=oracle/retail/stores/pos/services/admin/queue/queue.xml; $EKW;
+     Revision: $KW=@(#); $Ver=pos_4.5.0:3; $EKW;
+     Date:     $KW=@(#); $ChkD=2001/05/10 16:48:33; $EKW;
+     Author:   $KW=@(#); $Own=mmann; $EKW;
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Queue" package="oracle.retail.stores.pos.services.admin.queue" tourcam="OFF">
+
+<CARGO class="QueueCargo"/>
+
+<SERVICECODE>
+
+    <LETTER name="Yes"/>
+    <LETTER name="No"/>
+    <LETTER name="Undo"/>
+    <LETTER name="Cancel"/>
+    <LETTER name="Delete"/>
+    <LETTER name="Clear"/>
+    <LETTER name="Ok"/>
+    <LETTER name="Override"/>
+    <LETTER name="Continue"/>
+    <LETTER name="Failure"/>
+    <LETTER name="Success"/>
+    <LETTER name="DeleteQueue"/>
+
+    <SITEACTION class="DisplayQueueOptionsSite"/>
+    <SITEACTION class="ClearQueueSite"/>
+    <SITEACTION class="ConfirmDeleteSite"/>
+    <SITEACTION class="ConfirmClearSite"/>
+    <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+    <LANEACTION class="DeleteFirstEntryAisle"/>
+    <LANEACTION class="ClearQueueAisle"/>
+    <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+
+    <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+</SERVICECODE>
+
+<MAP>
+    <REGION region="SERVICE"
+            startsite="CheckAccess">
+
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="DisplayQueueOptions">
+                </ROAD>
+            </SITE>
+
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <AISLE
+                    name="OverrideFailed"
+                    letter="Failure"
+                    laneaction="CancelLetterAisle" >
+                </AISLE>
+                <ROAD
+                    name="OverrideSucceeded"
+                    letter="Success"
+                    destination="DisplayQueueOptions" >
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final" >
+                </ROAD>
+          </STATION>
+
+        <SITE name="DisplayQueueOptions"
+              siteaction="DisplayQueueOptionsSite">
+
+            <ROAD name="UndoQueueOptions"
+                  letter="Undo"
+                  destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+            <ROAD name="CancelQueueOptions"
+                  letter="Cancel"
+                  destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+            <ROAD name="DeleteFirstEntry"
+                  letter="Delete"
+                  destination="ConfirmDelete" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+            <ROAD name="ClearQueue"
+                  letter="Clear"
+                  destination="ConfirmClear" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+        </SITE>
+
+        <SITE name="ConfirmDelete"
+              siteaction="ConfirmDeleteSite">
+
+            <AISLE name="PerformDelete"
+                    letter="Yes"
+                    laneaction="DeleteFirstEntryAisle">
+            </AISLE>
+
+            <ROAD name="DeleteReturnToMenu"
+                  letter="No"
+                  destination="DisplayQueueOptions" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+            <ROAD name="ConfirmDeleteOk"
+                  letter="Ok"
+                  destination="DisplayQueueOptions" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+        </SITE>
+
+        <SITE name="ConfirmClear"
+              siteaction="ConfirmClearSite">
+
+            <AISLE name="PerformClear"
+                    letter="Yes"
+                    laneaction="ClearQueueAisle">
+            </AISLE>
+
+            <ROAD name="ClearReturnToMenu"
+                  letter="No"
+                  destination="DisplayQueueOptions" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+            <ROAD name="DeleteQueue"
+                  letter="DeleteQueue"
+                  destination="DeleteQueue" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+            <ROAD name="ConfirmClearOk"
+                  letter="Ok"
+                  destination="DisplayQueueOptions" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+        </SITE>
+        <SITE name="DeleteQueue"
+              siteaction="ClearQueueSite">
+
+            <ROAD name="ClearReturnToMenu"
+                  letter="No"
+                  destination="DisplayQueueOptions" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+            <ROAD name="ConfirmClearOk"
+                  letter="Ok"
+                  destination="DisplayQueueOptions" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+        </SITE>
+
+        <SYSTEMSITE name="Final" action="RETURN"/>
+
+    </REGION>
+</MAP>
+</SERVICE>

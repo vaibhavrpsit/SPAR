@@ -1,0 +1,181 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/specialorder/deposit/specialorderdeposit.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:46:12 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin-4
+      3    360Commerce 1.2         3/31/2005 4:30:07 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:25:24 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:14:20 PM  Robert Pearse
+     $
+     Revision 1.3  2004/03/26 00:24:23  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:52:03  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:20  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="specialorderdeposit"
+    package="oracle.retail.stores.pos.services.specialorder.deposit"
+    tourcam="ON">
+    <COMMENT>
+        This service handles a special order deposit.
+    </COMMENT>
+    <CARGO class="SpecialOrderCargo" package="oracle.retail.stores.pos.services.specialorder"/>
+    <SERVICECODE>
+        <LETTER name="Success"/>
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Loop"/>
+        <LETTER name="ExitTender"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Save"/>
+        <LETTER name="Ok"/>
+        <LETTER name="UpdateError"/>
+        <LETTER name="ExitPrinting"/>
+        <LETTER name="ExitSpecialOrder"/>
+        <LETTER name="Retry"/>
+
+        <LANEACTION class="ValidateDepositEnteredAisle"/>
+        <LANEACTION class="TenderCompletedRoad"/>
+        <LANEACTION class="DepositEnteredRoad"/>
+        <LANEACTION class="ContinueConversionAisle"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+
+        <SITEACTION class="SpecialOrderDepositSite"/>
+
+        <SHUTTLE class="TenderLaunchShuttle"/>
+        <SHUTTLE class="TenderReturnShuttle"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="SpecialOrderDeposit">
+            <SITE name="SpecialOrderDeposit"  siteaction="SpecialOrderDepositSite">
+                <COMMENT>
+                    This site displays the special order deposit.
+                </COMMENT>
+                <AISLE
+                    name="ValidateDepositEntered"
+                    letter="Next"
+                    laneaction="ValidateDepositEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed after the user entered the deposit information. It makes sure the deposit amount
+                        is greater than the minimum down deposit and less than or equal to the balance due.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="CancelSpecialOrderDeposit"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="RetryInvalidDeposit"
+                    letter="Retry"
+                    destination="SpecialOrderDeposit"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoDeposit"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DepositEntered"
+                    letter="Success"
+                    laneaction="DepositEnteredRoad"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FailureSpecialOrderDeposit"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="TenderStation"
+                servicename="services.tender.tender"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLaunchShuttle"
+                returnshuttle="TenderReturnShuttle">
+                <COMMENT>
+                    This station is the transfer point for the tender
+                    service
+                </COMMENT>
+                <ROAD
+                    name="TenderUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when undo is selected from the tender service
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when a tender is canceled
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCompleted"
+                    letter="ExitTender"
+                    laneaction="TenderCompletedRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when a tender is completed
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,255 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012 - 2013 MAXHyperMarket, Inc.    All Rights Reserved.
+  Rev 1.0	5/04/2013	Jyoti	 		Initial Draft: Changes for Employee Discount
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="DiscountOptions"
+    package="oracle.retail.stores.pos.services.pricing"
+    tourcam="OFF">
+    <CARGO class="MAXPricingCargo" package="max.retail.stores.pos.services.pricing"/>
+    <SERVICECODE>
+        <LETTER name="ItemDiscAmt"/>
+        <LETTER name="ItemDiscPer"/>
+        <LETTER name="TransDiscAmt"/>
+        <LETTER name="TransDiscPer"/>
+        <LETTER name="Next"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Continue"/>
+
+        <SHUTTLE class="ItemDiscountLaunchShuttle"/>
+        <SHUTTLE class="ItemDiscountReturnShuttle"/>
+        <!-- SHUTTLE class="ModifyTransactionDiscountPercentLaunchShuttle"/>
+        <SHUTTLE class="ModifyTransactionDiscountPercentReturnShuttle"/-->
+        <!-- Rev 1.0 changes start here -->
+        <SHUTTLE class="MAXModifyTransactionDiscountPercentLaunchShuttle" package="max.retail.stores.pos.services.pricing"/><!-- Jyoti -->
+        <SHUTTLE class="MAXModifyTransactionDiscountPercentReturnShuttle" package="max.retail.stores.pos.services.pricing"/>
+        <!-- Rev 1.0 changes end here -->
+        <SHUTTLE class="ModifyTransactionDiscountAmountLaunchShuttle"/>
+        <SHUTTLE class="ModifyTransactionDiscountAmountReturnShuttle"/>
+
+        <LANEACTION class="DiscountAmountSelectedRoad"/>
+        <LANEACTION class="DiscountPercentSelectedRoad"/>
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+
+        <SITEACTION class="DiscountOptionsSite" package="oracle.retail.stores.pos.services.pricing.itemdiscount"/>
+        <SITEACTION class="CheckItemDiscountAllowedSite" package="oracle.retail.stores.pos.services.pricing.itemdiscount"/>
+        <SITEACTION class="CheckOnlyOneDiscountSite" package="oracle.retail.stores.pos.services.pricing"/>
+        
+        
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckOnlyOneDiscount">
+            <SITE name="CheckOnlyOneDiscount" siteaction="CheckOnlyOneDiscountSite">
+                <ROAD
+                    name="DiscountSucceeded"
+                    letter="Continue"
+                    destination="DiscountOptions">
+                </ROAD>
+                <ROAD
+                    name="DiscountFailed"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+        <SITE name="DiscountOptions" siteaction="DiscountOptionsSite">
+
+              <ROAD
+                  name="ItemDiscAmtSelected"
+                  letter="ItemDiscAmt"
+                  laneaction="DiscountAmountSelectedRoad"
+                  destination="ItemDiscountStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="ItemDiscPerSelected"
+                  letter="ItemDiscPer"
+                  laneaction="DiscountPercentSelectedRoad"
+                  destination="ItemDiscountStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="TransDiscAmtSelected"
+                  letter="TransDiscAmt"
+                  destination="TransDiscountAmountStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="TransDiscPerSelected"
+                  letter="TransDiscPer"
+                  destination="DiscountPercentStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="PricingUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="PricingCancel"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </SITE>
+
+<!-- Item Discount Station -->
+          <STATION name="ItemDiscountStation"
+              servicename="pricing.itemdiscount.itemdiscount"
+              targettier="CURRENTTIER"
+              launchshuttle="ItemDiscountLaunchShuttle"
+              returnshuttle="ItemDiscountReturnShuttle">
+              <AISLE
+                  name="ItemDiscountCleared"
+                  letter="Clear"
+                  laneaction="NextLetterAisle">
+              </AISLE>
+              <ROAD
+                  name="ItemDiscountCanceled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              
+             <ROAD
+                  name="ItemDiscountFailure"
+                  letter="Failure"
+                  destination="DiscountOptions"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="ItemDiscountUndo"
+                  letter="Undo"
+                  destination="DiscountOptions"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="ItemDiscountSuccess"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </STATION>
+
+<!-- Transaction Discount Percent Station -->
+          <STATION name="DiscountPercentStation"
+               servicename="modifytransaction.discount.modifytransactiondiscount"
+               targettier="CURRENTTIER"
+               launchshuttle="MAXModifyTransactionDiscountPercentLaunchShuttle"
+               returnshuttle="MAXModifyTransactionDiscountPercentReturnShuttle"> <!-- Rev 1.0 changes -->
+               <COMMENT>
+                    This station will go to the Modify Transaction Discount
+                    service.
+               </COMMENT>
+              <ROAD
+                   name="UndoDiscountPercent"
+                   letter="Undo"
+                   destination="DiscountOptions"
+                   tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Undo letter is received
+                             from the Discount service.
+                        </COMMENT>
+              </ROAD>
+              <ROAD
+                  name="NextDiscountPercent"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Next Letter is received
+                             from the Discount service.
+                        </COMMENT>
+              </ROAD>
+              <ROAD
+                  name="CancelDiscountPercent"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Cancel letter is received
+                             from the Discount service.
+                        </COMMENT>
+              </ROAD>
+              <ROAD
+                  name="FailureDiscountPercent"
+                  letter="Failure"
+                  destination="DiscountOptions"
+                  tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Failure letter is received
+                             from the Discount service.
+                        </COMMENT>
+              </ROAD>
+          </STATION>
+
+<!-- Transaction Discount Amount Station -->
+          <STATION name="TransDiscountAmountStation"
+                   servicename="modifytransaction.discount.modifytransactiondiscount"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ModifyTransactionDiscountAmountLaunchShuttle"
+                   returnshuttle="ModifyTransactionDiscountAmountReturnShuttle">
+               <COMMENT>
+                    This station will transfer to the Modify Transaction
+                    Discount service.
+               </COMMENT>
+               <ROAD
+                   name="NextDiscountAmount"
+                   letter="Next"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Next letter is received
+                         from the Discount service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="CancelDiscountAmount"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Cancel letter is received
+                         from the Discount service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="FailureDiscountAmount"
+                   letter="Failure"
+                   destination="DiscountOptions"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Failure  letter is received
+                         from the Discount service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="UndoDiscountAmount"
+                   letter="Undo"
+                   destination="DiscountOptions"
+                   tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the Undo letter is received
+                         from the Discount service.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

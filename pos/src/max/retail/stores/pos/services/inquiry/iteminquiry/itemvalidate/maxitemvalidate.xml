@@ -1,0 +1,139 @@
+<?xml version='1.0' ?>
+<!--
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ************************
+ * Copyright (c) 2016-2017 Max Hypermarket.    All Rights Reserved. 
+ * 
+ * Rev 1.2	 May 04, 2017		    Kritica Agarwal  GST Changes
+ * Rev 1.0   Feb 07,2017    		Ashish Yadav     Changes for Item not found bug
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ***************************/s
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ItemValidate" package="oracle.retail.stores.pos.services.inquiry.iteminquiry.itemvalidate" tourcam="ON">
+     <COMMENT>
+          This service implements the Item Validate Package
+          of the POS Component Set
+     </COMMENT>
+
+<!-- <CARGO class="ValidateItemCargo"/> -->
+<!-- Change fro Rev 1.2 : Starts -->
+<CARGO class="MAXItemInquiryCargo" package="max.retail.stores.pos.services.inquiry.iteminquiry"/>
+<!-- Change fro Rev 1.2 : Ends -->
+<SERVICECODE>
+     <!-- Letter -->
+     <LETTER name="Invalid"/>
+     <LETTER name="Retry"/>
+     <LETTER name="OneItemFound"/>
+     <LETTER name="DateRange"/>
+	 <!-- MAX Rev 1.1 Change : start -->
+     <LETTER name="Ok"/>
+     <LETTER name="liquor"/>
+      <!-- MAX Rev 1.1 Change : end -->
+     <!-- Sites -->
+     <!-- MAX Rev 1.0 Change : start -->
+     <SITEACTION class="MAXValidateItemInfoSite" package="max.retail.stores.pos.services.inquiry.iteminquiry.itemvalidate"/>
+     <!-- MAX Rev 1.0 Change : end -->
+     <!--  Changes starts for Rev 1.0 (Ashish : Item not found bug) -->
+     <SITEACTION class="MAXGetItemInLocalOrWebStoreSite" package="max.retail.stores.pos.services.inquiry.iteminquiry.itemvalidate"/>
+     <!--  Changes ends for Rev 1.0 (Ashish : Item not found bug) -->
+
+     <!-- Lanes -->
+     <LANEACTION class="StoreCouponItemInvalidDateAisle"/>
+     <LANEACTION class="SetSearchInWebStoreRoad" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+    <!-- commented by atul  <SITEACTION class="MAXLiquorItemQuantitySite" package="max.retail.stores.pos.services.inquiry.iteminquiry.itemvalidate"/>
+    -->
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="ValidateItemInfo">
+
+          <SITE name="ValidateItemInfo" siteaction="MAXValidateItemInfoSite">
+          
+               	<!-- MAX Rev 1.1 Change : start -->
+               <ROAD  name="CashThrehold"
+                      letter="Ok"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+             	<!-- MAX Rev 1.1 Change : end -->
+                <ROAD name="InvalidDataFound"
+                      letter="Invalid"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="GetItem"
+                      letter="Search"
+                      destination="GetItemInLocalOrWebStore"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD  name="OneItemFound"
+                      letter="OneItemFound"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+               <ROAD  name="MultipleItemsFound"
+                      letter="MultipleItemsFound"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+               <!-- below code is commented by atul -->
+            <!--    <ROAD name="LiquorItemQuantity"
+                       letter="liquor"
+                       destination="LiquorItemQuantity"
+                       tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+ -->
+          </SITE>
+          
+ <!--  Changes starts for Rev 1.0 (Ashish : Item not found bug) -->
+          <SITE name="GetItemInLocalOrWebStore" siteaction="MAXGetItemInLocalOrWebStoreSite">
+                <AISLE name="StoreCouponItemInvalidDate"
+                       letter="DateRange"
+                       laneaction="StoreCouponItemInvalidDateAisle">
+                       <COMMENT>
+                         Traversed when no Pricing Rule returned within valid
+                         date range.
+                       </COMMENT>
+                </AISLE>  
+                <ROAD name="GetItemInWebStore"
+                      letter="Search"
+                      laneaction="SetSearchInWebStoreRoad"
+                      destination="GetItemInLocalOrWebStore"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="InvalidDataOrConditionFound"
+                      letter="Invalid"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="OneItemFound"
+                      letter="OneItemFound"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD name="RetryNeeded"
+                      letter="Retry"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.2 : Starts -->
+                <ROAD name="HSNnotFound"
+                      letter="HSNnotFound"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                 <!-- Change for Rev 1.2 : Ends -->
+                <ROAD name="LookupBySerialNumber"
+                      letter="SerialNumber"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+          </SITE>
+ <!--  Changes ends for Rev 1.0 (Ashish : Item not found bug) -->
+          <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+          <SYSTEMSITE  name="Final" action="RETURN"/>
+     </REGION>
+</MAP>
+</SERVICE>

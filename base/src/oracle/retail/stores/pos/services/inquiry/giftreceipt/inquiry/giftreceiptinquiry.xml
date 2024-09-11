@@ -1,0 +1,132 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/inquiry/giftreceipt/inquiry/giftreceiptinquiry.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:26 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="GiftReceiptInquiry"
+    package="oracle.retail.stores.pos.services.inquiry.giftreceipt.inquiry"
+    tourcam="ON">
+    <COMMENT>
+        The Gift Receipt service will implement the conversion
+        of price to price code.
+    </COMMENT>
+    <CARGO class="GiftReceiptCargo" package="oracle.retail.stores.pos.services.inquiry.giftreceipt"/>
+    <SERVICECODE>
+        <LETTER name="Failure"/>
+        <SITEACTION class="EnterGiftReceiptInfoSite" package="oracle.retail.stores.pos.services.inquiry.giftreceipt.inquiry"/>
+        <SITEACTION class="DisplayGiftReceiptInfoSite" package="oracle.retail.stores.pos.services.inquiry.giftreceipt.inquiry"/>
+        <LETTER name="Next"/>
+        <LETTER name="Success"/>
+        <LETTER name="Search"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Failure"/>
+
+        <SITEACTION class="EnterGiftReceiptInfoSite" package="oracle.retail.stores.pos.services.inquiry.giftreceipt.inquiry"/>
+        <SITEACTION class="DisplayGiftReceiptInfoSite" package="oracle.retail.stores.pos.services.inquiry.giftreceipt.inquiry"/>
+
+        <LANEACTION class="GiftReceiptInfoEnteredAisle" package="oracle.retail.stores.pos.services.inquiry.giftreceipt.inquiry"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="EnterGiftReceiptInfo">
+            <SITE name="EnterGiftReceiptInfo" siteaction="EnterGiftReceiptInfoSite">
+                <COMMENT>
+                    This site will get the price or price code from the
+                    calling for conversion.
+                </COMMENT>
+                <MOCKUP
+                    image=""/>
+                <AISLE
+                    name="GiftReceiptInfoEntered"
+                    letter="Next"
+                    laneaction="GiftReceiptInfoEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="EnterGiftReceiptUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EnterGiftReceiptCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EnterGiftReceiptContinue"
+                    letter="Continue"
+                    destination="DisplayGiftReceiptInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayGiftReceiptInfo" siteaction="DisplayGiftReceiptInfoSite">
+                <MOCKUP
+                    image=""/>
+                <AISLE
+                    name="GiftReceiptInfoEntered"
+                    letter="Search"
+                    laneaction="GiftReceiptInfoEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="DisplayGiftReceiptContiueSelected"
+                    letter="Continue"
+                    destination="DisplayGiftReceiptInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DisplayGiftReceiptUndoSelected"
+                    letter="Undo"
+                    destination="EnterGiftReceiptInfo"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DisplayGiftReceiptCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DisplayGiftReceiptNextSelected"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

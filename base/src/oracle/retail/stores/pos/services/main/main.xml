@@ -1,0 +1,1354 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+* ===========================================================================
+* $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/main/main.xml /main/21 2014/07/09 13:10:48 icole Exp $
+* ===========================================================================
+* NOTES
+* <other useful comments, qualifications, etc.>
+*
+* MODIFIED (MM/DD/YY)
+*    crain  11/11/14 - Bug 20010898: added TimeoutComplete letter to ServiceAlert station
+*    icole  06/26/14 - Forward port fix for handling the condition of two
+*                      registers opened with same till with one or both offline
+*                      at time of open.
+*    abonda 06/06/14 - move training mode from main screen to admin screen
+*    abonda 05/30/14 - notifications UI related changes
+*    subrde 04/10/13 - Added Road POSServiceReturns to return MainMenu.
+*    cgreen 11/11/11 - Fix broken Undo road for IDDI to use new Timeout letter
+*    abhayg 08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+*    cgreen 05/26/10 - convert to oracle packaging
+*    cgreen 03/26/10 - move timeout road to common service
+*    cgreen 02/24/10 - added Offline letter for return from TillOpen in POS
+*    abonda 01/02/10 - Update Header date
+*    abonda 12/25/09 - Updated ADE Header
+*    nkgaut 09/29/08 - new letter and station added for browser foundation
+*
+* ===============================================================================
+     $Log:
+      6    360Commerce 1.5         12/19/2007 7:47:52 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      5    360Commerce 1.4         11/22/2007 10:58:59 PM Naveen Ganesh   PSI
+           Code checkin
+      4    360Commerce 1.3         5/17/2007 5:28:44 PM   Michael P. Barnett
+           Added interaction between MainMenuSite and new ImportDataSite.
+      3    360Commerce 1.2         3/31/2005 4:28:59 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:23:24 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:12:31 PM  Robert Pearse
+     $
+     Revision 1.17.2.1  2005/01/20 21:03:43  bwf
+     @scr 5126 Handle QueueFull letter inorder to go back to main options screen.
+
+     Revision 1.17  2004/07/24 16:43:10  bwf
+     @scr 1882 Log tenderlimits parameter missing.
+
+     Revision 1.16  2004/07/23 22:17:25  epd
+     @scr 5963 (ServicesImpact) Major update.  Lots of changes to fix RegisterADO singleton references and fix training mode
+
+     Revision 1.15  2004/07/09 15:11:23  dcobb
+     @scr 2009 Password for user ID is not prompted for after an employee logs off POS while in Register Accountability mode.
+     Logoff letter is now mailed upon successful logoff.
+
+     Revision 1.14  2004/06/25 22:54:54  cdb
+     @scr 1642 Updated so that Undo selected from Operator ID screen returns
+     to the calling service rather than prompting for another security override.
+
+     Revision 1.13  2004/04/15 21:09:26  bjosserand
+     @scr 4093 Transaction Reentry
+
+     Revision 1.12  2004/04/07 17:50:56  tfritz
+     @scr 3884 - Training Mode rework
+
+     Revision 1.11  2004/03/26 00:24:09  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.10  2004/03/24 23:23:55  bjosserand
+     @scr 4093 Transaction Reentry
+
+     Revision 1.9  2004/03/24 20:09:54  bjosserand
+     @scr 4093 Transaction Reentry
+
+     Revision 1.8  2004/03/23 22:08:45  bjosserand
+     @scr 4093 Transaction Reentry
+
+     Revision 1.5  2004/03/16 18:42:47  cdb
+     @scr 0 Removed tabs from all java source code.
+
+     Revision 1.4  2004/03/15 21:55:15  jdeleau
+     @scr 4040 Automatic logoff after timeout
+
+     Revision 1.3  2004/03/14 21:12:40  tfritz
+     @scr 3884 - New Training Mode Functionality
+
+     Revision 1.2  2004/02/12 16:48:05  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:11  cschellenger
+     updating to pvcs 360store-current
+
+* ===========================================================================
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Main"
+    package="oracle.retail.stores.pos.services.main"
+    tourcam="OFF">
+    <COMMENT >
+        This service handles the Application Startup and
+        Main Menu use cases.
+    </COMMENT>
+    <CARGO  class="MainCargo"/>
+    <SERVICECODE >
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="TransactionReentryModeChangeRoad"/>
+        <LETTER name="Administration"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Clock"/>
+        <LETTER name="Close"/>
+        <LETTER name="Continue"/>
+        <LETTER name="DailyOps"/>
+        <LETTER name="Failure"/>
+        <LETTER name="HardTotalsError"/>
+        <LETTER name="Logoff"/>
+        <LETTER name="Messages"/>
+        <LETTER name="Next"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Offline"/>
+        <LETTER name="OnlineOffice"/>
+        <LETTER name="Override"/>
+        <LETTER name="POS"/>
+        <LETTER name="ParameterError"/>
+        <LETTER name="QueueFull"/>
+        <LETTER name="ReturnToMainMenu"/>
+        <LETTER name="ServiceAlert"/>
+        <LETTER name="Success"/>
+        <LETTER name="TillNotOwned"/>
+        <LETTER name="Timeout"/>
+        <LETTER name="TimeoutComplete">
+            <COMMENT >
+                Letter Sale Service returns after a timeout
+            </COMMENT>
+        </LETTER>
+         <LETTER name="LaunchBrowser">
+            <COMMENT >
+                Letter for Launch Browser
+            </COMMENT>
+        </LETTER>
+        
+        <LETTER name="TransReentry"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Inventory"/>
+
+        <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="MainCargoShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="MainCargoShuttleReturn" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="OperatorIdLaunchShuttle"/>
+        <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="SaleLaunchShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="SaleReturnShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="SetupNormalRegisterReturnShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="SetupNormalRegisterShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="SetupRegisterReturnShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="SetupRegisterShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="BrowserFoundationLaunchShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SHUTTLE class="BrowserRestAreaLaunchShuttle" package="oracle.retail.stores.pos.services.main"/>
+        <SITEACTION class="AppInitActionSite">
+            <ARRIVE >
+                <COMMENT >
+                    Initialize the application, create registers.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="TransactionReentryActionSite">
+        <COMMENT>
+            Process Transaction Reentry requests.
+        </COMMENT>
+       </SITEACTION>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CheckForTrainingModeRegisterSite">
+            <ARRIVE >
+                <COMMENT >
+                    This site checks to see if the register should be changed to the training mode register.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="CreateRegisterActionSite" package="oracle.retail.stores.pos.services.main"/>
+        <SITEACTION class="MainMenuSite">
+            <ARRIVE >
+                <COMMENT >
+                    Displays the main menu to the user.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="OnlineOfficeSite">
+            <ARRIVE >
+                <COMMENT >
+                    Displays the OnlineOffice to the user.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="PrepareRegisterForPOSSite">
+            <ARRIVE >
+                <COMMENT >
+                    Prepares the register for the POS.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="ImportDataSite">
+            <ARRIVE >
+                <COMMENT >
+                    Import any available datasets into register db for offline use.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="SaveFinancials">
+            <COMMENT >
+                This site writes data to the hard totals device.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="SaveFinancialsActionSite"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="AppInit">
+            <COMMON>
+                <!-- PAPB: Common road for user inactivity timeout -->
+                <ROAD name="Timeout"
+                    letter="Timeout"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after user inactivity timeout
+                    </COMMENT>
+                </ROAD>
+                <!-- PAPB: Common road for unknown exceptions. -->
+                <ROAD name="UnknownException"
+                    letter="UnknownException"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after a fatal error occurs
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CancelMenu"
+                    letter="CancelMenu"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled when a popup menu is dismissed.
+                    </COMMENT>
+                </ROAD>
+            </COMMON>
+
+            <SITE name="AppInit" siteaction="AppInitActionSite">
+                <COMMENT >
+                    This site logs register, pos, domain, foundation
+                    versions.
+                </COMMENT>
+                <ROAD
+                    name="InitSuccessful"
+                    letter="Next"
+                    destination="SetupRegisterStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when the logging is complete.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="InitFailure"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when initialization fails.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="SetupRegisterStation"
+                servicename="dailyoperations.common.setupregister"
+                targettier="CURRENTTIER"
+                launchshuttle="SetupRegisterShuttle"
+                returnshuttle="SetupRegisterReturnShuttle">
+                <ROAD
+                    name="LookupStoreStatusExit"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="Exit"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillNotOwned"
+                    letter="TillNotOwned"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when the open till is owned by another
+                        register.  This can occur when an offline register opens
+                        a till that is opened by another register.  The service
+                        exits.
+                    </COMMENT>
+                </ROAD>                
+                <ROAD
+                    name="LookupRegisterContinue"
+                    letter="Continue"
+                    destination="SaveFinancials"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="SetupRegisterStationForPOS"
+                servicename="dailyoperations.common.setupregister"
+                targettier="CURRENTTIER"
+                launchshuttle="SetupRegisterShuttle"
+                returnshuttle="SetupRegisterReturnShuttle">
+                <ROAD
+                    name="LookupStoreStatusExitPOS"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterExitPOS"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterTillNotOwned"
+                    letter="TillNotOwned"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when the open till is opened by 
+                        another register which can happen it the same till number
+                        is opened by a register that is offline.
+                    </COMMENT>
+                </ROAD>                
+                <ROAD
+                    name="LookupRegisterContinuePOS"
+                    letter="Continue"
+                    destination="POSStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="SetupRegisterStationForTransReentryOnOff"
+                servicename="dailyoperations.common.setupregister"
+                targettier="CURRENTTIER"
+                launchshuttle="SetupNormalRegisterShuttle"
+                returnshuttle="SetupNormalRegisterReturnShuttle">
+                <ROAD
+                    name="TRLookupStoreStatusExitBackToMain"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TRLookupRegisterExitBackToMain"
+                    letter="Ok"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillNotOwned"
+                    letter="TillNotOwned" 
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>                
+                <ROAD
+                    name="LookupRegisterContinueExitTransReentryMode"
+                    letter="Continue"
+                    destination="TransactionReentryAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SITE  name="SaveFinancials" siteaction="SaveFinancialsActionSite">
+                <ROAD
+                    name="SaveFinancialsSuccess"
+                    letter="Success"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the OnlineOffice is closed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SaveFinancialsFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the OnlineOffice is closed.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="SetupRegisterStationForServiceAlert"
+                servicename="dailyoperations.common.setupregister"
+                targettier="CURRENTTIER"
+                launchshuttle="SetupRegisterShuttle"
+                returnshuttle="SetupRegisterReturnShuttle">
+                <ROAD
+                    name="LookupStoreStatusExitServiceAlert"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Aisle to traverse when there is a database or other
+                        unexpected error on the store-status lookup. Because
+                        the hard totals do not contain the business date,
+                        the service exits.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LookupRegisterExitServiceAlert"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillNotOwned"
+                    letter="TillNotOwned"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>                
+                <ROAD
+                    name="LookupRegisterContinueServiceAlert"
+                    letter="Continue"
+                    destination="ServiceAlertStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when a register lookup is complete.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+             <STATION name="BrowserFoundationStation"
+                 servicename="services.browserfoundation.browserfoundation"
+                 targettier="CURRENTTIER"
+                 launchshuttle="BrowserFoundationLaunchShuttle" >
+                 <ROAD
+                       name="UndoSelected"
+                       letter="Undo"
+                       destination="MainMenu"
+                       tape="ADVANCE"
+                       record="ON"
+                       index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelBrowserService"
+                    letter="Cancel"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Cancel was pressed at the Browser Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="FailureBrowserService"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Browser Service failed.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SITE  name="MainMenu" siteaction="MainMenuSite">
+                <COMMENT >
+                    This site displays the main menu to the user.
+                </COMMENT>
+                <ROAD
+                    name="POSSelected"
+                    letter="POS"
+                    destination="PrepareRegisterForPOS"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the user selects POS.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="AdminSelected"
+                    letter="Administration"
+                    destination="CheckForTrainingModeRegister"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the user selects Admin
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DailyOperationsSelected"
+                    letter="DailyOps"
+                    destination="DailyStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when Daily Operations is selected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ClockSelected"
+                    letter="Clock"
+                    destination="ClockStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when Clock In/Clock Out is selected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ServiceAlertSelected"
+                    letter="ServiceAlert"
+                    destination="SetupRegisterStationForServiceAlert"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when Service Alert is selected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OnlineOfficeSelected"
+                    letter="OnlineOffice"
+                    destination="DisplayOnlineOffice"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when OnlineOffice is selected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="TransactionReentrySelected"
+                     letter="TransReentry"
+                     destination="OperatorIdForTransReentryStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator selects the Transaction
+                         Reentry option from the Main options screen.
+                    </COMMENT>
+               </ROAD>
+                <ROAD
+                    name="BrowserFoundationSelected"
+                    letter="LaunchBrowser"
+                    destination="BrowserFoundationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+               </ROAD>
+               <ROAD
+                    name="MessagesSelected"
+                    letter="Messages"
+                    destination="MessagesStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+               </ROAD>                 
+               <ROAD name="TimeoutRoad"
+                     letter="Timeout"
+                     destination="ImportData"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the main menu is idle for a period and
+                         the system will check for available data imports for offline use.
+                    </COMMENT>
+               </ROAD>
+           <ROAD
+           name="InventorySelected"
+           letter="Inventory"
+           destination="InventoryStation"
+           tape="ADVANCE"
+           record="ON"
+           index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="ImportData" siteaction="ImportDataSite">
+                <ROAD
+                    name="ImportComplete"
+                    letter="Undo"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the import is complete.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="OperatorIdForTransReentryStation"
+                servicename="services.operatorid.operatorid"
+                targettier="CURRENTTIER"
+                launchshuttle="OperatorIdLaunchShuttle"
+                returnshuttle="OperatorIdReturnShuttle">
+                <AISLE
+                    name="LoginError"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT>
+                        This aisle is traversed to convert the current letter
+                        to Failure
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LoginSucceeded"
+                    letter="Success"
+                    laneaction="TransactionReentryModeChangeRoad"
+                    destination="CheckAccessForTransactionReentry">
+                </ROAD>
+                <ROAD
+                    name="LoginFailed"
+                    letter="Failure"
+                    destination="MainMenu">
+                </ROAD>
+                <ROAD
+                    name="LoginUndo"
+                    letter="Undo"
+                    destination="MainMenu">
+                </ROAD>
+            </STATION>
+            <SITE  name="CheckAccessForTransactionReentry" siteaction="CheckAccessSite">
+                <ROAD
+                    name="OverrideRequired"
+                    letter="Override"
+                    destination="SecurityOverrideStationForTransReentry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessGrantedToEnterTransReentryMode"
+                    letter="Continue"
+                    destination="SetupRegisterStationForTransReentryOnOff"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <!-- destination="TransactionReentryAction" -->
+            <STATION
+                name="SecurityOverrideStationForTransReentry"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="TransReentryEnterExitOverrideSucceeded"
+                    letter="Success"
+                    destination="SetupRegisterStationForTransReentryOnOff"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TROverrideFailed"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TROverrideCancelled"
+                    letter="Cancel"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="DisplayOnlineOffice" siteaction="OnlineOfficeSite">
+                <ROAD
+                    name="CloseOnlineOffice"
+                    letter="Close"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the OnlineOffice is closed.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="DailyStation"
+                servicename="services.dailyoperations.dailyoperations"
+                targettier="CURRENTTIER"
+                launchshuttle="MainCargoShuttle"
+                returnshuttle="MainCargoShuttleReturn">
+                <COMMENT >
+                    This station transfers control to the Daily Operations
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="DailyServiceReturned"
+                    letter="Next"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Daily Operations service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DailyServiceReturnedOffline"
+                    letter="ReturnToMainMenu"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Daily Operations service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelDailyOperationsService"
+                    letter="Cancel"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Cancel was pressed at the Daily Operations Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoDailyOperationsService"
+                    letter="Undo"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Undo was pressed at Daily Operations Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DailyOperationsLoginFailure"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Undo was pressed at Daily Operations Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DailyOperationsQueueFull"
+                    letter="QueueFull"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+               </ROAD>
+               <ROAD
+                    name="TillNotOwned"
+                    letter="Ok"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        Road to traverse when opened till isn't owned by this register.
+                    </COMMENT>
+                </ROAD>               
+            </STATION>
+            <STATION
+                name="ClockStation"
+                servicename="employee.clockentry.clockentry"
+                targettier="CURRENTTIER"
+                launchshuttle="MainCargoShuttle">
+                <COMMENT >
+                    This station transfers control to the Clock Operations
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="ClockServiceReturned"
+                    letter="Ok"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Clock Operations service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="FailureClockService"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        A failure occurred in the the Clock Operations Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelClockService"
+                    letter="Cancel"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Cancel was pressed at the Clock Operations Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoClockService"
+                    letter="Undo"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Undo was pressed at Clock Operations Service.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="AdminStation"
+                servicename="services.admin.admin"
+                targettier="CURRENTTIER"
+                launchshuttle="MainCargoShuttle"
+                returnshuttle="MainCargoShuttleReturn">
+                <COMMENT >
+                    This station transfers control to the Admin service.
+                </COMMENT>
+                <ROAD
+                    name="AdminServiceReturned"
+                    letter="Next"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Admin service returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelAdminService"
+                    letter="Cancel"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Cancel was pressed at the Admin Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoAdminService"
+                    letter="Undo"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Undo was pressed at Admin Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OkAdminService"
+                    letter="Ok"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Undo was pressed at Admin Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="FailureAdminService"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Admin Service failed.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="POSStation"
+                servicename="services.sale.sale"
+                targettier="CURRENTTIER"
+                launchshuttle="SaleLaunchShuttle"
+                returnshuttle="SaleReturnShuttle">
+                <COMMENT >
+                    This station transfers control to the POS service.
+                </COMMENT>
+                <ROAD
+                    name="UndoPOSService"
+                    letter="Undo"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the POS service returns
+                        with an Undo letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="POSServiceReturned"
+                    letter="Next"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the POS service returns.
+                    </COMMENT>
+                </ROAD>                
+                 <ROAD
+                    name="POSServiceReturns"
+                    letter="FailureTill"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the POS service returns from 
+                        till functions.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelPOSService"
+                    letter="Cancel"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the POS service returns
+                        with a Cancel letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OfflinePOSService"
+                    letter="Offline"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the POS service returns
+                        with a Offline letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="FailurePOSService"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the POS service returns
+                        with a Cancel letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TimeoutPOSService"
+                    letter="TimeoutComplete"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        POS Service has timed out during a transaction
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LogoffPOSService"
+                    letter="Logoff"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        The operator has successfully logged off POS service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SaleQueueFull"
+                    letter="QueueFull"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="ServiceAlertStation"
+                servicename="services.servicealert.servicealert"
+                targettier="CURRENTTIER"
+                launchshuttle="SaleLaunchShuttle"
+                returnshuttle="MainCargoShuttleReturn">
+                <COMMENT >
+                    This station transfers control to the Service Alert
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="UndoServiceAlert"
+                    letter="Undo"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Service Alert service
+                        returns with a Undo letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="FailureServiceAlert"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Service Alert service
+                        returns with a Failure letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelServiceAlert"
+                    letter="Cancel"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the ServiceAlert service
+                        returns with a Cancel letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TimeoutServiceAlert"
+                    letter="TimeoutComplete"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        ServiceAlert service has timed out during a transaction
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ServiceAlertQueueFull"
+                    letter="QueueFull"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="CheckForTrainingModeRegister" siteaction="CheckForTrainingModeRegisterSite">
+                <ROAD
+                    name="TrainingModeRegisterCheckIsDone"
+                    letter="Success"
+                    destination="AdminStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="PrepareRegisterForPOS" siteaction="PrepareRegisterForPOSSite">
+                <ROAD
+                    name="PrepareRegisterForPOSSuccess"
+                    letter="Success"
+                    destination="SetupRegisterStationForPOS"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="TransactionReentryAction" siteaction="TransactionReentryActionSite">
+               <COMMENT>
+                    This site handles turning Transaction Reentry mode on and off.
+               </COMMENT>
+               <ROAD name="TransactionReentryContinue" letter="Ok" destination="MainMenu"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                       Road to traverse when a trans reentry request is made.
+                    </COMMENT>
+               </ROAD>
+           </SITE>
+           <STATION
+               name="InventoryStation"
+               servicename="services.inventoryinquiry.inventoryinquiry"
+               targettier="CURRENTTIER"
+               launchshuttle="MainCargoShuttle"
+               returnshuttle="MainCargoShuttleReturn">
+               <COMMENT >
+                   This station transfers control to the Inventory
+                   service.
+               </COMMENT>
+               <ROAD
+                   name="InventoryServiceReturned"
+                   letter="Next"
+                   destination="MainMenu"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+                   <COMMENT >
+                   This road is traveled when the Inventory service
+                   returns.
+                   </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="CancelInventoryService"
+                   letter="Cancel"
+                   destination="MainMenu"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+               </ROAD>
+               <ROAD
+                   name="UndoInventoryService"
+                   letter="Undo"
+                   destination="MainMenu"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+               </ROAD>
+               <ROAD
+                   name="OkInventoryService"
+                   letter="Ok"
+                   destination="MainMenu"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+               </ROAD>
+               <ROAD
+                   name="FailureInventoryService"
+                   letter="Failure"
+                   destination="MainMenu"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+               </ROAD>
+                    <ROAD
+                   name="DoneInventoryService"
+                   letter="Done"
+                   destination="MainMenu"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+               </ROAD>
+            </STATION>
+            <STATION
+                name="MessagesStation"
+                servicename="services.notifications.retrieve"
+                targettier="CURRENTTIER"
+                launchshuttle="MainCargoShuttle"
+                returnshuttle="MainCargoShuttleReturn">
+                <COMMENT >
+                    This station is the transfer point for the notifications service.
+                </COMMENT>
+                <ROAD
+                    name="MessagesServiceReturned"
+                    letter="Next"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Messages service returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelMessagesService"
+                    letter="Cancel"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Cancel was pressed at the Messages Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoMessagesService"
+                    letter="Undo"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Undo was pressed at Messages Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OkMessagesService"
+                    letter="Ok"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Undo was pressed at Messages Service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="FailureMessagesService"
+                    letter="Failure"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Messages Service failed.
+                    </COMMENT>
+                </ROAD>                
+                <ROAD
+                    name="NotificationsDone"
+                    letter="Done"
+                    destination="MainMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                 <COMMENT >
+                        This road is traveled when the Messages service
+                        returns with a Next letter.
+                 </COMMENT>
+                </ROAD>                
+                <ROAD
+                     name="TimeoutMessagesStation"
+                     letter="Timeout"
+                     destination="MainMenu"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+               </ROAD>
+            </STATION>            
+            <RESTAREA
+                name="LaunchBrowserRestArea"
+                servicename="services.browserfoundation.browserfoundation"
+                targettier="CURRENTTIER"
+                launchshuttle="BrowserRestAreaLaunchShuttle">
+            </RESTAREA>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

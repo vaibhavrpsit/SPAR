@@ -1,0 +1,453 @@
+<?xml version='1.0' ?>
+<!--
+/********************************************************************************
+ *   
+ *	Copyright (c) 2016 - 2017 MAX Hypermarket, Inc    All Rights Reserved.
+ *	
+ *
+ *	Rev	1.1		Apr 01, 2017		Mansi Goel		Changes to resolve Manager Override
+ * 													screen is coming on clicking Tender button
+ *	Rev	1.0 	Nov 30, 2016		Mansi Goel		Changes for Discount Rule FES	
+ *
+ ********************************************************************************/
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ModifyTransactionDiscount"
+         package="oracle.retail.stores.pos.services.modifytransaction.discount"
+         tourcam="OFF">
+     <CARGO class="MAXModifyTransactionDiscountCargo" package="max.retail.stores.pos.services.modifytransaction.discount" />
+     <SERVICECODE>
+          <LETTER name="Percent"/>
+          <LETTER name="Dollar"/>
+          <LETTER name="Continue"/>
+          <LETTER name="Success"/>
+          <LETTER name="Failure"/>
+          <LETTER name="Next"/>
+          <LETTER name="Undo"/>
+          <LETTER name="Ok"/>
+          <LETTER name="Cancel"/>
+          <LETTER name="Override"/>
+
+		  <!-- Changes for Rev 1.0 : Starts -->          
+          <LETTER name="Yes" />
+		  <LETTER name="No" />
+          <LETTER name="InvoicePercent" />
+		  <LETTER name="InvoiceDollar" />
+		  <LETTER name="InvoiceMixnMatch" />
+		  <LETTER name="NoInvoiceRuleApplied" />
+          <!-- Changes for Rev 1.0 : Ends -->
+		  
+		  <LETTER name="BillBuster" />
+		  <LETTER name="BillBusterPct" />
+          
+          <SIGNAL class="IsAmountDiscountSignal" package="oracle.retail.stores.pos.services.pricing" />
+		  <SIGNAL class="IsPercentDiscountSignal" package="oracle.retail.stores.pos.services.pricing" />
+          
+          <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+		  
+		  <!-- Changes for Rev 1.0 : Starts -->
+          <SITEACTION class="MAXDiscountPercentSite" package="max.retail.stores.pos.services.modifytransaction.discount" />
+          <SITEACTION class="MAXStartSite" package="max.retail.stores.pos.services.modifytransaction.discount" />
+          <SITEACTION class="MAXPriceDiscountSite" package="max.retail.stores.pos.services.modifytransaction.discount" />
+		  
+		  <LANEACTION class="MAXPercentEnteredAisle" package="max.retail.stores.pos.services.modifytransaction.discount" />
+          <LANEACTION class="MAXInvoiceCalculatePercentAisle" package="max.retail.stores.pos.services.modifytransaction.discount" />
+		  <LANEACTION class="MAXInvoiceCalculateDollarAisle" package="max.retail.stores.pos.services.modifytransaction.discount" />
+		  <LANEACTION class="MAXInvoiceCalculateMixMatchAisle" package="max.retail.stores.pos.services.modifytransaction.discount" />
+		  <!-- Changes for Rev 1.0 : Ends -->
+          
+          <SITEACTION class="DiscountDollarSite"/>
+          
+          <SITEACTION class="CreateRetailTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+          <!-- Changes for Rev 1.1 : Starts -->
+          <SITEACTION class="MAXCheckAccessSite" package="max.retail.stores.pos.services.admin.security.common"/>
+  		  <!-- Changes for Rev 1.1 : Ends -->
+  		  <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+  		  <!-- <LANEACTION class="AmountEnteredAisle" package="oracle.retail.stores.pos.services.modifytransaction.discount" /> -->
+          <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+          <LANEACTION class="UndoLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+          <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+          <LANEACTION class="MAXAmountEnteredAisle" package="max.retail.stores.pos.services.modifytransaction.discount" />
+          
+          <!-- Added by kamlesh pant for manager override -->
+		<SHUTTLE  class="MAXSecurityOverrideReturnShuttle" package="max.retail.stores.pos.services.modifytransaction.discount"/>
+		<SITEACTION class="MAXApplyDiscountAmountSite" package="max.retail.stores.pos.services.modifytransaction.discount"/>
+		  <SITEACTION class="MAXApplyBillBusterDiscountPercentSite" package="max.retail.stores.pos.services.modifytransaction.discount"/>
+          
+     </SERVICECODE>
+     <MAP>
+        <REGION region="SERVICE" startsite="PriceDiscount">
+        
+        	<!-- Changes for Rev 1.0 : Starts -->
+        	 <SITE name="PriceDiscount" siteaction="MAXPriceDiscountSite">
+				<ROAD 
+					name="NextSelected"
+					letter="Next" 
+					destination="CheckAccess">
+				</ROAD>
+			</SITE>
+			<!-- Changes for Rev 1.0 : Ends -->
+        	
+        	<!-- Changes for Rev 1.1 : Starts -->
+            <SITE name="CheckAccess" siteaction="MAXCheckAccessSite">
+            <!-- Changes for Rev  1.1 : Ends-->
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="Start">
+                </ROAD>
+            </SITE>
+
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle"
+                returnshuttle="MAXSecurityOverrideReturnShuttle">
+                <ROAD
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="Start"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+           	
+           	<!-- Changes for Rev 1.0 : Starts -->
+           	<SITE name="Start" siteaction="MAXStartSite">
+                   <COMMENT>
+                        This site reroutes to another site depending on what
+                        is in the Cargo. If it is a Discount Dollar then the
+                        DiscountDollar Site is next. Otherwise the Discount
+                        Percent is the next site.
+                   </COMMENT>
+                   <AISLE name="InvoiceCalculatePercent"
+                          letter="InvoicePercent"
+                          laneaction="MAXInvoiceCalculatePercentAisle">
+                   </AISLE>
+                   <AISLE name="InvoiceCalculateDollar"
+                          letter="InvoiceDollar"
+                          laneaction="MAXInvoiceCalculateDollarAisle">
+                   </AISLE>
+                   <!--<AISLE name="InvoiceCalculateMixnMatch"
+                          letter="InvoiceMixnMatch"
+                          laneaction="MAXInvoiceCalculateMixMatchAisle">
+                   </AISLE>-->
+				   
+				   <ROAD name="BillBusterDiscount" 
+                   		 letter="BillBusterAmount"
+						 destination="ApplyDiscountAmount" 
+						 tape="ADVANCE" record="ON"	index="ON">
+					</ROAD>
+					
+					<ROAD name="BillBusterDiscountPct" 
+                   		 letter="BillBusterPercent"
+						 destination="ApplyBillBusterDiscountPercent"
+						 tape="ADVANCE" record="ON"	index="ON">
+					</ROAD>
+					
+                   <ROAD name="RoadToDiscountInvoicePercent" 
+                   		 letter="AfterInvoicePercent"
+						 destination="CreateRetailTransaction" 
+						 tape="ADVANCE" record="ON"	index="ON">
+					</ROAD>
+					<ROAD name="RoadToDiscountInvoicePercent" 
+						  letter="NoInvoiceRuleApplied"
+						  destination="CreateRetailTransaction" 
+						  tape="ADVANCE" record="ON" index="ON">
+					</ROAD>
+					<ROAD name="RoadToDiscountInvoiceDollar" 
+						  letter="AfterInvoiceDollar"
+						  destination="CreateRetailTransaction" 
+						  tape="ADVANCE" record="ON" index="ON">
+				   </ROAD>           
+                   <ROAD name="RoadToDiscountDollar"
+                         letter="Dollar"
+                         destination="DiscountDollar"
+                         tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the Discount
+                             is of type dollar
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="RoadToDiscountPercent"
+                         letter="Percent"
+                         destination="DiscountPercent"
+                         tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when the discount
+                             is a percentage discount.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="UndoService"
+                         letter="Undo"
+                         destination="Final"
+                         tape="ADVANCE" record="OFF" index="OFF">
+                        <COMMENT>
+                             This road is traversed when the service is
+                             exiting because of a user access error.
+                        </COMMENT>
+                   </ROAD>
+              </SITE>
+			  
+			  <SITE name="ApplyDiscountAmount" siteaction="MAXApplyDiscountAmountSite">
+              	<ROAD
+                    name="DiscountAmountValid"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        The discount was valid, go on to the final site.
+                    </COMMENT>
+                </ROAD>
+              </SITE>
+              
+                <SITE name="ApplyBillBusterDiscountPercent" siteaction="MAXApplyBillBusterDiscountPercentSite">
+              	<ROAD
+                    name="DiscountAmountValid"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        The discount was valid, go on to the final site.
+                    </COMMENT>
+                </ROAD>
+              </SITE>
+           
+
+              <SITE name="DiscountPercent" siteaction="MAXDiscountPercentSite">
+                   <COMMENT>
+                        This site will show the UI for the percentage discount.
+                   </COMMENT>
+                   <AISLE name="PercentEntered"
+                          letter="Next"
+                          laneaction="MAXPercentEnteredAisle">
+                        <COMMENT>
+                             This aisle is traversed when an percentage
+                             is entered in the UI.
+                        </COMMENT>
+                   </AISLE>
+                   <ROAD name="InvalidPercentEntered"
+                         letter="Ok"
+                         destination="DiscountPercent"
+                         tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when a percentage
+                             entered is out of range.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="PercentRecorded"
+                         letter="Continue"
+                         destination="CreateRetailTransaction"
+                         tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traveled when the percent and reason
+                             code have been saved to the cargo.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="CancelPercent"
+                         letter="Cancel"
+                         destination="Final"
+                         tape="ADVANCE" record="OFF" index="OFF">
+                        <COMMENT>
+                             This road is traversed when the Cancel key is
+                             pressed.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="UndoPercent"
+                         letter="Undo"
+                         destination="Final"
+                         tape="ADVANCE" record="OFF" index="OFF">
+                        <COMMENT>
+                             This road is traversed when the undo key
+                             is pressed.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="YesSelected" 
+                   		 letter="Yes" 
+                   		 destination="TransactionDiscountAccess"
+                   		 tape="ADVANCE" record="OFF" index="OFF">
+				   </ROAD>
+				   <ROAD name="Noselected" 
+				   		 letter="No" 
+				   		 destination="DiscountPercent"
+				   		 tape="ADVANCE" record="OFF" index="ON">
+				   </ROAD>                   
+              </SITE>
+              
+              <SITE name="DiscountDollar" siteaction="DiscountDollarSite">
+                   <COMMENT>
+                        This site will show the UI for the Discount for the
+                        Dollar amount.
+                   </COMMENT>
+                   <AISLE name="AmountEntered"
+                          letter="Next"
+                          laneaction="MAXAmountEnteredAisle">
+                        <COMMENT>
+                             This aisle is traversed when the Accept key
+                             is pressed.
+                        </COMMENT>
+                   </AISLE>
+                   <ROAD name="AmountRecorded"
+                         letter="Continue"
+                         destination="CreateRetailTransaction"
+                         tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traveled when the amount and reason
+                             code have been saved to the cargo.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="CancelAmount"
+                         letter="Cancel"
+                         destination="Final"
+                         tape="ADVANCE" record="OFF" index="OFF">
+                        <COMMENT>
+                             This road is traversed when the Cancel key
+                             is pressed.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="UndoAmount"
+                         letter="Undo"
+                         destination="Final"
+                         tape="ADVANCE" record="OFF" index="OFF">
+                        <COMMENT>
+                             This road is traversed when the Undo key
+                             is pressed.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="InvalidAmountEntered"
+                         letter="Ok"
+                         destination="DiscountDollar"
+                         tape="ADVANCE" record="ON" index="ON">
+                        <COMMENT>
+                             This road is traversed when an amount
+                             entered is out of range.
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="YesSelected" 
+                   		 letter="OverrideYes" 
+                   		 destination="DiscountAmountAccess"
+                   		 tape="ADVANCE" record="OFF" index="OFF">
+				   </ROAD>                   
+              </SITE>
+              <!-- Changes for Rev 1.0 : Ends -->
+              
+              <SITE name="CreateRetailTransaction"
+                    siteaction="CreateRetailTransactionSite">
+                   <COMMENT>
+                        This site creates the retail tansaction.
+                   </COMMENT>
+                   <AISLE name="TransactionCreated"
+                          letter="Success"
+                          laneaction="NextLetterAisle">
+                        <COMMENT>
+                             This aisle is traversed after the transaction
+                             has been created.
+                        </COMMENT>
+                   </AISLE>
+                   <AISLE name="TransactionFailed"
+                          letter="Failure"
+                          laneaction="NextLetterAisle">
+                        <COMMENT>
+                             This aisle is traversed if the transaction
+                             is not created.
+                        </COMMENT>
+                   </AISLE>
+                   <ROAD name="ExitService"
+                         letter="Next"
+                         destination="Final"
+                         tape="ADVANCE" record="OFF" index="OFF">
+                        <COMMENT>
+                             This road is traversed after the transaction
+                             has been created.
+                        </COMMENT>
+                   </ROAD>
+              </SITE>
+              
+              <!-- Changes for Rev 1.0 : Starts -->
+              <SITE name="TransactionDiscountAccess" siteaction="CheckAccessSite">
+              
+				<ROAD name="ManagerOverrideChosen" 
+					  letter="Override"
+					  destination="TransactionDiscSecurityOverrideStation" 
+					  tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<ROAD name="SuccessDiscountAmountSelected" 
+					  letter="Continue"
+					  destination="CreateRetailTransaction">
+					  <LIGHT signal="IsAmountDiscountSignal" />
+				</ROAD>
+				<ROAD name="SuccessDiscountPercentSelected" 
+					  letter="Continue"
+					  destination="CreateRetailTransaction">
+					  <LIGHT signal="IsPercentDiscountSignal" />
+				</ROAD>
+			 </SITE>
+
+			 <STATION name="TransactionDiscSecurityOverrideStation"
+			 	 servicename="security.override.override" 
+			 	 targettier="CURRENTTIER"
+				 launchshuttle="SecurityOverrideLaunchShuttle">
+				<ROAD name="SuccessDiscountAmountSelected" 
+					  letter="Success"
+					  destination="CreateRetailTransaction">
+					  <LIGHT signal="IsAmountDiscountSignal" />
+				</ROAD>
+				<ROAD name="SuccessDiscountPercentSelected" 
+					  letter="Success"
+					  destination="CreateRetailTransaction">
+					  <LIGHT signal="IsPercentDiscountSignal" />
+				</ROAD>
+				<ROAD name="FailureSelected"
+					  letter="Failure" 
+					  destination="DiscountPercent">
+					  <LIGHT signal="IsPercentDiscountSignal" />
+				</ROAD>
+				<ROAD name="FailureSelected" 
+					  letter="Failure" 
+					  destination="DiscountDollar">
+					  <LIGHT signal="IsAmountDiscountSignal" />
+				</ROAD>
+			</STATION>
+			
+			<SITE name="DiscountAmountAccess" siteaction="CheckAccessSite">
+				<ROAD name="ManagerOverrideChosen" 
+					  letter="Override"
+					  destination="TransactionDiscSecurityOverrideStation" 
+					  tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="SuccessDiscountAmountSelected" 
+					  letter="Continue"
+					  destination="CreateRetailTransaction">
+					  <LIGHT signal="IsAmountDiscountSignal" />
+				</ROAD>
+				<ROAD name="SuccessDiscountPercentSelected" 
+					  letter="Continue"
+					  destination="CreateRetailTransaction">
+					  <LIGHT signal="IsPercentDiscountSignal" />
+				</ROAD>
+			</SITE>
+			<!-- Changes for Rev 1.0 : Ends -->
+              
+              <SYSTEMSITE name="Final" action="RETURN"/>
+          </REGION>
+     </MAP>
+</SERVICE>

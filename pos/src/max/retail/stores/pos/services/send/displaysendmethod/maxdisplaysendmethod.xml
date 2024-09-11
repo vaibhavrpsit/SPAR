@@ -1,0 +1,307 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2016 - 2017 MAX Hypermarket, Inc.    All Rights Reserved.
+ *	
+ *	Rev 1.0     Nov 09, 2016		Ashish Yadav		Home Delivery Send FES
+ *	Rev 1.1     Nov 09, 2016		Ashish Yadav		Code Merging
+ *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="displaysendmethod"
+    package="oracle.retail.stores.pos.services.send.displaysendmethod"
+    tourcam="ON">
+    <COMMENT>
+        This services displays the linked customer's address
+        and allows update. Once the customer's send address
+        is confirmed, the service will let the operator to
+        choose one shipping method, and then the shipping
+        charges are calculated.
+    </COMMENT>
+    <CARGO class="SendCargo" package="oracle.retail.stores.pos.services.send.address"/>
+
+    <SERVICECODE>
+    <!-- Sites -->
+<!-- Changes start for Rev 1.0 -->
+        <SITEACTION class="MAXCheckDatabaseOfflineSite" package="max.retail.stores.pos.services.send.displaysendmethod"/>
+        <SITEACTION class="MAXDisplaySendMethodSite" package="max.retail.stores.pos.services.send.displaysendmethod"/>
+<!-- Changes ends for Rev 1.0-->
+<!-- Changes start for rev 1.1 (Send) -->
+        <SITEACTION class="MAXDisplayMultipleGeoCodesSite" package="max.retail.stores.pos.services.send.displaysendmethod"/>
+        <!-- Changes end for rev 1.1 (Send) -->
+        <SITEACTION class="AssignTransactionLevelInfoSite"/>
+        <SITEACTION class="CheckTransactionLevelSendAssignedSite"/>
+        <SITEACTION class="MAXUndoSendSite" package="max.retail.stores.pos.services.send.displaysendmethod"/>
+        <SITEACTION class="GetVatRulesSite"/>
+        <!-- Changes start for Rev 1.0 -->
+        <SITEACTION class="MAXAddShippingChargeLineItemSite" package="max.retail.stores.pos.services.send.displaysendmethod"/>
+        <!-- Changes ends for Rev 1.0-->
+        <SITEACTION class="GetDestinationTaxRuleSite"/>
+        <SITEACTION class="UpdateTaxRulesSite"/>
+        <!-- Changes start for rev 1.1 (Ashish :Send) -->
+        <SITEACTION class="MAXCheckShippingChargeChangedSite" package="max.retail.stores.pos.services.send.displaysendmethod"/>
+        <!-- Changes end for rev 1.1 (Ashish :Send) -->
+    <!-- Shuttle -->        
+        <SHUTTLE class="ShipDestinationTaxRuleLaunchShuttle"/>
+        <SHUTTLE class="ShipDestinationTaxRuleReturnShuttle"/>     
+    <!-- Letters -->
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Done"/>
+        <LETTER name="MultipleGeoCodes"/>
+        <LETTER name="Next"/>
+        <LETTER name="Continue"/>
+        <LETTER name="NotFound"/>
+        <!--  Changes start for Rev 1.1 (Send) -->
+        <LETTER name="Success"/>
+        <!--  Changes end for Rev 1.1 (Send) -->
+
+    <!-- Roads and Aisles -->
+    <!-- Changes start for Rev 1.0 -->
+        <LANEACTION class="MAXSendMethodSelectedRoad" package="max.retail.stores.pos.services.send.displaysendmethod"/>
+        <LANEACTION class="MAXSendValidateDeliveryDateAisle" package="max.retail.stores.pos.services.send.displaysendmethod"/>
+	<!-- Changes ends for Rev 1.0 -->
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckDatabaseOffline">
+            <SITE name="CheckDatabaseOffline" siteaction="MAXCheckDatabaseOfflineSite">
+                <ROAD
+                    name="DatabaseOffline"
+                    letter="Next"
+                    destination="CheckTransactionLevelSendAssigned"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NoItemSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>                
+            </SITE>
+            <SITE name="CheckTransactionLevelSendAssigned" siteaction="CheckTransactionLevelSendAssignedSite">
+                <ROAD
+                    name="TransactionLevelSendNotAssigned"
+                    letter="Next"
+                    destination="GetDestinationTaxRule"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionLevelSendAssigned"
+                    letter="Continue"
+                    destination="DisplaySendMethod"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="GetDestinationTaxRule" siteaction="GetDestinationTaxRuleSite">
+                <ROAD name="GetDestinationTaxRule"
+                      letter="Next"
+                      destination="GetDestinationTaxRuleStation"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="VatItemSendSkipDestinationTaxRule"
+                      letter="Continue"
+                    destination="DisplaySendMethod"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                       <COMMENT>This road will be executed by GetVatRulesSite which is specified at tourmap.xml</COMMENT>  
+                </ROAD>
+                <ROAD
+                    name="VatTxnSendSkipDestinationTaxRule"
+                    letter="Done"
+                    destination="AssignTransactionLevelInfo"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                    <COMMENT>This road will be executed by GetVatRulesSite which is specified at tourmap.xml</COMMENT> 
+                </ROAD>
+            </SITE>
+            <SITE name="UpdateTaxRules" siteaction="UpdateTaxRulesSite">
+                <ROAD
+                    name="TransactionLevel"
+                    letter="Done"
+                    destination="AssignTransactionLevelInfo"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ItemLevel"
+                    letter="Next"
+                    destination="DisplaySendMethod"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="DisplaySendMethod" siteaction="MAXDisplaySendMethodSite">
+                <AISLE 
+                    name="ValidateDate"
+                    letter="Done"
+                    laneaction="MAXSendValidateDeliveryDateAisle">
+                    
+                </AISLE>
+                <ROAD
+                    name="DisplaySendMethodRetry"
+                    letter="Retry"
+                    destination="DisplaySendMethod"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD>
+                <!-- <ROAD
+                    name="DisplaySendMethodNext"
+                    letter="Success"
+                    laneaction="MAXSendMethodSelectedRoad"
+                    destination="CheckShippingChargeChanged"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD> -->
+                <ROAD
+                    name="DisplaySendMethodNext"
+                    letter="Success"
+                    destination="CheckShippingChargeChanged"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DisplaySendMethodUndo"
+                    letter="Undo"
+                    destination="UndoSend"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DisplaySendMethodCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <!-- Changes start for rev 1.1 (Ashish :Send) -->
+            <SITE name="CheckShippingChargeChanged" siteaction="MAXCheckShippingChargeChangedSite">
+                <ROAD name="NoNeedReasonCodeOrReasonCodeSpecified"
+                      letter="Next"
+                      destination="AddShippingChargeLineItem"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+               <!-- Changes end for rev 1.1 (Ashish :Send) -->
+                <!-- <ROAD name="NoNeedReasonCodeOrReasonCodeSpecified"
+                      letter="Done"
+                      destination="AddShippingChargeLineItem"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>  -->
+                <!-- Changes start for rev 1.1 (Send) -->    
+               <ROAD name="NoNeedReasonCodeOrReasonCodeSpecified1"
+                      letter="Success"
+                      destination="AddShippingChargeLineItem"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD> 
+                <!--Changes start for rev 1.1 (Send)  -->         
+                <ROAD name="ReasonCodeNotSpecified"
+                      letter="NotFound"
+                      destination="DisplaySendMethod"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+            </SITE>            
+            <!-- Change for rev 1.2 : Starts -->
+            <SITE name="UndoSend" siteaction="MAXUndoSendSite">
+            <!-- Change for rev 1.2 : Ends -->
+                <ROAD
+                    name="UndoSend"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="AddShippingChargeLineItem" siteaction="MAXAddShippingChargeLineItemSite">
+                <ROAD
+                    name="AddShippingChargeLineItemDone"
+                    letter="Done"
+                    laneaction="MAXSendMethodSelectedRoad"
+                    destination="Final"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DisplaySendMethodUndo"
+                    letter="Undo"
+                    destination="UndoSend"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="AssignTransactionLevelInfo" siteaction="AssignTransactionLevelInfoSite">
+                <ROAD
+                    name="TransactionLevelSendStarts"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+            </SITE>
+            <STATION name="GetDestinationTaxRuleStation"
+                     servicename="destinationtaxrule.destinationtaxrule"
+                     targettier="CURRENTTIER"
+                     launchshuttle="ShipDestinationTaxRuleLaunchShuttle"
+                     returnshuttle="ShipDestinationTaxRuleReturnShuttle">
+                <ROAD name="TaxRuleFound"
+                      letter="Next"
+                      destination="UpdateTaxRules"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">                   
+                </ROAD>                
+                <ROAD name="TaxRuleUndo"
+                      letter="Undo"
+                      destination="Final"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="TaxRuleDone"
+                      letter="Done"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </STATION>               
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

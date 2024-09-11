@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+
+<!DOCTYPE VALIDATIONDEFINITION SYSTEM "classpath://oracle/retail/stores/domain/manager/validation/validationdefinitionscript.dtd">
+
+<VALIDATIONDEFINITION>
+    <MASKDEFINITIONS name="defaultMaskDefinitions">
+        <!--                
+            Valid mask values are:
+                LOWER_ALPHA  lower case alpha numeric characters
+                UPPER_ALPHA  upper case alpha numeric characters
+                ALPHA        upper and lower case alpha numeric characters
+                NUMERIC      numeric character                
+                SPACE        space character ( " " )
+                ASTERISK     asterisk character ( '*' )
+                MATCHING     Following character matches      
+        -->
+        <PROPERTY propname="A" propvalue="ALPHA"/>
+        <PROPERTY propname="a" propvalue="ALPHA, SPACE"/>
+        <PROPERTY propname="N" propvalue="NUMERIC"/>
+        <PROPERTY propname="n" propvalue="NUMERIC, SPACE"/>
+        <PROPERTY propname="X" propvalue="ALPHA, NUMERIC, ASTERISK"/>
+        <PROPERTY propname="x" propvalue="ALPHA, NUMERIC, ASTERISK, SPACE"/>
+        <PROPERTY propname="Y" propvalue="ALPHA, NUMERIC"/>
+        <PROPERTY propname="y" propvalue="ALPHA, NUMERIC, SPACE"/>
+        <PROPERTY propname="S" propvalue="ALPHA, ASTERISK"/>
+        <PROPERTY propname="s" propvalue="ALPHA, ASTERISK, SPACE"/>
+    </MASKDEFINITIONS>
+    
+</VALIDATIONDEFINITION>

@@ -1,0 +1,730 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/dailyoperations.xml /main/19 2014/07/09 13:10:48 icole Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole     06/26/14 - Forward port fix for handling the condition of two
+ *                         registers opened with same till with one or both
+ *                         offline at time of open.
+ *    mkutiana  05/09/13 - Fixed tour error when cancel on RegisterOpenDialog
+ *                         selected
+ *    vtemker   08/11/11 - Added the Clear letter in the EndOfDayStation
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="DailyOperations"
+         package="oracle.retail.stores.pos.services.dailyoperations"
+         tourcam="OFF">
+     <COMMENT>
+          This services routes the user to the various services
+          available through the Daily Operations screen.
+     </COMMENT>
+<CARGO class="StoreStatusCargo" package="oracle.retail.stores.pos.services.common">
+     <COMMENT>
+          This cargo holds the information necessary to Daily
+          Operations service.
+     </COMMENT>
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="InvalidRegister"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="StartOfDay"/>
+     <LETTER name="RegisterOpen"/>
+     <LETTER name="RegisterClose"/>
+     <LETTER name="TillOptions"/>
+     <LETTER name="EndOfDay"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Override"/>
+     <LETTER name="IDError"/>
+     <LETTER name="Yes"/>
+     <LETTER name="No"/>
+     <LETTER name="ParameterError"/>
+     <LETTER name="ResetHardTotals"/>
+     <LETTER name="QueueFull"/>
+
+    <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common" />
+    <SHUTTLE class="TillOptionsLaunchShuttle"/>
+    <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    <SHUTTLE class="OperatorIdLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+    <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+    <SHUTTLE class="ResetHardTotalsLaunchShuttle" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+
+    <SITEACTION class="DisplayDailyOpsScreenSite">
+        <COMMENT>
+            This site displays the options available from the
+            Daily Ops screen.
+        </COMMENT>
+    </SITEACTION>
+    <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SITEACTION class="LookupStoreStatusSite" package="oracle.retail.stores.pos.services.dailyoperations.common">
+          <COMMENT>
+               This site causes the store status record to be looked up.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="LookupRegisterSite" package="oracle.retail.stores.pos.services.dailyoperations.common">
+          <COMMENT>
+               This site causes the register record to be looked up.
+          </COMMENT>
+     </SITEACTION>
+
+    <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+    <LANEACTION class="InvalidTillRegisterErrorAisle" package="oracle.retail.stores.pos.services.dailyoperations.till.tilloptions"/>             
+    <LANEACTION class="LoginSucceededRoad" />
+    <LANEACTION class="LookupRegisterParameterErrorAisle" package="oracle.retail.stores.pos.services.dailyoperations.common">
+     
+          <TRAVERSE>
+               <COMMENT>
+                    This aisle displays a parameter error message.
+               </COMMENT>
+          </TRAVERSE>
+     </LANEACTION>
+    
+     
+</SERVICECODE>
+<MAP>
+    <REGION region="SERVICE" startsite="OperatorIdStation">
+          <STATION name="OperatorIdStation"
+                   servicename="services.operatorid.operatorid"
+                   targettier="CURRENTTIER"
+                   launchshuttle="OperatorIdLaunchShuttle"
+                   returnshuttle="OperatorIdReturnShuttle">
+                <AISLE 
+                    name="LoginUndo"
+                    letter="Undo"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter 
+                        to Failure
+                    </COMMENT>
+                </AISLE>
+               <AISLE name="OperatorIdError"
+                      letter="IDError"
+                      laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="LoginSucceeded"
+                     letter="Success"
+                     destination="CheckAccess"
+                     laneaction="LoginSucceededRoad"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LoginFailed"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LoginCanceled"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+        <SITE name="CheckAccess" siteaction="CheckAccessSite">
+            <ROAD 
+                name="NoAccess"
+                letter="Override"
+                destination="SecurityOverrideStation">
+            </ROAD>
+            <ROAD 
+                name="UserAuthorized"
+                letter="Continue"
+                destination="DisplayDailyOpsScreen">
+            </ROAD>
+        </SITE>
+        <STATION name="SecurityOverrideStation"
+            servicename="security.override.override"
+            targettier="CURRENTTIER"
+            launchshuttle="SecurityOverrideLaunchShuttle" >
+            <ROAD 
+                name="LoginSucceededSecurityOverride"
+                letter="Success"
+                destination="DisplayDailyOpsScreen"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD 
+                name="SecurityOverrideFailed"
+                letter="Failure"
+                destination="Final"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD 
+                name="SecurityOverrideCancelled"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </STATION>                 
+          
+          <SITE name="DisplayDailyOpsScreen" siteaction="DisplayDailyOpsScreenSite">
+               <COMMENT>
+                    This site displays the options available from the
+                    Daily Ops screen.
+               </COMMENT>
+               <ROAD name="StartOfDaySelected"
+                     letter="StartOfDay"
+                     destination="LookupStoreStatusForSOD"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator selects the Start
+                         Of Day option from the Daily Ops screen
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterOpenSelected"
+                     letter="RegisterOpen"
+                     destination="LookupStoreStatusForRO"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator selects the Register
+                         Open option from the Daily Ops screen
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="TillOptionsSelected"
+                     letter="TillOptions"
+                     destination="TillOptionsStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator selects the Till
+                         Options option from the Daily Ops screen
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterCloseSelected"
+                     letter="RegisterClose"
+                     destination="LookupStoreStatusForRC"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator selects the Register
+                         Close option from the Daily Ops screen
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EndOfDaySelected"
+                     letter="EndOfDay"
+                     destination="LookupStoreStatusForEOD"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the operator selects the End
+                         Of Day option from the Daily Ops screen.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="UndoDailyOps"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the user presses the Undo
+                         key from the Daily Ops option screen.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="LookupStoreStatusForSOD" siteaction="LookupStoreStatusSite">
+               <COMMENT>
+                    This site looks up store status data.
+               </COMMENT>
+               <ROAD name="LookupStoreStatusContinueSOD" letter="Continue" destination="LookupRegisterForSOD" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when a store-status lookup is complete and only one or no business dates were found.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ResetHardTotalsRoadSOD" letter="ResetHardTotals" destination="ResetHardTotalsStationBeforeSOD" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="LookupStoreStatusExitSOD" letter="Failure" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Aisle to traverse when there is a database or other
+                         unexpected error on the store-status lookup.  Because
+                         the hard totals do not contain the business date,
+                         the service exits.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="ResetHardTotalsStationBeforeSOD"
+                   servicename="admin.resethardtotals.resethardtotals"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ResetHardTotalsLaunchShuttle">
+               <ROAD name="HardTotalsResetBeforeSOD"
+                     letter="Continue"
+                     destination="LookupRegisterForSOD"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SITE name="LookupRegisterForSOD" siteaction="LookupRegisterSite">
+               <COMMENT>
+                    This site looks up register data.
+               </COMMENT>
+               <AISLE name="LookupRegisterParameterErrorSOD" letter="ParameterError" laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                         Aisle to traverse when there is a parameter error while determining the workstation ID.
+                         If no workstation ID is available from the hard totals, the service terminates.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="LookupRegisterExitSOD" letter="Ok" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when no register parameter is found.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="LookupRegisterContinueSOD" letter="Continue" destination="StartOfDayStation" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when a register lookup is complete.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="StartOfDayStation"
+                   servicename="dailyoperations.startofday.startofday"
+                   targettier="CURRENTTIER"
+                   launchshuttle="FinancialCargoShuttle"
+                   returnshuttle="FinancialCargoShuttle">
+               <COMMENT>
+                    This station calls the StartOfDay service.
+               </COMMENT>
+               <ROAD name="StartOfDaySuccess"
+                     letter="Success"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Start of Day operation has successfully completed.  Proceed to reset Hard Totals.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="StartOfDayFailure"
+                     letter="Failure"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The store is already open.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="StartOfDayCanceled"
+                     letter="Cancel"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the cancel key was pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="StartOfDayUndo"
+                     letter="Undo"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the undo key was pressed.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <SITE name="LookupStoreStatusForRO" siteaction="LookupStoreStatusSite">
+               <COMMENT>
+                    This site looks up store status data.
+               </COMMENT>
+               <ROAD name="LookupStoreStatusContinueRO" letter="Continue" destination="LookupRegisterForRO" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when a store-status lookup is complete and only one or no business dates were found.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ResetHardTotalsRoadRO" letter="ResetHardTotals" destination="ResetHardTotalsStationRO" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="LookupStoreStatusExitRO" letter="Failure" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Aisle to traverse when there is a database or other
+                         unexpected error on the store-status lookup.  Because
+                         the hard totals do not contain the business date,
+                         the service exits.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="ResetHardTotalsStationRO"
+                   servicename="admin.resethardtotals.resethardtotals"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ResetHardTotalsLaunchShuttle">
+               <ROAD name="HardTotalsResetRO"
+                     letter="Continue"
+                     destination="LookupRegisterForRO"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SITE name="LookupRegisterForRO" siteaction="LookupRegisterSite">
+               <COMMENT>
+                    This site looks up register data.
+               </COMMENT>
+               <AISLE name="LookupRegisterParameterErrorRO" letter="ParameterError" laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                         Aisle to traverse when there is a parameter error while determining the workstation ID.
+                         If no workstation ID is available from the hard totals, the service terminates.
+                    </COMMENT>
+               </AISLE>
+               <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+               </AISLE>                
+               <ROAD name="LookupRegisterExitRO" letter="Ok" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when no register parameter is found.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="LookupRegisterContinueRO" letter="Continue" destination="RegisterOpenStation" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when a register lookup is complete.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="RegisterOpenStation"
+                   servicename="register.registeropen.registeropen"
+                   targettier="CURRENTTIER"
+                   launchshuttle="FinancialCargoShuttle"
+                   returnshuttle="FinancialCargoShuttle">
+               <COMMENT>
+                    This station calls the Open Register service when
+                    the operator chooses to continue and open the register.
+               </COMMENT>
+               <ROAD name="RegisterOpenSuccess"
+                     letter="Success"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Start of Day operation has successfully completed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterOpenFailure"
+                     letter="Failure"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The store is already open.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterOpenCanceled"
+                     letter="Cancel"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the cancel key was pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterOpenUndo"
+                     letter="Undo"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the undo key was pressed.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <STATION name="TillOptionsStation"
+                   servicename="till.tilloptions.tilloptions"
+                   targettier="CURRENTTIER"
+                   launchshuttle="TillOptionsLaunchShuttle"
+                   returnshuttle="FinancialCargoShuttle">
+               <ROAD name="TillOptionsSuccess"
+                     letter="Success"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UndoTillOptionsService"
+                     letter="Undo"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Undo was pressed in the TillOptions service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelMenuTillOptions"
+                     letter="CancelMenu"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Undo was pressed in the TillOptions service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelRegisterOpen"
+                     letter="Cancel"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Cancel was sent from open register dialog, when attempting to 
+                         open a till while the register is closed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="TillOptionsFailure"
+                     letter="Failure"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the till was not opened successfully.
+                    </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="TillFunctionsQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+               </ROAD>
+               <ROAD
+                   name="LookupRegisterExit"
+                   letter="Ok"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                   <COMMENT>
+                       Road to traverse when no register parameter is found.
+                   </COMMENT>
+               </ROAD>               
+          </STATION>
+          <SITE name="LookupStoreStatusForRC" siteaction="LookupStoreStatusSite">
+               <COMMENT>
+                    This site looks up store status data.
+               </COMMENT>
+               <ROAD name="LookupStoreStatusContinueRC" letter="Continue" destination="LookupRegisterForRC" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when a store-status lookup is complete and only one or no business dates were found.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ResetHardTotalsRoadRC" letter="ResetHardTotals" destination="ResetHardTotalsStationRC" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="LookupStoreStatusExitRC" letter="Failure" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Aisle to traverse when there is a database or other
+                         unexpected error on the store-status lookup.  Because
+                         the hard totals do not contain the business date,
+                         the service exits.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="ResetHardTotalsStationRC"
+                   servicename="admin.resethardtotals.resethardtotals"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ResetHardTotalsLaunchShuttle">
+               <ROAD name="HardTotalsResetRC"
+                     letter="Continue"
+                     destination="LookupRegisterForRC"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SITE name="LookupRegisterForRC" siteaction="LookupRegisterSite">
+               <COMMENT>
+                    This site looks up register data.
+               </COMMENT>
+               <AISLE name="LookupRegisterParameterErrorRC" letter="ParameterError" laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                         Aisle to traverse when there is a parameter error while determining the workstation ID.
+                         If no workstation ID is available from the hard totals, the service terminates.
+                    </COMMENT>
+               </AISLE>
+               <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+                </AISLE>                               
+               <ROAD name="LookupRegisterExitRC" letter="Ok" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when no register parameter is found.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="LookupRegisterContinueRC" letter="Continue" destination="RegisterCloseStation" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when a register lookup is complete.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="RegisterCloseStation"
+                   servicename="register.registerclose.registerclose"
+                   targettier="CURRENTTIER"
+                   launchshuttle="FinancialCargoShuttle"
+                   returnshuttle="FinancialCargoShuttle">
+               <COMMENT>
+               </COMMENT>
+               <ROAD name="RegisterCloseSuccess"
+                     letter="Success"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Start of Day operation has successfully completed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterCloseTillsOpenError"
+                     letter="Ok"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Start of Day operation has successfully completed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterCloseFailure"
+                     letter="Failure"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         The store is already closed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterCloseCanceled"
+                     letter="Cancel"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the cancel key was pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterCloseUndo"
+                     letter="Undo"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the undo key was pressed.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <SITE name="LookupStoreStatusForEOD" siteaction="LookupStoreStatusSite">
+               <COMMENT>
+                    This site looks up store status data.
+               </COMMENT>
+               <ROAD name="LookupStoreStatusContinueEOD" letter="Continue" destination="LookupRegisterForEOD" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when a store-status lookup is complete and only one or no business dates were found.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ResetHardTotalsRoadEOD" letter="ResetHardTotals" destination="ResetHardTotalsStationEOD" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="LookupStoreStatusExitEOD" letter="Failure" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Aisle to traverse when there is a database or other
+                         unexpected error on the store-status lookup.  Because
+                         the hard totals do not contain the business date,
+                         the service exits.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="ResetHardTotalsStationEOD"
+                   servicename="admin.resethardtotals.resethardtotals"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ResetHardTotalsLaunchShuttle">
+               <ROAD name="HardTotalsResetEOD"
+                     letter="Continue"
+                     destination="LookupRegisterForEOD"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SITE name="LookupRegisterForEOD" siteaction="LookupRegisterSite">
+               <COMMENT>
+                    This site looks up register data.
+               </COMMENT>
+               <AISLE name="LookupRegisterParameterErrorEOD" letter="ParameterError" laneaction="LookupRegisterParameterErrorAisle">
+                    <COMMENT>
+                         Aisle to traverse when there is a parameter error while determining the workstation ID.
+                         If no workstation ID is available from the hard totals, the service terminates.
+                    </COMMENT>
+               </AISLE>
+               <AISLE
+                    name="InvalidRegisterError"
+                    letter="InvalidRegister"
+                    laneaction="InvalidTillRegisterErrorAisle">
+                    <COMMENT >
+                        Aisle to traverse when the current till does not
+                        belong the current register. This happens when
+                        another register opens a till with same ID in
+                        off line mode.  The service terminates.
+                    </COMMENT>
+                </AISLE>                
+               <ROAD name="LookupRegisterExitEOD" letter="Ok" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when no register parameter is found.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="LookupRegisterContinueEOD" letter="Continue" destination="EndOfDayStation" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         Road to traverse when a register lookup is complete.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION name="EndOfDayStation"
+                   servicename="dailyoperations.endofday.endofday"
+                   targettier="CURRENTTIER"
+                   launchshuttle="FinancialCargoShuttle"
+                   returnshuttle="FinancialCargoShuttle">
+               <COMMENT>
+                    This station calls the EndOfDay service.
+               </COMMENT>
+               <ROAD name="EndOfDaySuccess"
+                     letter="Success"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the end of day service is successful.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EndOfDayNotSuccessful"
+                     letter="Failure"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when an error occurs during the
+                         running of the end of day service.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EndOfDayOkNotSuccessful"
+                     letter="Ok"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when a Database error occurs during the
+                         running of the end of day service and user presses the OK
+                         button on the error dialog.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EndOfDayCanceled"
+                     letter="Cancel"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the end of day service is canceled.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EndOfDayUndo"
+                     letter="Undo"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the end of day service is 'Esc'aped.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EndOfDayClear"
+                     letter="Clear"
+                     destination="DisplayDailyOpsScreen"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when Delete is pressed in the end of day service.
+                    </COMMENT>
+               </ROAD>
+          </STATION>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+     </REGION>
+</MAP>
+</SERVICE>

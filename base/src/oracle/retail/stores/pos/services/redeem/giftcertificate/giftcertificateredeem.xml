@@ -1,0 +1,353 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/redeem/giftcertificate/giftcertificateredeem.xml /main/16 2012/03/27 10:57:16 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     03/27/12 - Modified to support centralized gift certificate and
+ *                         store credit.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    $Log:
+     4    360Commerce 1.3         12/19/2007 7:48:41 AM  Manikandan Chellapan
+          PAPB FR27 Bulk Checkin - 1
+     3    360Commerce 1.2         3/31/2005 4:28:18 PM   Robert Pearse
+     2    360Commerce 1.1         3/10/2005 10:21:57 AM  Robert Pearse
+     1    360Commerce 1.0         2/11/2005 12:11:15 PM  Robert Pearse
+    $
+    Revision 1.9  2004/05/20 17:04:41  tmorris
+    @scr 5075 -Fixed the REDEEM AMOUNT screen hanging on ESC key press.
+
+    Revision 1.8  2004/05/19 20:34:41  crain
+    @scr 5080 Tender Redeem_Disc. Applied Alt Flow not Called from Foreign Gift Cert Alt Flow
+
+    Revision 1.7  2004/05/17 23:29:10  crain
+    @scr 4492 Issue Amount Entry does not have focus for Amount field
+
+    Revision 1.6  2004/05/04 19:05:04  crain
+    @scr 4553 Redeem Gift Certificate
+
+    Revision 1.5  2004/05/03 03:50:59  crain
+    @scr 4553 Redeem Gift Certificate
+
+    Revision 1.4  2004/04/29 15:07:19  crain
+    @scr 4553 Redeem Gift Certificate
+
+    Revision 1.3  2004/04/27 23:13:36  crain
+    @scr 4553 Redeem Gift Certificate
+
+    Revision 1.2  2004/04/26 19:28:40  crain
+    @scr 4553 Redeem Gift Certificate
+
+    Revision 1.1  2004/04/23 00:35:07  crain
+    @scr 4553 Redeem Gift Certificate
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="GiftCertificateRedeem" package="oracle.retail.stores.pos.services.redeem.giftcertificate" tourcam="ON">
+<CARGO class="RedeemCargo" package="oracle.retail.stores.pos.services.redeem">
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Next"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Failure" />
+     <LETTER name="Success" />
+     <LETTER name="Ok" />
+     <LETTER name="Foreign" />
+     <LETTER name="Invalid" />
+     <LETTER name="Corporate" />
+     <LETTER name="Discount" />
+     <LETTER name="Continue" />
+
+     <SITEACTION class="EnterRedeemAmountUISite" package="oracle.retail.stores.pos.services.redeem"/>
+     <SITEACTION class="EnterRedeemNumberUISite" package="oracle.retail.stores.pos.services.redeem"/>
+     <SITEACTION class="ValidateRedeemActionSite" package="oracle.retail.stores.pos.services.redeem"/>
+     <SITEACTION class="EnterRedeemForeignNumberUISite"  package="oracle.retail.stores.pos.services.redeem"/>
+     <SITEACTION class="GetIssuingStoreNumberSite" package="oracle.retail.stores.pos.services.tender.giftcertificate"/>
+     <SITEACTION class="CheckDiscountAppliedSite"/>
+     <SITEACTION class="EnterDiscountedAmountUISite"/>
+
+     <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+
+     <SHUTTLE class="ForeignCurrencyLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+     <SHUTTLE class="ForeignCurrencyReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+</SERVICECODE>
+
+<MAP>
+     <REGION region="SERVICE" startsite="EnterRedeemAmount">
+            <SITE  name="EnterRedeemAmount" siteaction="EnterRedeemAmountUISite">
+                <ROAD
+                    name="RedeemAmountAccepted"
+                    letter="Next"
+                    destination="GetIssuingStoreNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                 <ROAD
+                    name="RedeemAmountUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RedeemAmountCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetIssuingStoreNumber" siteaction="GetIssuingStoreNumberSite">
+                <ROAD
+                    name="StoreNumberNotNeeded"
+                    letter="Continue"
+                    destination="EnterRedeemNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="StoreNumberEntered"
+                    letter="Next"
+                    destination="EnterRedeemNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CorporateCertificate"
+                    letter="Corporate"
+                    destination="EnterRedeemNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="IssuingStoreNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="IssuingStoreNumberUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterRedeemNumber" siteaction="EnterRedeemNumberUISite">
+               <ROAD
+                    name="RedeemNumberAcceptedNext"
+                    letter="Next"
+                    destination="ValidateRedeemAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RedeemNumberUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RedeemCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ForeignSelected"
+                    letter="Foreign"
+                    destination="ForeignCurrencyStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterRedeemForeignNumberUI" siteaction="EnterRedeemForeignNumberUISite">
+               <ROAD
+                    name="ForeignRedeemNumberAcceptedNext"
+                    letter="Next"
+                    destination="ValidateRedeemAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ForeignRedeemNumberUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ForeignRedeemCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateRedeemAction" siteaction="ValidateRedeemActionSite">
+                <ROAD
+                    name="ValidateRedeemActionUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ValidateRedeemActionSuccess"
+                    letter="Success"
+                    destination="CheckDiscountApplied"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ForeignGiftCertificateRoad"
+                    letter="Foreign"
+                    destination="CheckDiscountApplied"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ValidateStoreCreditInvalidRoad"
+                    letter="Invalid"
+                    destination="EnterRedeemNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ValidateRedeemActionFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckDiscountApplied" siteaction="CheckDiscountAppliedSite">
+                <AISLE name="NoDiscount"
+                       letter="Success"
+                       laneaction="ContinueConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="DiscountAppliedRoad"
+                    letter="Discount"
+                    destination="EnterDiscountedAmount"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="NoDiscountContinueRoad"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterDiscountedAmount" siteaction="EnterDiscountedAmountUISite">
+                <AISLE name="DiscountedAmountAccepted"
+                       letter="Next"
+                       laneaction="ContinueConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="DiscountedAmountContinue"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DiscountedAmountUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DiscountedAmountCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ForeignCurrencyStation"
+                servicename="services.foreigncurrency.foreigncurrency"
+                targettier="CURRENTTIER"
+                launchshuttle="ForeignCurrencyLaunchShuttle"
+                returnshuttle="ForeignCurrencyReturnShuttle">
+                <ROAD
+                    name="CurrencySelectedRoad"
+                    letter="Continue"
+                    destination="EnterRedeemForeignNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CurrencyUndo"
+                    letter="Undo"
+                    destination="EnterRedeemNumber"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CurrencyCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+          <SYSTEMSITE name="Final" action="RETURN" />
+          <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+
+     </REGION>
+</MAP>
+</SERVICE>

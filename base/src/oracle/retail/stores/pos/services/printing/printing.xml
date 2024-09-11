@@ -1,0 +1,422 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/printing/printing.xml /main/19 2013/06/26 14:36:58 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    asinton   11/05/14 - renamed new laneaction per review comments
+ *    asinton   11/04/14 - fixed issues with print of store credit when an
+ *                         error occurs.
+ *    cgreene   06/26/13 - Updated to printed only suspended receipt if the
+ *                         transaction is suspended.
+ *    mchellap  02/13/13 - Modified gift receipt printing dialog message
+ *    mchellap  11/23/12 - Receipt enhancement quickwin changes
+ *    subrdey   06/14/12 - Added Site PrintReceiptOnTimeoutSite for printing
+ *                         the receipt when eReceiptEmailAddress screen timed
+ *                         out.
+ *    blarsen   03/30/12 - Added PrintFailed road used only by MPOS. Need to
+ *                         handle case where print fails and there's no UI to
+ *                         alert the operator.
+ *    cgreene   06/09/11 - added dao to persist and retrieve ICC card details
+ *    cgreene   06/02/11 - Tweaks to support Servebase chipnpin
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    arathore  11/17/08 - updated for ereceipt feature
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Printing" package="oracle.retail.stores.pos.services.printing" tourcam="OFF">
+     <COMMENT>
+          This service implements all the printing for a tendered
+          transaction.
+     </COMMENT>
+<CARGO class="PrintingCargo" />
+<SERVICECODE>
+     <LANEACTION class="CheckForPendingTendersAisle" />
+     <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="DiscardTenderAisle" />
+     <LANEACTION class="EndorseTendersAisle" />
+     <LANEACTION class="MultipleGiftReceiptOptionSelectedRoad"/>
+     <LANEACTION class="PrintICCDetailsAisle" />
+     <LANEACTION class="ShowStoreCreditPrintErrorAisle"/>
+     <LANEACTION class="PrintSuspendedTransactionReceiptAisle" package="oracle.retail.stores.pos.services.modifytransaction.suspend" />
+     <LANEACTION class="PrintTransactionReceiptAisle" />
+     <LANEACTION class="PrintTransactionStoreCreditAisle" />
+     <LANEACTION class="PrinterStatusOnlineAisle" />
+
+     <LETTER name="Continue"/>
+     <LETTER name="Discard" />
+     <LETTER name="Done" />
+     <LETTER name="ExitPrinting" />
+     <LETTER name="Next" />
+     <LETTER name="Ok" />
+     <LETTER name="Print" />
+     <LETTER name="Retry"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Failure"/>
+     <LETTER name="One"/>
+     <LETTER name="Multiple"/>
+
+     <SIGNAL class="IsICCDetailsAvailable"/>
+     <SIGNAL class="SkipReceiptOptionsSignal"/>
+     <SIGNAL class="IsTransactionSuspendedSignal" package="oracle.retail.stores.pos.services.modifytransaction.suspend" />
+
+     <SITEACTION class="CaptureEmailUISite"/>
+     <SITEACTION class="FrankTendersSite" />
+     <SITEACTION class="PrintDebitSlipSite"/>
+     <SITEACTION class="PrintReceiptSite" />
+     <SITEACTION class="PrintSignatureSlipsSite" />
+     <SITEACTION class="PrintStoreCreditSite" />
+     <SITEACTION class="ReceiptOptionsUISite"/>
+     <SITEACTION class="PrintCustomerPreferredReceipt"/>
+     <SITEACTION class="PrintReceiptOnTimeoutSite"/>
+     <SITEACTION class="PromptForGiftReceiptPrintingSite"/>
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="FrankTenders">
+          <SITE name="FrankTenders" siteaction="FrankTendersSite">
+               <COMMENT>
+               This site does the franking for all tenders that must
+               be endorsed.
+               </COMMENT>
+               <AISLE name="EndorseTenders"
+                      letter="Print"
+                      laneaction="EndorseTendersAisle">
+               </AISLE>
+               <AISLE name="DiscardTender"
+                      letter="Discard"
+                      laneaction="DiscardTenderAisle">
+               </AISLE>
+
+               <AISLE name="CheckForPendingTenders"
+                      letter="Continue"
+                      laneaction="CheckForPendingTendersAisle">
+               </AISLE>
+               <ROAD name="FrankingCompleted"
+                     letter="Done"
+                     destination="PrintSignatureSlips"
+                     tape="ADVANCE"  record="ON"   index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="PrintSignatureSlips" siteaction="PrintSignatureSlipsSite">
+               <COMMENT>
+               This site prints a signature slip for each approved
+               credit card.
+               </COMMENT>
+               <ROAD name="PrintSlipsRetry"
+                     letter="Retry"
+                     destination="PrintSignatureSlips"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintSlipsCompleted"
+                     letter="Continue"
+                     destination="PrintDebitSlip"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          <SITE name="PrintDebitSlip" siteaction="PrintDebitSlipSite">
+              <COMMENT>
+                 This site prints a debit slip for each approved
+                 debit card.
+              </COMMENT>
+              <ROAD name="PrintDepitSlipRetry"
+                     letter="Retry"
+                     destination="PrintDebitSlip"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintDebitSlipCompleted"
+                     letter="Continue"
+                     destination="PromptForGiftReceiptPrinting"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          
+          <SITE name="PromptForGiftReceiptPrinting" siteaction="PromptForGiftReceiptPrintingSite">
+               <COMMENT>
+               If there are multiple gift receipts to print, get the user input.
+               </COMMENT>
+               <ROAD name="MultipleEGiftReceiptsSelected"
+                     letter="Multiple"
+                     destination="PrintCustomerPreferredReceipt"  
+                     laneaction="MultipleGiftReceiptOptionSelectedRoad"                   
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+                     <LIGHT signal="SkipReceiptOptionsSignal"/>
+               </ROAD>
+               <ROAD name="MultipleGiftReceiptsSelected"
+                     letter="Multiple"
+                     laneaction="MultipleGiftReceiptOptionSelectedRoad"
+                     destination="PrintReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD> 
+               <ROAD name="PrintReceipts"
+                     letter="One"
+                     destination="PrintReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>                                               
+               <ROAD name="SkipReceiptOptions"
+                     letter="Continue"
+                     destination="PrintCustomerPreferredReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+                     <LIGHT signal="SkipReceiptOptionsSignal"/>
+               </ROAD>
+               <ROAD name="ContinuePrintReceipts"
+                     letter="Continue"
+                     destination="PrintReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          
+          <SITE name="PrintCustomerPreferredReceipt" siteaction="PrintCustomerPreferredReceipt">
+               <COMMENT>
+               This site prints Ereceipt.
+               </COMMENT>
+               <ROAD name="CaptureEmailId"
+                     letter="Email"
+                     destination="CaptureEmailID"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintReceipt"
+                     letter="Print"
+                     destination="CaptureEmailID"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="CaptureEmailIdAndPrint"
+                     letter="PrintEmail"
+                     destination="CaptureEmailID"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintReceiptCompleted"
+                     letter="Continue"
+                     destination="PrintStoreCredit"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+
+          <SITE name="PrintReceipt" siteaction="ReceiptOptionsUISite">
+               <COMMENT>
+               This site displays receipt options.
+               </COMMENT>
+               <ROAD name="PrintReceipt"
+                     letter="Print"
+                     destination="CaptureEmailID"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="CaptureEmailId"
+                     letter="Email"
+                     destination="CaptureEmailID"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="CaptureEmailIdAndPrint"
+                     letter="PrintEmail"
+                     destination="CaptureEmailID"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintReceiptCompleted"
+                     letter="Continue"
+                     destination="PrintStoreCredit"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          <SITE name="ReceiptPrintOnEmailTimeout" siteaction="PrintReceiptOnTimeoutSite">
+               <COMMENT>
+                    This site print the receipt when eReceiptEmailAddress screen timed out.
+               </COMMENT>
+               <ROAD name="ReceiptPrintOnEmailTimeout"
+                     letter="Timeout"
+                     destination="Final"
+                     laneaction="PrintTransactionReceiptAisle"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+          <SITE name="CaptureEmailID" siteaction="CaptureEmailUISite">
+               <COMMENT>
+                   This site (optionally) captures the email of the customer
+                   and then sends a "Next" letter to print the receipt.
+               </COMMENT>
+
+               <AISLE name="PrintSuspendReceipt"
+                      letter="Next"
+                      laneaction="PrintSuspendedTransactionReceiptAisle">
+                    <COMMENT>
+                        This aisle prints only the suspended receipt (i.e. not
+                        all the gift receipts and rebates, etc.)
+                    </COMMENT>
+                    <LIGHT signal="IsTransactionSuspendedSignal"/>
+               </AISLE>
+               <AISLE name="PrintTransactionReceipt"
+                      letter="Next"
+                      laneaction="PrintTransactionReceiptAisle">
+               </AISLE>
+
+               <AISLE name="PrintSuspendRetry"
+                      letter="Retry"
+                      laneaction="PrintSuspendedTransactionReceiptAisle">
+                    <COMMENT>
+                        This aisle prints only the suspended receipt (i.e. not
+                        all the gift receipts and rebates, etc.)
+                    </COMMENT>
+                    <LIGHT signal="IsTransactionSuspendedSignal"/>
+               </AISLE>
+               <AISLE name="PrintReceiptRetry"
+                      letter="Retry"
+                      laneaction="PrintTransactionReceiptAisle">
+               </AISLE>
+               <AISLE name="PrintReceiptRetry"
+                      letter="Print"
+                      laneaction="PrintTransactionReceiptAisle">
+               </AISLE>
+
+               <AISLE name="SuspendReceiptPrintedSuccessfully"
+                      letter="Success"
+                      laneaction="ContinueConversionAisle">
+                    <COMMENT>
+                        Since the PrintSuspendedTransactionReceiptAisle sends a
+                        Success letter, that is converted to a Continue letter.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="SuspendReceiptDialogDismissed"
+                      letter="SuspendedTransaction"
+                      laneaction="ContinueConversionAisle">
+                    <COMMENT>
+                        Since the PrintSuspendedTransactionReceiptAisle sends a
+                        SuspendedTransaction letter, that is converted to a Continue letter.
+                    </COMMENT>
+               </AISLE>
+
+               <AISLE name="PrintICCDetails"
+                      letter="Continue"
+                      laneaction="PrintICCDetailsAisle">
+                    <COMMENT>
+                        This aisle prints details of the Chip and PIN card.
+                    </COMMENT>
+                    <LIGHT signal="IsICCDetailsAvailable"/>
+                </AISLE>
+                <ROAD name="ReceiptOptionsSelected"
+                     letter="ReceiptOptions"
+                     destination="PrintReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintReceiptCompleted"
+                     letter="Continue"
+                     laneaction="PrinterStatusOnlineAisle"
+                     destination="PrintStoreCredit"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintReceiptOnEmailTimeout"
+                     letter="Timeout"
+                     destination="ReceiptPrintOnEmailTimeout"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintICCDetailsCompleted"
+                     letter="Ok"
+                     laneaction="PrinterStatusOnlineAisle"
+                     destination="PrintStoreCredit"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintReceiptCompleted"
+                     letter="Undo"
+                     destination="PrintReceipt"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+               <ROAD name="PrintFailed"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+
+          <SITE name="PrintStoreCredit" siteaction="PrintStoreCreditSite">
+               <COMMENT>
+               This site prints the store credit.
+               </COMMENT>
+               <AISLE name="PrintTransactionStoreCredit"
+                      letter="Print"
+                      laneaction="PrintTransactionStoreCreditAisle">
+               </AISLE>
+               <AISLE name="PrintStoreCreditRetry"
+                      letter="Retry"
+                      laneaction="PrintTransactionStoreCreditAisle">
+               </AISLE>
+               <AISLE name="PrintStoreCreditError"
+                      letter="Error"
+                      laneaction="ShowStoreCreditPrintErrorAisle">
+               </AISLE>
+               <ROAD name="PrintStoreCreditContinue"
+                      letter="Continue"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="ON"
+                      index="ON" >
+               </ROAD>
+               <ROAD name="PrintStoreCreditCompleted"
+                     letter="ExitPrinting"
+                     laneaction="PrinterStatusOnlineAisle"
+                     destination="Final"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON" >
+               </ROAD>
+          </SITE>
+
+          <SYSTEMSITE name="Final" action="RETURN" />
+          <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+     </REGION>
+</MAP>
+</SERVICE>

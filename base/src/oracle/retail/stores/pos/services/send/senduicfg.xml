@@ -1,0 +1,244 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/send/senduicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    dwfung    02/03/10 - added Ship Via to be required
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/16/09 - add Keys button
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+            specName="ShipToAddressSpec"
+            configuratorPackage="oracle.retail.stores.pos.ui"
+            configuratorClassName="POSBeanConfigurator"
+            beanPackage="oracle.retail.stores.pos.ui.beans"
+            beanClassName="CustomerInfoBean">
+    </BEAN>
+    <BEAN
+            specName="ShippingMethodButtonSpec"
+            configuratorPackage="oracle.retail.stores.pos.ui"
+            configuratorClassName="POSBeanConfigurator"
+            beanPackage="oracle.retail.stores.pos.ui.beans"
+            beanClassName="ValidateNavigationButtonBean">
+             <BUTTON
+                actionName="Done"
+                enabled="true"
+                keyName="F2"
+                labelTag="Done"/>
+    </BEAN>
+    <BEAN
+            specName="ShippingMethodSpec"
+            configuratorPackage="oracle.retail.stores.pos.ui"
+            configuratorClassName="POSBeanConfigurator"
+            beanPackage="oracle.retail.stores.pos.ui.beans"
+            beanClassName="ShippingMethodBean">
+    </BEAN>
+    
+    <BEAN
+            specName="MultipleGeoCodesButtonSpec"
+            configuratorPackage="oracle.retail.stores.pos.ui"
+            configuratorClassName="POSBeanConfigurator"
+            beanPackage="oracle.retail.stores.pos.ui.beans"
+            beanClassName="ValidateNavigationButtonBean">
+    </BEAN>
+    
+    <BEAN
+            specName="MultipleGeoCodesSpec"
+            configuratorPackage="oracle.retail.stores.pos.ui"
+            configuratorClassName="POSBeanConfigurator"
+            beanPackage="oracle.retail.stores.pos.ui.beans"
+            beanClassName="ListBean">
+    </BEAN>
+    
+    <OVERLAYSCREEN
+            defaultScreenSpecName="DefaultValidatingSpec"
+            resourceBundleFilename="sendText"
+            specName="SHIPPING_ADDRESS">
+
+            <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="ShipToAddressSpec">
+                <BEANPROPERTY
+                     propName="RequiredValidatingFields"
+                     propValue="addressLine1Field,cityField,postalCodeField,telephoneField"/>
+                <BEANPROPERTY
+                     propName="OptionalValidatingFields"
+                     propValue="firstNameField,lastNameField,orgNameField, addressLine2Field,postalCodeExtField"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+                <BEANPROPERTY
+                    propName="screenNameTag" propValue="ShipToAddressScreenName"/>
+            </ASSIGNMENT>
+
+            <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+                <BEANPROPERTY
+                    propName="promptTextTag"
+                    propValue="ShipToAddressPrompt"/>
+            </ASSIGNMENT>
+
+            <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+                <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+                <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[true],Keys[true]"/>
+            </ASSIGNMENT>
+
+            <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="ShipToAddressSpec"/>
+
+            <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="ShipToAddressSpec"/>
+
+            <CONNECTION
+                sourceBeanSpecName="ShipToAddressSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>
+     </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+            defaultScreenSpecName="DefaultValidatingSpec"
+            resourceBundleFilename="sendText"
+            specName="SHIPPING_METHOD">
+
+            <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+                <BEANPROPERTY
+                    propName="screenNameTag" propValue="ShippingMethodScreenName"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="ShippingMethodButtonSpec">
+                <BEANPROPERTY
+                propName="actionName"
+                propValue="Done"/>
+            </ASSIGNMENT>
+
+
+            <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="ShippingMethodSpec">
+                <BEANPROPERTY
+                     propName="RequiredValidatingFields"
+                     propValue="shipChargeField,shipViaList"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+                <BEANPROPERTY
+                    propName="promptTextTag" propValue="ShippingMethodPrompt"/>
+            </ASSIGNMENT>
+            <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+                <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+                <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+           </ASSIGNMENT>
+           <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="ShippingMethodSpec"/>
+
+           <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="ShippingMethodButtonSpec"
+                targetBeanSpecName="ShippingMethodSpec"/>
+
+           <CONNECTION
+                sourceBeanSpecName="ShippingMethodSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+            defaultScreenSpecName="EYSPOSDefaultSpec"
+            resourceBundleFilename="sendText"
+            specName="MULTIPLE_GEO_CODES">
+
+            <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+                <BEANPROPERTY
+                    propName="screenNameTag" propValue="MultipleGeoCodesScreenName"/>
+            </ASSIGNMENT>
+            
+            <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="MultipleGeoCodesButtonSpec">
+                <BEANPROPERTY
+                propName="actionName"
+                propValue="Done"/>
+            </ASSIGNMENT>
+
+            <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="MultipleGeoCodesSpec">
+                <BEANPROPERTY
+                     propName="OptionalValidatingFields"
+                     propValue="shipChargeField"/>
+            </ASSIGNMENT>
+            
+            <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+                <BEANPROPERTY
+                    propName="promptTextTag" propValue="MultipleGeoCodesPrompt"/>
+            </ASSIGNMENT>
+            
+            <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+                <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+                <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[true],Keys[true]"/>
+           </ASSIGNMENT>
+           
+           <!-- <CONNECTION
+                sourceBeanSpecName="MultipleGeoCodesSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/> -->
+
+    </OVERLAYSCREEN>
+
+</UICFG>

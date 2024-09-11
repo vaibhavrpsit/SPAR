@@ -1,0 +1,156 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/resethardtotals/resethardtotals.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ResetHardTotals"
+    package="oracle.retail.stores.pos.services.admin.resethardtotals"
+    tourcam="OFF">
+    <COMMENT>
+        Service that enables the user to reset the hard totals 
+        for the register.
+    </COMMENT>
+    <CARGO class="ResetHardTotalsCargo" package="oracle.retail.stores.pos.services.admin.resethardtotals">
+        <COMMENT>
+            Contains a boolean which tells whether or not this 
+            is a manual reset. This is used to control the UI so 
+            that other services can call this one.
+        </COMMENT>
+    </CARGO>
+    <SERVICECODE>
+        <LANEACTION class="ContinueConversionAisle"
+                    package="oracle.retail.stores.pos.services.common"/>
+
+        <LETTER name="No"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Override"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Cancel"/>
+
+        <SITEACTION class="CheckManualAccessSite" />
+        <SITEACTION class="ResetHardTotalsConfirmSite" />
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="ResetHardTotalsSite"/>
+
+        <LANEACTION class="ResetConfirmedRoad"/>
+        <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    </SERVICECODE>
+
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckManualAccess">
+
+            <SITE name="CheckManualAccess" siteaction="CheckManualAccessSite">
+                <ROAD 
+                    name="ManualAccess"
+                    letter="Yes"
+                    destination="CheckAccess">
+                </ROAD>
+                <ROAD 
+                    name="Automatic"
+                    letter="No"
+                    destination="ResetTotals">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD 
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="ResetHardTotalsConfirm">
+                </ROAD>
+            </SITE>
+            
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <AISLE 
+                    name="OverrideFailed"
+                    letter="Failure"
+                    laneaction="ContinueConversionAisle" >
+                </AISLE>
+                <AISLE 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    laneaction="ContinueConversionAisle" >
+                </AISLE>
+                <ROAD   
+                    name="OverrideSucceeded"
+                    letter="Success"
+                    destination="ResetHardTotalsConfirm" >
+                </ROAD>
+                <ROAD   
+                    name="ResetAccessDenied"
+                    letter="Continue"
+                    destination="Final" >
+                </ROAD>
+          </STATION>                 
+
+            <SITE name="ResetHardTotalsConfirm" siteaction="ResetHardTotalsConfirmSite">
+                <COMMENT>
+                    Initial site for reset hard totals service.
+                </COMMENT>
+                <AISLE
+                    name="ResetDeclined"
+                    letter="No"
+                    laneaction="ContinueConversionAisle">
+                    <COMMENT>
+                        User did not want to reset hard totals when asked. 
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="ResetConfirmed"
+                    letter="Yes"
+                    destination="ResetTotals" 
+                    laneaction="ResetConfirmedRoad">
+                    <COMMENT>
+                        User pressed Yes to reset hard totals. The status 
+                        screen needs to be put up and the hard totals need to 
+                        be reset in the traverse method. Once this is done, 
+                        finish the service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ResetCompleted"
+                    letter="Continue"
+                    destination="Final" >
+                </ROAD>
+            </SITE>
+            <SITE name="ResetTotals" siteaction="ResetHardTotalsSite">
+                <ROAD 
+                    name="Done"
+                    letter="Continue"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+            
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

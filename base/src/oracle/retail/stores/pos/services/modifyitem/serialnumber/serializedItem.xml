@@ -1,0 +1,414 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/modifyitem/serialnumber/serializedItem.xml /main/22 2013/11/07 15:31:44 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   11/06/13 - deprecate negative version of trafficlight and just
+ *                         use XML option instead
+ *    sgu       12/27/12 - add serialized item flag to sale return line item
+ *                         table
+ *    sgu       12/26/12 - create shuttles for create xc shipping item
+ *    sgu       12/26/12 - add xhannel shipping shuttle
+ *    jswan     05/14/12 - Modified to support Ship button feature.
+ *    cgreene   08/10/11 - quickwin - implement dialog for trying to enter
+ *                         multiple qty of serialized item
+ *    sgu       12/17/10 - check in all
+ *    sgu       12/17/10 - XbranchMerge sgu_bug-10373675 from
+ *                         rgbustores_13.3x_generic_branch
+ *    sgu       12/16/10 - rework the logic to check serial number dueplicates
+ *    rrkohli   12/01/10 - correct identation
+ *    rrkohli   12/01/10 - modified file name
+ *    rrkohli   12/01/10 - fix to handle when same serial number is entered
+ *                         more than once
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    nkgautam  12/17/09 - tour change for kit item
+ *    nkgautam  12/15/09 - new tour changes for serialisation
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="SerialNumber"
+    package="oracle.retail.stores.pos.services.modifyitem.serialnumber"
+    tourcam="OFF">
+    <COMMENT>
+        This service collects and sets the serial number info for an item
+        or a group of serialized items.
+    </COMMENT>
+    <CARGO class="SerializedItemCargo"/>
+    <SERVICECODE>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Error"/>
+        <LETTER name="Next"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Validate"/>
+
+        <LANEACTION class="ItemSerialModifiedRoad" />
+
+        <SITEACTION class="CheckForDuplicateSerialNumberSite"/>
+        <SITEACTION class="CheckForSerializedItemSite"/>
+        <SITEACTION class="GetSerialNumberSite"/>
+
+        <SIGNAL     class="IsSerialisationEnabledSignal"              package="oracle.retail.stores.pos.services.common"/>
+        <SIGNAL     class="IsXChannelOrderSignal" package="oracle.retail.stores.pos.services.common"/>
+
+        <SHUTTLE    class="SerialisedDeliveryLaunchShuttle"           package="oracle.retail.stores.pos.services.modifyitem.serialnumber"/>
+        <SHUTTLE    class="SerialisedDeliveryReturnShuttle"           package="oracle.retail.stores.pos.services.modifyitem.serialnumber"/>
+        <SHUTTLE    class="SerialisedPickUpLaunchShuttle"             package="oracle.retail.stores.pos.services.modifyitem.serialnumber"/>
+        <SHUTTLE    class="SerialisedPickUpReturnShuttle"             package="oracle.retail.stores.pos.services.modifyitem.serialnumber"/>
+        <SHUTTLE    class="ValidateSerialNumberLaunchShuttle"         package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE    class="ValidateSerialNumberReturnShuttle"         package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE    class="XChannelCreatePickupReturnShuttle"/>
+        <SHUTTLE    class="XChannelCreateShippingLaunchShuttle"/>
+        <SHUTTLE    class="XChannelCreateShippingReturnShuttle"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckItem">
+            <SITE name="CheckItem" siteaction="CheckForSerializedItemSite">
+                <ROAD
+                    name="GetSerialNumberRoad"
+                    letter="Continue"
+                    destination="GetSerialNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ExitServiceRoad"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoServiceRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelServiceRoad"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="DuplicateSerializedItem"
+                    letter="Error"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="CheckForDuplicateSerialNumber" siteaction="CheckForDuplicateSerialNumberSite">
+                <ROAD
+                    name="NoDupSerialDetectedCheckItem"
+                    letter="Next"
+                    destination="CheckItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsSerialisationEnabledSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="NoDupSerialDetectedValidateSerial"
+                    letter="Next"
+                    destination="ValidateSerialStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsSerialisationEnabledSignal"/>
+                </ROAD>
+                <ROAD
+                    name="DuplicateSerializedItemRetry"
+                    letter="Retry"
+                    destination="GetSerialNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="GetSerialNumber" siteaction="GetSerialNumberSite">
+                <ROAD
+                    name="SerialNumberEntered"
+                    letter="Next"
+                    destination="CheckForDuplicateSerialNumber"
+                    laneaction="ItemSerialModifiedRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetSerialNumberUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetSerialNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PickupSelected"
+                    letter="Pickup"
+                    destination="PickupStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                   name="XChannelPickupSelected"
+                   letter="Pickup"
+                   destination="XChannelCreatePickupOrderStation"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+                    <LIGHT signal="IsXChannelOrderSignal"/>
+               </ROAD>
+                <ROAD
+                   name="DeliverySelected"
+                   letter="Delivery"
+                   destination="DeliveryStation"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+                    <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+                </ROAD>
+               <ROAD
+                   name="ShippingSelected"
+                   letter="Delivery"
+                   destination="XChannelCreateShippingOrderStation"
+                   tape="ADVANCE"
+                   record="ON"
+                   index="ON">
+                   <LIGHT signal="IsXChannelOrderSignal"/>
+               </ROAD>
+            </SITE>
+
+            <STATION name="ValidateSerialStation"
+                   servicename="services.serialvalidation.serialvalidation"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ValidateSerialNumberLaunchShuttle">
+                <COMMENT>
+                    This station goes to the Validate Serial Station
+                </COMMENT>
+                <ROAD
+                    name="SellableRoad"
+                    letter="Sellable"
+                    destination="CheckItem"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ValidationErrorRoad"
+                    letter="Invalid"
+                    destination="GetSerialNumber"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="IMEISuccessRoad"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+
+            <STATION
+                   name="PickupStation"
+                   servicename="services.pickup.pickup"
+                   targettier="CURRENTTIER"
+                   launchshuttle="SerialisedPickUpLaunchShuttle"
+                   returnshuttle="SerialisedPickUpReturnShuttle">
+                    <COMMENT >
+                        Serialized Pick Up Station
+                    </COMMENT>
+               <ROAD
+                    name="ModifyPickupCompleted"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+              </ROAD>
+              <ROAD
+                    name="ModifyPickupCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+              </ROAD>
+              <ROAD
+                    name="ModifyPickupUndone"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+              </ROAD>
+            </STATION>
+
+            <STATION
+                    name="DeliveryStation"
+                    servicename="services.delivery.delivery"
+                    targettier="CURRENTTIER"
+                    launchshuttle="SerialisedDeliveryLaunchShuttle"
+                    returnshuttle="SerialisedDeliveryReturnShuttle">
+                    <COMMENT >
+                        Serialized Delivery Station
+                    </COMMENT>
+               <ROAD
+                    name="ModifyDeliveryCompleted"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+               </ROAD>
+               <ROAD
+                    name="ModifyDeliveryCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+               </ROAD>
+               <ROAD
+                    name="ModifyDeliveryUndone"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+               </ROAD>
+            </STATION>
+            <STATION
+                   name="XChannelCreatePickupOrderStation"
+                   servicename="services.order.xchannelpickup"
+                   targettier="CURRENTTIER"
+                   launchshuttle="SerialisedPickUpLaunchShuttle"
+                   returnshuttle="XChannelCreatePickupReturnShuttle">
+                    <COMMENT >
+                        This station sends the selected items to the
+                        cross channel pickup order create tour.
+                    </COMMENT>
+               <ROAD
+                    name="XChannelModifyPickupCompleted"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+              </ROAD>
+              <ROAD
+                    name="XChannelModifyPickupCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+              </ROAD>
+              <ROAD
+                    name="XChannelModifyPickupUndone"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+              </ROAD>
+              <ROAD
+                    name="XChannelModifyPickupErorr"
+                    letter="Error"
+                    destination="GetSerialNumber"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+              </ROAD>
+            </STATION>
+
+            <STATION
+                name="XChannelCreateShippingOrderStation"
+                servicename="services.order.xchannelshipping"
+                targettier="CURRENTTIER"
+                   launchshuttle="XChannelCreateShippingLaunchShuttle"
+                   returnshuttle="XChannelCreateShippingReturnShuttle">
+                 <ROAD
+                    name="CreateShippingOrderStationContinue"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CreateShippingOrderStationCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CreateShippingOrderStationUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>                                                     
+                <ROAD
+                    name="CreateShippingOrderStationError"
+                    letter="Error"
+                    destination="GetSerialNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CreateShippingOrderStationDone"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>             
+            </STATION>
+
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

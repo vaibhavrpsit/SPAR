@@ -1,0 +1,503 @@
+<?xml version='1.0' ?>
+<!--
+/*===========================================================================
+* Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+* ===========================================================================
+* $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/modifyitem/relateditem/relateditem.xml /main/5 2014/03/28 16:11:34 rabhawsa Exp $
+* ===========================================================================
+* NOTES
+* <other useful comments, qualifications, etc.>
+*
+* MODIFIED    (MM/DD/YY)
+* rabhawsa    03/28/14 - first check if realted item there or not then display
+*                        the realted item screen.
+* yiqzhao     02/26/13 - Check for order item after adding related item(s).
+* yiqzhao     02/14/13 - Remove the primary item if its auto item cannot be
+*                        added into the transaction, such as age limitation.
+* yiqzhao     11/08/12 - Using different sites to display different types of
+*                        related items.
+* yiqzhao     09/28/12 - add Lookup letter
+* yiqzhao     09/27/12 - add handling no auto type code related item.
+* yiqzhao     09/26/12 - refactor related item to add cross sell, upsell and
+*                        substitute, remove pick one and pick many
+* yiqzhao     09/20/12 - Creation
+* ===========================================================================
+*/
+-->
+
+
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="RelatedItem"
+    package="oracle.retail.stores.pos.services.modifyitem.relateditem"
+    tourcam="ON">
+    <CARGO  class="RelatedItemCargo"/>
+    <SERVICECODE >
+        <LETTER name="AUTO"/>
+        <LETTER name="CROSSSELL"/> 
+        <LETTER name="UPSELL"/>   
+        <LETTER name="SUBSTITUTE"/> 
+        <LETTER name="Add"/>
+        <LETTER name="Undo"/> 
+        <LETTER name="Lookup"/>   
+        
+        <LETTER name="Cancel"/>
+        <LETTER name="CheckSizeRequired"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Continue2"/>
+        <LETTER name="Done"/>
+        <LETTER name="GetSerialNumbers"/>
+        <LETTER name="GiftCard"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Loop"/>
+
+        <LETTER name="Next"/>
+        <LETTER name="NotValid"/>
+        <LETTER name="Ok"/>
+
+        <LETTER name="Override"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Search"/>
+        <LETTER name="Size"/>
+
+        <SITEACTION class="AddItemSite" package="oracle.retail.stores.pos.services.sale"/>
+        <SITEACTION class="EnterItemSizeSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="ShowSaleScreenSite" package="oracle.retail.stores.pos.services.sale"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+                
+        <LANEACTION class="CheckIfSizeRequiredAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="DisplayItemErrorAisle" package="oracle.retail.stores.pos.services.sale"/>
+        <LANEACTION class="DisplayItemSizeDialogAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ItemAddedRoad" package="oracle.retail.stores.pos.services.sale"/>
+        <LANEACTION class="ItemInfoEnteredAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="RemoveItemRoad" package="oracle.retail.stores.pos.services.sale"/>
+        <LANEACTION class="ValidateItemSizeAisle" package="oracle.retail.stores.pos.services.common"/>
+        
+        <LANEACTION class="AddRelatedOrderItemAisle"/>
+        
+        <SHUTTLE class="ModifyItemSerialNumberLaunchShuttle" package="oracle.retail.stores.pos.services.sale"/>
+        
+        <SITEACTION class="RelatedItemOptionSite"/>
+        <SITEACTION class="DisplayCrossSellRelatedItemSite"/>
+        <SITEACTION class="DisplayUpsellRelatedItemSite"/>
+        <SITEACTION class="DisplaySubstituteRelatedItemSite"/>
+        <SITEACTION class="RelatedItemLookupSite"/>
+        <SITEACTION class="AddAutoRelatedItemSite"/>
+        <SITEACTION class="RelatedItemNotFoundSite"/>
+        <SITEACTION class="RemovePrimaryItemSite"/>
+        
+        <LANEACTION class="RelatedItemSelectedRoad"/>
+        
+        <SHUTTLE class="RelatedItemLookupLaunchShuttle"/>
+        <SHUTTLE class="RelatedItemLookupReturnShuttle"/>
+        
+        <SIGNAL  class="IsAutoAddSignal"/>
+        
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="AddAutoRelatedItem">
+            <SITE name="AddAutoRelatedItem" siteaction="AddAutoRelatedItemSite">
+                <ROAD name="AutomaticRelatedItemsAdded"
+                    letter="Next"
+                    destination="RelatedItemLookup"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD name="AutomaticRelatedItemsNoFound"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>                               
+                <ROAD name="AutomaticRelatedItemsDone"
+                    letter="Done"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>               
+            </SITE>
+            <SITE name="RelatedItemOption" siteaction="RelatedItemOptionSite">
+                <ROAD name="CrossSellRelatedItems"
+                    letter="CROSSSELL"
+                    destination="DisplayCrossSellRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="UpsaleRelatedItems"
+                    letter="UPSELL"
+                    destination="DisplayUpsellRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="SubstituteRelatedItems"
+                    letter="SUBSTITUTE"
+                    destination="DisplaySubstituteRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="RelatedItemsUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>                
+            </SITE>
+            <SITE name="DisplayCrossSellRelatedItem" siteaction="DisplayCrossSellRelatedItemSite">
+                <ROAD name="CrossSellRelatedItems"
+                    letter="CROSSSELL"
+                    destination="DisplayCrossSellRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="UpsaleRelatedItems"
+                    letter="UPSELL"
+                    destination="DisplayUpsellRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="SubstituteRelatedItems"
+                    letter="SUBSTITUTE"
+                    destination="DisplaySubstituteRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="AddRelatedItems"
+                    letter="Add"
+                    laneaction="RelatedItemSelectedRoad"
+                    destination="RelatedItemLookup"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>                
+                <ROAD name="UndoRelatedItems"
+                    letter="Undo"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayUpsellRelatedItem" siteaction="DisplayUpsellRelatedItemSite">
+                <ROAD name="CrossSellRelatedItems"
+                    letter="CROSSSELL"
+                    destination="DisplayCrossSellRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="UpsaleRelatedItems"
+                    letter="UPSELL"
+                    destination="DisplayUpsellRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="SubstituteRelatedItems"
+                    letter="SUBSTITUTE"
+                    destination="DisplaySubstituteRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="AddRelatedItems"
+                    letter="Add"
+                    laneaction="RelatedItemSelectedRoad"
+                    destination="RelatedItemLookup"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>                
+                <ROAD name="UndoRelatedItems"
+                    letter="Undo"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>  
+            <SITE name="DisplaySubstituteRelatedItem" siteaction="DisplaySubstituteRelatedItemSite">
+                <ROAD name="CrossSellRelatedItems"
+                    letter="CROSSSELL"
+                    destination="DisplayCrossSellRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="UpsaleRelatedItems"
+                    letter="UPSELL"
+                    destination="DisplayUpsellRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="SubstituteRelatedItems"
+                    letter="SUBSTITUTE"
+                    destination="DisplaySubstituteRelatedItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD name="AddRelatedItems"
+                    letter="Add"
+                    laneaction="RelatedItemSelectedRoad"
+                    destination="RelatedItemLookup"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>                
+                <ROAD name="UndoRelatedItems"
+                    letter="Undo"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>                                      
+            <SITE name="RelatedItemLookup" siteaction="RelatedItemLookupSite">
+                <ROAD name="LookupRelatedItem"
+                    letter="Lookup"
+                    destination="RelatedItemLookupStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>              
+                <ROAD name="RelatedItemLookupDone"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>            
+            <STATION
+                name="RelatedItemLookupStation"
+                servicename="iteminquiry.itemlookup.itemlookup"
+                targettier="APPLICATIONTIER"
+                launchshuttle="RelatedItemLookupLaunchShuttle"
+                returnshuttle="RelatedItemLookupReturnShuttle">
+                <AISLE
+                    name="CheckForSizeRequired"
+                    letter="Continue"
+                    laneaction="CheckIfSizeRequiredAisle">
+                </AISLE>
+                <ROAD
+                    name="EnterSize"
+                    letter="Size"
+                    destination="EnterItemSize"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ItemAdd"
+                    letter="Continue2"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InvalidItemNumberEntered"
+                    letter="Invalid"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <LIGHT signal="IsAutoAddSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="InvalidAutoItem"
+                    letter="Invalid"
+                    destination="RemovePrimaryItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <LIGHT signal="IsAutoAddSignal"/>
+                </ROAD>
+                <ROAD
+                    name="ItemNotFound"
+                    letter="Retry"
+                    destination="RelatedItemNotFound"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelItemLookup"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoItemLookup"
+                    letter="Undo"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemGiftCard"
+                    letter="GiftCard"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="EnterItemSize" siteaction="EnterItemSizeSite">
+                <AISLE
+                    name="ValidateItemSize"
+                    letter="Next"
+                    laneaction="ValidateItemSizeAisle">
+                </AISLE>
+                <AISLE
+                    name="DisplayItemSizeDialog"
+                    letter="Invalid"
+                    laneaction="DisplayItemSizeDialogAisle">
+                </AISLE>
+                <ROAD
+                    name="ItemSizeReenter"
+                    letter="Ok"
+                    destination="EnterItemSize"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AddItemRoad"
+                    letter="Search"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelEnterItemSize"
+                    laneaction="RemoveItemRoad"
+                    letter="Cancel"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnterItemSize"
+                    laneaction="RemoveItemRoad"
+                    letter="Undo"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="AddItem" siteaction="AddItemSite">
+                 <AISLE
+                    name="SpecialOrder"
+                    letter="NotValid"
+                    laneaction="DisplayItemErrorAisle">
+                    <COMMENT >
+                        Special order state active and item is not valid
+                    </COMMENT>
+                </AISLE>
+                 <AISLE
+                    name="AddRelatedItem"
+                    letter="Continue"
+                    laneaction="AddRelatedOrderItemAisle">
+                    <COMMENT >
+                        Add the related item in RelatedItemCargo
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="ItemAdded"
+                    letter="Next"
+                    laneaction="ItemAddedRoad"
+                    destination="RelatedItemLookup"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>                               
+                <ROAD
+                    name="GetSerialNumbers"
+                    letter="GetSerialNumbers"
+                    destination="SerializedItemStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                 <ROAD
+                    name="SpecialOrderNotEligible"
+                    letter="Invalid"
+                    laneaction="RemoveItemRoad"
+                    destination="RelatedItemOption"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="RelatedItemNotFound" siteaction="RelatedItemNotFoundSite">
+                <ROAD
+                    name="RelatedItemNotFoundContinue"
+                    letter="Continue"
+                    destination="RelatedItemOption">
+                </ROAD>
+            </SITE>
+            <SITE  name="RemovePrimaryItem" siteaction="RemovePrimaryItemSite">
+                <ROAD
+                    name="RemovePrimaryItemSelected"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>            
+            <STATION
+                 name="SerializedItemStation"
+                 servicename="modifyitem.serialnumber.serializedItem"
+                 targettier="CURRENTTIER"
+                 launchshuttle="ModifyItemSerialNumberLaunchShuttle">
+                 <COMMENT>
+                     This service prompts the user for serial number input and sets the serial number attribute
+                     for one or more line items.
+                 </COMMENT>
+                 <ROAD
+                     name="SerializedItemUndo"
+                     laneaction="RemoveItemRoad"
+                     letter="Undo"
+                     destination="RelatedItemOption">
+                 </ROAD>
+                 <ROAD
+                     name="SerializedItemCancel"
+                     letter="Cancel"
+                     destination="RelatedItemOption">
+                 </ROAD>
+                 <ROAD
+                     name="SerialNumbersEntered"
+                     letter="Ok"
+                     laneaction="ItemAddedRoad"
+                     destination="RelatedItemLookup">
+                 </ROAD>
+            </STATION>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

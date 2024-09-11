@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<UICFG>
+    <!-- The display spec for when displaying main dual display window. -->
+    <DISPLAY specName="DualDisplaySpec">
+        <!-- Set the display width and height when not in PROD (fullscreen) mode. -->
+        <PROPERTY propName="displayWidth" propValue="1024"/>
+        <PROPERTY propName="displayHeight" propValue="768"/>
+        <!-- Set the resource bundle and key to use for finding the titlebar text. -->
+        <PROPERTY propName="resourceBundleFilename" propValue="commonText"/>
+        <PROPERTY propName="defaultTitle" propValue="Oracle Retail Point-of-Service"/>
+        <PROPERTY propName="titleTag" propValue="posApplicationTitle"/>
+        <PROPERTY propName="closeButton" propValue="enabled"/>
+    </DISPLAY>
+    <TEMPLATE
+        specName="DualDisplaySellItemTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+
+        <AREA
+            areaName="SalePanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="1" gridheight="2"
+                weightx="1.0" weighty="1.0" fill="BOTH" anchor="NORTHEAST" ipadx="0"
+                ipady="2">
+                <INSETS top="6" left="6" bottom="3" right="3"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="LogoPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="1" gridy="0" gridwidth="1" gridheight="2"
+                weightx="0.6" weighty="1.0" fill="BOTH" anchor="NORTHWEST" ipadx="0"
+                ipady="0">
+                <INSETS top="6" left="6" bottom="3" right="3"/>              
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="MarketingPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="1" gridy="2" gridwidth="1" gridheight="1"
+                weightx="0.6" weighty="0.3" fill="BOTH" anchor="SOUTHEAST" ipadx="0"
+                ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3"/>             
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA areaName="TotalPanel" 
+              containerPackage="javax.swing"
+              containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="2" gridwidth="1"
+                gridheight="1" weightx="1.0" weighty="0.3" fill="BOTH" anchor="SOUTHWEST"
+                ipadx="0" ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3"/>                      
+            </GRIDBAGCONSTRAINTS>
+        </AREA>        
+       </TEMPLATE>
+       <TEMPLATE
+        specName="DualDisplayTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+        <AREA
+            areaName="LogoPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="1.0" fill="BOTH" anchor="NORTH" ipadx="0"
+                ipady="0">
+                <INSETS top="6" left="6" bottom="3" right="3"/>             
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="MarketingPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="1" gridwidth="1" gridheight="1"
+                weightx="0.5" weighty="0.5" fill="BOTH" anchor="SOUTH" ipadx="0"
+                ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3"/>           
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+       </TEMPLATE>
+      <BEAN
+        specName="EmptyPanelSpec"
+        beanClassName="EmptyBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+     </BEAN>
+     <BEAN
+        specName="MarketingBeanSpec"
+        beanClassName="DualDisplayMarketingBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+    </BEAN>   
+    <BEAN
+        specName="LogoBeanSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="LogoBean">        
+    </BEAN>
+    <BEAN
+        specName="TotalPanelSpec"
+        beanClassName="DualDisplayStackedTotalBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        cachingScheme="ONE">
+    </BEAN>    
+    <BEAN
+        specName="SaleSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DualDisplaySaleBean"
+        cachingScheme="ONE">
+        <BEANPROPERTY propName="focused" propValue="false"/>
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.SaleLineItemRenderer"/>
+        <BEANPROPERTY propName="labelTags"
+                      propValue="ItemLabel,QuantityLabel,PriceLabel,DiscountLabel,ExtendedPriceLabel"/>
+        <BEANPROPERTY propName="labelWeights"
+                      propValue="24,13,23,19,21"/>
+        <BEANPROPERTY propName="selectionMode"
+                      propValue="multi"/>
+    </BEAN>
+    <DEFAULTSCREEN
+            specName="DualDisplaySellItemScreenSpec"
+            templateSpecName="DualDisplaySellItemTemplateSpec" 
+            displaySpecName="DualDisplaySpec"
+            modelPackage="oracle.retail.stores.pos.ui.beans" 
+            modelClassName="DualDisplayBaseBeanModel"
+            resourceBundleFilename="posUI">
+
+        <ASSIGNMENT areaName="SalePanel" beanSpecName="EmptyPanelSpec"/>
+        
+        <ASSIGNMENT areaName="LogoPanel" beanSpecName="LogoBeanSpec"/>
+
+        <ASSIGNMENT areaName="TotalPanel" beanSpecName="EmptyPanelSpec"/>
+
+        <ASSIGNMENT areaName="MarketingPanel" beanSpecName="EmptyPanelSpec"/>
+            
+    </DEFAULTSCREEN>       
+    <DEFAULTSCREEN
+            specName="DualDisplayScreenSpec"
+            templateSpecName="DualDisplayTemplateSpec" 
+            displaySpecName="DualDisplaySpec"
+            modelPackage="oracle.retail.stores.pos.ui.beans" 
+            modelClassName="DualDisplayBaseBeanModel"
+            resourceBundleFilename="posUI">        
+        <ASSIGNMENT areaName="LogoPanel" beanSpecName="LogoBeanSpec"/>     
+        <ASSIGNMENT areaName="MarketingPanel" beanSpecName="EmptyPanelSpec"/>            
+    </DEFAULTSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DualDisplayScreenSpec"
+        resourceBundleFilename="mainText"
+        specName="DUALDISPLAY_MAIN">
+       <ASSIGNMENT
+            areaName="LogoPanel"
+            beanSpecName="LogoBeanSpec">
+            <BEANPROPERTY propName="logoImage" propValue="logo.gif"/> 
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="MarketingPanel"
+            beanSpecName="MarketingBeanSpec">
+         </ASSIGNMENT>
+    </OVERLAYSCREEN>
+     <OVERLAYSCREEN
+        defaultScreenSpecName="DualDisplaySellItemScreenSpec"
+        resourceBundleFilename="mainText"
+        specName="DUALDISPLAY_SELLITEM">
+
+        <ASSIGNMENT
+            areaName="SalePanel"
+            beanSpecName="SaleSpec">       
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LogoPanel"
+            beanSpecName="LogoBeanSpec">
+            <BEANPROPERTY propName="logoImage" propValue="logo.gif"/> 
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="TotalPanel"
+            beanSpecName="TotalPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="MarketingPanel"
+            beanSpecName="MarketingBeanSpec">
+         </ASSIGNMENT>
+    </OVERLAYSCREEN>
+</UICFG>

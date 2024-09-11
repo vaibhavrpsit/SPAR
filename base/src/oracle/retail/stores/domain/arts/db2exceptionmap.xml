@@ -1,0 +1,86 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/modules/domain/src/oracle/retail/stores/domain/arts/db2exceptionmap.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 12:32:07 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE JDBCEXCEPTIONMAPPING SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/jdbcexceptionmapping.dtd">
+
+<JDBCEXCEPTIONMAPPING>
+    <COMMENT>
+              DB2 specific exceptions.
+    </COMMENT>
+
+    <ADDMAPPING
+        sqlstate="23505"
+        description="Error generated from DB2: Duplicate entry"
+        crsexception="REFERENTIAL_INTEGRITY_ERROR"
+    />
+
+   <ADDMAPPING
+        sqlstate="08S01"
+        description="Error generated from DB2: fails to connect"
+        crsexception="CONNECTION_ERROR"
+    />
+    
+   <!-- 57014 & 40001 DB2 error codes are treated as Connection_Error -->
+    <ADDMAPPING
+        sqlstate="57014"
+        description="Error generated from DB2: Shortage of DB2 Heap Space"
+        crsexception="CONNECTION_ERROR"
+    />
+
+   <ADDMAPPING
+        sqlstate="40001"
+        description="Error generated from DB2: Deadlock detected"
+        crsexception="CONNECTION_ERROR"
+    />
+
+     
+    <ADDMAPPING
+        sqlstate="40003"
+        description="Error generated from DB2: The associated connection failed"
+        crsexception="CONNECTION_ERROR"
+    />
+    
+    <ADDMAPPING
+        sqlstate="42S02"
+        description="Error generated from DB2: Correlation name 'name' not found"
+        crsexception="SQL_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="23000"
+        description="Error generated from DB2: Duplicate entry"
+        crsexception="REFERENTIAL_INTEGRITY_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="42000"
+        description="The data types of the operands for the operation '=' are not compatible."
+        crsexception="SQL_ERROR"
+    />
+
+    <ADDMAPPING
+        sqlstate="HY000"
+        description="An unexpected token was found."
+        crsexception="SQL_ERROR"
+    />
+    <ADDMAPPING
+        sqlstate="S1009"
+        description="Error generated from DB2: Duplicate entry"
+        crsexception="REFERENTIAL_INTEGRITY_ERROR"
+    />
+</JDBCEXCEPTIONMAPPING>
+

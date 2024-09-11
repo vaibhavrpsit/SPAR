@@ -1,0 +1,161 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+   /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ************************
+ * Copyright (c) 2013 Max Hypermarket.    All Rights Reserved. 
+ *  Rev 1.1		May 04, 2017		Kritica Agarwal GST Changes
+ *  Rev 1.0  12/April/2013               Izhar              Till Threshold
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ***************************/
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ItemLookup" package="oracle.retail.stores.pos.services.inquiry.iteminquiry.itemlookup" tourcam="ON">
+     <COMMENT>
+          This service implements the Item Lookup Package
+          of the POS Component Set
+     </COMMENT>
+
+<CARGO class="MAXItemInquiryCargo" package="max.retail.stores.pos.services.inquiry.iteminquiry"/>
+
+<SERVICECODE>
+     <!-- Letter -->
+     <LETTER name="Invalid"/>
+     <LETTER name="Retry"/>
+     <LETTER name="OneItemFound"/>
+     <LETTER name="MultipleItemsFound"/>
+     <LETTER  name="No"/>
+     <LETTER  name="Continue"/>
+     <LETTER  name="Cancel"/>
+     <LETTER  name="GiftCard"/>
+     <LETTER  name="Undo"/>
+ <!-- MAX Rev 1.0 Change : start -->
+   <LETTER name="Ok"/>
+  <!-- MAX Rev 1.0 Change : end -->
+     <!-- Sites -->
+
+     <!-- Lanes -->
+
+     <!-- Shuttles -->
+     <SHUTTLE class="MAXValidateItemLaunchShuttle" package="max.retail.stores.pos.services.inquiry.iteminquiry"/>
+     <SHUTTLE class="ValidateItemReturnShuttle"  package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+     <!-- Changes done by Prateek -->
+     <SHUTTLE class="MAXCheckItemTypeLaunchShuttle" package="max.retail.stores.pos.services.inquiry.iteminquiry"/>
+     <SHUTTLE class="MAXCheckItemTypeReturnShuttle" package="max.retail.stores.pos.services.inquiry.iteminquiry"/>
+
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="ValidateItemStation">
+
+          <STATION
+                name="ValidateItemStation"
+                servicename="iteminquiry.itemvalidate.itemvalidate"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXValidateItemLaunchShuttle"
+                returnshuttle="ValidateItemReturnShuttle">
+				<!-- MAX Rev 1.0 Change : start -->
+               <ROAD  name="CashThrehold"
+                      letter="Ok"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+              <!-- MAX Rev 1.0 Change : end -->
+              <!-- Change for Rev 1.1 : Starts -->
+                <ROAD name="HSNnotFound"
+                      letter="HSNnotFound"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                 <!-- Change for Rev 1.1 : Ends -->
+               <ROAD  name="ItemInfoReentered"
+                      letter="Retry"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+<!-- Dead road?
+               <ROAD name="DataBaseErrorFound"
+                      letter="DbError"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">                    
+               </ROAD>               
+-->               
+               <ROAD  name="ItemInfoInvalid"
+                      letter="Invalid"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+               <ROAD  name="OneItemFound"
+                      letter="OneItemFound"
+                      destination="CheckItemTypeStation"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+               <ROAD name="MultipleItemsFound"
+                      letter="MultipleItemsFound"
+                      destination="CheckItemTypeStation"
+                      tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>
+          </STATION>
+		
+		<!-- Changes done by Prateek -->
+          <STATION
+                name="CheckItemTypeStation"
+                servicename="iteminquiry.itemcheck.itemcheck"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXCheckItemTypeLaunchShuttle"
+                returnshuttle="MAXCheckItemTypeReturnShuttle">
+
+               <ROAD  name="ItemAdd"
+                      letter="Continue"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+               <ROAD  name="CheckItemTypeCanceled"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+               <ROAD name="ItemGiftCard"
+                     letter="GiftCard"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+<!-- Dead road?               
+               <ROAD  name="ItemIsAdded"
+                      letter="Add" 
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+-->               
+               <ROAD name="UndoCheckItemType"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+<!-- Dead road>
+                <ROAD
+                    name="CheckItemTypeCompleted"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+-->                
+                <ROAD
+                    name="CancelAlterationsNoCustomer"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+              </ROAD>
+              <ROAD  name="CheckItemInvalid"
+                      letter="Invalid"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="ON">
+               </ROAD>
+          </STATION>
+			<!-- Changes done by Prateek -->
+          <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+          <SYSTEMSITE  name="Final" action="RETURN"/>
+
+     </REGION>
+</MAP>
+</SERVICE>

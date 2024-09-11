@@ -1,0 +1,41 @@
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  Copyright (c) 1998-2001 360Commerce, Inc.    All Rights Reserved.
+
+     $Log: cardtyperules.dtd,v $
+     Revision 1.2  2004/02/12 16:46:36  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:06  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+-->
+
+
+                <!-- DOCUMENT LEVEL GRAMMAR -->
+
+<!-- Site action tags -->
+
+<!ELEMENT CardRules   (Card*) >
+
+<!ELEMENT Card        (Rule*) >
+
+<!ELEMENT Rule        (Length*, BinRange*, Mask*) >
+
+<!ELEMENT Length      (#PCDATA) >
+
+<!ELEMENT BinRange    (MinValue, MaxValue) >
+
+<!ELEMENT Mask        (#PCDATA) >
+
+<!ELEMENT MinValue    (#PCDATA) >
+
+<!ELEMENT MaxValue    (#PCDATA) >
+
+<!ATTLIST Card name CDATA #REQUIRED >
+<!ATTLIST Card type CDATA #REQUIRED >
+<!ATTLIST Card typeCode CDATA #IMPLIED >

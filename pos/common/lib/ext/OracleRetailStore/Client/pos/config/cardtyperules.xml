@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE CardRules SYSTEM "classpath://config/cardtyperules.dtd">
+
+<!--
+Note; The 'name' attribute of the 'Card' element should use same definitions
+      as defined in:
+      oracle.retail.stores.domain.utility.CardTypeIfc,  (Credit types)
+      
+      This file contains bin ranges and masks used for Oracle testing.  Please
+      remove rules denoted by 'ORACLE TESTING' for production use.
+-->
+
+<CardRules>
+    <Card name="Visa" type="Credit" typeCode="1">
+        <Rule>
+            <Length>13</Length>
+            <Length>16</Length>
+        </Rule>
+        <Rule>
+            <BinRange>
+                <MinValue>400</MinValue>
+                <MaxValue>479</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>490</MinValue>
+                <MaxValue>499</MaxValue>
+            </BinRange>
+        </Rule>
+    </Card>
+    <Card name="MasterCard" type="Credit" typeCode="1">
+        <Rule>
+            <Length>16</Length>
+        </Rule>
+        <Rule>
+            <BinRange>
+                <MinValue>51</MinValue>
+                <MaxValue>55</MaxValue>
+            </BinRange>
+        </Rule>
+    </Card>
+    <Card name="AmEx" type="Credit" typeCode="1">
+        <Rule>
+            <Length>15</Length>
+        </Rule>
+        <Rule>
+            <Mask>34</Mask>
+            <Mask>37</Mask>
+        </Rule>
+    </Card>
+    <Card name="Discover" type="Credit" typeCode="1">
+        <Rule>
+            <BinRange>
+                <MinValue>601100</MinValue>
+                <MaxValue>601109</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>601120</MinValue>
+                <MaxValue>601149</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>601174</MinValue>
+                <MaxValue>601174</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>601177</MinValue>
+                <MaxValue>601179</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>601186</MinValue>
+                <MaxValue>601199</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>644000</MinValue>
+                <MaxValue>649999</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>650000</MinValue>
+                <MaxValue>659999</MaxValue>
+            </BinRange>
+        </Rule>
+    </Card>
+    <Card name="Diners" type="Credit" typeCode="1">
+        <Rule>
+            <BinRange>
+                <MinValue>3000</MinValue>
+                <MaxValue>3059</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>3095</MinValue>
+                <MaxValue>3095</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>3600</MinValue>
+                <MaxValue>3699</MaxValue>
+            </BinRange>
+            <BinRange>
+                <MinValue>3800</MinValue>
+                <MaxValue>3899</MaxValue>
+            </BinRange>
+        </Rule>
+        <Rule>
+            <Length>14</Length>
+        </Rule>
+    </Card>
+    <!-- House Cards are private label cards not branded
+         by major Credit Card providers (i.e. Visa, Mastercard) --> 
+    <Card name="HouseCard" type="Credit" typeCode="1">
+        <Rule>
+            <Mask>7511</Mask>
+        </Rule>
+    </Card>
+    <Card name="JCB" type="Credit" typeCode="1">
+        <Rule>
+            <BinRange>
+                <MinValue>352800</MinValue>
+                <MaxValue>358999</MaxValue>
+            </BinRange>
+        </Rule>
+    </Card>
+    <Card name="GiftCard" type="GiftCard" typeCode="8">
+        <Rule>
+            <Mask>60038</Mask>
+        </Rule>
+        <Rule>
+            <Length>13</Length>
+            <Length>14</Length>
+            <Length>15</Length>
+            <Length>16</Length>
+            <Length>17</Length>
+            <Length>18</Length>
+            <Length>19</Length>
+        </Rule>
+    </Card>
+</CardRules>

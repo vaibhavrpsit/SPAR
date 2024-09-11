@@ -1,0 +1,272 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/inquiry/inquiryoptions.xml /main/15 2013/05/29 12:10:25 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   05/28/13 - Return to modify item screen.
+ *    cgreene   12/05/12 - remove menu=true so that buttons do not paint
+ *                         triangle
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+       $Log:
+      6    360Commerce 1.5         12/19/2007 8:17:58 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      5    360Commerce 1.4         5/4/2006 5:11:49 PM    Brendan W. Farrell
+           Remove inventory.
+      4    360Commerce 1.3         12/13/2005 4:42:40 PM  Barry A. Pape
+           Base-lining of 7.1_LA
+      3    360Commerce 1.2         3/31/2005 4:28:22 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:22:07 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:11:24 PM  Robert Pearse
+     $
+     Revision 1.6  2004/06/29 19:59:03  lzhao
+     @scr 5477: add gift card inquiry in training mode.
+
+     Revision 1.5  2004/04/07 21:10:09  lzhao
+     @scr 3872: gift card redeem and revise gift card activation
+
+     Revision 1.4  2004/03/26 00:24:16  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.3  2004/02/16 22:39:39  lzhao
+     @scr 3841:Inquiry Option Enhancement
+     Modify and add tags to inquiryoptions.
+
+     Revision 1.2  2004/02/12 16:50:26  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:16  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Inquiry"
+    package="oracle.retail.stores.pos.services.inquiry"
+    tourcam="ON">
+    <CARGO class="InquiryOptionsCargo"/>
+    <SERVICECODE>
+
+        <LETTER name="GiftCode"/>
+        <LETTER name="GiftCard"/>
+
+        <LETTER name="Price"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Done"/>
+        <LETTER name="Next"/>
+        <LETTER name="Add"/>
+        <LETTER name="ActivationCancelled"/>
+
+        <SHUTTLE class="GiftReceiptLaunchShuttle"/>
+        <SHUTTLE class="GiftReceiptReturnShuttle"/>
+        <SHUTTLE class="GiftCardReturnShuttle"/>
+        <SHUTTLE class="GiftCardLaunchShuttle"/>
+
+        <SHUTTLE class="ItemInquiryLaunchShuttle"/>
+        <SHUTTLE class="ItemInquiryReturnShuttle"/>
+
+        <SITEACTION class="DisplayInquiryOptionSite"/>
+
+        <LANEACTION class="ResetCargoRoad"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="DisplayInquiryOption">
+            <SITE name="DisplayInquiryOption" siteaction="DisplayInquiryOptionSite">
+                <ROAD
+                    name="PriceInquirySelected"
+                    letter="Price"
+                    tape="ADVANCE"    record="OFF" index="ON"
+                    destination="PriceInquiryStation">
+                </ROAD>
+                <ROAD
+                    name="GiftCodeSelected"
+                    letter="GiftCode"
+                    tape="ADVANCE"    record="OFF" index="ON"
+                    destination="GiftCodeStation">
+                </ROAD>
+                <ROAD
+                    name="GiftCardSelected"
+                    letter="GiftCard"
+                    tape="ADVANCE"    record="OFF" index="ON"
+                    destination="GiftCardStation">
+                </ROAD>
+                <ROAD
+                    name="InquiryOptionsCancelSelected"
+                    letter="Cancel"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="InquiryOptionsCancelMenu"
+                    letter="CancelMenu"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="InquiryOptionsUndoSelected"
+                    letter="Undo"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="PriceInquiryStation"
+                servicename="inquiry.iteminquiry.ItemInquiry"
+                targettier="CURRENTTIER"
+                launchshuttle="ItemInquiryLaunchShuttle"
+                returnshuttle="ItemInquiryReturnShuttle">
+                <ROAD
+                    name="PriceInquiryCompleted"
+                    letter="Next"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="AddItemSelected"
+                    letter="Add"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+               <ROAD
+                    name="PriceInquiryFailed"
+                    letter="Failure"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="PriceInquiryUndoSelected"
+                    letter="Undo"
+                    laneaction="ResetCargoRoad"
+                    tape="REWIND"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="PriceInquiryCancelMenu"
+                    letter="CancelMenu"
+                    laneaction="ResetCargoRoad"
+                    tape="REWIND"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="PriceInquiryCancelSelected"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="PriceInquiryInvalid"
+                    letter="Invalid"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="GiftCardStation"
+                servicename="inquiry.giftcardinquiry.inquiry"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardLaunchShuttle"
+                returnshuttle="GiftCardReturnShuttle">
+                <ROAD
+                    name="GiftCardInquiryFinished"
+                    letter="Done"
+                    destination="Final"
+                    tape="REWIND"  record="OFF"      index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoGiftCardInquiry"
+                    letter="Undo"
+                    destination="Final"
+                    tape="REWIND"   record="OFF"    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelMenuGiftCardInquiry"
+                    letter="CancelMenu"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF"  index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardInquiryFail"
+                    letter="ActivationCancelled"
+                    destination="LastIndexed"
+                    tape="REWIND"   record="OFF"    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelGiftCardInquiry"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF"  index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailedGiftCardInquiry"
+                    letter="Failure"
+                    tape="REWIND"    record="OFF" index="OFF"
+                    destination="LastIndexed">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="GiftCodeStation"
+                servicename="giftreceipt.inquiry.giftreceiptinquiry"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftReceiptLaunchShuttle"
+                returnshuttle="GiftReceiptReturnShuttle">
+                <ROAD
+                    name="GiftReceiptInquirySucceded"
+                    letter="Next"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptInquiryFailed"
+                    letter="Failure"
+                    tape="REWIND"    record="OFF" index="OFF"
+                    destination="LastIndexed">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptInquiryCancelSelected"
+                    letter="Cancel"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptInquiryCancelMenu"
+                    letter="CancelMenu"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptInquiryUndoSelected"
+                    letter="Undo"
+                    tape="REWIND"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+
+        </REGION>
+    </MAP>
+</SERVICE>

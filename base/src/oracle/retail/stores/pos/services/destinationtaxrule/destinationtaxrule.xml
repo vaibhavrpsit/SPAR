@@ -1,0 +1,89 @@
+<?xml version='1.0' ?>
+<!--
+/*===========================================================================
+* Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved. 
+* ===========================================================================
+* $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/destinationtaxrule/destinationtaxrule.xml /main/1 2012/10/22 15:36:15 yiqzhao Exp $
+* ===========================================================================
+* NOTES
+* <other useful comments, qualifications, etc.>
+*
+* MODIFIED    (MM/DD/YY)
+* yiqzhao     10/18/12 - Destination tax rule station tour script.
+* yiqzhao     10/15/12 - Creation
+* ===========================================================================
+*/
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="destinationtaxrule"
+    package="oracle.retail.stores.pos.services.destinationtaxrule"
+    tourcam="ON">
+    <COMMENT>
+        If the transaction contains an external order and the external order contained shipping, the send tax alternate flow is executed.
+    </COMMENT>
+    <CARGO class="DestinationTaxRuleCargo" package="oracle.retail.stores.pos.services.destinationtaxrule"/>
+
+    <SERVICECODE>
+    <!-- Sites -->
+        <SITEACTION class="GetTaxRulesByPostalCodeSite" />
+        <SITEACTION class="DisplayMultipleGeoCodesSite"/>
+        <SITEACTION class="GetTaxRulesByGeoCodeSite" />
+
+    <!-- Letters -->
+        <LETTER name="Undo"/>
+        <LETTER name="Done"/>
+        <LETTER name="MultipleMatches"/>
+        <LETTER name="Next"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="GetTaxRulesByPostalCode">
+            <SITE name="GetTaxRulesByPostalCode" siteaction="GetTaxRulesByPostalCodeSite">
+                <ROAD
+                    name="MultipleGeoCodesFound"
+                    letter="MultipleMatches"
+                    destination="DisplayMultipleGeoCodes"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRulesFound"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"  record="OFF"  index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotAShippedRecord"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayMultipleGeoCodes" siteaction="DisplayMultipleGeoCodesSite">
+                <ROAD
+                    name="GeoCodeSelected"
+                    letter="Next"
+                    destination="GetTaxRulesByGeoCode"
+                    tape="ADVANCE" record="OFF"  index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRulesUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF"  index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="GetTaxRulesByGeoCode" siteaction="GetTaxRulesByGeoCodeSite">
+                <ROAD
+                    name="TaxRuleFound"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

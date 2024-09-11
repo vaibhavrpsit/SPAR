@@ -1,0 +1,215 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/manager/manager.xml /main/17 2012/10/22 16:40:03 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Manager" package="oracle.retail.stores.pos.services.manager" tourcam="OFF">
+<CARGO class="ManagerCargo">
+</CARGO>
+<SERVICECODE>
+     <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+
+     <LETTER name="Reports"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Device"/>
+     <LETTER name="Register"/>
+     <LETTER name="Till"/>
+     <LETTER name="Next"/>
+     <LETTER name="Success"/>
+     <LETTER name="Ok"/>
+
+     <LANEACTION class="ReportsSelectedRoad" />
+     <LANEACTION class="CancelManagerRoad" />
+     <LANEACTION class="UndoManagerRoad" />
+     <SITEACTION class="ManagerOptionsSite" />
+     <SITEACTION class="DisplayStatusSite" />
+     <SITEACTION class="DisplayRegisterStatusSite" />
+     <SITEACTION class="DisplayTillStatusSite" />
+     <SITEACTION class="LookupRegisterStatusSite" />
+     <SITEACTION class="LookupStoreStatusSite" />
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="ManagerOptions">
+          <SITE name="ManagerOptions" siteaction="ManagerOptionsSite">
+               <ROAD name="ReportsSelected"
+                     letter="Reports"
+                     destination="RegisterReportsTransferStation"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="CancelManager"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="UndoManager"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="StatusDisplaySelected"
+                     letter="Device"
+                     destination="DisplaySystemStatus" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken if "Display Status" is selected
+                         from the Manager Options
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterStatusDisplaySelected"
+                     letter="Register"
+                     destination="LookupStoreStatus" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken if "Display Register Status" is selected
+                         from the Manager Options
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="TillStatusDisplaySelected"
+                     letter="Till"
+                     destination="LookupTillStatus" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken if "Display Till Status" is selected
+                         from the Manager Options
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <STATION
+              name="RegisterReportsTransferStation"
+              servicename="manager.registerreports.registerreports"
+              targettier="APPLICATIONTIER"
+              launchshuttle="FinancialCargoShuttle" >
+            <ROAD
+                name="CancelSelected"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD
+                name="UndoSelected"
+                letter="Undo"
+                destination="Final"
+                tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+          </STATION>
+          <SITE name="DisplaySystemStatus" siteaction="DisplayStatusSite">
+               <COMMENT>
+                    This site displays the status of configured devices
+                    and data managers
+               </COMMENT>
+               <ROAD
+                   name="CancelStatus"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                   name="UndoStatus"
+                   letter="Undo"
+                   destination="Final"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                   name="NextSelected"
+                   letter="Next"
+                   destination="Final"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="LookupStoreStatus" siteaction="LookupStoreStatusSite">
+               <COMMENT>
+                    This site retrieves the store status from the database
+                    for use in displaying the store status.
+               </COMMENT>
+               <ROAD
+                   name="StoreLookupSuccess"
+                   letter="Success"
+                   destination="LookupRegisterStatus"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="LookupRegisterStatus" siteaction="LookupRegisterStatusSite">
+               <COMMENT>
+                    This site retrieves the register status from the database
+                    for use in displaying the register status.
+               </COMMENT>
+               <ROAD
+                   name="RegisterLookupSuccess"
+                   letter="Success"
+                   destination="DisplayRegisterStatus"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="DisplayRegisterStatus" siteaction="DisplayRegisterStatusSite">
+               <COMMENT>
+                    This site displays the register status.
+               </COMMENT>
+               <ROAD
+                   name="CancelRegisterStatus"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                   name="UndoRegisterStatus"
+                   letter="Undo"
+                   destination="Final"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                   name="NextRegisterSelected"
+                   letter="Next"
+                   destination="Final"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="LookupTillStatus" siteaction="LookupRegisterStatusSite">
+               <COMMENT>
+                    This site retrieves the register status from the database
+                    for use in displaying the till status.
+               </COMMENT>
+               <ROAD
+                   name="TillLookupSuccess"
+                   letter="Success"
+                   destination="DisplayTillStatus"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="DisplayTillStatus" siteaction="DisplayTillStatusSite">
+               <COMMENT>
+                    This site displays the till status.
+               </COMMENT>
+               <ROAD
+                   name="UndoTillStatus"
+                   letter="Undo"
+                   destination="Final"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                   name="NextTillSelected"
+                   letter="Next"
+                   destination="Final"
+                   tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

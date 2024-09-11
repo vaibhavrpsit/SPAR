@@ -1,0 +1,345 @@
+<!--
+/*===========================================================================
+* Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+* ===========================================================================
+* $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/search/searchorderuicfg.xml /main/7 2014/03/18 16:18:16 yiqzhao Exp $
+* ===========================================================================
+* NOTES
+* <other useful comments, qualifications, etc.>
+*
+* MODIFIED    (MM/DD/YY)
+* icole       08/20/14 - changed maximum prompt length to 18 allowing for adding mmdd to order ID.
+* yiqzhao     03/18/14 - Make allowable characters configurable.
+* yiqzhao     03/17/14 - Allow hypen in item id and serial number.
+* abondala    05/29/13 - order search by company name
+* jswan       04/18/13 - Modified to make lookup by credit card work the same
+*                        way for orders and transactions.
+* vbongu      03/18/13 - Change defaultScreenSpecName for
+*                        Order_Search_By_Customer to DefaultValidatingSpec
+* abhinavs    03/01/13 - Enabling Cancel button for order search screen
+* yiqzhao     07/27/12 - modify order search flow and populate order cargo for
+*                        searching
+* yiqzhao     07/23/12 - modify order search flow for xchannel order and
+*                        special order
+* yiqzhao     07/20/12 - Creation
+* ===========================================================================
+*/
+-->
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+    <BEAN
+        specName="OrderSrchOptButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            actionName="Customer"
+            enabled="true"
+            keyName="F2"
+            labelTag="Customer"/>
+        <BUTTON
+            actionName="CreditCard"
+            enabled="true"
+            keyName="F3"
+            labelTag="CreditCard"/>            
+    </BEAN>
+     
+    <BEAN
+        specName="OrderSrchByCustButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            actionName="CustInfo"
+            enabled="true"
+            keyName="F2"
+            labelTag="CustInfo"/>
+    </BEAN>       
+    
+    <BEAN
+        specName="OrderCustomerInfoSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="OrderCustomerInfoBean">
+    </BEAN>
+    
+    <BEAN
+        specName="OrderSearchEnterCardInfoSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ReturnByCreditBean">
+    </BEAN>
+    
+    <BEAN
+        specName="OrderSearchSwipeCardInfoSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DataInputBean">
+        
+        <FIELD fieldName="dateRangeField"
+               fieldType="ValidatingComboBox"
+               labelTag="DateRangeLabel"
+               paramList="dateRangeField,false,10"
+               enabled="true"
+               required="true"/>
+
+        <FIELD fieldName="itemNumberField"
+               fieldType="AlphaNumericPlusField"
+               labelTag="ItemNumberLabel"
+               paramList="itemNumberField,1,14,false,-"
+               paramTypeList="java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String"
+               enabled="true"
+               required="true"/>
+    </BEAN>        
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="orderText"
+        specName="ORDER_SEARCH_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OrderSearchScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="OrderSearchPromptText"/>
+            <BEANPROPERTY
+                propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="1"/>
+            <BEANPROPERTY propName="maxLength" propValue="18"/>
+            <BEANPROPERTY  propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton" propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="OrderSrchOptButtonSpec">
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText"
+        specName="ORDER_SEARCH_BY_CUSTOMER_OPT">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OrderSearchByCustomerScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="OrderSearchByCustomerPromptText"/>      
+            <BEANPROPERTY
+                propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="1"/>
+            <BEANPROPERTY propName="maxLength" propValue="14"/>
+            <BEANPROPERTY  propName="doubleByteCharsAllowed" propValue="false"/>                       
+        </ASSIGNMENT>       
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="OrderSrchByCustButtonSpec">
+        </ASSIGNMENT>
+        
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>        
+            
+    </OVERLAYSCREEN>
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="orderText"
+        specName="ORDER_SEARCH_BY_CUSTOMER">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OrderSearchByCustomerScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="OrderCustomerInfoPromptText"/>             
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="OrderCustomerInfoSpec">
+        </ASSIGNMENT>        
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton" propValue="false"/>               
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        
+        <CONNECTION
+            sourceBeanSpecName="OrderCustomerInfoSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>  
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="OrderCustomerInfoSpec"/>                    
+            
+    </OVERLAYSCREEN>
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText"
+        specName="ORDER_SEARCH_BY_ENTER_CARD_INFO">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OrderSearchByEnterCardInfoScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="OrderSearchByEnterCardInfoPromptText"/>             
+        </ASSIGNMENT>        
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="OrderSearchEnterCardInfoSpec">
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton" propValue="true"/>            
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="EmptyButtonSpec">
+        </ASSIGNMENT>
+        
+        <CONNECTION
+            sourceBeanSpecName="OrderSearchEnterCardInfoSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+            
+    </OVERLAYSCREEN>          
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText"
+        specName="ORDER_SEARCH_BY_SWIPE_CARD_INFO">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OrderSearchBySwipeCardInfoScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="OrderSearchBySwipeCardInfoPromptText"/>             
+        </ASSIGNMENT>        
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="OrderSearchSwipeCardInfoSpec">
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton" propValue="true"/>            
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="EmptyButtonSpec">
+        </ASSIGNMENT>
+
+        <CONNECTION
+            sourceBeanSpecName="OrderSearchSwipeCardInfoSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>   
+                     
+    </OVERLAYSCREEN>                   
+</UICFG>

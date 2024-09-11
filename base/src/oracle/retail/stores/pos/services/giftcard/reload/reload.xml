@@ -1,0 +1,189 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/giftcard/reload/reload.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="GiftCardReload"
+    package="oracle.retail.stores.pos.services.giftcard.reload"
+    tourcam="ON">
+    <COMMENT>
+        Point-Of-Sale is the implementation of the Sale
+        Package Requirements.
+    </COMMENT>
+    <CARGO class="GiftCardCargo" package="oracle.retail.stores.pos.services.giftcard"/>
+    <SERVICECODE>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Next"/>
+        <LETTER name="Ok"/>
+        <LETTER name="First"/>
+        <LETTER name="Second"/>
+        <LETTER name="Third"/>
+        <LETTER name="Fourth"/>
+        <LETTER name="Fifth"/>
+        <LETTER name="Sixth"/>
+        <LETTER name="Seventh"/>
+        <LETTER name="RequestActivation"/>
+        <LETTER name="InvalidCardNumber"/>
+
+
+        <LANEACTION class="GiftCardReloadAmountEnteredAisle"/>
+        <LANEACTION class="GiftCardReloadCardNumEnteredAisle"/>
+
+        <SITEACTION class="GetAmountForGiftCardReloadSite"/>
+        <SITEACTION class="GetCardNumForGiftCardReloadSite"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="GetAmountForGiftCardReload">
+            <SITE name="GetAmountForGiftCardReload" siteaction="GetAmountForGiftCardReloadSite">
+                <AISLE
+                    name="AmountEntered"
+                    letter="Next"
+                    laneaction="GiftCardReloadAmountEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="FirstSelected"
+                    letter="First"
+                    laneaction="GiftCardReloadAmountEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="SecondSelected"
+                    letter="Second"
+                    laneaction="GiftCardReloadAmountEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="ThirdSelected"
+                    letter="Third"
+                    laneaction="GiftCardReloadAmountEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="FourthSelected"
+                    letter="Fourth"
+                    laneaction="GiftCardReloadAmountEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="FifthSelected"
+                    letter="Fifth"
+                    laneaction="GiftCardReloadAmountEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="SixthSelected"
+                    letter="Sixth"
+                    laneaction="GiftCardReloadAmountEnteredAisle">
+                </AISLE>
+                <AISLE
+                    name="SeventhSelected"
+                    letter="Seventh"
+                    laneaction="GiftCardReloadAmountEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="AmountValidated"
+                    letter="Continue"
+                    destination="GetCardNumForGiftCardReload"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidAmountEntered"
+                    letter="Ok"
+                    destination="GetAmountForGiftCardReload"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="GetCardNumForGiftCardReload" siteaction="GetCardNumForGiftCardReloadSite">
+                <COMMENT>
+                    This site displays the GET_CARD_NUM_FOR_GIFT_CARD_RELOAD from GiftCardNumReload to ask
+                    the user to enter gift card number
+                    item.
+                </COMMENT>
+                <AISLE
+                    name="GiftCardNumberEntered"
+                    letter="Next"
+                    laneaction="GiftCardReloadCardNumEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed after the user entered the
+                        gift card information. It adds the gift card to the
+                        item list in the cargo.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="GiftCardItemAdded"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ActivationRequested"
+                    letter="RequestActivation"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidGiftCardNumber"
+                    letter="InvalidCardNumber"
+                    destination="GetCardNumForGiftCardReload"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The gift card MAG swipe was invalid or the user
+                        entered an invalid number. Allow user to
+                        re-swipe or re-enter the gift card number.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="GetAmountForGiftCardReload"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

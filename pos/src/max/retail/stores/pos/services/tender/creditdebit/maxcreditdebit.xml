@@ -1,0 +1,3498 @@
+<?xml version='1.0' ?>
+<!--
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ************************
+ * Copyright (c) 2016-2017 Max Hypermarket.    All Rights Reserved.
+ *		Rev 1.5  	01 Mar 2022        Kajal Nautiyal              Paytm Integrtaion
+ *      Rev 1.4  	01 Sep 2020        Kumar Vaibhav              Pinelabs Integrtaion
+ *		Rev 1.3 	28 Feb 2018			Kritica Goel			Changes for Innoviti StatusEnquiry and pop up menu
+ *		Rev 1.2 	27 Oct 2017			Anoop Seth				Changes for Innoviti Integration CR
+ *		Rev 1.1 	27 Oct 2017			Jyoti Yadav				Changes for Innoviti Integration CR
+ *      Rev 1.0  	21 Dec, 2016        Ashish Yadav              Credit Card FES
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ***************************/
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.creditdebit"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Tender Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="MAXTenderCargo" package="max.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Credit"/>
+        <LETTER name="CreditRefund"/>
+        <LETTER name="Debit"/>
+        <LETTER name="DebitRefund"/>
+        <LETTER name="Done"/>
+        <LETTER name="CreditDebit"/>
+        <LETTER name="Override"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Loop"/>
+        <LETTER name="Approved"/>
+        <LETTER name="Declined"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Next"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Offline"/>
+         <LETTER name="CardInvalid"/>
+
+        <!-- Change for Rev 1.1: Start -->
+        <LETTER name="OfflineCredit"/>
+        <LETTER name="OnlineCredit"/>
+        <LETTER name="SwipeWithOutExp"/>
+        <LETTER name="WithOutExpVal"/>
+        <LETTER name="WithOutExpValOCC"/>
+        <LETTER name="SwipeWithOutExpError"/>
+        <LETTER name="Sodexo"/>
+        <LETTER name="UPI"/>
+        <LETTER name="StatusEnquiry"/>
+        <!-- Change for Rev 1.1: End -->
+
+	    <!-- Change for Rev 1.2: Start -->
+        <LETTER name="PointsRedemption"/>
+        <LETTER name="EMI"/>
+        <LETTER name="BalanceEnquiry"/>
+        <LETTER name="Pinelab"/>
+        <LETTER name="Innoviti"/>
+        
+	    <!-- Change for Rev 1.2: End -->
+         <!--  Changes starts for rev 1.0 (Ashish : Credit Card) -->
+        <SITEACTION  class="MAXCallOCCForApprovalUISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+   
+        <SITEACTION class="MAXScanForUpiSite" package="max.retail.stores.pos.services.tender.upi"/>
+		<SITEACTION class="MAXUpiTenderWithEDCSite" package="max.retail.stores.pos.services.tender.upi"/>
+		
+        <SITEACTION  class="MAXCheckHouseAcctOnHousePymtSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXConvertDebitToCreditActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXCreateDebitTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXCreditConfirmationUISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXCreditDebitTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXCreditDebitTenderUISiteBase" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <!--  Changes ends for rev 1.0 (Ashish : Credit Card) -->
+        <SITEACTION  class="CreditTenderActionSite"/>
+        <!--  Changes starts for Rev 1.0 (Ashish : Credit card) -->
+        <SITEACTION  class="MAXCreditTenderExpDateUISite" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <SITEACTION  class="MAXCreditTenderLimitActionSite" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <SITEACTION  class="MAXDebitTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <SITEACTION  class="MAXDebitTenderLimitActionSite" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <!--  Changes ends for Rev 1.0 (Ashish : Credit card) -->
+	    <!-- Change for Rev 1.2: Start -->
+        <SITEACTION  class="MAXGetBalanceEnquirySite"  package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXLoyaltyAmountRedeemSite"  package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXCreditEMISite"  package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXLoyaltyTenderLimitSite" package="max.retail.stores.pos.services.tender.creditdebit" />
+        <LANEACTION  class="MAXCreditEMIAmountEnteredAisle" package="max.retail.stores.pos.services.tender.creditdebit"/>
+	    <!-- Change for Rev 1.2: End -->
+        <!-- Change for Rev 1.1: Start -->
+        <!-- <SITEACTION  class="DetermineTenderSubTourStartSite" package="oracle.retail.stores.pos.services.tender"/> -->
+        <SITEACTION  class="MAXDetermineTenderSubTourStartSite" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION  class="MAXCreditDebitAuthBankCodeUISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <LANEACTION  class="MAXDeleteTenderActionRoad" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION  class="MAXCreditSodexoSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <!-- Change for Rev 1.1: End -->
+        <!-- Change for Rev 1.3: End -->
+        <SITEACTION  class="MAXStatusEnquirySite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+		<!-- Change for Rev 1.3: End -->
+        <!--  Changes starts for Rev 1.0 (Ashish : Credit card) -->
+        <SITEACTION  class="MAXValidateExpirationDateSite" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <SITEACTION  class="MAXVerifyCustomerIDUISite" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <LANEACTION  class="MAXConvertCancelToOtherAisle" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <!--  Changes ends for Rev 1.0 (Ashish : Credit card) -->
+        <SHUTTLE  class="PINPadLaunchShuttle"/>
+        <SHUTTLE class="TenderLimitOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SITEACTION  class="MAXCreditDebitTenderWithEDCSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXGetCreditCardDetailsActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXShowOfflineSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+  		<SITEACTION  class="MAXCreditDebitTenderUISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+  		<SITEACTION  class="MAXCreditTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+  		<!-- Changes starts for Rev 1.4 (Vaibhav ; Pinelab) -->
+  		<SITEACTION  class="MAXPineLabCreditSodexoSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXDetermineEDCType" package="max.retail.stores.pos.services.tender"/>
+        <SITEACTION  class="MAXPineLabCreditGPaySite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditGPayNumberConfSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditGPayConfirmationSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditGPayNumberSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditPhonePeSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditPhonePeNumberConfSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditPhonePeConfirmationSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditPhonePeNumberSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+         <SITEACTION  class="MAXPineLabCallOCCForApprovalUISite"  package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabGetBalanceEnquirySite"  package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabLoyaltyAmountRedeemSite"  package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditEMISite"  package="max.retail.stores.pos.services.tender.creditdebit"/>
+         <SITEACTION  class="MAXPineLabCheckHouseAcctOnHousePymtSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabConvertDebitToCreditActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/> 
+        <SITEACTION  class="MAXPineLabCreateDebitTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditConfirmationUISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditDebitTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditDebitTenderUISite"  package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditTenderExpDateUISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditTenderLimitActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditTenderLimitActionSite" package="max.retail.stores.pos.services.tender.creditdebit" />
+        <SITEACTION  class="MAXPineLabCreditTenderExpDateUISite" package="max.retail.stores.pos.services.tender.creditdebit"  />
+        <SITEACTION  class="MAXPineLabValidateExpirationDateSite" package="max.retail.stores.pos.services.tender.creditdebit" />
+        <SITEACTION  class="MAXPineLabCreditConfirmationUISite" package="max.retail.stores.pos.services.tender.creditdebit" />
+        <SITEACTION  class="MAXPineLabCreditTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit" />
+        <SITEACTION  class="MAXPineLabLoyaltyTenderLimitSite" package="max.retail.stores.pos.services.tender.creditdebit" />
+        <SITEACTION  class="MAXPineLabDebitTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabDebitTenderLimitActionSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="ValidateExpirationDateSite"/>
+        <SITEACTION  class="MAXPineLabVerifyCustomerIDUISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <LANEACTION  class="MAXPineLabConvertCancelToOtherAisle" package="max.retail.stores.pos.services.tender.creditdebit"/>
+		<SITEACTION  class="MAXPineLabCreditDebitAuthBankCodeUISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+<!-- 		<SITEACTION class="MAXPaytmWithdrawPrintSite" package="max.retail.stores.pos.services.tender.creditdebit.paytm" />
+		<SITEACTION  class="MAXPaytmTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit.paytm"/>
+		<SITEACTION  class="MAXEnterMobileNumberSite" package="max.retail.stores.pos.services.tender.creditdebit.paytm"/>
+		<SITEACTION  class="MAXEnterOTPSite" package="max.retail.stores.pos.services.tender.creditdebit.paytm"/>
+		<LANEACTION  class="MAXValidatePaytmDetailsAisle" package="max.retail.stores.pos.services.tender.creditdebit.paytm"/>-->
+		<LANEACTION  class="MAXCheckForDatabaseConnectivityAisle" package="max.retail.stores.pos.services.tender.creditdebit.paytm"/> -->
+		<LANEACTION  class="MAXPineLabCreditEMIAmountEnteredAisle" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditUPIConfirmationSite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditUPISite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXUPIGetStatus" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditUPIRetrySite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPhonePeGetStatus" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <SITEACTION  class="MAXPineLabCreditPhonePeRetrySite" package="max.retail.stores.pos.services.tender.creditdebit"/>
+        <!--   <SITEACTION  class="MAXPaytmTenderQRSite" package="max.retail.stores.pos.services.tender.creditdebit"/> --> 
+      
+        <!-- Changes ends for Rev 1.4 (Vaibhav ; Pinelab) -->
+        <!-- Rev 1.5 changes starts -->
+		<SITEACTION  class="MAXGenerateQRCodeSite" package="max.retail.stores.pos.services.tender.creditdebit.paytmqr"/>
+		
+		<SITEACTION class="MAXPaytmQRCodeWithdrawPrintSite" package="max.retail.stores.pos.services.tender.creditdebit.paytmqr" />
+		<SITEACTION  class="MAXPaytmQRCodeTenderActionSite" package="max.retail.stores.pos.services.tender.creditdebit.paytmqr"/>
+		<SITEACTION  class="MAXPaytmQRTenderLimitActionSite" package="max.retail.stores.pos.services.tender.creditdebit.paytmqr"/>
+		<SITEACTION  class="MAXPaytmQRTenderStatusCheckSite" package="max.retail.stores.pos.services.tender.creditdebit.paytmqr"/>
+		
+		<LANEACTION  class="MAXCheckForDatabaseConnectivityQRCodeAisle" package="max.retail.stores.pos.services.tender.creditdebit.paytmqr"/>
+		<LANEACTION  class="MAXCheckStatusQRCodeAisle" package="max.retail.stores.pos.services.tender.creditdebit.paytmqr"/>
+		<LANEACTION  class="MAXCheckQRTenderAlreadyAddedOrNotAisle" package="max.retail.stores.pos.services.tender.creditdebit.paytmqr"/>
+		
+		<!-- Rev 1.5 changes ends -->
+  		<SHUTTLE class="MAXPrintingChargeLaunchShuttle" package="max.retail.stores.pos.services.printing"/>
+  		<SIGNAL  class="IsOfflineFlowSignal" package="max.retail.stores.pos.services.tender.creditdebit"/>
+  		<SIGNAL  class="IsNotOfflineFlowSignal" package="max.retail.stores.pos.services.tender.creditdebit"/>
+    </SERVICECODE>
+
+    <MAP >
+        <REGION  region="SERVICE" startsite="DetermineTenderSubTourStart">
+            <!-- Change for Rev 1.1: Start -->
+            <!-- <SITE  name="DetermineTenderSubTourStart" siteaction="DetermineTenderSubTourStartSite"> -->
+            <SITE  name="DetermineTenderSubTourStart" siteaction="MAXDetermineTenderSubTourStartSite">
+                <ROAD
+                    name="CreditSelected"
+                    letter="Offline"
+                    destination="CreditCardTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+					OfflineCredit is used for Old Functionality of Credit Tendering
+                    using Manual EDC, Online is for new implementation using EDC
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CreditSelected"
+                    letter="OnlineCredit"
+                    destination="DetermineEDCType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+					OfflineCredit is used for Old Functionality of Credit Tendering
+                    using Manual EDC, Online is for new implementation using EDC
+                    </COMMENT>
+                </ROAD>
+                
+                <!-- Rev 1.5 changes start -->
+                <AISLE
+                    name="CheckForDatabaseConnectivityQRCode"
+                    letter="QRCode"
+                    laneaction="MAXCheckForDatabaseConnectivityQRCodeAisle">
+                </AISLE>
+                
+                <ROAD 
+                    name="PaytmQRCodeSelected"
+                    letter="CreateQRCode"
+                    destination="PaytmQRTenderLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                
+                <ROAD 
+                    name="PaytmQRStatusCheckSelected"
+                    letter="QRStatus"
+                    destination="PaytmQRTenderStatusCheck"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                <!-- Rev 1.5 changes ends -->
+               
+               <!--  <ROAD
+                    name="PaytmQr"
+                    letter="PaytmQr"
+                    destination="PaytmTenderQR"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                  
+                </ROAD> -->
+                 <!-- Changes starts for Rev 1.4 (Vaibhav : PineLab) 
+                <ROAD 
+                    name="PaytmSelected"
+                    letter="PaytmMobile"
+                    destination="PaytmMobileNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                  <AISLE
+                    name="CheckForDatabaseConnectivity"
+                    letter="Paytm"
+                    laneaction="MAXCheckForDatabaseConnectivityAisle">
+                </AISLE>
+                Changes ends for Rev 1.4 (Vaibhav : PineLab) -->
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+            <!-- Change for Rev 1.1: End -->
+
+                <!-- ROAD
+                    name="CreditSelected"
+                    letter="Credit"
+                    destination="CreditTenderLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD-->
+                    <!--  <ROAD
+                    name="CreditSelected"
+                    letter="Credit"
+                    destination="CreditDebitTenderWithEDC"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> -->
+                <!-- <ROAD 
+                    name="CreditDebitSelected"
+                    letter="CreditDebit"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> -->
+            <!-- Change for Rev 1.1: Start -->
+                 <!-- <ROAD
+                    name="CreditDebitSelected"
+                    letter="CreditDebit"
+                    destination="CreditDebitTenderWithEDC"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+          		</ROAD> -->
+          <!-- Change for Rev 1.1: End -->
+                <ROAD
+                    name="DebitSelected"
+                    letter="Debit"
+                    destination="DebitTenderLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditNext"
+                    letter="Next"
+                    destination="CreditTenderLimitAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditRefundLimitsChecked"
+                    letter="CreditRefund"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitRefundLimitsChecked"
+                    letter="DebitRefund"
+                    destination="DebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!--Rev 1.7 Changes for paytm start -->
+             
+              <!--    <SITE  name="PaytmTenderQR" siteaction="MAXPaytmTenderQRSite">
+                <ROAD
+                    name="PaytmQr"
+                    letter="PaytmQr"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                  
+                </ROAD>
+                </SITE>  -->
+                 <!-- Rev 1.7 Changes for paytm end -->
+            <!-- Changes starts for Rev 1.4 (Vaibhav ; Pinelab) -->
+            <!-- Rev 1.5 changes start -->
+            <SITE  name="PaytmQRTenderStatusCheck" siteaction="MAXPaytmQRTenderStatusCheckSite">
+               <!--  <ROAD 
+                    name="PaytmQRStatusPassedRoad"
+                    letter="Success"
+                    destination="CheckQRTenderExistorNot"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> -->
+               <AISLE
+                    name="CheckForQRTenderAlreadyAddedOrNot"
+                    letter="Success"
+                    laneaction="MAXCheckQRTenderAlreadyAddedOrNotAisle">
+                </AISLE>
+                
+                <ROAD 
+                    name="PaytmQRAddTender"
+                    letter="AddTender"
+                    destination="PaytmQRCodeTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+               <ROAD 
+                    name="PaytmError"
+                    letter="Ok"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="PaytmFailure"
+                    letter="failure"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PaytmQRTenderLimitAction" siteaction="MAXPaytmQRTenderLimitActionSite">
+                <ROAD 
+                    name="PaytmQRLimitsPassedRoad"
+                    letter="Success"
+                    destination="GenerateQRCode"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD 
+                    name="PaytmQRTenderAmountInvalidRoad"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+             <SITE  name="GenerateQRCode" siteaction="MAXGenerateQRCodeSite">
+               <!-- ROAD 
+                    name="PaytmSuccess"
+                    letter="Success"
+                    destination="PaytmTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD-->
+                 <ROAD 
+                    name="PaytmError"
+                    letter="Ok"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+                <AISLE
+                    name="CreateQRReqSuccessAisle"
+                    letter="Success"
+                    laneaction="MAXCheckStatusQRCodeAisle">  
+                </AISLE>  
+                 <AISLE
+                    name="CheckStatusReqPendingAisle"
+                    letter="CheckStatusReqPending"
+                    laneaction="MAXCheckStatusQRCodeAisle">  
+                </AISLE>  
+                <AISLE
+                    name="NWErrorReqPendingAisle"
+                    letter="NWErrorReqPending"
+                    laneaction="MAXCheckStatusQRCodeAisle">  
+                </AISLE> 
+                
+                <ROAD 	
+			     	name="CheckStatusReqSuccesssRoad"
+			     	letter="CheckStatusSuccess"
+			      	destination="PaytmQRCodeTenderAction"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+                
+                
+                <ROAD 
+                    name="PaytmError"
+                    letter="Ok"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="PaytmFailure"
+                    letter="failure"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+            </SITE>
+            
+                        
+            <SITE  name="PaytmQRCodeTenderAction" siteaction="MAXPaytmQRCodeTenderActionSite">
+                <ROAD 
+                    name="PaytmQRCodeTenderSuccess"
+                    letter="Success"
+                    destination="PrintPaytmQRCodeWithdraw"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+             <SITE name="PrintPaytmQRCodeWithdraw" siteaction="MAXPaytmQRCodeWithdrawPrintSite">
+				<ROAD 
+				name="PaytmQRCodeWithdrawPrintContinue" 
+				letter="Success" 
+				destination="Final"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+				<ROAD 
+				name="PaytmQRCodeWithdrawPrintRetry" 
+				letter="Retry" 
+				destination="PrintPaytmQRCodeWithdraw"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+			</SITE>
+            
+            
+            <!-- Rev 1.5 changes end -->
+            <SITE  name="DetermineEDCType" siteaction="MAXDetermineEDCType">
+                <ROAD 
+                    name="InnovitiRoad"
+                    letter="Innoviti"
+                    destination="CreditTenderLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="PineLabRoad"
+                    letter="Pinelab"
+                    destination="PineLabCreditTenderLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!-- Changes ends for rev 1.4 (Vaibhav ; Pinelab) -->         
+
+	       <!-- Change for Rev 1.2: Start -->
+            <SITE  name="LoyaltyAmountRedeem" siteaction="MAXLoyaltyAmountRedeemSite">
+                <ROAD
+                    name="LoyaltyAmountRedeemRoad"
+                    letter="Next"
+                    destination="LoyaltyTenderLimit"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LoyltyRedeemReturnRoad"
+                    letter="Undo"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             </SITE>
+             <SITE  name="LoyaltyTenderLimit" siteaction="MAXLoyaltyTenderLimitSite">
+                <ROAD
+                    name="LoyaltyAmountTenderLimitRedeemRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LoyltyamountRedeemReturnRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="LoyltyAmountReturnRoad"
+                    letter="Failure"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             </SITE>
+
+             <SITE  name="GetBalanceEnquiry" siteaction="MAXGetBalanceEnquirySite">
+                <ROAD
+                    name="CreditBalanceEnquirySuccessRoad"
+                    letter="OnlineCredit"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             </SITE>
+             
+
+	            <SITE  name="CreditEMI" siteaction="MAXCreditEMISite">
+                <ROAD
+                    name="EMIAmountAdditionRoad"
+                    letter="EMI"
+                    destination="CreditTenderExpDateUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="EMIAmountEntered"
+                    letter="Next"
+                    laneaction="MAXCreditEMIAmountEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="CreditEMIReturnRoad"
+                    letter="Undo"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditEMIAmountError"
+                    letter="Failure"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             </SITE>
+	    <!-- Change for Rev 1.2: End -->
+
+            <SITE  name="CreditDebitTenderWithEDC" siteaction="MAXCreditDebitTenderWithEDCSite">
+                   <ROAD
+                    name="CreditLimitsPassedRoad"
+                    letter="Success"
+                    destination="ChargeSlipPrintingStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDebitRefundAuthorized"
+                    letter="Done"
+                    destination="CreditTenderAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                     <ROAD
+                    name="CardNotProcessed"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                    <ROAD
+                    name="CreditDebitSelected"
+                    letter="Offline"
+                    destination="ShowOfflineCredit"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                  <ROAD
+                    name="CreditTenderUndoPressed"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="CreditTenderUndoPressed"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                     <ROAD
+                    name="CreditTenderDeclined"
+                    letter="Decline"
+                    destination="CreditCardTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+              </SITE>
+                <SITE  name="ShowOfflineCredit" siteaction="MAXShowOfflineSite">
+
+                <ROAD
+                    name="CreditOfflineSwipeRoad"
+                    letter="Offline"
+                    destination="CreditCardTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+
+                <ROAD
+                    name="CreditOfflineUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+            </SITE>
+            <SITE  name="CreditDebitSwipe" siteaction="MAXCreditDebitTenderUISite">
+                <ROAD
+                    name="CreditOnlineRoad"
+                    letter="Next"
+                    destination="CreditCardTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+				<!-- Change for Rev 1.1: Start -->
+                <ROAD
+                    name="CreditOfflineSwipeRoad"
+                    letter="Cancel"
+                    destination="ShowOfflineCredit"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+
+                <ROAD
+                    name="CreditOfflineSwipeRoad"
+                    letter="Undo"
+                    destination="ShowOfflineCredit"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+
+                 <ROAD
+                    name="CreditDebitOvertenderNotAllowed"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="CreditDebitOverride"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+            </SITE>
+             <SITE  name="CreditCardTenderAction" siteaction="MAXGetCreditCardDetailsActionSite">
+                <ROAD
+                    name="CreditCardDetailsAddedRoad"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		<!--Rev 1.2 changes start -->
+                    <ROAD
+                    name="CreditTenderInvalid"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		<!--Rev 1.2 changes end -->
+              <ROAD
+                    name="DebitCardNumberEntered"
+                    letter="Next"
+                    destination="CreditTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<!-- Change for Rev 1.1: Start -->
+                <!-- <ROAD
+                    name="CreditDebitUndoSelectedDeclined"
+                    letter="Undo"
+                    destination="ShowOfflineCredit"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="OFF">
+                </ROAD> -->
+                <ROAD
+                    name="CreditDebitUndoSelectedDeclined"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: End -->
+                <ROAD
+                    name="CreditDebitSelected"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               </SITE>
+            <SITE  name="CreditTenderLimitAction" siteaction="MAXCreditTenderLimitActionSite">
+                <ROAD
+                    name="CreditLimitsPassedRoad"
+                    letter="Success"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: Start -->
+                <ROAD
+                    name="CreditLimitsPassedOnlineRoad"
+                    letter="OnlineCredit"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: End -->
+                <ROAD
+                    name="CreditTenderOverrideRoad"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderAmountInvalidRoad"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DebitTenderLimitAction" siteaction="MAXDebitTenderLimitActionSite">
+                <ROAD
+                    name="DebitLimitsPassedRoad"
+                    letter="Success"
+                    destination="DebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderOverrideRoad"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderAmountInvalidRoad"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DebitTenderNumberUI" siteaction="MAXCreditDebitTenderUISiteBase">
+                <ROAD
+                    name="DebitCardNumberEntered"
+                    letter="Next"
+                    destination="CreateDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitDone"
+                    letter="Done"
+                    destination="CreateDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!--  Changes starts for Rev 1.0 (Ashish : Credit Card : By passed the flow from PinPadStation as per MAX  -->
+            <SITE  name="CreateDebitTenderAction" siteaction="MAXCreateDebitTenderActionSite">
+                <ROAD
+                    name="DebitTenderCreated"
+                    letter="Success"
+                    destination="DebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--  Changes ends for Rev 1.0 (Ashish : Credit Card )-->
+                <ROAD
+                    name="DebitTenderNotSwipedRoad"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderBadMagStripeRetry"
+                    letter="Retry"
+                    destination="DebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderBadMagStripe"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DebitTenderAction" siteaction="MAXDebitTenderActionSite">
+                <ROAD
+                    name="DebitTenderAddedRoad"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderRetrySwipeRoad"
+                    letter="Retry"
+                    destination="DebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderNoRetryRoad"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderInvalidRoad2"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreditTenderNumberUI" siteaction="MAXCreditDebitTenderUISiteBase">
+                <ROAD
+                    name="CreditDebitCardNumberEntered"
+                    letter="Next"
+                    destination="CreditTenderExpDateUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: Start -->
+               <!--  <ROAD
+                    name="CreditDebitCardNumberEntered"
+                    letter="SwipeCard"
+                    destination="CreditTenderExpDateUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> -->
+                <ROAD
+                    name="CreditDebitTenderOptionsRoad"
+                    letter="CreditDebit"
+                    destination="CreditTenderExpDateUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetPointsRedemptionRoad"
+                    letter="PointsRedemption"
+                    destination="LoyaltyAmountRedeem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderEMIRoad"
+                    letter="EMI"
+                    destination="CreditEMI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderUPIRoad"
+                    letter="UPI"
+                    destination="ScanForUpi"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditBalanceEnquiryRoad"
+                    letter="BalanceEnquiry"
+                    destination="GetBalanceEnquiry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderSodexoRoad"
+                    letter="Sodexo"
+                    destination="CreditSodexo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: End -->
+                <ROAD
+                    name="CreditDebitUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.3:Starts -->
+                 <ROAD
+                    name="StatusInquirySelected"
+                    letter="StatusEnquiry"
+                    destination="StatusEnquirySite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.3:Ends -->
+                <ROAD
+                    name="CreditDebitCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDone"
+                    letter="Done"
+                    destination="ValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+ 	<SITE  name="ScanForUpi" siteaction="MAXScanForUpiSite">
+                <ROAD 
+                    name="CreditUPIYesRoad"
+                    letter="UpiSuccess"
+                    destination="UpiTenderWithEDC"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                 <ROAD 
+                    name="CreditUPINoRoad"
+                    letter="Failure"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+             </SITE>
+ 
+              <SITE  name="UpiTenderWithEDC" siteaction="MAXUpiTenderWithEDCSite">
+                <ROAD 
+                    name="CreditUPISuccessRoad"
+                    letter="OnlineCredit"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditUPITenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditUPITenderRetry"
+                    letter="Loop"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="NextUPIRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+                        
+              <!-- <SITE name="PrintUpiReceipt" siteaction="MAXPrintUpiReceiptSite">
+				<ROAD 
+				name="UpiWithdrawPrintContinue" 
+				letter="Success" 
+				destination="Final"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+				<ROAD 
+				name="UpiWithdrawPrintRetry" 
+				letter="Retry" 
+				destination="PrintUpiReceipt"
+				tape="ADVANCE" 
+				record="OFF" 
+				index="OFF">
+				</ROAD>
+			</SITE>      -->      
+                 
+                        <SITE  name="CreditTenderExpDateUI" siteaction="MAXCreditTenderExpDateUISite">
+                <ROAD
+                    name="CreditTenderExpDateEntered"
+                    letter="Next"
+                    destination="ValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: Start -->
+                <!-- <ROAD
+                    name="CreditTenderExpDateEntered"
+                    letter="SwipeCard"
+                    destination="ValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> -->
+
+                <!-- Changed by Anoop -->
+                <ROAD
+                    name="CreditTenderExpDateEntered"
+                    letter="CreditDebit"
+                    destination="ValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="CreditTenderExpDateEnteredError"
+                    letter="SwipeWithOutExpError"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderExpDateNotRequired"
+                    letter="SwipeWithOutExp"
+                    destination="ValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: End -->
+                <ROAD
+                    name="CreditTenderExpDateNotRequired"
+                    letter="Continue"
+                    destination="ValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderExpDateUndo"
+                    letter="Undo"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderExpDateCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateExpirationDate" siteaction="MAXValidateExpirationDateSite">
+                <ROAD
+                    name="ExpirationDateValidated"
+                    letter="Continue"
+                    destination="CheckHouseAcctOnHousePayment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ExpirationDateInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: Start -->
+                <ROAD name="HouseAccountOK"
+                      letter="WithOutExpVal"
+                      destination="CallOCCForApprovalUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: End -->
+            </SITE>
+            <SITE  name="CheckHouseAcctOnHousePayment" siteaction="MAXCheckHouseAcctOnHousePymtSite">
+                <ROAD name="HouseAccountOK"
+                      letter="Continue"
+                      destination="VerifyCustomerIDUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="HouseAccountBadYes"
+                      letter="Yes"
+                      destination="CreditTenderNumberUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="HouseAccountBadNo"
+                      letter="No"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="VerifyCustomerIDUI" siteaction="MAXVerifyCustomerIDUISite">
+                <ROAD
+                    name="CustomerIDContinue"
+                    letter="Continue"
+                    destination="CallOCCForApprovalUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDNext"
+                    letter="Next"
+                    destination="CallOCCForApprovalUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDUndo"
+                    letter="Undo"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CallOCCForApprovalUI" siteaction="MAXCallOCCForApprovalUISite">
+                <ROAD
+                    name="OCCApprovalNotNeeded"
+                    letter="Continue"
+                    destination="CreditConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: Start -->
+                <ROAD
+                    name="OCCApprovalNotNeeded"
+                    letter="WithOutExpValOCC"
+                    destination="CreditConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: End -->
+                <ROAD
+                    name="OccApprovalObtained"
+                    letter="Approved"
+                    destination="CreditConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OccApprovalNotObtained"
+                    letter="Declined"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD
+                    name="OccApprovalCancelled"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreditConfirmationUI" siteaction="MAXCreditConfirmationUISite">
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD
+                    name="CreditConfirmationUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditConfirmationCanceled"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditConfirmationAccepted"
+                    letter="Success"
+                    destination="CreditTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: Start -->
+                <ROAD
+                    name="CreditConfirmationAccepted"
+                    letter="WithOutExpValOCC"
+                    destination="CreditTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: End -->
+            </SITE>
+            <SITE  name="CreditTenderAction" siteaction="MAXCreditTenderActionSite">
+                <ROAD
+                    name="CreditTenderAdded"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: Start -->
+                <ROAD
+                    name="CreditConfirmationAccepted"
+                    letter="WithOutExpValOCC"
+                    destination="CreditDebitAuthBankCodeUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Change for Rev 1.1: End -->
+                <ROAD
+                    name="CreditTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		<!--Rev 1.2 changes start -->
+                  <ROAD
+                    name="CreditTenderInvalid"
+                    letter="CardInvalid"
+                    destination="CreditCardTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		<!-- rev 1.2 changes end-->
+                <ROAD
+                    name="CreditTenderRetry"
+                    letter="Loop"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                   	<ROAD
+                    name="CreditTenderFailure"
+                    letter="Failure"
+                    destination="CreditCardTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!-- Change for Rev 1.1: Start -->
+            <!--Addning new site for capturing Auth and Bank code-->
+            <SITE  name="CreditDebitAuthBankCodeUI" siteaction="MAXCreditDebitAuthBankCodeUISite">
+				<ROAD
+                    name="NextCreditDebitRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CreditDebitAuthBankCodeUndoRoad"
+                    letter="Undo"
+					laneaction="MAXDeleteTenderActionRoad"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreditSodexo" siteaction="MAXCreditSodexoSite">
+                <ROAD
+                    name="CreditSodexoSuccessRoad"
+                    letter="OnlineCredit"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditSodexoTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditSodexoTenderRetry"
+                    letter="Loop"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="NextSodexoRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <!-- Change for Rev 1.1: End -->
+            <!-- Change for Rev 1.3:Starts -->
+               
+            	
+            	            
+          <SITE  name="StatusEnquirySite" siteaction="MAXStatusEnquirySite">
+                <ROAD
+                    name="CreditSodexoTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                 <ROAD
+                    name="CreditSodexoTenderRetry"
+                    letter="Loop"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="NextSodexoRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+
+            <!-- Change for Rev 1.3:Ends -->
+            <SITE  name="CreditDebitTenderUI" siteaction="MAXCreditDebitTenderUISiteBase">
+                <ROAD
+                    name="CreditDebitCardNumberEntered"
+                    letter="Next"
+                    destination="CreditDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDebitUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDebitCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitDone"
+                    letter="Done"
+                    destination="CreateDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreditDebitTenderAction" siteaction="MAXCreditDebitTenderActionSite">
+                <ROAD
+                    name="CardIsDebitRoad"
+                    letter="Debit"
+                    destination="DebitTenderLimitAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CardIsCreditRoad"
+                    letter="Credit"
+                    destination="CreditTenderExpDateUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DebitTenderLimitAction2" siteaction="MAXDebitTenderLimitActionSite">
+                <ROAD
+                    name="DebitLimitsPassedRoad2"
+                    letter="Success"
+                    destination="CreateDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderOverrideRoad2"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DebitTenderAmountInvalidRoad2"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreditTenderExpDateUI2" siteaction="MAXCreditTenderExpDateUISite">
+                <ROAD
+                    name="CreditTenderExpDateEntered2"
+                    letter="Next"
+                    destination="CreditTenderLimitAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderExpDateNotRequired2"
+                    letter="Continue"
+                    destination="CreditTenderLimitAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderExpDateUndo2"
+                    letter="Undo"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderExpDateCancel2"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreditTenderLimitAction2" siteaction="MAXCreditTenderLimitActionSite">
+                <ROAD
+                    name="CreditLimitsPassedRoad2"
+                    letter="Success"
+                    destination="ValidateExpirationDate2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderOverrideRoad2"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderAmountInvalidRoad2"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditRefundLimitsChecked"
+                    letter="CreditRefund"
+                    destination="CreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitRefundLimitsChecked"
+                    letter="DebitRefund"
+                    destination="DebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateExpirationDate2" siteaction="MAXValidateExpirationDateSite">
+                <ROAD
+                    name="ExpirationDateValidated"
+                    letter="Continue"
+                    destination="CheckHouseAcctOnHousePayment2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ExpirationDateInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckHouseAcctOnHousePayment2" siteaction="MAXCheckHouseAcctOnHousePymtSite">
+                <ROAD name="HouseAccountOK"
+                      letter="Continue"
+                      destination="VerifyCustomerIDUI2"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="HouseAccountBadYes"
+                      letter="Yes"
+                      destination="CreditDebitTenderUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="HouseAccountBadNo"
+                      letter="No"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="VerifyCustomerIDUI2" siteaction="MAXVerifyCustomerIDUISite">
+                <ROAD
+                    name="CustomerIDContinue2"
+                    letter="Continue"
+                    destination="CallOCCForApprovalUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDNext2"
+                    letter="Next"
+                    destination="CallOCCForApprovalUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDUndo2"
+                    letter="Undo"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerIDCancel2"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CallOCCForApprovalUI2" siteaction="MAXCallOCCForApprovalUISite">
+                <ROAD
+                    name="OCCApprovalNotNeeded2"
+                    letter="Continue"
+                    destination="CreditConfirmationUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OccApprovalObtained2"
+                    letter="Approved"
+                    destination="CreditConfirmationUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OccApprovalNotObtained2"
+                    letter="Declined"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD
+                    name="OccApprovalCancelled2"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreditConfirmationUI2" siteaction="MAXCreditConfirmationUISite">
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD
+                    name="CreditConfirmation2Undo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditConfirmation2Canceled"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditConfirmation2Accepted"
+                    letter="Success"
+                    destination="CreditTenderAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreditTenderAction2" siteaction="MAXCreditTenderActionSite">
+                <ROAD
+                    name="CreditTenderAdded2"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderInvalid2"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderRetry2"
+                    letter="Loop"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                	<ROAD
+                    name="CreditTenderFailure"
+                    letter="Failure"
+                    destination="CreditCardTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ConvertDebitToCreditAction" siteaction="MAXConvertDebitToCreditActionSite">
+                <ROAD
+                    name="DebitConvertedRoad"
+                    letter="Continue"
+                    destination="CreditConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <!--  Changes starts for rev 1.0 (Ashish : Credit Card : commenting below as per MAX) -->
+            <!-- <STATION
+                name="PINPadStation"
+                servicename="_360commerce.tender.pinpad"
+                targettier="APPLICATIONTIER"
+                launchshuttle="PINPadLaunchShuttle">
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD
+                    name="PinPadUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PINPadOffline"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetrievedPIN"
+                    letter="Success"
+                    destination="DebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        If the PIN was successfully retrieved the TenderDebit
+                        with Encrypted PIN block is added to the transaction
+                        for batch authorization by ValidDebitInfoEnteredRoad
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="PINPadUndo"
+                    letter="Undo"
+                    destination="DebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PINPadCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PINPadConvertToCredit"
+                    letter="Credit"
+                    destination="ConvertDebitToCreditAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION> -->
+            <!--  Changes starts for rev 1.0 (Ashish : Credit Card) -->
+            <STATION
+                name="TenderLimitOverrideStation"
+                servicename="tender.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLimitOverrideLaunchShuttle"
+                returnshuttle="TenderLimitOverrideReturnShuttle">
+                <ROAD
+                    name="TenderLimitOverrideSuccess"
+                    letter="Success"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideContinue"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+	    <!-- Rev 1.1 changes start-->
+             <STATION
+                name="ChargeSlipPrintingStation"
+                servicename="services.printing.chargeprinting"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXPrintingChargeLaunchShuttle" >
+                <COMMENT>
+                    This station is the transfer point for the Printing
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="PrintingReturned"
+                    letter="Done"
+                    destination="CreditTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Printing service returns
+                        and there are no items that require activation.
+                    </COMMENT>
+                </ROAD>
+
+                <ROAD
+                    name="PrintingReturned"
+                    letter="Continue"
+                    destination="CreditTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Printing service returns
+                        and there are no items that require activation.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            
+             <!-- Changes ends for Rev 1.4 (Vaibhav ; Pinelab) -->
+             <SITE  name="PineLabCreditTenderLimitAction" siteaction="MAXPineLabCreditTenderLimitActionSite">
+                <ROAD 
+                    name="CreditLimitsPassedRoad"
+                    letter="Success"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <!-- Modified by Gaurav, Unipay Implementation..starts -->
+                <ROAD 
+                    name="CreditLimitsPassedOnlineRoad"
+                    letter="OnlineCredit"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--Modified by Gaurav, Unipay Implementation ..ends -->
+                <ROAD 
+                    name="CreditTenderOverrideRoad"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderAmountInvalidRoad"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE  name="PineLabDebitTenderLimitAction" siteaction="MAXPineLabDebitTenderLimitActionSite">
+                <ROAD 
+                    name="DebitLimitsPassedRoad"
+                    letter="Success"
+                    destination="PineLabDebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderOverrideRoad"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderAmountInvalidRoad"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabDebitTenderNumberUI" siteaction="MAXPineLabCreditDebitTenderUISite">
+                <ROAD 
+                    name="DebitCardNumberEntered"
+                    letter="Next"
+                    destination="PineLabCreateDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitDone"
+                    letter="Done"
+                    destination="PineLabCreateDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+            </SITE>
+            <SITE  name="PineLabCreateDebitTenderAction" siteaction="MAXPineLabCreateDebitTenderActionSite">
+                <!--Change for MAX: Rev 1.0-->
+				<!--By passed the flow from PinPadStation-->
+				<ROAD 
+                    name="DebitTenderCreated"
+                    letter="Success"
+                    destination="PineLabDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderNotSwipedRoad"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderBadMagStripeRetry"
+                    letter="Retry"
+                    destination="PineLabDebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderBadMagStripe"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabDebitTenderAction" siteaction="MAXPineLabDebitTenderActionSite">
+                <!--Change for MAX: Rev 1.0-->
+				<!--Flow transfered to CreditDebitAuthBankCodeUI-->
+				<ROAD 
+                    name="DebitTenderAddedRoad"
+                    letter="Success"
+                    destination="PineLabCreditDebitAuthBankCodeUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderRetrySwipeRoad"
+                    letter="Retry"
+                    destination="PineLabDebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderNoRetryRoad"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderInvalidRoad2"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabCreditTenderNumberUI" siteaction="MAXPineLabCreditDebitTenderUISite">
+            <!--  Rev 1.6 start -->
+              <!--   <ROAD 
+                    name="CreditDebitCardNumberEntered"
+                    letter="Next"
+                    destination="CreditTenderExpDateUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>   -->
+                
+                <ROAD 
+                    name="CreditDebitCardNumberEntered"
+                    letter="Next"
+                    destination="PineLabCheckHouseAcctOnHousePayment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>       
+                <ROAD 
+                    name="CreditDebitCardNumberEntered"
+                    letter="SwipeCard"
+                    destination="PineLabCreditTenderExpDateUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                <!-- Modified by Gaurav, Unipay Implementation ..ends -->
+                <ROAD 
+                    name="CreditDebitUndoSelected"
+                    letter="Undo"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditDone"
+                    letter="Done"
+                    destination="PineLabValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<!-- MAX Change for Rev 1.2 : Start-->
+                <ROAD 
+                    name="CreditDebitTenderOptionsRoad"
+                    letter="CreditDebit"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="GetPointsRedemptionRoad"
+                    letter="PointsRedemption"
+                    destination="PineLabLoyaltyAmountRedeem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderEMIRoad"
+                    letter="EMI"
+                    destination="PineLabCreditEMI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditBalanceEnquiryRoad"
+                    letter="BalanceEnquiry"
+                    destination="PineLabGetBalanceEnquiry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                  
+				<ROAD 
+                    name="CreditTenderUPIRoad"
+                    letter="UPI"
+                    destination="PineLabCreditUPIConfirmation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="CreditTenderGPayRoad"
+                    letter="GooglePay"
+                    destination="PineLabCreditGPayConfirmation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderGPayRoad"
+                    letter="PhonePe"
+                    destination="PineLabCreditPhonePeConfirmation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--  MAX Change for Rev 1.7 : End -->  
+                <ROAD
+                    name="CreditTenderSodexoRoad"
+                    letter="Sodexo"
+                    destination="PineLabCreditSodexo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                        
+            </SITE>
+            <!-- MAX Change for Rev 1.5 : Start-->
+            
+             <SITE  name="PineLabCreditUPIConfirmation" siteaction="MAXPineLabCreditUPIConfirmationSite">
+                <ROAD 
+                    name="CreditUPIYesRoad"
+                    letter="Yes"
+                    destination="PineLabCreditUPI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                 <ROAD 
+                    name="CreditUPINoRoad"
+                    letter="No"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+             </SITE> 
+             
+             <SITE  name="PineLabPhonePeGetStatus" siteaction="MAXPhonePeGetStatus">
+                <ROAD 
+                    name="CreditUPIYesRoad"
+                    letter="Retry"
+                    destination="PineLabPhonePeGetStatusRetry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                 <ROAD 
+                    name="CreditUPINoRoad"
+                    letter="Continue"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>   
+                <ROAD 
+                    name="CreditUPINoRoad"
+                    letter="Undo"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>             
+             </SITE> 
+             
+             <SITE  name="PineLabPhonePeGetStatusRetry" siteaction="MAXPineLabCreditPhonePeRetrySite">
+                <ROAD 
+                    name="CreditPhonePeSuccessRoad"
+                    letter="OnlinePhonePe"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditPhonePeTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditPhonePeTenderRetry"
+                    letter="Loop"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="NextPhonePeRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="NextPhonePeRoad"
+                    letter="GetStatus"
+                    destination="PineLabPhonePeGetStatus"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>                
+             </SITE>
+             
+             <SITE  name="PineLabUPIGetStatus" siteaction="MAXUPIGetStatus">
+                <ROAD 
+                    name="CreditUPIYesRoad"
+                    letter="Retry"
+                    destination="PineLabUPIGetStatusRetry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                 <ROAD 
+                    name="CreditUPINoRoad"
+                    letter="Continue"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                <ROAD 
+                    name="CreditUPINoRoad"
+                    letter="Undo"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+             </SITE> 
+             
+             <SITE  name="PineLabUPIGetStatusRetry" siteaction="MAXPineLabCreditUPIRetrySite">
+                <ROAD 
+                    name="CreditUPISuccessRoad"
+                    letter="OnlineCredit"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditUPITenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditUPITenderRetry"
+                    letter="Loop"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="NextUPIRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="NextUPIRoad"
+                    letter="GetStatus"
+                    destination="PineLabUPIGetStatus"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>               
+             </SITE>
+            
+             <SITE  name="PineLabCreditGPayConfirmation" siteaction="MAXPineLabCreditGPayConfirmationSite">
+                <ROAD 
+                    name="CreditGPayYesRoad"
+                    letter="Yes"
+                    destination="PineLabGPayNumberConf"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                 <ROAD 
+                    name="CreditGPayNoRoad"
+                    letter="No"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+             </SITE> 
+             
+              <SITE  name="PineLabGPayNumberConf" siteaction="MAXPineLabCreditGPayNumberConfSite">
+                <ROAD 
+                    name="GPayNumberConfYesRoad"
+                    letter="Yes"
+                    destination="PineLabCreditGPay"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                 <ROAD 
+                    name="CreditGPayNoRoad"
+                    letter="No"
+                    destination="PineLabGPayNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+             </SITE> 
+             <SITE  name="PineLabGPayNumber" siteaction="MAXPineLabCreditGPayNumberSite">
+                <ROAD 
+                    name="EnterGPayNumber"
+                    letter="Next"
+                    destination="PineLabCreditGPay"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                <ROAD 
+                    name="UnduGPayNumber"
+                    letter="Undo"
+                    destination="PineLabCreditGPayConfirmation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>             
+             </SITE> 
+              
+              
+              
+             
+              
+      		<SITE  name="PineLabCreditGPay" siteaction="MAXPineLabCreditGPaySite">
+      		
+                <ROAD 
+                    name="CreditGPaySuccessRoad"
+                    letter="OnlineGPay"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditGPayTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditGPayTenderRetry"
+                    letter="Loop"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="NextGPayRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+
+            
+             <SITE  name="PineLabCreditPhonePeConfirmation" siteaction="MAXPineLabCreditPhonePeConfirmationSite">
+                <ROAD 
+                    name="CreditPhonePeYesRoad"
+                    letter="Yes"
+                    destination="PineLabPhonePeNumberConf"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                 <ROAD 
+                    name="CreditPhonePeNoRoad"
+                    letter="No"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+             </SITE> 
+            
+            
+             <SITE  name="PineLabCreditPhonePe" siteaction="MAXPineLabCreditPhonePeSite">
+      		
+                <ROAD 
+                    name="CreditPhonePeSuccessRoad"
+                    letter="OnlinePhonePe"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditPhonePeTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditPhonePeTenderRetry"
+                    letter="Loop"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="NextPhonePeRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitCardNumberEntered"
+                    letter="GetStatus"
+                    destination="PineLabPhonePeGetStatus"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+            </SITE> 
+            
+             <SITE  name="PineLabPhonePeNumberConf" siteaction="MAXPineLabCreditPhonePeNumberConfSite">
+                <ROAD 
+                    name="PhonePeNumberConfYesRoad"
+                    letter="Yes"
+                    destination="PineLabCreditUPI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                 <ROAD 
+                    name="CreditPhonePeNoRoad"
+                    letter="No"
+                    destination="PineLabPhonePeNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+             </SITE> 
+             <SITE  name="PineLabPhonePeNumber" siteaction="MAXPineLabCreditPhonePeNumberSite">
+                <ROAD 
+                    name="EnterPhonePeNumber"
+                    letter="Next"
+                    destination="PineLabCreditPhonePe"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                <ROAD 
+                    name="UnduPhonePeNumber"
+                    letter="Undo"
+                    destination="PineLabCreditPhonePeConfirmation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>             
+             </SITE> 
+              
+             <SITE  name="PineLabGetBalanceEnquiry" siteaction="MAXPineLabGetBalanceEnquirySite">
+                <ROAD 
+                    name="CreditBalanceEnquirySuccessRoad"
+                    letter="OnlineCredit"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+             </SITE> 
+
+             <SITE  name="PineLabLoyaltyAmountRedeem" siteaction="MAXPineLabLoyaltyAmountRedeemSite">
+                <ROAD 
+                    name="LoyaltyAmountRedeemRoad"
+                    letter="Next"
+                    destination="PineLabLoyaltyTenderLimit"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                <ROAD 
+                    name="LoyltyRedeemReturnRoad"
+                    letter="Undo"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+             </SITE>
+             <SITE  name="PineLabLoyaltyTenderLimit" siteaction="MAXPineLabLoyaltyTenderLimitSite">
+                <ROAD 
+                    name="LoyaltyAmountTenderLimitRedeemRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                <ROAD 
+                    name="LoyltyamountRedeemReturnRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                 <ROAD 
+                    name="LoyltyAmountReturnRoad"
+                    letter="Failure"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+             </SITE>  
+             <SITE  name="PineLabCreditEMI" siteaction="MAXPineLabCreditEMISite">
+                <ROAD 
+                    name="EMIAmountAdditionRoad"
+                    letter="EMI"
+                    destination="PineLabCreditTenderExpDateUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                <AISLE
+                    name="EMIAmountEntered"
+                    letter="Next"
+                    laneaction="MAXPineLabCreditEMIAmountEnteredAisle">
+                </AISLE>
+                <ROAD 
+                    name="CreditEMIReturnRoad"
+                    letter="Undo"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+                <ROAD 
+                    name="CreditEMIAmountError"
+                    letter="Failure"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD> 
+             </SITE>  
+      		<SITE  name="PineLabCreditUPI" siteaction="MAXPineLabCreditUPISite">
+                <ROAD 
+                    name="CreditUPISuccessRoad"
+                    letter="OnlineCredit"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditUPITenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditUPITenderRetry"
+                    letter="Loop"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD 
+                    name="NextUPIRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="NextUPIRoad"
+                    letter="GetStatus"
+                    destination="PineLabUPIGetStatus"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                
+            </SITE>
+
+        	<!--  MAX Change for Rev 1.4 : End -->
+      		
+            <SITE  name="PineLabCreditTenderExpDateUI" siteaction="MAXPineLabCreditTenderExpDateUISite">
+                <ROAD 
+                    name="CreditTenderExpDateEntered"
+                    letter="Next"
+                    destination="PineLabValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>            
+                   
+                 <!-- Modified by Gaurav, Unipay Implementation ..starts -->
+                <ROAD 
+                    name="CreditTenderExpDateEntered"
+                    letter="SwipeCard"
+                    destination="PineLabValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderExpDateEnteredError"
+                    letter="SwipeWithOutExpError"
+                    destination="DetermineTenderSubTourStart"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+                <ROAD 
+                    name="CreditTenderExpDateNotRequired"
+                    letter="SwipeWithOutExp"
+                    destination="PineLabValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Modified by Gaurav, Unipay Implementation ..ends -->
+                <ROAD 
+                    name="CreditTenderExpDateNotRequired"
+                    letter="Continue"
+                    destination="PineLabValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderExpDateUndo"
+                    letter="Undo"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderExpDateCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabValidateExpirationDate" siteaction="MAXPineLabValidateExpirationDateSite">
+                <ROAD
+                    name="ExpirationDateValidated"
+                    letter="Continue"
+                    destination="PineLabCheckHouseAcctOnHousePayment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ExpirationDateInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>   
+                <!-- Modified by Gaurav, Unipay Implementation ..starts -->
+                <ROAD name="HouseAccountOK"
+                      letter="WithOutExpVal"    
+                      destination="PineLabCallOCCForApprovalUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <!-- Modified by Gaurav, Unipay Implementation ..ends -->                          
+            </SITE>
+            <SITE  name="PineLabCheckHouseAcctOnHousePayment" siteaction="MAXPineLabCheckHouseAcctOnHousePymtSite">
+                <ROAD name="HouseAccountOK"
+                      letter="Continue"    
+                      destination="PineLabVerifyCustomerIDUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="HouseAccountBadYes"
+                      letter="Yes"
+                      destination="PineLabCreditTenderNumberUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="HouseAccountBadNo"
+                      letter="No"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                
+            </SITE>  
+            <SITE  name="PineLabVerifyCustomerIDUI" siteaction="MAXPineLabVerifyCustomerIDUISite">
+                <ROAD 
+                    name="CustomerIDContinue"
+                    letter="Continue"
+                    destination="PineLabCallOCCForApprovalUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Modified by Gaurav, Unipay Implementation .starts -->
+                <ROAD 
+                    name="CustomerIDContinue"
+                    letter="WithOutExpVal"
+                    destination="PineLabCallOCCForApprovalUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Modified by Gaurav, Unipay Implementation ..ends -->
+                <ROAD 
+                    name="CustomerIDNext"
+                    letter="Next"
+                    destination="PineLabCallOCCForApprovalUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CustomerIDUndo"
+                    letter="Undo"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CustomerIDCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+			<!--Change for MAX: Rev 1.1-->
+            <SITE  name="PineLabCallOCCForApprovalUI" siteaction="MAXPineLabCallOCCForApprovalUISite">
+                <ROAD 
+                    name="OCCApprovalNotNeeded"
+                    letter="Continue"
+                    destination="PineLabCreditConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Modified by Gaurav, Unipay Implementation ..starts -->
+                <ROAD 
+                    name="OCCApprovalNotNeeded"
+                    letter="WithOutExpValOCC"
+                    destination="PineLabCreditConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Modified by Gaurav, Unipay Implementation ..ends -->
+                <ROAD 
+                    name="OccApprovalObtained"
+                    letter="Approved"
+                    destination="PineLabCreditConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="OccApprovalNotObtained"
+                    letter="Declined"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>          
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXPineLabConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD 
+                    name="OccApprovalCancelled"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabCreditConfirmationUI" siteaction="MAXPineLabCreditConfirmationUISite">
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXPineLabConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD 
+                    name="CreditConfirmationUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditConfirmationCanceled"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditConfirmationAccepted"
+                    letter="Success"
+                    destination="PineLabCreditTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>        
+                <!-- Modified by Gaurav, Unipay Implementation ..starts -->
+                <ROAD
+                    name="CreditConfirmationAccepted"
+                    letter="WithOutExpValOCC"
+                    destination="PineLabCreditTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                <!-- Modified by Gaurav, Unipay Implementation ..ends -->   
+            </SITE>
+            <SITE  name="PineLabCreditTenderAction" siteaction="MAXPineLabCreditTenderActionSite">
+				<!--Change for MAX: Rev 1.0-->
+				<!--New Road called-->
+                <ROAD 
+                    name="CreditTenderAdded"
+                    letter="Success"
+                    destination="PineLabCreditDebitAuthBankCodeUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Modified by Gaurav, Unipay Implementation ..starts -->
+                <ROAD
+                    name="CreditConfirmationAccepted"
+                    letter="WithOutExpValOCC"
+                    destination="PineLabCreditDebitAuthBankCodeUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>  
+                <!-- Modified by Gaurav, Unipay Implementation ..ends -->
+                <ROAD 
+                    name="CreditTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderRetry"
+                    letter="Loop"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabCreditDebitTenderUI" siteaction="MAXPineLabCreditDebitTenderUISite">
+                <ROAD 
+                    name="CreditDebitCardNumberEntered"
+                    letter="Next"
+                    destination="PineLabCreditDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitDone"
+                    letter="Done"
+                    destination="PineLabCreateDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabCreditDebitTenderAction" siteaction="MAXPineLabCreditDebitTenderActionSite">
+                <ROAD 
+                    name="CardIsDebitRoad"
+                    letter="Debit"
+                    destination="PineLabDebitTenderLimitAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CardIsCreditRoad"
+                    letter="Credit"
+                    destination="PineLabCreditTenderExpDateUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!--  Rev 1.6 start -->
+                 <ROAD 
+                    name="CreditDebitCardNumberEntered"
+                    letter="Next"
+                    destination="PineLabCheckHouseAcctOnHousePayment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>   
+                <!--  Rev 1.6 end -->
+            </SITE>
+            <SITE  name="PineLabDebitTenderLimitAction2" siteaction="MAXPineLabDebitTenderLimitActionSite">
+                <ROAD 
+                    name="DebitLimitsPassedRoad2"
+                    letter="Success"
+                    destination="PineLabCreateDebitTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderOverrideRoad2"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="DebitTenderAmountInvalidRoad2"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabCreditTenderExpDateUI2" siteaction="MAXPineLabCreditTenderExpDateUISite">
+                <ROAD 
+                    name="CreditTenderExpDateEntered2"
+                    letter="Next"
+                    destination="PineLabCreditTenderLimitAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderExpDateNotRequired2"
+                    letter="Continue"
+                    destination="PineLabCreditTenderLimitAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderExpDateUndo2"
+                    letter="Undo"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderExpDateCancel2"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabCreditTenderLimitAction2" siteaction="MAXPineLabCreditTenderLimitActionSite">
+                <ROAD 
+                    name="CreditLimitsPassedRoad2"
+                    letter="Success"
+                    destination="PineLabValidateExpirationDate2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderOverrideRoad2"
+                    letter="Override"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderAmountInvalidRoad2"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditRefundLimitsChecked"
+                    letter="CreditRefund"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DebitRefundLimitsChecked"
+                    letter="DebitRefund"
+                    destination="PineLabDebitTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabValidateExpirationDate2" siteaction="MAXPineLabValidateExpirationDateSite">
+                <ROAD
+                    name="ExpirationDateValidated"
+                    letter="Continue"
+                    destination="PineLabCheckHouseAcctOnHousePayment2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ExpirationDateInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                                      
+            </SITE>
+            <SITE  name="PineLabCheckHouseAcctOnHousePayment2" siteaction="MAXPineLabCheckHouseAcctOnHousePymtSite">
+                <ROAD name="HouseAccountOK"
+                      letter="Continue"    
+                      destination="PineLabVerifyCustomerIDUI2"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="HouseAccountBadYes"
+                      letter="Yes"
+                      destination="PineLabCreditDebitTenderUI"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="HouseAccountBadNo"
+                      letter="No"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>                
+            </SITE> 
+            <SITE  name="PineLabVerifyCustomerIDUI2" siteaction="MAXPineLabVerifyCustomerIDUISite">
+                <ROAD 
+                    name="CustomerIDContinue2"
+                    letter="Continue"
+                    destination="PineLabCallOCCForApprovalUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CustomerIDNext2"
+                    letter="Next"
+                    destination="PineLabCallOCCForApprovalUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CustomerIDUndo2"
+                    letter="Undo"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CustomerIDCancel2"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabCallOCCForApprovalUI2" siteaction="MAXPineLabCallOCCForApprovalUISite">
+                <ROAD 
+                    name="OCCApprovalNotNeeded2"
+                    letter="Continue"
+                    destination="PineLabCreditConfirmationUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="OccApprovalObtained2"
+                    letter="Approved"
+                    destination="PineLabCreditConfirmationUI2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="OccApprovalNotObtained2"
+                    letter="Declined"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXPineLabConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD 
+                    name="OccApprovalCancelled2"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE> 
+            <SITE  name="PineLabCreditConfirmationUI2" siteaction="MAXPineLabCreditConfirmationUISite">
+                <AISLE
+                    name="ConvertCancelToOther"
+                    letter="Cancel"
+                    laneaction="MAXPineLabConvertCancelToOtherAisle">
+                </AISLE>
+                <ROAD 
+                    name="CreditConfirmation2Undo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditConfirmation2Canceled"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditConfirmation2Accepted"
+                    letter="Success"
+                    destination="PineLabCreditTenderAction2"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+            </SITE>
+            <SITE  name="PineLabCreditTenderAction2" siteaction="MAXPineLabCreditTenderActionSite">
+                <!--Change for MAX: Rev 1.0-->
+				<!--New Road called-->
+				<ROAD 
+                    name="CreditTenderAdded2"
+                    letter="Success"
+                    destination="PineLabCreditDebitAuthBankCodeUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderInvalid2"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CreditTenderRetry2"
+                    letter="Loop"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PineLabConvertDebitToCreditAction" siteaction="MAXPineLabConvertDebitToCreditActionSite">
+                <ROAD 
+                    name="DebitConvertedRoad"
+                    letter="Continue"
+                    destination="PineLabCreditConfirmationUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+			<!--Change for MAX: Rev 1.0-->
+			<!--Addning new site for capturing Auth and Bank code-->
+			<SITE  name="PineLabCreditDebitAuthBankCodeUI" siteaction="MAXPineLabCreditDebitAuthBankCodeUISite">
+				<ROAD 
+                    name="NextCreditDebitRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="CreditDebitAuthBankCodeUndoRoad"
+                    letter="Undo"
+					laneaction="MAXDeleteTenderActionRoad"
+                    destination="CreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>							
+            </SITE>
+            <SITE  name="PineLabCreditSodexo" siteaction="MAXPineLabCreditSodexoSite">
+                <ROAD
+                    name="CreditSodexoSuccessRoad"
+                    letter="OnlineCredit"
+                    destination="PineLabCreditTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditSodexoTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditSodexoTenderRetry"
+                    letter="Loop"
+                    destination="PineLabCreditDebitTenderUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="NextSodexoRoad"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+              
+            <!-- Changes ends for Rev 1.4 (Vaibhav ; Pinelab) -->
+           
+	    <!--Rev 1.1 changes end-->
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

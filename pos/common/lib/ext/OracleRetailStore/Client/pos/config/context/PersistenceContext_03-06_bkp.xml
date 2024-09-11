@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2016 - 2017 MAX Hypermarket, Inc.    All Rights Reserved.
+ *
+ *	Rev 1.3     Dec 16, 2016		Ashish Yadav		Storecredit FES
+ *	Rev 1.2     Dec 9, 2016                 Nitesh Kumar    Changes for Capillary Coupon Redemption	
+ *	Rev 1.1     Dec 05, 2016		Ashish Yadav		Employee Discount FES
+ *	Rev 1.0     Nov 09, 2016		Ashish Yadav		Home Delivery Send FES
+ *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--
+This is for Persistence related objects being managed by Spring Framework.
+Beans should be named starting with prefix persistence_ so that in Java code it
+is easier to identify which context file is being used for the Bean.
+-->
+<beans>
+    
+    <!--
+
+    Following are DataTransaction beans for retrieving/persisting data to/
+    from data storage. Each bean must implement interface
+    oracle.retail.stores.foundation.manager.ifc.data.DataTransactionIfc.  If any
+    bean class is changed, the new class must extend the class it replaces since
+    client code will be specifically casting it. Each DataTransaction has a name
+    injected or set internally.  Names are used by the DataManager to map which
+    technician to send to and used by the DataTechnician to map which
+    DataCommand to use.
+    <p>
+    Some DataTransactions listed below are injected with a list of DataActions
+    with which the DataTechnician will use a DataCommand to execute as a
+    DataOperation.  These pre-wired transactions show you what the DataOperation
+    name will be.  The available DataOperation names can be found in the
+    technician's XML configuration which lists what class implements the
+    operation.  Any bean below with a list of actions must have the action's
+    dataObject property set by the DataTransaction before sending to the
+    technician.  This is performed in DataTransaction's implementation code.
+    <p>
+    DataTransactions listed below without data actions have their actions
+    wired in their implementation code.
+    <p>
+    The DataTransactionFactory can be specified in domain.properties.
+    <p>
+    DataTransactions are listed below in alphabetical order.
+
+    -->
+    <bean id="persistence_AdvancedInquiryDataTransaction" class="oracle.retail.stores.domain.arts.AdvancedInquiryDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="AdvancedInquiryDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_AdvancedPricingRuleKeyDataTransaction" class="oracle.retail.stores.domain.arts.AdvancedPricingRuleKeyDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="AdvancedPricingRuleKeyDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadAdvancedPricingRuleKeys"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_AlertDataTransaction" class="oracle.retail.stores.domain.arts.AlertDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="AlertDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="RetrieveAlertList"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_AuditLogTransaction" class="oracle.retail.stores.domain.arts.AuditLogTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="AuditLogTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadAuditLogEntries"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_BuildFlatFileTransaction" class="oracle.retail.stores.domain.arts.BuildFlatFileTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="BuildFlatFileTransaction"/>
+    </bean>
+
+    <bean id="persistence_BusinessReadDataTransaction" class="oracle.retail.stores.domain.arts.BusinessReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="BusinessReadDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="LookupBusiness"/>
+                </bean>
+            </list>
+        </property>
+        <property name="retrySendTransactionEnabled">
+            <value>true</value>
+        </property>            
+    </bean>
+
+    <bean id="persistence_CalendarDataTransaction" class="oracle.retail.stores.domain.arts.CalendarDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CalendarDataTransaction"/>
+    </bean>
+ <!-- Changes start for Rev 1.2(Ashish : Storecredit) -->
+    <bean id="persistence_CertificateTransaction" class="oracle.retail.stores.domain.arts.CertificateTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CertificateTransaction"/>
+    </bean>
+    <bean id="persistence_MAXCertificateTransaction" class="max.retail.stores.domain.arts.MAXCertificateTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXCertificateTransaction"/>
+    </bean>
+<!-- Changes end for Rev 1.2(Ashish : Storecredit) -->
+    <bean id="persistence_CodeListDataTransaction" class="max.retail.stores.domain.arts.MAXCodeListDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXCodeListDataTransaction"/>
+    </bean>
+    	<!-- Changes for Rev 1.1 : Ends-->
+
+    <bean id="persistence_CodeListSaveDataTransaction" class="oracle.retail.stores.domain.arts.CodeListSaveDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CodeListSaveDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_ConfirmedClockEntryTransaction" class="oracle.retail.stores.domain.arts.ConfirmedClockEntryTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ConfirmedClockEntryTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadConfirmedClockEntries"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_CurrencyDataTransaction" class="oracle.retail.stores.domain.arts.CurrencyDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CurrencyDataTransaction"/>
+    </bean>
+    
+    <bean id="persistence_CurrencyRoundingRuleDataTransaction" class="oracle.retail.stores.domain.arts.CurrencyDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CurrencyRoundingRuleDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_CustomerReadDataTransaction" class="oracle.retail.stores.domain.arts.CustomerReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CustomerReadDataTransaction"/>
+        <property name="retrySendTransactionEnabled">
+            <value>true</value>
+        </property>            
+    </bean>
+
+    <bean id="persistence_CustomerReadPricingGroupTransaction" class="oracle.retail.stores.domain.arts.CustomerReadPricingGroupTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CustomerReadPricingGroupTransaction"/>
+    </bean>
+
+    <bean id="persistence_CustomerWriteDataTransaction" class="oracle.retail.stores.domain.arts.CustomerWriteDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CustomerWriteDataTransaction"/>
+        <property name="retrySendTransactionEnabled">
+            <value>true</value>
+        </property>            
+    </bean>
+    
+    <bean id="persistence_CustomerReadCustomerGroupsDataTransaction" class="oracle.retail.stores.domain.arts.CustomerReadCustomerGroupsDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="CustomerReadCustomerGroupsDataTransaction"/>
+    </bean>    
+
+    <bean id="persistence_DatabasePurgeTransaction" class="oracle.retail.stores.domain.arts.DatabasePurgeTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="DatabasePurgeTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="PurgeAgedData"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_DataReplicationDataTransaction" class="oracle.retail.stores.domain.arts.DataReplicationDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="DataReplicationDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_EMessageReadDataTransaction" class="oracle.retail.stores.domain.arts.EMessageReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="EMessageReadDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_EMessageWriteDataTransaction" class="oracle.retail.stores.domain.arts.EMessageWriteDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="EMessageWriteDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_EmployeeTransaction" class="oracle.retail.stores.domain.arts.EmployeeTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="EmployeeFindForLoginTransaction"/>
+    </bean>
+
+    <bean id="persistence_EmployeeFindForUpdateTransaction" class="oracle.retail.stores.domain.arts.EmployeeFindForUpdateTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="EmployeeFindForUpdateTransaction"/>
+    </bean>
+
+    <bean id="persistence_EmployeeWriteTimeClockTransaction" class="oracle.retail.stores.domain.arts.EmployeeWriteTimeClockTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="EmployeeTimeClockDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_EmployeeWriteTransaction" class="oracle.retail.stores.domain.arts.EmployeeWriteTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="EmployeeWriteTransaction"/>
+    </bean>
+
+    <bean id="persistence_ExecuteSQLDataTransaction" class="oracle.retail.stores.domain.arts.ExecuteSQLDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ExecuteSQLDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ExecuteSQL"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_FinancialTotalsDataTransaction" class="oracle.retail.stores.domain.arts.FinancialTotalsDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="FinancialTotalsDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_ItemSizesTransaction" class="oracle.retail.stores.domain.arts.ItemSizesTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ItemSizesTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadItemSizes"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_IXRetailTransactionWriteDataTrans" class="oracle.retail.stores.domain.arts.IXRetailTransactionWriteDataTrans"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="IXRetailTransactionWriteDataTrans"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="SaveIXRetailTransaction"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_LayawayDataTransaction" class="oracle.retail.stores.domain.arts.LayawayDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="LayawayDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_MerchandiseHierarchyDataTransaction" class="oracle.retail.stores.domain.arts.MerchandiseHierarchyDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MerchandiseHierarchyDataTransaction"/>
+    </bean>
+    
+    <bean id="persistence_OrderCreateDataTransaction" class="oracle.retail.stores.domain.arts.OrderCreateDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="OrderCreateDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="SaveCustomer"/>
+                </bean>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="CreateOrder"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_OrderReadDataTransaction" class="oracle.retail.stores.domain.arts.OrderReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="OrderReadDataTransaction"/>
+        <property name="retrySendTransactionEnabled">
+            <value>true</value>
+        </property>            
+    </bean>
+    
+    <bean id="persistence_OrderSummaryReadDataTransaction" class="oracle.retail.stores.domain.arts.OrderSummaryReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="OrderSummaryReadDataTransaction"/>
+    </bean>   
+    
+    <bean id="persistence_StoreOrderReadDataTransaction" class="oracle.retail.stores.domain.arts.StoreOrderReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="StoreOrderReadDataTransaction"/>
+    </bean>    
+
+    <!-- <bean id="persistence_OrderWriteDataTransaction" class="oracle.retail.stores.domain.arts.OrderWriteDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="OrderWriteDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="UpdateOrder"/>
+                </bean>
+            </list>
+        </property>
+    </bean> -->
+    
+    <bean id="persistence_OrderHistoryReadDataTransaction" class="oracle.retail.stores.domain.arts.OrderHistoryReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="OrderHistoryReadDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_ParameterTransaction" class="oracle.retail.stores.domain.arts.ParameterTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ParameterTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="SaveParameters"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_PLUTransaction" class="oracle.retail.stores.domain.arts.PLUTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="PLUTransaction"/>
+    </bean>
+<!--  Changes start for Rev 1.0 (Send) -->
+    <bean id="persistence_ReadShippingMethodTransaction" class="max.retail.stores.domain.arts.MAXReadShippingMethodTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ReadShippingMethodTransaction"/>
+    </bean>
+    <!--  Changes end for Rev 1.0 (Send) -->
+
+    <bean id="persistence_ReadNewTaxRuleTransaction" class="oracle.retail.stores.domain.arts.ReadNewTaxRuleTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ReadNewTaxRuleTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadNewTaxRules"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_ReadTransactionsByIDDataTransaction" class="oracle.retail.stores.domain.arts.ReadTransactionsByIDDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ReadTransactionsByIDDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadTransactionsByID"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_ReadTransactionsForReturn" class="oracle.retail.stores.domain.arts.ReadTransactionsForReturn"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ReadTransactionsForReturn"/>
+        <property name="retrySendTransactionEnabled">
+            <value>true</value>
+        </property>            
+    </bean>
+
+    <bean id="persistence_RegistryDataTransaction" class="oracle.retail.stores.domain.arts.RegistryDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="RegistryDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadRegistryID"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_RoleTransaction" class="oracle.retail.stores.domain.arts.RoleTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="RoleTransaction"/>
+    </bean>
+
+    <bean id="persistence_ScanSheetTransaction" class="oracle.retail.stores.domain.arts.ScanSheetTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ScanSheetTransaction"/>
+    </bean>
+
+    <bean id="persistence_StoreDataTransaction" class="oracle.retail.stores.domain.arts.StoreDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="StoreDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_StoreDirectoryDataTransaction" class="oracle.retail.stores.domain.arts.StoreDirectoryDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="StoreDirectoryDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_StoreSafeReadDataTransaction" class="oracle.retail.stores.domain.arts.StoreSafeReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="StoreSafeReadDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadStoreSafeTotals"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_StoreSafeWriteDataTransaction" class="oracle.retail.stores.domain.arts.StoreSafeWriteDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="StoreSafeWriteDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="UpdateStoreSafeTotals"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_SupplierDataTransaction" class="oracle.retail.stores.domain.arts.SupplierDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="SupplierDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="RetrieveAllSuppliers"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_SupplyCategoryTransaction" class="oracle.retail.stores.domain.arts.SupplyCategoryTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="SupplyCategoryTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadSupplyCategoryOperation"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_SupplyItemTransaction" class="oracle.retail.stores.domain.arts.SupplyItemTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="SupplyItemTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadSupplyItemOperation"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_SupplyOrderTransaction" class="oracle.retail.stores.domain.arts.SupplyOrderTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="SupplyOrderTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="SaveSupplyOrderOperation"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_TenderDataTransaction" class="oracle.retail.stores.domain.arts.TenderDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="TenderDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_TillChecksDataTransaction" class="oracle.retail.stores.domain.arts.TillChecksDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="TillChecksDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_TransactionHistoryDataTransaction" class="oracle.retail.stores.domain.arts.TransactionHistoryDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="TransactionHistoryDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadTransactionHistory"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="persistence_TransactionListPriceMaintenanceEvents" class="oracle.retail.stores.domain.arts.TransactionListPriceMaintenanceEvents"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ListPriceMaintenanceEvents"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ListPriceMaintenance"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <!--<bean id="persistence_TransactionReadDataTransaction" class="oracle.retail.stores.domain.arts.TransactionReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="TransactionReadDataTransaction"/>
+    </bean>-->
+
+    <bean id="persistence_TransactionReadItemCost" class="oracle.retail.stores.domain.arts.TransactionReadItemCost"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="ReadItemCost"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="ReadItemCost"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <!--<bean id="persistence_TransactionWriteDataTransaction" class="oracle.retail.stores.domain.arts.TransactionWriteDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="TransactionWriteDataTransaction"/>
+    </bean>-->
+
+    <bean id="persistence_TransactionWriteNotQueuedDataTransaction" class="oracle.retail.stores.domain.arts.TransactionWriteNotQueuedDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="NotQueuedTransactionWriteDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_UpdateReturnedItemsCommandDataTransaction" class="oracle.retail.stores.domain.arts.UpdateReturnedItemsCommandDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="UpdateReturnedItemsDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_UpdateReturnedItemsDataTransaction" class="oracle.retail.stores.domain.arts.UpdateReturnedItemsDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="UpdateReturnedItemsDataTransaction"/>
+    </bean>
+
+    <bean id="persistence_WorkWeekTransaction" class="oracle.retail.stores.domain.arts.WorkWeekTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="WorkWeekTransaction"/>
+    </bean>
+    
+    <bean id="persistence_TransactionVerificationDataTransaction" class="oracle.retail.stores.domain.arts.TransactionVerificationTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="VerificationTransaction"/>
+    </bean>
+    
+    <!-- End DataTransactions -->
+
+    <!-- Currency Type Data Access Object -->
+    <bean id="persistence_CurrencyTypeDAO" class="oracle.retail.stores.commerceservices.common.currency.persistence.CurrencyTypeDAO"
+          lazy-init="true"/>
+		  
+	<bean id="persistence_OrderWriteDataTransaction" class="max.retail.stores.domain.arts.MAXOrderWriteDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXOrderWriteDataTransaction"/>
+        <property name="dataActions">
+            <list>
+                <bean class="oracle.retail.stores.foundation.manager.data.DataAction">
+                    <property name="dataOperationName" value="UpdateOrder"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+	
+	<bean id="persistence_TransactionReadDataTransaction" class="max.retail.stores.domain.arts.MAXTransactionReadDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXTransactionReadDataTransaction"/>
+    </bean>
+	
+	<bean id="persistence_TransactionWriteDataTransaction" class="max.retail.stores.domain.arts.MAXTransactionWriteDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXTransactionWriteDataTransaction"/>
+    </bean>
+	
+	<bean id="persistence_HotKeysTransaction" class="max.retail.stores.domain.arts.MAXHotKeysTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXHotKeysTransaction"/>
+    </bean>
+	
+	<bean id="persistence_StoreCreditDataTransaction" class="max.retail.stores.domain.arts.MAXStoreCreditDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXStoreCreditDataTransaction"/>
+    </bean>
+	
+	<bean id="persistence_LoyaltyDataTransaction" class="max.retail.stores.domain.arts.MAXLoyaltyDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXLoyaltyDataTransaction"/>
+    </bean>
+	
+	<bean id="persistence_TransactionReadCustomDiscountRules" class="max.retail.stores.domain.arts.MAXTransactionReadCustomDiscountRules"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXTransactionReadCustomDiscountRules"/>
+    </bean>
+	
+	<bean id="persistence_TransactionReadPrintedItemFreeDiscountRule" class="max.retail.stores.domain.arts.MAXTransactionReadPrintedItemFreeDiscountRule"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXTransactionReadPrintedItemFreeDiscountRule"/>
+    </bean>
+	
+	<bean id="persistence_TransactionReadSrcandTgtDiscountPerc" class="max.retail.stores.domain.arts.MAXTransactionReadSrcandTgtDiscountPerc"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXTransactionReadSrcandTgtDiscountPerc"/>
+    </bean>
+	
+	<bean id="persistence_LayawayReadRoundedAmountDataTransaction" class="max.retail.stores.domain.arts.MAXLayawayReadRoundedAmountDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXLayawayReadRoundedAmountDataTransaction"/>
+    </bean>
+	
+	<bean id="persistence_CentralEmployeeTransaction" class="max.retail.stores.domain.arts.MAXCentralEmployeeTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXCentralEmployeeTransaction"/>
+    </bean>
+	
+	<bean id="persistence_CentralUpdationEmployeeTransaction" class="max.retail.stores.domain.arts.MAXCentralUpdationEmployeeTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXCentralUpdationEmployeeTransaction"/>
+    </bean>
+	
+	<bean id="persistence_TICCustomerDataTransaction" class="max.retail.stores.domain.arts.MAXTICCustomerDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXTICCustomerDataTransaction"/>
+    </bean>
+    <!--  Changes start for Rev 1.1(Ashish : Employee) -->
+    <bean id="persistence_EmployeeDAO" class="oracle.retail.stores.domain.arts.dao.EmployeeDAO" 
+          lazy-init="true"/>
+    <bean id="persistence_PasswordPolicyDAO" class="oracle.retail.stores.commerceservices.security.persistence.PasswordPolicyDAO" 
+    lazy-init="true"/>
+         <!--  Changes ends for REv 1.1 (Ashish : Employee) -->
+	<!-- Changes for Rev 1.4:Start -->
+    <bean id="persistence_GSTMappingTransaction" class="max.retail.stores.domain.arts.MAXGSTRegionMappingTransactions"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXGSTRegionMappingTransactions"/>
+    </bean>
+    <bean id="persistence_ReadHomeStateTransactions" class="max.retail.stores.domain.arts.MAXReadHomeStateTransactions"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXReadHomeStateTransactions"/>
+    </bean>
+    <bean id="persistence_ReadIGSTTaxTransactions" class="max.retail.stores.domain.arts.MAXReadTaxOnPLUItem"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXReadTaxOnPLUItem"/>
+    </bean>
+	<!-- Changes for Rev 1.4:Ends -->
+	<!-- Paytm Integration Changes Start  -->
+<bean id="persistence_PaytmDataTransaction" class="max.retail.stores.domain.arts.MAXPaytmDataTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXPaytmDataTransaction"/>
+    </bean>
+<!--Paytm Integration Changes End  -->
+
+	    
+    <!--Manager override Changes start  -->
+  <bean id="persistence_WriteManagerOverride" class="max.retail.stores.domain.arts.MAXSaveManagerOverrideTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXSaveManagerOverrideTransaction"/>
+    </bean> 
+   <!--Manager override Changes end-->
+   
+   <!--sbi ptach -->
+   <bean id="persistence_ConfigParameterTransaction" class="max.retail.stores.domain.arts.MAXConfigParameterTransaction"
+        scope="prototype" lazy-init="true">
+        <property name="transactionName" value="MAXConfigParameterTransaction"/>
+    </bean>
+</beans>

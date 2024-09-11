@@ -1,0 +1,155 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/common/common.xml /main/5 2013/04/17 14:42:37 subrdey Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    subrdey   04/10/13 - Added Road TimeoutComplete.
+ *    cgreene   08/18/11 - Refactor to allow Undo to go back to Final if
+ *                         tourcam is not on.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - add ExitPrinting and HideOnScreenKeyboards aisles
+ *    cgreene   03/25/10 - initial version
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<!-- The "Common" tour defines regions of which sites and roads will be shared
+            across all other tours. -->
+<SERVICE name="Common"
+    package="oracle.retail.stores.pos.services.common"
+    tourcam="OFF">
+
+    <SERVICECODE>
+        <!-- Letters -->
+        <LETTER name="CancelMenu"/>
+        <LETTER name="ExitPrinting"/>
+        <LETTER name="HideOnScreenKeyboard"/>
+        <LETTER name="Timeout" />
+        <LETTER name="Undo" />
+        <LETTER name="UnknownException" />
+
+        <!-- Sites -->
+        <SITEACTION class="DisplayUnknownExceptionSite" package="oracle.retail.stores.pos.services.common" />
+
+    </SERVICECODE>
+
+    <MAP>
+        <!-- Default exception region. Simply escapes from the tour. Services
+            that define an EXCEPTION region will replace this one. -->
+        <REGION region="EXCEPTION" startsite="DisplayUnknownException">
+
+            <SITE name="DisplayUnknownException"
+                siteaction="DisplayUnknownExceptionSite">
+                <ROAD name="ExitException"
+                    letter="UnknownException"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF" />
+                <ROAD name="ExceptionDialogTimeout"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF" />
+                <ROAD name="ExceptionDialogTimeout"
+                    letter="Undo"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF" />
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN" />
+        </REGION>
+
+        <!-- Default service region. Sites defined here will be added to every
+            other SERVICE region. -->
+        <REGION region="SERVICE">
+
+            <!-- The common section defines roads used for timeouts and
+                exceptions which will be added to every site in every service. -->
+            <COMMON>
+                <AISLE name="HideOnScreenKeyboard"
+                    letter="HideOnScreenKeyboard">
+                   <COMMENT>
+                        This is a no-action aisle to handle the asynchronous
+                        close of the the on-screen keyboard.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="ExitPrinting"
+                    letter="ExitPrinting">
+                   <COMMENT>
+                        This is a no-action aisle to handle the asynchronous
+                        exit of the printing tour.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="Timeout"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after user inactivity timeout.
+                        "Timeout" occurs in transaction or sensitive activities.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="TimeoutComplete"
+                    letter="TimeoutComplete"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after user inactivity timeout.
+                        "Timeout" occurs in transaction or sensitive activities.
+	                </COMMENT>
+                </ROAD>
+                <ROAD name="Undo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after user inactivity timeout.
+                        "Undo" occurs in non-transaction or non-sensitive activities.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UnknownException"
+                    letter="UnknownException"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after an error has occurred.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="CancelMenu"
+                    letter="CancelMenu"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled when a popup menu is dismissed.
+                    </COMMENT>
+                </ROAD>
+            </COMMON>
+
+            <SYSTEMSITE name="Final" action="RETURN" />
+            <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+        </REGION>
+    </MAP>
+</SERVICE>

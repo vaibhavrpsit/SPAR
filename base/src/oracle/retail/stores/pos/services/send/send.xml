@@ -1,0 +1,365 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/send/send.xml /rgbustores_13.4x_generic_branch/2 2011/05/19 10:07:26 rsnayak Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    rsnayak   05/12/11 - APF send changes
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="SendMain"
+    package="oracle.retail.stores.pos.services.send"
+    tourcam="OFF">
+    <CARGO class="ItemCargo" package="oracle.retail.stores.pos.services.modifyitem"/>
+    <SERVICECODE>
+
+        <LETTER name="Update"/>
+        <LETTER name="CaptureCustomerInfo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Link"/>
+        <LETTER name="Done"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Success"/>
+        <LETTER name="Retry"/>
+        <LETTER name="CheckSameAddress"/>
+
+        <SITEACTION class="ValidateItemsActionSite"/>
+        <SITEACTION class="VerifyCustomerLinkActionSite"/>
+        <SITEACTION class="ProcessCustomerActionSite"/>
+        <SITEACTION class="CheckShipSameAsBillingSite"/>
+        <SITEACTION class="VerifySendSelectionSite"/>
+
+        <LANEACTION class="UpdateSendActionRoad"/>
+
+        <SHUTTLE class="SendCustomerLaunchShuttle"/>
+        <SHUTTLE class="SendCustomerReturnShuttle"/>
+        <SHUTTLE class="ShippingAddressLaunchShuttle"/>
+        <SHUTTLE class="ShippingAddressReturnShuttle"/>
+        <SHUTTLE class="CaptureCustomerInfoLaunchShuttle"/>
+        <SHUTTLE class="CaptureCustomerInfoReturnShuttle"/>
+        <SHUTTLE class="DisplaySendMethodLaunchShuttle"/>
+        <SHUTTLE class="DisplaySendMethodReturnShuttle"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="ValidateItemsAction">
+            <SITE name="ValidateItemsAction" siteaction="ValidateItemsActionSite">
+                <ROAD
+                    name="NotFirstSend"
+                    letter="Continue"
+                    destination="VerifySendSelection"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidSendItemFound"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="VerifySendSelection" siteaction="VerifySendSelectionSite">
+                <ROAD
+                    name="ItemsValidatedRoad"
+                    letter="Continue"
+                    destination="VerifyCustomerLinkAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UpdateSendMethod"
+                    letter="Update"
+                    laneaction="UpdateSendActionRoad"
+                    destination="ShippingAddressStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelAlreadySendApplied"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NeedCaptureCustomerInfo"
+                    letter="CaptureCustomerInfo"
+                    destination="CaptureCustomerInfoStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MultipleSendsSelectedError"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="VerifyCustomerLinkAction" siteaction="VerifyCustomerLinkActionSite">
+                <ROAD
+                    name="CustomerValidatedRoad"
+                    letter="Continue"
+                    destination="CheckShipSameAsBilling"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LinkCustomerRoad"
+                    letter="Link"
+                    destination="LinkSendCustomerStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckShipSameAsBilling" siteaction="CheckShipSameAsBillingSite">
+                <ROAD
+                    name="YesSelected"
+                    letter="Yes"
+                    destination="DisplaySendMethodStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NoSelected"
+                    letter="No"
+                    destination="ShippingAddressStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!--
+            <SITE name="UpdateSendAction" siteaction="UpdateSendActionSite">
+                <ROAD
+                    name="UpdateSendActionRoad"
+                    letter="Continue"
+                    destination="CheckShipSameAsBilling"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            -->
+            <STATION
+                name="LinkSendCustomerStation"
+                servicename="customer.main.customermain"
+                targettier="CURRENTTIER"
+                launchshuttle="SendCustomerLaunchShuttle"
+                returnshuttle="SendCustomerReturnShuttle">
+                <COMMENT>
+                    Transfer control to customer services to execute
+                    Customer functionality.
+                </COMMENT>
+                <ROAD
+                    name="UndoFindSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelFindSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CustomerLinked"
+                    letter="Continue"
+                    destination="ProcessCustomerAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <ROAD
+                    name="CustomerOffline"
+                    letter="Offline"
+                    destination="ProcessCustomerAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureSendCustomerReturn"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE name="ProcessCustomerAction" siteaction="ProcessCustomerActionSite">
+                 <ROAD
+                    name="CheckSameAddressProcessedRoad"
+                    letter="CheckSameAddress"
+                    destination="CheckShipSameAsBilling"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ShippingAddressStation"
+                servicename="send.address.shippingAddress"
+                targettier="CURRENTTIER"
+                launchshuttle="ShippingAddressLaunchShuttle"
+                returnshuttle="ShippingAddressReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the shippingaddress
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="ShippingReturned"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoShipping"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service
+                        returns with an Undo letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelShipping"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service
+                        returns with a Cancel letter.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="CaptureCustomerInfoStation"
+                servicename="tender.capturecustomerinfo.capturecustomerinfo"
+                targettier="CURRENTTIER"
+                launchshuttle="CaptureCustomerInfoLaunchShuttle"
+                returnshuttle="CaptureCustomerInfoReturnShuttle">
+                <COMMENT>
+                    Transfer control to capture customer info services to execute
+                    Customer functionality.
+                </COMMENT>
+                <ROAD
+                    name="SuccessSelected"
+                    letter="Success"
+                    destination="ProcessCustomerAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="DisplaySendMethodStation"
+                servicename="send.displaysendmethod.displaysendmethod"
+                targettier="CURRENTTIER"
+                launchshuttle="DisplaySendMethodLaunchShuttle"
+                returnshuttle="DisplaySendMethodReturnShuttle">
+                <COMMENT>
+                    This station goes to the check address station.
+                </COMMENT>
+                <ROAD
+                    name="DoneSelectedRoad"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoSelectedRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelSelectedRoad"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when a Next letter is received
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

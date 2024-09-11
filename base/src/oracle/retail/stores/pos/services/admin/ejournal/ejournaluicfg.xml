@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/ejournal/ejournaluicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/17/09 - Added ADE Header
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      3    360Commerce 1.2         3/31/2005 4:27:55 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:21:14 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:10:46 PM  Robert Pearse
+     $
+     Revision 1.4  2004/07/15 22:10:54  jdeleau
+     @scr 6077 Remove required field characteristics from start date
+     and end date.
+
+     Revision 1.3  2004/06/30 16:07:06  dfierling
+     @scr 5286 - added required fields,
+
+     Revision 1.2  2004/02/12 16:48:48  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:13  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<UICFG>
+
+    <BEAN
+        specName="DisplayTextSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DisplayTextBean">
+    </BEAN>
+
+    <BEAN
+        specName="JournalDisplayButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Previous"
+            enabled="true"
+            keyName="F2"
+            labelTag="Previous"/>
+
+        <BUTTON
+            actionName="Next"
+            enabled="true"
+            keyName="F3"
+            labelTag="Next"/>
+
+        <BUTTON
+            actionName="First"
+            enabled="true"
+            keyName="F4"
+            labelTag="First"/>
+
+        <BUTTON
+            actionName="Last"
+            enabled="true"
+            keyName="F5"
+            labelTag="Last"/>
+
+        <BUTTON
+            actionName="Done"
+            enabled="true"
+            keyName="F6"
+            labelTag="Done"/>
+
+        <BUTTON
+            actionName="Print"
+            enabled="true"
+            keyName="F7"
+            labelTag="Print"/>
+    </BEAN>
+
+    <BEAN
+        specName="TransactionLookupSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="TransactionLookupBean">
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="ejournalText"
+        specName="FIND_TRANSACTION">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="TransactionLookupSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="FindTransactionScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="FindTransactionPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Next[true],Clear[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="TransactionLookupSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="TransactionLookupSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="TransactionLookupSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="TransactionLookupSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="ejournalText"
+        specName="JOURNAL_DISPLAY">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="DisplayTextSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="JournalDisplayScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="JournalDisplayScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="JournalDisplayButtonSpec">
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+</UICFG>

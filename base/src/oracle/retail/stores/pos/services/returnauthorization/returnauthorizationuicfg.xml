@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/returnauthorization/returnauthorizationuicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole     09/23/14 - property added to restrict when
+ *                         and where the browser can be inoked
+ *                         via clicking the logo to main and sale
+ *                         only. 
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/16/09 - add Keys button
+ *    mdecama   12/05/08 - Updates to the RETURN_RESPONSE Screen
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="ReturnResponseItemButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SaleLocalButtonBean">
+
+        <BUTTON
+            actionName="ManagerOverride"
+            enabled="true"
+            keyName="F2"
+            labelTag="ManagerOverride"/>
+    </BEAN>
+
+    <BEAN
+        specName="ReturnResponseItemWorkPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ReturnResponseBean"
+        cachingScheme="ONE">
+
+        <BEANPROPERTY propName="focused" propValue="false"/>
+
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.ReturnResponseLineItemRenderer"/>
+
+        <BEANPROPERTY propName="labelTags"
+                      propValue="ResponseLabel,DescriptionItemLabel,QuantityLabel,ExtendedPriceLabel"/>
+
+        <BEANPROPERTY propName="labelWeights"
+                      propValue="35,35,15,15"/>
+
+        <BEANPROPERTY propName="selectionMode"
+                      propValue="multi"/>
+
+    </BEAN>
+
+   <DEFAULTSCREEN
+        specName="ReturnResponseEntryScreenSpec"
+        templateSpecName="EYSPOSTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="LineItemsModel"
+        resourceBundleFilename="classpath://oracle/retail/stores/pos/config/posUI.properties">
+
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="SmallLogoPanelSpec"/>
+
+    </DEFAULTSCREEN>
+
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="returnsText"
+        specName="RETURN_RESPONSE_ITEM">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="SelectReturnItemSpec"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="ReturnResponseScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="SaleGlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ReturnResponseItemWorkPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ReturnResponseItemButtonSpec">
+        </ASSIGNMENT>
+
+        <CONNECTION sourceBeanSpecName="ReturnResponseItemWorkPanelSpec"
+            targetBeanSpecName="SaleGlobalNavigationPanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="GlobalButtonListener"/>
+    </OVERLAYSCREEN>
+
+</UICFG>

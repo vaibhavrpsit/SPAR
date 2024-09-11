@@ -1,0 +1,166 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/pricing/priceoverride/priceoverride.xml /main/17 2012/09/12 11:57:11 blarsen Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    aariyer   07/30/10 - For the price override of a non returnable item
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="PriceOverride"
+    package="oracle.retail.stores.pos.services.pricing.priceoverride"
+    tourcam="OFF">
+    <CARGO class="PricingCargo" package="oracle.retail.stores.pos.services.pricing">
+        <PROPERTY propname="accessFunctionID" propvalue="PRICE_OVERRIDE"/>
+    </CARGO>
+    <SERVICECODE>
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Override"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Ok"/>
+        <LETTER name="PriceOverride"/>
+
+        <LANEACTION class="ItemPriceModifiedAisle"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="ModifyItemPriceSite"/>
+        <SITEACTION class="CheckPriceOverrideSite"/>
+
+    </SERVICECODE>
+    <MAP>
+       <REGION region="SERVICE" startsite="CheckSecurityAccess">
+            <SITE name="CheckSecurityAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="CheckPriceOverride"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckPriceOverride" siteaction="CheckPriceOverrideSite">
+                <ROAD
+                    name="PriceOverrideAvailable"
+                    letter="PriceOverride"
+                    destination="ModifyItemPrice"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PriceOverrideUnAvailable"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+         <SITE name="ModifyItemPrice" siteaction="ModifyItemPriceSite">
+                <COMMENT>
+                    This site implements steps 5 through 8 of the modify
+                    item price use case flow. Prompt for new item price
+                    using the current price as the default. A null price
+                    entry will not be allowed. Prompt the user for a reason
+                    code. A null reason will not be allowed if an percent
+                    was entered. If the parameter is set requiring an
+                    approval code, prompt the user for an approval code.
+                    Store the user specified price as the selling price
+                    for the selected item. Record the modified price,
+                    reason, and optional approval code for this item
+                    in the journal. Set transaction-item? in return
+                    shuttle Mail final letter to parent.
+                </COMMENT>
+                <AISLE
+                    name="ItemPriceModifiedAccept"
+                    letter="Next"
+                    laneaction="ItemPriceModifiedAisle">
+                </AISLE>
+                <ROAD
+                    name="InvalidMarkdownReason"
+                    letter="Ok"
+                    destination="ModifyItemPrice"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        The discount was not valid. Return to the ModifyItemPrice
+                        site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelItemPriceOverride"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoItemPriceOverride"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                  name="PriceOptionsUnavailable"
+                  letter="Ok"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </SITE>
+          <STATION
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+
+                <ROAD
+                    name="SecurityOverrideGranted"
+                    letter="Success"
+                    destination="ModifyItemPrice"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

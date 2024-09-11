@@ -1,0 +1,150 @@
+<?xml version='1.0' ?>
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012-2013 MAXHyperMarket, Inc.    All Rights Reserved.
+  Rev 1.1	Veeresh Singh		29/05/2013		Food Totals Functionality
+  Rev 1.0	1/May/2013	  	Tanmaya, Home Delivery Special Order
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<SERVICE name="specialorderdeposit"
+    package="oracle.retail.stores.pos.services.specialorder.deposit"
+    tourcam="ON">
+    <COMMENT>
+        This service handles a special order deposit.
+    </COMMENT>
+    <CARGO class="SpecialOrderCargo" package="oracle.retail.stores.pos.services.specialorder"/>
+    <SERVICECODE>
+        <LETTER name="Success"/>
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Loop"/>
+        <LETTER name="ExitTender"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Save"/>
+        <LETTER name="Ok"/>
+        <LETTER name="UpdateError"/>
+        <LETTER name="ExitPrinting"/>
+        <LETTER name="ExitSpecialOrder"/>        
+        <LETTER name="Retry"/>
+        
+        <LANEACTION class="MAXValidateDepositEnteredAisle" package="max.retail.stores.pos.services.specialorder.deposit"/>   
+        <LANEACTION class="TenderCompletedRoad"/>        
+        <LANEACTION class="DepositEnteredRoad"/>        
+        <LANEACTION class="ContinueConversionAisle"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        
+        <SITEACTION class="MAXSpecialOrderDepositSite" package="max.retail.stores.pos.services.specialorder.deposit"/>
+        <!-- Changes for Rev 1.1 Start -->
+        <!-- SHUTTLE class="TenderLaunchShuttle"/-->
+        <SHUTTLE class="MAXTenderLaunchShuttle" package="max.retail.stores.pos.services.specialorder.deposit" />
+        <SHUTTLE class="TenderReturnShuttle"/>
+        
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="SpecialOrderDeposit">
+            <SITE name="SpecialOrderDeposit"  siteaction="MAXSpecialOrderDepositSite">
+                <COMMENT>
+                    This site displays the special order deposit. 
+                </COMMENT>
+                <AISLE
+                    name="ValidateDepositEntered"
+                    letter="Next"
+                    laneaction="MAXValidateDepositEnteredAisle">
+                    <COMMENT>
+                        This aisle is traversed after the user entered the deposit information. It makes sure the deposit amount 
+                        is greater than the minimum down deposit and less than or equal to the balance due.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="CancelSpecialOrderDeposit"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="RetryInvalidDeposit"
+                    letter="Retry"
+                    destination="SpecialOrderDeposit"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoDeposit"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DepositEntered"
+                    letter="Success"
+                    laneaction="DepositEnteredRoad"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FailureSpecialOrderDeposit"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!-- Changes for Rev 1.1 Start -->
+            <STATION
+                name="TenderStation"
+                servicename="services.tender.tender"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXTenderLaunchShuttle"
+                returnshuttle="TenderReturnShuttle">
+                <COMMENT>
+                    This station is the transfer point for the tender 
+                    service
+                </COMMENT>
+                <ROAD
+                    name="TenderUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when undo is selected from the tender service
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCanceled"
+                    letter="Cancel"
+                    destination="Final"                    
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">                     
+                    <COMMENT>
+                        This road is traversed when a tender is canceled 
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCompleted"
+                    letter="ExitTender"
+                    laneaction="TenderCompletedRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when a tender is completed 
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <!-- Changes for Rev 1.1 End -->
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/notifications/notificationsuicfg.xml /main/2 2014/05/30 16:24:11 abondala Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abondala  05/30/14 - notifications UI related changes
+ *    abondala  05/15/14 - notifications updates
+ *    abondala  05/14/14 - notifications requirement
+ *    abondala  05/13/14 - notifications ui config
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<UICFG>
+
+    <BEAN
+        specName="NotificationsListSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ListBean">
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.NotificationsListRenderer"/>
+        <BEANPROPERTY propName="labelTags" propValue="NotificationLabel,DateLabel"/>
+        <BEANPROPERTY propName="labelWeights" propValue="84,16"/>
+        <BEANPROPERTY propName="focused" propValue="true"/>
+    </BEAN>
+    
+    <BEAN
+        specName="NotificationsDoneButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            actionName="Done"
+            enabled="true"
+            keyName="F2"
+            labelTag="Done"/>
+    </BEAN>    
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="notificationsText"
+        specName="NOTIFICATIONS_LIST">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="NotificationsListSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+             areaName="StatusPanel"
+             beanSpecName="StatusPanelSpec">
+             <BEANPROPERTY
+                 propName="screenNameTag" propValue="NotificationsListScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="NotificationsListPromptText"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="NotificationsDoneButtonSpec">
+        </ASSIGNMENT>
+                
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton" propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[false],Next[false]"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>    
+
+</UICFG>

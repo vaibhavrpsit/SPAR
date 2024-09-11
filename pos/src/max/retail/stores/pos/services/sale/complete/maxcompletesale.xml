@@ -1,0 +1,371 @@
+<?xml version='1.0' ?>
+
+<!-- 
+/********************************************************************************
+ *   
+ *	Copyright (c) 2016 - 2017 MAX Hypermarket, Inc    All Rights Reserved.
+ *	
+ *
+ *	Rev 1.1		Dec 20, 2016			Mansi Goel			Changes for Gift Card FES
+ *  Rev 1.0     Nov 22, 2016	        Ashish Yadav		Changes for Employee Discount FES
+ *	Changes to capture ManagerOverride for Reporting purpose
+ ********************************************************************************/
+ -->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE 
+    name="CompleteSale"
+    package="oracle.retail.stores.pos.services.sale.complete"
+    tourcam="OFF">
+    <CARGO  class="MAXSaleCargo" package="max.retail.stores.pos.services.sale"/>
+    <SERVICECODE >
+        <LETTER  name="Continue"/>
+        <LETTER  name="Failure"/>
+        <LETTER  name="GiftCard"/>
+        <LETTER  name="Success"/>
+        <LETTER name="RequestActivation"/>
+        <LETTER name="ExitPrinting"/>
+        <LETTER name="ActivationCancelled"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Save"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Retry"/>
+        <LETTER name="QueueFull"/>
+	<LETTER name="TenderSaleT"/>
+        <SHUTTLE class="PrintingLaunchShuttle" package="oracle.retail.stores.pos.services.printing"/>
+        <!-- Vaibhav's Changes : Start --> 
+	<SHUTTLE class="MAXPrintingReturnShuttle" package="max.retail.stores.pos.services.printing"/>
+        <!-- Vaibhav's Changes : End -->
+	<SHUTTLE class="GiftCardActivationLaunchShuttle"/>
+        <SHUTTLE class="GiftCardActivationReturnShuttle"/>
+        <SHUTTLE class="GiftCardReloadLaunchShuttle"/>
+        <SHUTTLE class="GiftCardReloadReturnShuttle"/>
+        <SITEACTION class="WriteTransactionSite"/>
+       <SITEACTION class="MAXWriteTransactionSite" package="max.retail.stores.pos.services.sale.complete"/> 
+        <SITEACTION class="CloseCashDrawerSite"/>
+        <!-- <SITEACTION class="OpenCloseCashDrawerSite"/> -->
+        <!-- Rev 1.0 : Start -->
+        <SITEACTION class="MAXCheckForGiftCardsSite" package="max.retail.stores.pos.services.sale.complete"/>
+        <!-- Rev 1.0 : Ends -->
+        <!--Capillary Coupon Changes For Rev 1.1 changes :Start-->
+        <SITEACTION class="MAXCheckForCapillaryCouponSite" package="max.retail.stores.pos.services.sale.complete" />
+        <!--Capillary Coupon Changes For Rev 1.1 changes :End-->
+        <LANEACTION class="SaveRetailTransactionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SaveFailedAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="FatalFailureAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ActivationCancelAisle"/>
+        <!-- Changes start for code merging -->
+        <!-- <LANEACTION class="StackTraceRoad" package="oracle.retail.stores.pos.services.common"/> -->
+        <!-- Changes end for code merging -->
+        <LANEACTION class="MAXCheckForRemainingGiftCardAisle" package="max.retail.stores.pos.services.sale.complete"/>
+        <LANEACTION class="GiftCardActivationFailureRoad"/>
+        <!--  Chnages start for Rev 1.0 (Ashish :Employee Discount) -->
+        <LANEACTION class="MAXSaveRetailTransactionAisle"
+			package="max.retail.stores.pos.services.common" />
+		<!--  Chnages ends for Rev 1.0 (Ashish :Employee Discount) -->
+		<!--  Change for ManagerOverride -->
+		<LANEACTION class="MAXSaveRetailTransactionAisle" package="max.retail.stores.pos.services.common"/>
+		
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="CheckForGiftCards">
+            <SITE  name="CheckForGiftCards" siteaction="MAXCheckForGiftCardsSite"> <!-- Rev 1.0 changes -->
+            	<AISLE
+            		name="CheckForRemainingGiftCard"
+            		letter="Continue"
+            		laneaction="MAXCheckForRemainingGiftCardAisle">
+            	</AISLE>
+                <ROAD 
+                    name="RetryGiftCardActivation"
+                    letter="Retry"
+                    destination="CheckForGiftCards"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="GiftCardsPresentInSale"
+                    letter="GiftCard"
+                    destination="ActivationStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                
+                 <!--  <ROAD 
+                    name="GiftCardsPresentInSale"
+                    letter="TenderSaleFinal"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD> -->
+                
+                
+                <!-- ROAD 
+                    name="NoGiftCardsPresentInSale"
+                    letter="Continue"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD-->
+                
+                <!--Capillary Coupon Changes For Rev 1.1 changes :Start-->
+                 <!--   <ROAD 
+                    name="NoGiftCardsPresentInSale"
+                    letter="Print"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>-->
+                <ROAD 
+                    name="NoGiftCardsPresentInSale"
+                    letter="Print"
+                    destination="CheckForCapillary"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <!--Capillary Coupon Changes For Rev 1.1 changes :End-->
+            <ROAD 
+                    name="GiftCardActivationFailed"
+                    letter="TenderSale"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                  <ROAD 
+                    name="GiftCardActivationFailed"
+                    letter="TenderSaleT"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            
+             <!--Capillary Coupon Changes For Rev 1.1 changes :Start-->
+             
+             <SITE  name="CheckForCapillary" siteaction="MAXCheckForCapillaryCouponSite">
+				 	 <ROAD
+                    name="RedeemCapillary"
+                    letter="Continue"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                
+                <ROAD 
+                    name="RedeemCapillaryCards"
+                    letter="Retry"
+                    destination="CheckForCapillary"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+
+            </SITE>
+             
+             <!--Capillary Coupon Changes For Rev 1.1 changes :End-->
+            
+            <STATION
+                name="PrintingStation"
+                servicename="services.printing.printing"
+                targettier="CURRENTTIER"
+                launchshuttle="PrintingLaunchShuttle"
+                 returnshuttle="MAXPrintingReturnShuttle">
+		 <!-- Above Return Shuttle added by Vaibhav  -->
+                <COMMENT>
+                    This station is the transfer point for the Printing
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="PrintingReturned"
+                    letter="ExitPrinting"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Printing service returns
+                        and there are no items that require activation.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            
+            <!-- Changes for Rev 1.1 : Starts -->
+            <STATION
+                name="ActivationStation"
+                servicename="tender.activation.activation"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardActivationLaunchShuttle"
+                returnshuttle="GiftCardActivationReturnShuttle">
+            <!-- Changes for Rev 1.1 : Ends -->
+                <ROAD
+                    name="ActivationReturned"
+                    letter="Continue"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ManualActivationReturned"
+                    letter="Yes"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Return after unknown error occured while activation/deactivation
+                        of gift card and prompted the manual call-in activation/deactivation
+                        of card.
+                    </COMMENT>
+                </ROAD>
+                 <!--  Changes start for code emrging(14 is using GiftCardActivationFailureRoad intead of stackTraceRoad and WriteTransaction instead of OpenCloseCashDrawer-->
+                <ROAD
+                    name="ActivationCancelRoad"
+                    letter="ActivationCancelled"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               
+               <ROAD name="ActivationFailure"
+                     letter="Failure"
+                     destination="WriteTransaction"
+                     laneaction="GiftCardActivationFailureRoad"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="ActivationCancelled"
+                     letter="Cancel"
+                     destination="WriteTransaction"
+                     laneaction="GiftCardActivationFailureRoad"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <!--  Changes start for code emrging(14 is using GiftCardActivationFailureRoad intead of stackTraceRoad -->
+            </STATION>
+            <SITE name="WriteTransaction" siteaction="MAXWriteTransactionSite">
+                <COMMENT>
+                    This site writes the transaction to the database.
+                </COMMENT>
+                <!--  Change for ManagerOverride : Start -->
+                <AISLE
+                    name="SaveTransaction"
+                    letter="Save"
+                    laneaction="MAXSaveRetailTransactionAisle">
+                </AISLE>
+                <!-- Change for ManagerOverride : End -->
+                 <!--  Chnages start for Rev 1.0 (Ashish : Employee Discount) -->
+                <AISLE
+                    name="SaveTransaction"
+                    letter="Save"
+                    laneaction="MAXSaveRetailTransactionAisle">
+                </AISLE>
+                <!--  Chnages start for Rev 1.0 (Ashish : Employee Discount) -->
+                
+                <AISLE
+                    name="SaveFailed"
+                    letter="Ok"
+                    laneaction="SaveFailedAisle">
+                </AISLE>
+                <AISLE
+                    name="FatalFailure"
+                    letter="Failure"
+                    laneaction="FatalFailureAisle">
+                </AISLE>
+                <ROAD
+                    name="WriteCompleted"
+                    letter="Continue"
+                    destination="CloseCashDrawer"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="WriteTransactionQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		<!--Changes done HDD Full Patch from Oracle-->
+                <ROAD
+                    name="WriteTransactionRetry"
+                    letter="Retry"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		<!--Changes end here -->
+		<ROAD
+                    name="SubmitInvoiceRetry"
+                    letter="RetrySubmitInvoice"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <!--  changes start for ocde merging (commenting below code as it ins not used in base 14 -->
+          <!--   <SITE name="OpenCloseCashDrawer" siteaction="OpenCloseCashDrawerSite">
+                <AISLE
+                    name="ContinueWithCashDrawClosed"
+                    letter="Continue"
+                    laneaction="ActivationCancelAisle">
+                </AISLE>
+                <AISLE
+                    name="CashDrawerSuccess"
+                    letter="Cancel"
+                    laneaction="ActivationCancelAisle">
+                </AISLE>
+                <ROAD
+                    name="RetryOpenCashDraw"
+                    letter="Retry"
+                    destination="OpenCloseCashDrawer"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ActivationCancelRoad"
+                    letter="ActivationCancelled"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE> -->
+            <!--  changes end for ocde merging (commenting below code as it ins not used in base 14 -->
+            <SITE name="CloseCashDrawer" siteaction="CloseCashDrawerSite">
+                <ROAD
+                    name="CashDrawerClosed"
+                    letter="Continue"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CashDrawerSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

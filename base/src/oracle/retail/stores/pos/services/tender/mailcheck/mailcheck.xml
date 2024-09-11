@@ -1,0 +1,366 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/mailcheck/mailcheck.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 7:52:19 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:28:59 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:23:23 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:12:30 PM  Robert Pearse
+     $
+     Revision 1.2  2004/04/13 21:43:09  bwf
+     @scr 4263 Fix problem with decomposition.
+
+     Revision 1.1  2004/04/05 15:44:13  epd
+     @scr 4263 Moved Mail Bank Check to new sub tour
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.mailcheck"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Tender Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="OneTimeCustomerCapture"/>
+        <LETTER name="Update"/>
+        <LETTER name="AddBusiness"/>
+        <LETTER name="Add"/>
+        <LETTER name="Find"/>
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Link"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Offline"/>
+
+        <SITEACTION class="GetCheckMailingInfoSite"/>
+        <SITEACTION class="UpdateCustomerActionSite"/>
+        <SITEACTION class="CheckMailingActionSite"/>
+        <SITEACTION class="CheckMailingOTCCActionSite"/>
+
+        <SHUTTLE class="FindCustomerLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="FindCustomerReturnShuttle"/>
+        <SHUTTLE class="AddCustomerLaunchShuttle"/>
+        <SHUTTLE class="AddCustomerReturnShuttle"/>
+        <SHUTTLE class="OneTimeCustomerLaunchShuttle"/>
+        <SHUTTLE class="OneTimeCustomerReturnShuttle"/>
+
+    </SERVICECODE>
+
+    <MAP >
+        <REGION  region="SERVICE" startsite="GetCheckMailingInfo">
+            <SITE  name="GetCheckMailingInfo" siteaction="GetCheckMailingInfoSite">
+                <ROAD
+                    name="OneTimeCustomerCaptureSelected"
+                    letter="OneTimeCustomerCapture"
+                    destination="MBCCaptureCustomerInfo"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CheckMailingInfoEntered"
+                    letter="Next"
+                    destination="CheckMailingAction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UpdateCustomerSelected"
+                    letter="Update"
+                    destination="UpdateCustomerAction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AddCustomerSelected"
+                    letter="Add"
+                    destination="AddCustomer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AddBusinessSelected"
+                    letter="AddBusiness"
+                    destination="AddBusinessCustomer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FindCustomer"
+                    letter="Find"
+                    destination="FindCustomer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="MailBankCheckUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="MailBankCheckCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckMailingAction" siteaction="CheckMailingActionSite">
+                <ROAD
+                    name="CheckMailingSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CheckMailingRetry"
+                    letter="Ok"
+                    destination="GetCheckMailingInfo"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckMailingOTCCAction" siteaction="CheckMailingOTCCActionSite">
+                <ROAD
+                    name="CheckMailingSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CheckMailingRetry"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="UpdateCustomerAction" siteaction="UpdateCustomerActionSite">
+                <ROAD
+                    name="UpdateCustomerSuccess"
+                    letter="Success"
+                    destination="CheckMailingAction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UpdateCustomerRetry"
+                    letter="Ok"
+                    destination="GetCheckMailingInfo"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="MBCCaptureCustomerInfo"
+                servicename="tender.capturecustomerinfo.capturecustomerinfo"
+                targettier="CURRENTTIER"
+                launchshuttle="OneTimeCustomerLaunchShuttle"
+                returnshuttle="OneTimeCustomerReturnShuttle">
+                <ROAD
+                   name="MBCCustomerInfoCapturedRoad"
+                   letter="Success"
+                   destination="CheckMailingOTCCAction"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="ON">
+                </ROAD>
+                <ROAD
+                   name="MBCCustomerInfoCancelledRoad"
+                   letter="Cancel"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD
+                   name="MBCCustomerInfoFailureRoad"
+                   letter="Failure"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD
+                   name="MBCCustomerInfoUndoRoad"
+                   letter="Undo"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="AddCustomer"
+                servicename="customer.add.customeradd"
+                targettier="CURRENTTIER"
+                launchshuttle="AddCustomerLaunchShuttle"
+                returnshuttle="AddCustomerReturnShuttle">
+                   <ROAD
+                      name="AddCustomerLinked"
+                      letter="Link"
+                      destination="GetCheckMailingInfo"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                   </ROAD>
+                   <ROAD name="CustomerAdded"
+                      letter="Continue"
+                      destination="GetCheckMailingInfo"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                  </ROAD>
+                  <ROAD name="UndoAddSelected"
+                     letter="Undo"
+                     destination="GetCheckMailingInfo"
+                     tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                  </ROAD>
+                  <ROAD name="CancelAddSelected"
+                     letter="Cancel"
+                     destination="GetCheckMailingInfo"
+                     tape="REWIND"
+                     record="OFF"
+                     index="OFF">
+                  </ROAD>
+             </STATION>
+            <STATION
+                name="AddBusinessCustomer"
+                servicename="customer.addbusiness.businessadd"
+                targettier="CURRENTTIER"
+                launchshuttle="AddCustomerLaunchShuttle"
+                returnshuttle="AddCustomerReturnShuttle">
+                  <ROAD
+                     name="AddCustomerLinked"
+                     letter="Link"
+                     destination="GetCheckMailingInfo"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                  </ROAD>
+                  <ROAD name="CustomerAdded"
+                     letter="Continue"
+                     destination="GetCheckMailingInfo"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+                 <ROAD name="UndoAddSelected"
+                     letter="Undo"
+                     destination="GetCheckMailingInfo"
+                     tape="REWIND"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+                 <ROAD name="OfflineAddBusinessCustomer"
+                     letter="Offline"
+                     destination="GetCheckMailingInfo"
+                     tape="ADVANCE"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+                 <ROAD name="CancelAddSelected"
+                     letter="Cancel"
+                     destination="GetCheckMailingInfo"
+                     tape="REWIND"
+                     record="OFF"
+                     index="OFF">
+                 </ROAD>
+            </STATION>
+            <STATION
+                name="FindCustomer"
+                servicename="customer.find.customerfind"
+                targettier="CURRENTTIER"
+                launchshuttle="FindCustomerLaunchShuttle"
+                returnshuttle="FindCustomerReturnShuttle">
+                <ROAD
+                   name="FindCustomerLinked"
+                   letter="Link"
+                   destination="GetCheckMailingInfo"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD name="CustomerFound"
+                   letter="Continue"
+                   destination="GetCheckMailingInfo"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD name="UndoFindSelected"
+                   letter="Undo"
+                   destination="GetCheckMailingInfo"
+                   tape="REWIND"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD name="OfflineFindBusinessCustomer"
+                   letter="Offline"
+                   destination="GetCheckMailingInfo"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+                <ROAD name="CancelFindSelected"
+                   letter="Cancel"
+                   destination="GetCheckMailingInfo"
+                   tape="REWIND"
+                   record="OFF"
+                   index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

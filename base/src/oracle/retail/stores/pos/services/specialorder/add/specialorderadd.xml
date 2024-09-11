@@ -1,0 +1,241 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/specialorder/add/specialorderadd.xml /main/19 2014/04/07 13:59:26 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   03/31/14 - Add set access function id in the tour.
+ *    yiqzhao   03/28/14 - Check access before doing special order create.
+ *    icole     04/20/12 - Foward port for unmatched link letter for link
+ *                         customer.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:45:47 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin-4
+      3    360Commerce 1.2         3/31/2005 4:30:07 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:25:24 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:14:20 PM  Robert Pearse
+     $
+     Revision 1.3  2004/03/26 00:24:23  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:52:01  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:20  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="specialorderadd"
+    package="oracle.retail.stores.pos.services.specialorder.add"
+    tourcam="OFF">
+    <COMMENT >
+        This services creates a Special Order.
+    </COMMENT>
+    <CARGO  class="SpecialOrderCargo" package="oracle.retail.stores.pos.services.specialorder">
+        <PROPERTY propname="accessFunctionID" propvalue="ORDERS"/>
+    </CARGO>
+    <SERVICECODE >
+        <LANEACTION class="DisplayNoLinkCustomerAisle"/>
+        <LANEACTION class="DisplayNoSpecialOrderAisle"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SaveSpecialOrderCustomerAisle"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Customer"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Link"/>
+        <LETTER name="Loop"/>
+        <LETTER name="Next"/>
+        <LETTER name="NoLink"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+
+        <SHUTTLE class="LinkCustomerLaunchShuttle"/>
+        <SHUTTLE class="LinkCustomerReturnShuttle"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     
+        <SIGNAL  class="IsOfflineSignal"/>
+        <SIGNAL  class="IsOnlineSignal"/>
+
+        <SITEACTION class="DisplaySpecialOrderCustomerSite"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess"  siteaction="CheckAccessSite">
+	            <ROAD
+	                name="CheckAccessContinue"
+	                letter="Continue"
+	                destination="SpecialOrderCustomerStation"
+	                tape="ADVANCE"
+	                record="OFF"
+	                index="OFF">
+	            </ROAD>
+	            <ROAD
+	                name="CheckAccessOverride"
+	                letter="Override"
+	                destination="SecurityOverrideStation"
+	                tape="ADVANCE"
+	                record="OFF"
+	                index="OFF">
+	            </ROAD>
+            </SITE>
+            <STATION
+                name="SpecialOrderCustomerStation"
+                servicename="customer.main.customermain"
+                targettier="APPLICATIONTIER"
+                launchshuttle="LinkCustomerLaunchShuttle"
+                returnshuttle="LinkCustomerReturnShuttle">
+                <AISLE
+                    name="DisplayNoLinkCustomerOnline"
+                    letter="Cancel"
+                    laneaction="DisplayNoLinkCustomerAisle">
+                    <LIGHT  signal="IsOnlineSignal"/>
+                </AISLE>
+                <AISLE
+                    name="DisplayNoSpecialOrderOffline"
+                    letter="Cancel"
+                    laneaction="DisplayNoSpecialOrderAisle">
+                    <LIGHT  signal="IsOfflineSignal"/>
+                </AISLE>
+                <AISLE
+                    name="FailureLinkCustomerOffline"
+                    letter="Offline"
+                    laneaction="DisplayNoSpecialOrderAisle">
+                </AISLE>
+                <ROAD
+                    name="DisplayNoLinkCustomerRetry"
+                    letter="Retry"
+                    destination="SpecialOrderCustomerStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinueLinkCustomerOnline"
+                    letter="Continue"
+                    destination="DisplaySpecialOrderCustomer"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoFindSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureCustomerReturn"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="CustomerLink"
+                    letter="Link"
+                    destination="DisplaySpecialOrderCustomer"
+                    tape="ADVANCE" 
+                    record="OFF" 
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="DisplaySpecialOrderCustomer" siteaction="DisplaySpecialOrderCustomerSite">
+                <AISLE
+                    name="SaveSpecialOrderCustomer"
+                    letter="Next"
+                    laneaction="SaveSpecialOrderCustomerAisle">
+                </AISLE>
+                <ROAD
+                    name="RetrySpecialOrderCustomer"
+                    letter="Retry"
+                    destination="DisplaySpecialOrderCustomer"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSpecialOrderCustomer"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureSpecialOrderCustomer"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SuccessSpecialOrderCustomer"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSpecialOrderCustomer"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD
+                    name="SuccessSecurityOverride"
+                    letter="Success"
+                    destination="SpecialOrderCustomerStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureSecurityOverride"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>            
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

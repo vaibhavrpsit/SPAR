@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/modifytransaction/resume/resumeSuspendedTransaction.xml /main/2 2014/05/14 14:41:28 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/14/14 - rename retrieve to resume
+ *    rgour     11/02/12 - Enhancements in Suspended Transactions
+ *
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE
+    name="resume"
+    package="oracle.retail.stores.pos.services.modifytransaction.resume"
+    tourcam="OFF" >
+
+    <CARGO
+        class="ModifyTransactionResumeCargo"
+        package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+    <SERVICECODE>
+
+        <LANEACTION
+            class="DataBaseErrorAisle"
+            package="oracle.retail.stores.pos.services.common" />
+
+        <LANEACTION
+            class="DefaultRoad"
+            package="oracle.retail.stores.pos.services.common" />
+
+        <LANEACTION
+            class="DisplaySuspendedCancelAisle"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <LANEACTION
+            class="DisplaySuspendedNextAisle"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <LANEACTION
+            class="CheckForItemsInTransactionAisle"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <LANEACTION
+            class="FailureConversionAisle"
+            package="oracle.retail.stores.pos.services.common" />
+
+        <LANEACTION
+            class="LookupTransactionsNotFoundAisle"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <LANEACTION
+            class="SuccessConversionAisle"
+            package="oracle.retail.stores.pos.services.common" />
+
+        <LANEACTION
+            class="TransactionIDEnteredAisle"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <LANEACTION
+            class="WriteHardTotalsErrorAisle"
+            package="oracle.retail.stores.pos.services.common" />
+
+        <LANEACTION
+            class="LookupTransactionLinkedCustomerNotFoundAisle"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <LANEACTION
+            class="OrderOfflineAisle"
+            package="oracle.retail.stores.pos.services.order.common" />
+
+        <LANEACTION
+            class="CancelSelectedRoad"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <LETTER name="Cancel" />
+
+        <LETTER name="Clear" />
+
+        <LETTER name="DbError" />
+
+        <LETTER name="DoCancel" />
+
+        <LETTER name="DoNext" />
+
+        <LETTER name="Done" />
+
+        <LETTER name="Failure" />
+
+        <LETTER name="HardTotalsError" />
+
+        <LETTER name="List" />
+
+        <LETTER name="Next" />
+
+        <LETTER name="No" />
+
+        <LETTER name="NotFound" />
+
+        <LETTER name="Ok" />
+
+        <LETTER name="Retry" />
+
+        <LETTER name="Success" />
+
+        <LETTER name="Undo" />
+
+        <LETTER name="Yes" />
+
+        <LETTER name="Invalid" />
+
+        <LETTER name="Override" />
+
+        <LETTER name="Continue" />
+
+        <LETTER name="LinkedCustomerNotFoundError" />
+
+        <SIGNAL class="IsNotOnlyTransactionSignal" />
+
+        <SIGNAL class="IsOnlyTransactionSignal" />
+
+        <SITEACTION
+            class="SetTransactionSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="PrintCancelTransactionSite"
+            package="oracle.retail.stores.pos.services.common" />
+
+        <SITEACTION
+            class="SaveCanceledTransactionSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="CheckTransactionSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="CheckTransactionListLengthSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="ConfirmCancelTransactionSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="DisplaySuspendedListSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="LookupSuspendedTransactionsSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="LookupTransactionSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="PromptTransactionSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="CheckForReturnedGiftCardsSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="RefreshSuspendedLineItemsSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SITEACTION
+            class="CheckAccessSite"
+            package="oracle.retail.stores.pos.services.admin.security.common" />
+
+        <SITEACTION
+            class="GetTransactionIdSite"
+            package="oracle.retail.stores.pos.services.modifytransaction.resume" />
+
+        <SHUTTLE
+            class="SecurityOverrideLaunchShuttle"
+            package="oracle.retail.stores.pos.services.admin.security.common" />
+    </SERVICECODE>
+
+    <MAP>
+
+        <REGION
+            region="SERVICE"
+            startsite="GetTransactionId" >
+
+            <SITE
+                name="CheckTransaction"
+                siteaction="CheckTransactionSite" >
+
+                <COMMENT>
+                    Confirms that a transaction is not in progress. If
+                    retrieve not allowed, display an error message.
+                </COMMENT>
+
+                <AISLE
+                    name="RetrieveDisallowedAcknowledged"
+                    laneaction="FailureConversionAisle"
+                    letter="Ok" >
+
+                    <COMMENT>
+                        An error has occurred and has been acknowledged by
+                        the user. Send a Failure letter
+                    </COMMENT>
+                </AISLE>
+
+                <ROAD
+                    name="RetrieveExit"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+
+                    <COMMENT>
+                        Exit service because retrieve is not allowed.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="CheckTransactionListLength"
+                siteaction="CheckTransactionListLengthSite" >
+
+                <COMMENT>
+                    To handle the situation where suspended transactions may be one, more, or none.
+                </COMMENT>
+
+                <AISLE
+                    name="FindTransactionErrorAcknowledgement"
+                    laneaction="FailureConversionAisle"
+                    letter="Ok" >
+
+                    <LIGHT signal="IsOnlyTransactionSignal" />
+                </AISLE>
+
+                <ROAD
+                    name="NoTransactionDueToDBError"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="BackToDisplaySuspendedList"
+                    destination="DisplaySuspendedList"
+                    index="OFF"
+                    letter="Ok"
+                    record="OFF"
+                    tape="ADVANCE" >
+
+                    <LIGHT signal="IsNotOnlyTransactionSignal" />
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="GetTransactionId"
+                siteaction="GetTransactionIdSite" >
+
+                <COMMENT>
+                    Prompts for transaction ID or option to choose from
+                    list.
+                </COMMENT>
+
+                <AISLE
+                    name="TransactionIDEntered"
+                    laneaction="TransactionIDEnteredAisle"
+                    letter="Next" >
+
+                    <COMMENT>
+                        Aisle for pulling entered transaction ID from input
+                        area. A Success letter is generated.
+                    </COMMENT>
+                </AISLE>
+
+                <AISLE
+                    name="PromptTransactionCancel"
+                    laneaction="FailureConversionAisle"
+                    letter="Cancel" >
+
+                    <COMMENT>
+                        Do nothing, just mail a Failure letter and exit the
+                        service
+                    </COMMENT>
+                </AISLE>
+
+                <ROAD
+                    name="PromptSuccess"
+                    destination="LookupTransaction"
+                    index="ON"
+                    laneaction="DefaultRoad"
+                    letter="Success"
+                    record="ON"
+                    tape="ADVANCE" >
+
+                    <COMMENT>
+                        Road taken when transaction ID is retrieved from
+                        UI.
+                    </COMMENT>
+                </ROAD>
+
+                <ROAD
+                    name="PromptList"
+                    destination="LookupSuspendedTransactions"
+                    index="ON"
+                    laneaction="DefaultRoad"
+                    letter="List"
+                    record="ON"
+                    tape="ADVANCE" >
+
+                    <COMMENT>
+                        Road taken when list option is selected.
+                    </COMMENT>
+                </ROAD>
+
+                <ROAD
+                    name="PromptExit"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+
+                    <COMMENT>
+                        Exit service without doing anything.
+                    </COMMENT>
+                </ROAD>
+
+                <ROAD
+                    name="PromptTransactionUndo"
+                    destination="Final"
+                    index="ON"
+                    letter="Undo"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="LookupSuspendedTransactions"
+                siteaction="LookupSuspendedTransactionsSite" >
+
+                <COMMENT>
+                    Retrieve all suspended transactions for this store/day
+                </COMMENT>
+
+                <MOCKUP image="" />
+
+                <AISLE
+                    name="LookupTransactionsError"
+                    laneaction="DataBaseErrorAisle"
+                    letter="DbError" >
+                </AISLE>
+
+                <AISLE
+                    name="LookupTransactionsNotFound"
+                    laneaction="LookupTransactionsNotFoundAisle"
+                    letter="NotFound" >
+                </AISLE>
+
+                <AISLE
+                    name="LookupTransactionsErrorAcknowledgement"
+                    laneaction="FailureConversionAisle"
+                    letter="Ok" >
+                </AISLE>
+
+                <ROAD
+                    name="LookupSuspendedFailed"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="LookupSuspendedSucceeded"
+                    destination="DisplaySuspendedList"
+                    index="ON"
+                    letter="Success"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="DisplaySuspendedList"
+                siteaction="DisplaySuspendedListSite" >
+
+                <COMMENT>
+                    Display all suspended transactions for the store/day
+                </COMMENT>
+
+                <MOCKUP image="" />
+
+                <AISLE
+                    name="DisplaySuspendedDone"
+                    laneaction="SuccessConversionAisle"
+                    letter="Done" >
+
+                    <COMMENT>
+                        Do nothing, just mail a Success letter and exit the
+                        service
+                    </COMMENT>
+                </AISLE>
+
+                <AISLE
+                    name="DisplaySuspendedNext"
+                    laneaction="DisplaySuspendedNextAisle"
+                    letter="Next" >
+
+                    <COMMENT>
+                        Store transaction to be activated in cargo and send
+                        a DoNext letter
+                    </COMMENT>
+                </AISLE>
+
+                <AISLE
+                    name="DisplaySuspendedClear"
+                    laneaction="DisplaySuspendedCancelAisle"
+                    letter="Clear" >
+
+                    <COMMENT>
+                        Store transaction to be cancelled in cargo and send
+                        DoCancel letter
+                    </COMMENT>
+                </AISLE>
+
+                <AISLE
+                    name="DisplaySuspendedCancel"
+                    laneaction="FailureConversionAisle"
+                    letter="Cancel" >
+
+                    <COMMENT>
+                        Do nothing, just mail a Failure letter and exit the
+                        service
+                    </COMMENT>
+                </AISLE>
+
+                <ROAD
+                    name="RetrieveTransactionSelected"
+                    destination="LookupTransaction"
+                    index="ON"
+                    letter="DoNext"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="CancelTransactionSelected"
+                    destination="ConfirmCancelTransaction"
+                    index="ON"
+                    letter="DoCancel"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="DoneSelected"
+                    destination="Final"
+                    index="ON"
+                    letter="Success"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="CancelSelected"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+
+                    <COMMENT>
+                        Exit service without doing anything.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="LookupTransaction"
+                siteaction="LookupTransactionSite" >
+
+                <COMMENT>
+                    Lookup selected transaction
+                </COMMENT>
+
+                <MOCKUP image="" />
+
+                <AISLE
+                    name="LookupTransactionError"
+                    laneaction="DataBaseErrorAisle"
+                    letter="DbError" >
+                </AISLE>
+
+                <AISLE
+                    name="LookupTransactionOffline"
+                    laneaction="OrderOfflineAisle"
+                    letter="Offline" >
+                </AISLE>
+
+                <AISLE
+                    name="LookupTransactionHardTotalsError"
+                    laneaction="WriteHardTotalsErrorAisle"
+                    letter="HardTotalsError" >
+                </AISLE>
+
+                <AISLE
+                    name="LookupTransactionNotFound"
+                    laneaction="LookupTransactionsNotFoundAisle"
+                    letter="NotFound" >
+                </AISLE>
+
+                <AISLE
+                    name="LookupTransactionLinkedCustomerNotFound"
+                    laneaction="LookupTransactionLinkedCustomerNotFoundAisle"
+                    letter="LinkedCustomerNotFoundError" >
+                </AISLE>
+
+                <ROAD
+                    name="LookupTransactionErrorAcknowledgement"
+                    destination="CheckTransactionListLength"
+                    index="ON"
+                    letter="Ok"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="LookupTransactionSucceeded"
+                    destination="CheckForReturnedGiftCards"
+                    index="ON"
+                    letter="Success"
+                    record="ON"
+                    tape="ADVANCE" >
+
+                    <COMMENT>
+                        Set the retrieved transaction active
+                    </COMMENT>
+                </ROAD>
+
+                <ROAD
+                    name="LookupTransactionFailed"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="CheckForReturnedGiftCards"
+                siteaction="CheckForReturnedGiftCardsSite" >
+
+                <AISLE
+                    name="InvalidGiftCard"
+                    laneaction="CheckForItemsInTransactionAisle"
+                    letter="Invalid" >
+                </AISLE>
+
+                <ROAD
+                    name="AllItemsValid"
+                    destination="RefreshSuspendedLineItems"
+                    index="ON"
+                    letter="Success"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="NoItemsInTransaction"
+                    destination="PrintCancelTransaction"
+                    index="ON"
+                    letter="Cancel"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="RefreshSuspendedLineItems"
+                siteaction="RefreshSuspendedLineItemsSite" >
+
+                <ROAD
+                    name="ItemsRefreshed"
+                    destination="Final"
+                    index="ON"
+                    letter="Success"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="ItemsRefreshedFailed"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="ConfirmCancelTransaction"
+                siteaction="ConfirmCancelTransactionSite" >
+
+                <COMMENT>
+                    Solicit confirmation for transaction cancelation.
+                </COMMENT>
+
+                <MOCKUP image="" />
+
+                <ROAD
+                    name="ConfirmCancelTransactionOk"
+                    destination="CheckAccess"
+                    index="ON"
+                    laneaction="CancelSelectedRoad"
+                    letter="Yes"
+                    record="OFF"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="ConfirmCancelTransactionNotOk"
+                    destination="LookupSuspendedTransactions"
+                    index="ON"
+                    letter="No"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="CheckAccess"
+                siteaction="CheckAccessSite" >
+
+                <ROAD
+                    name="OverrideRequired"
+                    destination="SecurityOverrideStation"
+                    index="OFF"
+                    letter="Override"
+                    record="OFF"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="CancelTransactionAccessGranted"
+                    destination="SetTransaction"
+                    index="OFF"
+                    letter="Continue"
+                    record="OFF"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <STATION
+                name="SecurityOverrideStation"
+                launchshuttle="SecurityOverrideLaunchShuttle"
+                servicename="security.override.override"
+                targettier="CURRENTTIER" >
+
+                <ROAD
+                    name="AdminAccessDenied"
+                    destination="Final"
+                    index="OFF"
+                    letter="Failure"
+                    record="OFF"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="ManagerOverrideSuccessful"
+                    destination="SetTransaction"
+                    index="OFF"
+                    letter="Success"
+                    record="OFF"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    destination="Final"
+                    index="OFF"
+                    letter="Cancel"
+                    record="OFF"
+                    tape="ADVANCE" >
+                </ROAD>
+            </STATION>
+
+            <SITE
+                name="SetTransaction"
+                siteaction="SetTransactionSite" >
+
+                <COMMENT>
+                    Sets selected transaction in the cargo
+                </COMMENT>
+
+                <MOCKUP image="" />
+
+                <AISLE
+                    name="SetTransactionError"
+                    laneaction="DataBaseErrorAisle"
+                    letter="DbError" >
+                </AISLE>
+
+                <AISLE
+                    name="SetTransactionErrorAcknowledgement"
+                    laneaction="FailureConversionAisle"
+                    letter="Ok" >
+                </AISLE>
+
+                <ROAD
+                    name="ReadTransactionFailed"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="SetTransactionSuccess"
+                    destination="PrintCancelTransaction"
+                    index="ON"
+                    letter="Continue"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="PrintCancelTransaction"
+                siteaction="PrintCancelTransactionSite" >
+
+                <COMMENT>
+                    Print and cancel selected transaction
+                </COMMENT>
+
+                <MOCKUP image="" />
+
+                <ROAD
+                    name="PrintCancelTransactionContinue"
+                    destination="SaveCanceledTransaction"
+                    index="ON"
+                    letter="Continue"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="RetryPrintCancelTransaction"
+                    destination="PrintCancelTransaction"
+                    index="ON"
+                    letter="Retry"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+            </SITE>
+
+            <SITE
+                name="SaveCanceledTransaction"
+                siteaction="SaveCanceledTransactionSite" >
+
+                <COMMENT>
+                    Save the canceled transaction
+                </COMMENT>
+
+                <MOCKUP image="" />
+
+                <AISLE
+                    name="CancelTransactionError"
+                    laneaction="DataBaseErrorAisle"
+                    letter="DbError" >
+                </AISLE>
+
+                <AISLE
+                    name="WriteHardTotalsError"
+                    laneaction="WriteHardTotalsErrorAisle"
+                    letter="HardTotalsError" >
+
+                    <COMMENT>
+                        Display Hard Totals Error Message
+                    </COMMENT>
+                </AISLE>
+
+                <AISLE
+                    name="CancelTransactionErrorAcknowledgement"
+                    laneaction="FailureConversionAisle"
+                    letter="Ok" >
+                </AISLE>
+
+                <ROAD
+                    name="CancelTransactionContinue"
+                    destination="LookupSuspendedTransactions"
+                    index="ON"
+                    letter="Success"
+                    record="ON"
+                    tape="ADVANCE" >
+
+                    <LIGHT signal="IsNotOnlyTransactionSignal" />
+                </ROAD>
+
+                <ROAD
+                    name="CancelTransactionFailed"
+                    destination="Final"
+                    index="ON"
+                    letter="Failure"
+                    record="ON"
+                    tape="ADVANCE" >
+                </ROAD>
+
+                <ROAD
+                    name="CancelTransactionFinal"
+                    destination="Final"
+                    index="ON"
+                    letter="Success"
+                    record="ON"
+                    tape="ADVANCE" >
+
+                    <COMMENT>
+                        If just cancelled the last suspended transaction,
+                        then don't return to suspend list but go to Sell Item
+                        screen.
+                    </COMMENT>
+
+                    <LIGHT signal="IsOnlyTransactionSignal" />
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE
+                name="Final"
+                action="RETURN" />
+
+            <SYSTEMSITE
+                name="LastIndexed"
+                action="BACKUP" />
+        </REGION>
+    </MAP>
+
+</SERVICE>

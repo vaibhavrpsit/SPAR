@@ -1,0 +1,1123 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/parametermanager/parametermanager.xml /main/16 2012/01/26 14:13:54 mjwallac Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mjwallac  01/26/12 - XbranchMerge mjwallac_forward_port_bug_13603964 from
+ *                         rgbustores_13.4x_generic_branch
+ *    mchellap  08/30/11 - Removed parameter file backup and restore
+ *                         funcationality
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ParameterManager"
+    package="oracle.retail.stores.pos.services.admin.parametermanager"
+    tourcam="OFF">
+    <COMMENT >
+        This services lets one inspect and edit retail parameters.
+        Retail Parameters contain data that help control
+        store operations.
+    </COMMENT>
+    <CARGO  class="ParameterCargo"/>
+    <SERVICECODE >
+        <LANEACTION class="CorpParamJournalOverrideSuccessRoad"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="StoreNewCurrencyValuesAisle"/>
+        <LANEACTION class="StoreNewDecimalValuesAisle"/>
+        <LANEACTION class="StoreNewISODateValuesAisle"/>
+        <LANEACTION class="StoreNewDiscreteValuesAisle"/>
+        <LANEACTION class="StoreNewMultilineStringValueAisle"/>
+        <LANEACTION class="StoreNewListFromListValuesAisle"/>
+        <LANEACTION class="StoreNewStringValueAisle"/>
+        <LANEACTION class="StoreNewWholeValuesAisle"/>
+        <LANEACTION class="DeletionAbortedRoad" >
+             <COMMENT>
+               Restore the parameter values because the user has changed
+               his mind about deleting.
+             </COMMENT>
+        </LANEACTION>
+        <LANEACTION class="StoreParamGroupAisle">
+            <COMMENT >
+                Store the parameter group as entered at the UI.
+            </COMMENT>
+        </LANEACTION>
+        <LANEACTION class="StoreParamLevelAisle">
+            <COMMENT >
+                Store the location level indicated by the UI in the 
+                cargo.
+            </COMMENT>
+        </LANEACTION>
+        <LANEACTION class="StoreParamStoreAisle">
+            <COMMENT >
+                Store the store name retrieved from the UI.
+            </COMMENT>
+        </LANEACTION>
+        <LANEACTION class="StoreParameterAisle">
+            <COMMENT >
+                Store the parameter that the user has chosen in the 
+                cargo.
+            </COMMENT>
+        </LANEACTION>
+        <LANEACTION class="UserAccessOverrideNoticeAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CheckAccessAisle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <LETTER name="AcceptData"/>
+        <LETTER name="RejectData"/>
+        <LETTER name="AcceptListData"/>
+        <LETTER name="Add"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="CheckAccess"/>
+        <LETTER name="Delete"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="ReallyDone"/>
+        <LETTER name="SaveFailed"/>
+        <LETTER name="SaveSucceeded"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Override"/>
+
+        <SHUTTLE class="ListEditorLaunchShuttle"/>
+        <SHUTTLE class="OperatorIdOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OperatorIdOverrideReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SIGNAL  class="IsGroupAccessSignal"/>    
+        <SIGNAL  class="CurrencyParamLight">       
+            <COMMENT >
+                Light is green when the modifiable parameter has 
+                a currency value.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="DecimalParamLight">
+            <COMMENT >
+                Light is green when the modifiable parameter has 
+                a decimal value.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="ISODateParamLight">
+            <COMMENT >
+                Light is green when the modifiable parameter has 
+                a date value that can be stored as YYYY-MM-DD.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="DiscreteParamLight">
+            <COMMENT >
+                Light is green when the modifiable parameter can 
+                take a single value from a discrete set of values.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="MultilineStringParamLight">
+            <COMMENT >
+                Light is green when the modifiable parameter has a value
+                that can span several lines.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="ListFromListParamLight">
+            <COMMENT >
+                Light is green when the modifiable parameter can 
+                take several of a discrete set of values.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="ModifiableListLight">
+            <COMMENT >
+                This light is green when the parameter is modifiable. 
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="ModifiableParamLight">
+            <COMMENT >
+                This light is green when the parameter is modifiable. 
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="StringParamLight">
+            <COMMENT >
+                Light is green when a String valued parameter has 
+                been chosen for editing.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="UnmodifiableListLight">
+            <COMMENT >
+                This light is green when the parameter is unmodifiable. 
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="UnmodifiableParamLight">
+            <COMMENT >
+                This light is green when the parameter is unmodifiable. 
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="WholeParamLight">
+            <COMMENT >
+                Light is green when the modifiable parameter has 
+                a whole number value.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="HasValuesLight">
+            <COMMENT >
+                Light is green when the parameter has at least one
+                parameter value.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL  class="NoValuesLight">
+            <COMMENT >
+                Light is green when the parameter has no parameter values.
+            </COMMENT>
+        </SIGNAL>
+        <SITEACTION class="BadParamValueSite">
+            <COMMENT >
+                This site informs the user that the new value he attempted 
+                to gove to the parameter is illegitimate.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="ConfirmDeletionSite">
+            <COMMENT >
+                This site determines whether the user really wants to
+                delete the parameter value from the list.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EditParamCurrencySite">
+            <COMMENT >
+                Edit a parameter whose value is a number.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EditParamDecimalSite">
+            <COMMENT >
+                Edit a parameter whose value is a decimal number. 
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EditParamISODateSite">
+            <COMMENT >
+                Edit a parameter whose value is a date. 
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EditParamDiscreteSite">
+            <COMMENT >
+                Edit a parameter whose value can be one of a discrete 
+                set of values.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EditParamMultilineStringSite">
+            <COMMENT >
+                Edit a parameter whose value can span multiple lines.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EditParamListFromListSite">
+            <COMMENT >
+                Edit a parameter whose value can be several of a discrete 
+                set of values.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EditParamStringSite">
+            <COMMENT >
+                Edit a parameter whose value is a String.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="EditParamIntegerSite">
+            <COMMENT >
+                Edit a parameter whose value is a whole number.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="SaveParamSite">
+            <COMMENT >
+                Save the modified parameter.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="SelectParamGroupSite">
+            <COMMENT >
+                Choose which parameter group (e.g. tender) will 
+                be edited.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="SelectParamLevelSite">
+            <COMMENT >
+                Select the location level (e.g., corporation or 
+                store) to which the parameters will apply.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="SelectParamSite">
+            <COMMENT >
+                Select the parameter to be edited.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="SelectParamStoreSite">
+            <COMMENT >
+                Choose the store whose parameters will be edited. 
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="UnmodifiableListSite">
+            <COMMENT >
+                This site tells the user that he is trying to illegally 
+                edit a nonmodifiable parameter.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="UnmodifiableParamSite">
+            <COMMENT >
+                This site tells the user that he is trying to illegally 
+                edit a nonmodifiable parameter.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="UnsaveableParameterSite">
+            <COMMENT >
+                This site informs the user that the attempted save 
+                of the parameters failed.
+            </COMMENT>
+        </SITEACTION>
+     <SITEACTION class="NoValuesSite" >
+          <COMMENT>
+               This site presents an error screen after the user 
+               has attempted to delete the last parameter value.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="CheckSecurityAccess">
+          <SITE name="CheckSecurityAccess" siteaction="CheckAccessSite">
+              <ROAD
+                  name="AccessDenied"
+                  letter="Override"
+                  destination="SecurityOverrideStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="AccessGranted"
+                  letter="Continue"
+                  destination="SelectParamGroup"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </SITE>
+          <STATION name="SecurityOverrideStation"
+              servicename="security.override.override"
+              targettier="CURRENTTIER"
+              launchshuttle="SecurityOverrideLaunchShuttle" >
+              <ROAD
+                  name="SecurityOverrideGranted"
+                  letter="Success"
+                  destination="SelectParamGroup"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                  <LIGHT signal="IsGroupAccessSignal" negate="Y"/>
+              </ROAD>
+              <ROAD
+                  name="GroupSecurityOverrideGranted"
+                  letter="Success"
+                  destination="SelectParam"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                  <LIGHT signal="IsGroupAccessSignal"/>
+              </ROAD> 
+                                       
+              <ROAD
+                  name="SecurityOverrideDenied"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                  <LIGHT signal="IsGroupAccessSignal" negate="Y"/>
+              </ROAD>
+              <ROAD
+                  name="ParamewterGroupSecurityOverrideDenied"
+                  letter="Failure"
+                  destination="SelectParamGroup"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                  <LIGHT signal="IsGroupAccessSignal"/>
+              </ROAD>              
+              <ROAD
+                  name="SecurityOverrideCancelled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+           </STATION>
+           <SITE  name="SelectParamGroup" siteaction="SelectParamGroupSite">
+                <COMMENT >
+                    Choose which parameter group (e.g. tender) will
+                    be edited.
+                </COMMENT>
+                <AISLE
+                    name="StoreParamGroup"
+                    letter="Next"
+                    laneaction="StoreParamGroupAisle">
+                    <COMMENT >
+                        Store the parameter group as entered at the UI.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="CheckGroupAccess"
+                    letter="CheckAccess"
+                    laneaction="CheckAccessAisle">
+                    <COMMENT >
+                        Store the parameter group as entered at the UI.
+                    </COMMENT>
+                </AISLE>               
+                
+                <ROAD
+                    name="ParamGroupAccepted"
+                    letter="Continue"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ParamGroupDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>               
+                <ROAD
+                    name="ParamGroupNotSelected"
+                    letter="Cancel"
+                    destination="SelectParamGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>                
+                
+                <ROAD   name="BackOutOfParams"
+                        letter="Undo"
+                        destination="Final"
+                        tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+                
+            </SITE>
+            <SITE  name="SelectParam" siteaction="SelectParamSite">
+                <COMMENT >
+                    Select the parameter to be edited.
+                </COMMENT>
+                <AISLE
+                    name="StoreParameter"
+                    letter="Next"
+                    laneaction="StoreParameterAisle">
+                    <COMMENT >
+                        Store the parameter that the user has chosen in the
+                        cargo.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="CurrencyParamAccepted"
+                    letter="AcceptData"
+                    destination="EditParamCurrency"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="CurrencyParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="DecimalParamAccepted"
+                    letter="AcceptData"
+                    destination="EditParamDecimal"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="DecimalParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="ISODateParamAccepted"
+                    letter="AcceptData"
+                    destination="EditParamISODate"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="ISODateParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="WholeParamAccepted"
+                    letter="AcceptData"
+                    destination="EditParamWhole"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="WholeParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="DiscreteParamAccepted"
+                    letter="AcceptData"
+                    destination="EditParamDiscrete"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="DiscreteParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="MultilineStringParamAccepted"
+                    letter="AcceptData"
+                    destination="EditParamMultilineString"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="MultilineStringParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="ListFromListParamAccepted"
+                    letter="AcceptData"
+                    destination="EditParamListFromList"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="ListFromListParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="UnmodifiableParamAccepted"
+                    letter="AcceptData"
+                    destination="UnmodifiableParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="UnmodifiableParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="ListParamAccepted"
+                    letter="AcceptListData"
+                    destination="EditListStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="ModifiableListLight"/>
+                </ROAD>
+                <ROAD
+                    name="UnmodifiableListParamAccepted"
+                    letter="AcceptListData"
+                    destination="UnmodifiableParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="UnmodifiableListLight"/>
+                </ROAD>
+                <ROAD
+                    name="BackToParamGroup"
+                    letter="Undo"
+                    destination="SelectParamGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelSelectParam"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="StringParamAccepted"
+                    letter="AcceptData"
+                    destination="EditParamString"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="StringParamLight"/>
+                </ROAD>
+            </SITE>
+            <SITE  name="EditParamCurrency" siteaction="EditParamCurrencySite">
+                <COMMENT >
+                    Edit a parameter whose value is a number.
+                </COMMENT>
+                <AISLE
+                    name="StoreNewCurrencyValues"
+                    letter="Next"
+                    laneaction="StoreNewCurrencyValuesAisle">
+                    <COMMENT >
+                        Store the values the user has entered.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="EditParamCurrencyGoodValueAccepted"
+                    letter="AcceptData"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamCurrencyBadValueAccepted"
+                    letter="RejectData"
+                    destination="BadParamValue"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="BackToSelectParamCurrency"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelEditParamCurrency"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EditParamDecimal" siteaction="EditParamDecimalSite">
+                <COMMENT >
+                    Edit a parameter whose value is a number.
+                </COMMENT>
+                <AISLE
+                    name="StoreNewDecimalValues"
+                    letter="Next"
+                    laneaction="StoreNewDecimalValuesAisle">
+                    <COMMENT >
+                        Store the values the user has entered.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="EditParamDecimalGoodValueAccepted"
+                    letter="AcceptData"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamDecimalBadValueAccepted"
+                    letter="RejectData"
+                    destination="BadParamValue"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="BackToSelectParamDecimal"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelEditParamDecimal"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EditParamISODate" siteaction="EditParamISODateSite">
+                <COMMENT >
+                    Edit a parameter whose value is a date.
+                </COMMENT>
+                <AISLE
+                    name="StoreNewISODateValues"
+                    letter="Next"
+                    laneaction="StoreNewISODateValuesAisle">
+                    <COMMENT >
+                        Store the values the user has entered.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="EditParamISODateGoodValueAccepted"
+                    letter="AcceptData"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamISODateBadValueAccepted"
+                    letter="RejectData"
+                    destination="BadParamValue"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="BackToSelectParamISODate"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelEditParamISODate"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EditParamWhole" siteaction="EditParamIntegerSite">
+                <COMMENT >
+                    Edit a parameter whose value is a number.
+                </COMMENT>
+                <AISLE
+                    name="StoreNewWholeValues"
+                    letter="Next"
+                    laneaction="StoreNewWholeValuesAisle">
+                    <COMMENT >
+                        Store the values the user has entered.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="EditParamWholeGoodValueAccepted"
+                    letter="AcceptData"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamWholeBadValueAccepted"
+                    letter="RejectData"
+                    destination="BadParamValue"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="BackToSelectParam"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelEditParamWhole"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EditParamDiscrete" siteaction="EditParamDiscreteSite">
+                <COMMENT >
+                    Edit a parameter whose value can be one of a discrete
+                    set of values.
+                </COMMENT>
+                <AISLE
+                    name="StoreNewDiscreteValues"
+                    letter="Next"
+                    laneaction="StoreNewDiscreteValuesAisle">
+                    <COMMENT >
+                        Store the values the user has entered.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="EditParamDiscreteGoodValueAccepted"
+                    letter="AcceptData"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamDiscreteBadValueAccepted"
+                    letter="RejectData"
+                    destination="BadParamValue"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="BackToSelectParamDiscrete"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelEditParamDiscrete"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EditParamMultilineString"
+                   siteaction="EditParamMultilineStringSite">
+                <COMMENT >
+                    Edit a parameter whose value can span multiple lines.
+                </COMMENT>
+                <AISLE
+                    name="StoreNewMultilineStringValue"
+                    letter="Next"
+                    laneaction="StoreNewMultilineStringValueAisle">
+                    <COMMENT >
+                        Store the values the user has entered.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="EditParamMultilineStringGoodValueAccepted"
+                    letter="AcceptData"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamMultilineStringBadValueAccepted"
+                    letter="RejectData"
+                    destination="BadParamValue"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="BackToSelectParamMultilineString"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelEditParamMultilineString"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EditParamListFromList" siteaction="EditParamListFromListSite">
+                <COMMENT >
+                    Edit a parameter whose value can be several of a discrete
+                    set of values.
+                </COMMENT>
+                <AISLE
+                    name="StoreNewListFromListValues"
+                    letter="Next"
+                    laneaction="StoreNewListFromListValuesAisle">
+                    <COMMENT >
+                        Store the values the user has entered.
+                    </COMMENT>
+                    <LIGHT  signal="HasValuesLight"/>
+                </AISLE>
+                <ROAD
+                    name="AddValues"
+                    letter="Add"
+                    destination="EditParamListFromList">
+                    <COMMENT >
+                        Add the values the user has selected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DeleteValues"
+                    letter="Delete"
+                    destination="ConfirmDeletion">
+                    <COMMENT >
+                        Determine whether to delete the values the
+                            user has selected.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EditParamListFromListGoodValuesAccepted"
+                    letter="AcceptData"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamListFromListBadValuesAccepted"
+                    letter="RejectData"
+                    destination="BadParamValue"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamListFromListAcceptedNoValues"
+                    letter="Next"
+                    destination="NoValues"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="NoValuesLight"/>
+                </ROAD>
+                <ROAD
+                    name="BackToSelectParamListFromList"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelEditParamListFromList"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+
+        <SITE name="ConfirmDeletion" siteaction="ConfirmDeletionSite">
+            <COMMENT>
+                Confirm that the user wants to delete the parameter value. 
+            </COMMENT>
+            <ROAD   name="DeletionAborted" 
+                    letter="No" 
+                    destination="EditParamListFromList" 
+                    laneaction="DeletionAbortedRoad"
+                    tape="ADVANCE" record="ON" index="ON">
+                <COMMENT>
+                        The user changed his mind about deleting the reason 
+                        code.
+                </COMMENT>
+            </ROAD>
+            <ROAD   name="DeletionConfirmed" 
+                    letter="Yes" 
+                    destination="EditParamListFromList" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+
+            <SITE  name="UnmodifiableParam" siteaction="UnmodifiableParamSite">
+                <COMMENT >
+                    This site tells the user that he is trying to illegally
+                    edit a nonmodifiable parameter.
+                </COMMENT>
+                <ROAD
+                    name="UnmodifiableParamOk"
+                    letter="Ok"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="SaveParam" siteaction="SaveParamSite">
+                <COMMENT >
+                    Save the modified parameter.
+                </COMMENT>
+                <ROAD
+                    name="SaveParamSucceeded"
+                    letter="SaveSucceeded"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SaveParamFailed"
+                    letter="SaveFailed"
+                    destination="UnsaveableParameter"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+        <SITE   name="NoValues" 
+                siteaction="NoValuesSite">
+            <COMMENT>
+                This site presents an error screen after the user 
+                has attempted to delete the last parameter value.
+            </COMMENT>
+
+            <ROAD   name="NoValuesOk" 
+                    letter="Ok" 
+                    destination="EditParamListFromList" 
+                    tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+            <SITE  name="UnsaveableParameter" siteaction="UnsaveableParameterSite">
+                <COMMENT >
+                    This site informs the user that the attempted save
+                    of the parameters failed.
+                </COMMENT>
+                <ROAD
+                    name="UnsaveableParameterOk"
+                    letter="Ok"
+                    destination="SelectParamGroup"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="BadParamValue" siteaction="BadParamValueSite">
+                <COMMENT >
+                    This site informs the user that the new value he attempted
+                    to give to the parameter is illegitimate.
+                </COMMENT>
+                <ROAD
+                    name="BadCurrencyParamValueOk"
+                    letter="Ok"
+                    destination="EditParamCurrency"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="CurrencyParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="BadDecimalParamValueOk"
+                    letter="Ok"
+                    destination="EditParamDecimal"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="DecimalParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="BadISODateParamValueOk"
+                    letter="Ok"
+                    destination="EditParamISODate"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="ISODateParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="BadWholeParamValueOk"
+                    letter="Ok"
+                    destination="EditParamWhole"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="WholeParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="BadDiscreteParamValueOk"
+                    letter="Ok"
+                    destination="EditParamDiscrete"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="DiscreteParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="BadMultilineStringParamValueOk"
+                    letter="Ok"
+                    destination="EditParamMultilineString"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="MultilineStringParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="BadListFromListParamValueOk"
+                    letter="Ok"
+                    destination="EditParamListFromList"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="ListFromListParamLight"/>
+                </ROAD>
+                <ROAD
+                    name="BadStringParamValueOk"
+                    letter="Ok"
+                    destination="EditParamString"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT  signal="StringParamLight"/>
+                </ROAD>
+            </SITE>
+            <SITE  name="EditParamString" siteaction="EditParamStringSite">
+                <COMMENT >
+                    Edit a parameter whose value is a String.
+                </COMMENT>
+                <AISLE
+                    name="StoreNewStringValue"
+                    letter="Next"
+                    laneaction="StoreNewStringValueAisle">
+                    <COMMENT >
+                        Store the new String value for the parameter.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="EditParamStringGoodValueAccepted"
+                    letter="AcceptData"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditParamStringBadValueAccepted"
+                    letter="RejectData"
+                    destination="BadParamValue"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="BackToSelectParamString"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelEditParamString"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="EditListStation"
+                servicename="admin.parametervaluelisteditor.listeditor"
+                targettier="CURRENTTIER"
+                launchshuttle="ListEditorLaunchShuttle">
+                <ROAD
+                    name="EditListCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditListReallyDone"
+                    letter="ReallyDone"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditListDone"
+                    letter="Next"
+                    destination="SaveParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EditListUndo"
+                    letter="Undo"
+                    destination="SelectParam"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

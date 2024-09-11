@@ -1,0 +1,197 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/businessdate/businessdate.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="BusinessDate" package="oracle.retail.stores.pos.services.dailyoperations.businessdate" tourcam="OFF">
+     <COMMENT>
+          This service handles the setting of the business date
+     </COMMENT>
+<CARGO class="BusinessDateCargo">
+     <COMMENT>
+          Cargo will hold the date information the store's business date.
+     </COMMENT>
+</CARGO>
+<SERVICECODE>
+     <LETTER name="No"/>
+     <LETTER name="Yes"/>
+     <LETTER name="MultipleMatches"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Next"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Success"/>
+     <LETTER name="Continue"/>
+     <LETTER name="PastDate"/>
+     <LETTER name="LaterDate"/>
+     <LETTER name="InvalidDate"/>
+
+     <SITEACTION class="PrepareBusinessDateSite">
+          <COMMENT>
+               This site determines how the business date will be selected.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="SelectBusinessDateSite">
+          <COMMENT>
+               This site displays a list of open business dates the operator can choose from.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="EnterBusinessDateSite">
+          <COMMENT>
+               This site displays the store-open screen, using the business
+               date from cargo as the default.
+          </COMMENT>
+     </SITEACTION>
+
+     <LANEACTION class="CheckDateAisle"/>
+     <LANEACTION class="InvalidDateAisle"/>
+     <LANEACTION class="PastDateAisle"/>
+     <LANEACTION class="LaterDateAisle"/>
+     <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common">
+     </LANEACTION>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common">
+     </LANEACTION>
+     <LANEACTION class="BusinessDateSelectedRoad"/>
+     <LANEACTION class="ValidDateEnteredRoad"/>
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="PrepareBusinessDate">
+          <SITE name="PrepareBusinessDate" siteaction="PrepareBusinessDateSite">
+               <COMMENT>
+                    This site determines how the business date will be determined.
+               </COMMENT>
+               <ROAD name="EnterBusinessDateOption"
+                     letter="Continue"
+                     destination="EnterBusinessDate"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken when the user is given a default
+                         business date and the option to change it.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SelectBusinessDateOption"
+                     letter="MultipleMatches"
+                     destination="SelectBusinessDate"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken when the user is given a list of
+                         business dates to choose from.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="EnterBusinessDate" siteaction="EnterBusinessDateSite">
+               <COMMENT>
+                    This site displays a default business date and prompts the
+                    operator to accept the date or enter another date.
+                    from cargo as the default.
+               </COMMENT>
+               <AISLE name="CheckDate" letter="Next" laneaction="CheckDateAisle">
+                    <COMMENT>
+                         This aisle checks the date entered by the operator.
+                         The aisle may mail an InvalidDate letter, a PastDate
+                         letter, a LaterDate letter or a Continue letter.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="InvalidDateError" letter="InvalidDate" laneaction="InvalidDateAisle">
+                    <COMMENT>
+                         This aisle is taken when the date entered is an invalid
+                         date. An error message is displayed.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="PastDateError" letter="PastDate" laneaction="PastDateAisle">
+                    <COMMENT>
+                         This aisle is taken when the CheckDate aisle has determined
+                         that the date entered is earlier than the default business date.
+                         An error message is displayed.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="LaterDateConfirm" letter="LaterDate" laneaction="LaterDateAisle">
+                    <COMMENT>
+                         This aisle is taken when the CheckDate site determines
+                         that the date entered is later than the default business date.
+                         A yes/no message is displayed; yes sends the user on to
+                         the next site; no allows the user to re-enter the date.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="LaterDateConfirmed" letter="No" laneaction="SuccessConversionAisle">
+                    <COMMENT>
+                         This aisle is taken when the CheckDate site determines
+                         that the date entered is later than the default business date.
+                         A yes/no message is displayed; no sends the user on to
+                         the next site; yes allows the user to re-enter the date.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="ErrorMessageResponse" letter="Ok" laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This road restarts the entry site in response to an error message.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="LaterDateRejected" letter="Yes" laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This road restarts the entry site after the user chooses to re-enter the
+                         date rather than accept a date later than the default.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="RestartEnterBusinessDate" letter="Failure" destination="EnterBusinessDate" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road restarts the entry site in response to an error message.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EnterBusinessDateCanceled" letter="Cancel" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the cancel key was pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EnterBusinessDateUndo" letter="Undo" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the undo key was pressed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ValidDateEntered" letter="Success" destination="Final" laneaction="ValidDateEnteredRoad" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the date has been entered
+                         and validated.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="SelectBusinessDate" siteaction="SelectBusinessDateSite">
+               <COMMENT>
+                    This site displays a list of business dates from which the
+                    operator must choose.
+               </COMMENT>
+               <AISLE name="BusinessDateSelected" letter="Next" laneaction="SuccessConversionAisle">
+                    <COMMENT>
+                        This aisle is taken when the business date is selected.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="ValidDateSelected" letter="Success" laneaction="BusinessDateSelectedRoad" destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken after the date has been selected.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

@@ -1,0 +1,554 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/instantcredit/instantcredit.xml /main/22 2013/07/02 13:09:09 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     07/01/13 - Fixed failure to cancel House Account Transaction
+ *                         when cancel button pressed or timout occurs.
+ *    cgreene   06/26/13 - correct flow when canceling out of house-payment due
+ *                         to Acct-Not-Found
+ *    cgreene   04/29/13 - convert house account menu to popup
+ *    cgreene   09/21/11 - clear inquiry details from cargo is user cancels or
+ *                         escapes
+ *    hyin      09/07/11 - bug 12957179: fix Ref number inquiry screen missing
+ *                         ref number problem
+ *    cgreene   08/29/11 - implement new access point function for house
+ *                         account
+ *    sgu       08/15/11 - enter operator id before prompting for reference
+ *                         inquiry
+ *    ohorne    08/12/11 - enabled Cancel button and disabled Next button on HA
+ *                         Payment screen
+ *    cgreene   07/26/11 - moved StatusCode to GiftCardIfc
+ *    sgu       05/23/11 - move inquiry for payment into instantcredit service
+ *    sgu       05/20/11 - refactor instant credit inquiry flow
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    nkgautam  08/12/10 - added IsMSREnabledSignal class to fix unexpected
+ *                         exception
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="InstantCredit"
+         package="oracle.retail.stores.pos.services.instantcredit"
+         tourcam="OFF">
+    <CARGO class="InstantCreditCargo" package="oracle.retail.stores.pos.services.instantcredit"/>
+    <SERVICECODE>
+        <LETTER name="CallCenter"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Declined"/>
+        <LETTER name="Done"/>
+        <LETTER name="Enroll"/>
+        <LETTER name="ExitPayment"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Inquiry"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="Noswipe"/>
+        <LETTER name="NotSupported"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Ok"/>
+        <LETTER name="OperatorID"/>
+        <LETTER name="Override"/>
+        <LETTER name="Payment"/>
+        <LETTER name="Print"/>
+        <LETTER name="QueueFull"/>
+        <LETTER name="Reference"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Search"/>
+        <LETTER name="Success"/>
+        <LETTER name="TempPass"/>
+        <LETTER name="TrainingOff"/>
+        <LETTER name="TrainingOn"/>
+        <LETTER name="TrainingOnOff"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Valid"/>
+        <LETTER name="Yes"/>
+
+        <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="HouseAccountPaymentLaunchShuttle"/>
+        <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OperatorIdLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+		<SHUTTLE class="ReferenceNumberInquiryShuttle" />
+
+        <LANEACTION class="InquirySelectedRoad"/>
+        <LANEACTION class="PaymentSelectedRoad"/>
+        <LANEACTION class="ReferenceSelectedRoad"/>
+        <LANEACTION class="TempPassSelectedRoad"/>
+        <LANEACTION class="ValidateInquiryAisle"/>
+
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="ClearCardInquiryFromCargoRoad"/>
+        <SITEACTION class="CreateTempPassSite"/>
+        <SITEACTION class="DisplayInquiryInfoSite"/>
+        <SITEACTION class="EnterInquirySite"/>
+        <SITEACTION class="InstantCreditOptionsSite"/>
+        <SITEACTION class="MailValidExitLetterSite"/>
+        <SITEACTION class="PrintInquiryInfoSite"/>
+        <SITEACTION class="PrintOneDayTempPassSite"/>
+        <SITEACTION class="ShowAccountInquiryInfoSite"/>
+
+        <SIGNAL class="IsPaymentSelectedSignal"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="OverrideRequired"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountAccessGranted"
+                    letter="Continue"
+                    destination="InstantCreditOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="InstantCreditOptions" siteaction="InstantCreditOptionsSite">
+                <ROAD
+                    name="EnrollSelected"
+                    letter="Enroll"
+                    destination="EnrollmentStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InquirySelected"
+                    letter="Inquiry"
+                    destination="EnterInquiry"
+                    laneaction="InquirySelectedRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TempPassSelected"
+                    letter="TempPass"
+                    destination="EnterInquiry"
+                    laneaction="TempPassSelectedRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ReferenceSelected"
+                    letter="Reference"
+                    destination="ReferenceStation"
+                    laneaction="ReferenceSelectedRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PaymentSelected"
+                    letter="Payment"
+                    destination="EnterInquiry"
+                    laneaction="PaymentSelectedRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoInstantCreditSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelInstantCreditOptions"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <!-- Inquiry/TempPass -->
+            <SITE name="EnterInquiry" siteaction="EnterInquirySite">
+                <COMMENT>
+                    This site gets the card info from the user either by
+                    scanning it or manually entered
+                </COMMENT>
+                 <AISLE
+                    name="InquiryEntered"
+                    letter="Next"
+                    laneaction="ValidateInquiryAisle">
+                </AISLE>
+                <ROAD
+                    name="GoodInquiry"
+                    letter="Inquiry"
+                    destination="DisplayInquiryInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GoodTempPassInquiry"
+                    letter="TempPass"
+                    destination="CreateTempPass"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GoodReferenceInquiry"
+                    letter="Reference"
+                    destination="ReferenceStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="BadInquiry"
+                    letter="Retry"
+                    destination="EnterInquiry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnterInquiry"
+                    letter="Undo"
+                    destination="Final"
+                    laneaction="ClearCardInquiryFromCargoRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelEnterInquiry"
+                    letter="Cancel"
+                    destination="Final"
+                    laneaction="ClearCardInquiryFromCargoRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayInquiryInfo" siteaction="DisplayInquiryInfoSite">
+                <COMMENT>
+                    This site gets the card info from the user either by
+                    scanning it or manually entered
+                </COMMENT>
+                <ROAD
+                    name="FunctionNotSupportedRoad"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DoneDisplayInquiryInfo"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ShowInquiryInfo"
+                    letter="Success"
+                    destination="ShowAccountInquiryInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsPaymentSelectedSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="PaymentShowInquiryInfo"
+                    letter="Success"
+                    destination="HouseAccountPaymentStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsPaymentSelectedSignal"/>
+                </ROAD>
+            </SITE>
+            <SITE name="ShowAccountInquiryInfo" siteaction="ShowAccountInquiryInfoSite">
+                <ROAD
+                    name="PrintInquiry"
+                    letter="Print"
+                    destination="PrintInquiryInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DoneShowInquiryInfo"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CreateTempPass" siteaction="CreateTempPassSite">
+                <ROAD
+                    name="NextTempPass"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TempPassOffline"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryTempPass"
+                    letter="Retry"
+                    destination="PrintOneDayTempPass"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinueTempPass"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InquiryNotFoundRetry"
+                    letter="Yes"
+                    destination="EnterInquiry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InquiryNotFoundQuit"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InquiryFailureRoad"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="PrintOneDayTempPass" siteaction="PrintOneDayTempPassSite">
+                <ROAD
+                    name="SuccessPrintTempPass"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryPrintTempPass"
+                    letter="Retry"
+                    destination="PrintOneDayTempPass"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinuePrintTempPass"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="PrintInquiryInfo" siteaction="PrintInquiryInfoSite">
+                <ROAD
+                    name="SuccessPrintInquiryInfo"
+                    letter="Success"
+                    destination="ShowAccountInquiryInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryPrintInquiryInfo"
+                    letter="Retry"
+                    destination="PrintInquiryInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinuePrintInquiryInfo"
+                    letter="Continue"
+                    destination="ShowAccountInquiryInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="EnrollmentStation"
+                servicename="instantcredit.enrollment.enrollment"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle">
+                <ROAD name="UndoEnrollment"
+                    letter="Undo"
+                    destination="Final"/>
+                <ROAD name="ContinueEnrollment"
+                    letter="Continue"
+                    destination="Final"/>
+                <ROAD name="CancelEnrollment"
+                    letter="Cancel"
+                    destination="Final"/>
+                <ROAD name="SuccessEnrollment"
+                    letter="Success"
+                    destination="MailValidExitLetter"/>
+                <ROAD name="OfflineEnrollment"
+                    letter="Offline"
+                    destination="Final"/>
+                <ROAD name="DoneEnrollment"
+                    letter="Done"
+                    destination="MailValidExitLetter"/>
+                <ROAD name="FailureEnrollment"
+                    letter="Failure"
+                    destination="Final"/>
+                <ROAD name="FailureCardSwipe"
+                    letter="Noswipe"
+                    destination="MailValidExitLetter"/>
+                <ROAD name="NonTransactionEnrollment"
+                    letter="Valid"
+                    destination="Final"/>
+                <ROAD name="FunctionNotSupportedRoad"
+                    letter="NotSupported"
+                    destination="MailValidExitLetter"/>
+            </STATION>
+            <SITE name="MailValidExitLetter" siteaction="MailValidExitLetterSite">
+                <ROAD
+                    name="MailValidExitLetterContinue"
+                    letter="Continue"
+                    destination="Final"/>
+                <ROAD
+                    name="MailValidExitLetterFailure"
+                    letter="Failure"
+                    destination="Final"/>
+            </SITE>
+            <STATION name="ReferenceStation"
+                servicename="instantcredit.reference.reference"
+                targettier="CURRENTTIER"
+                launchshuttle="ReferenceNumberInquiryShuttle">
+                <ROAD name="ReferenceRetry"
+                    letter="Retry"
+                    destination="EnterInquiry"/>
+                <ROAD name="ReferenceUndo"
+                    letter="Undo"
+                    destination="Final"/>
+                <ROAD name="ReferenceCancel"
+                    letter="Cancel"
+                    destination="Final"/>
+                <ROAD name="ReferenceContinue"
+                    letter="Continue"
+                    destination="Final"/>
+                <ROAD name="ReferenceFailure"
+                    letter="Failure"
+                    destination="Final"/>
+                <ROAD name="NotSupportedRoad"
+                    letter="NotSupported"
+                    destination="MailValidExitLetter"/>
+                <ROAD name="ReferenceQueueFull"
+                    letter="QueueFull"
+                    destination="Final"/>
+            </STATION>
+            <STATION name="HouseAccountPaymentStation"
+                servicename="services.houseaccount.payment"
+                targettier="CURRENTTIER"
+                launchshuttle="HouseAccountPaymentLaunchShuttle"
+                returnshuttle="FinancialCargoShuttle">
+                <ROAD
+                    name="AccountPaid"
+                    letter="ExitPayment"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelHousePayment"
+                    letter="Continue"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HousePaymentQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HousePaymentCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="HouseAcountSecurityOverrideSucceeded"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="HouseAcountSecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

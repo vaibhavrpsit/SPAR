@@ -1,0 +1,283 @@
+<?xml version="1.0"?>
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+	<BEAN specName="CouponListSpec" configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="max.retail.stores.pos.ui.beans"
+		beanClassName="MAXCouponBean">
+	</BEAN>
+
+	<BEAN specName="UserDefinedCouponSpec" configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="max.retail.stores.pos.ui.beans"
+		beanClassName="MAXUserDefinedCouponBean">
+	</BEAN>
+    <!--MAX Rev 1.1 Change : Start BUG 6984-->
+	<BEAN specName="CouponDenominationSpec" configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="max.retail.stores.pos.ui.beans"
+		beanClassName="MAXCouponDenominationsBean">
+	</BEAN>
+    <!--MAX Rev 1.1 Change : End BUG 6984-->
+
+	<BEAN specName="CouponDenominationOptionsButtonSpec"
+		configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="oracle.retail.stores.pos.ui.beans"
+		beanClassName="NavigationButtonBean">
+
+		<BUTTON actionName="Currency1" enabled="true" keyName="F2"
+			labelTag="Currency1" />
+
+		<BUTTON actionName="Currency2" enabled="true" keyName="F3"
+			labelTag="Currency2" />
+
+		<BUTTON actionName="Currency3" enabled="true" keyName="F4"
+			labelTag="Currency3" />
+
+		<BUTTON actionName="Currency4" enabled="true" keyName="F5"
+			labelTag="Currency4" />
+
+		<BUTTON actionName="Currency5" enabled="true" keyName="F6"
+			labelTag="Currency5" />
+
+		<BUTTON actionName="Currency6" enabled="true" keyName="F7"
+			labelTag="Currency6" />
+
+		<BUTTON actionName="Currency7" enabled="true" keyName="F8"
+			labelTag="Currency7" />
+
+		<BUTTON actionName="Currency8" enabled="true" keyName="F2"
+			labelTag="Currency8" />
+
+		<BUTTON actionName="Currency9" enabled="true" keyName="F3"
+			labelTag="Currency9" />
+
+		<BUTTON actionName="Currency10" enabled="true" keyName="F4"
+			labelTag="Currency10" />
+
+		<BUTTON actionName="Currency11" enabled="true" keyName="F5"
+			labelTag="Currency11" />
+
+		<BUTTON actionName="Currency12" enabled="true" keyName="F6"
+			labelTag="Currency12" />
+
+		<BUTTON actionName="Currency13" enabled="true" keyName="F7"
+			labelTag="Currency13" />
+
+		<BUTTON actionName="Currency14" enabled="true" keyName="F8"
+			labelTag="Currency14" />
+	</BEAN>
+
+
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		resourceBundleFilename="posText" specName="COUPON_LIST">
+
+		<ASSIGNMENT areaName="WorkPanel" beanSpecName="CouponListSpec">
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[true]" />
+			<BEANPROPERTY propName="manageNextButton" propValue="true" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag" propValue="CouponListScreenName" />
+		</ASSIGNMENT>
+
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="SalePromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag" propValue="SelectCouponPrompt" />
+		</ASSIGNMENT>
+
+
+	</OVERLAYSCREEN>
+
+
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		resourceBundleFilename="posText" specName="COUPON_DENOMINATION">
+
+		<ASSIGNMENT areaName="WorkPanel" beanSpecName="CouponDenominationSpec">
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[true]" />
+			<BEANPROPERTY propName="manageNextButton" propValue="true" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag" propValue="CouponDenominationScreenName" />
+		</ASSIGNMENT>
+
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="SalePromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag" propValue="EnterCouponQuantityPrompt" />
+			<BEANPROPERTY propName="responseField"
+				propValue="oracle.retail.stores.pos.ui.beans.NumericTextField" />
+			<BEANPROPERTY propName="enterData" propValue="true" />
+			<BEANPROPERTY propName="maxLength" propValue="2" />
+		</ASSIGNMENT>
+		
+		<ASSIGNMENT areaName="LocalNavigationPanel" beanSpecName="CouponDenominationOptionsButtonSpec">
+		</ASSIGNMENT>
+
+
+	</OVERLAYSCREEN>
+
+
+	<OVERLAYSCREEN defaultScreenSpecName="DefaultValidatingSpec"
+		resourceBundleFilename="posText" modelClassName="DataInputBeanModel"
+		specName="USER_DEFINED_COUPON">
+
+		<ASSIGNMENT areaName="WorkPanel" beanSpecName="UserDefinedCouponSpec">
+			<BEANPROPERTY propName="RequiredValidatingFields"
+				propValue="quantityField,amountField" />
+
+		</ASSIGNMENT>
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag"
+				propValue="EnterUserDefinedDenominationScreenName" />
+		</ASSIGNMENT>
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag"
+				propValue="EnterUserDefinedDenominationPrompt" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="manageNextButton" propValue="true" />
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false]" />
+		</ASSIGNMENT>
+
+		<CONNECTION sourceBeanSpecName="UserDefinedCouponSpec"
+			targetBeanSpecName="GlobalNavigationPanelSpec" listenerPackage="javax.swing.event"
+			listenerInterfaceName="DocumentListener" />
+
+		<CONNECTION listenerInterfaceName="ClearActionListener"
+			listenerPackage="oracle.retail.stores.pos.ui.behavior"
+			sourceBeanSpecName="GlobalNavigationPanelSpec" targetBeanSpecName="UserDefinedCouponSpec" />
+
+		<CONNECTION listenerInterfaceName="ValidateActionListener"
+			listenerPackage="oracle.retail.stores.pos.ui.behavior"
+			sourceBeanSpecName="GlobalNavigationPanelSpec" targetBeanSpecName="UserDefinedCouponSpec" />
+
+
+	</OVERLAYSCREEN>
+
+ <!--  CHNAGES BY ANUJ SINGH -->
+<!--     <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="tenderText"
+        specName="CUSTOMER_NEW_MOBILE_NUMBER_SCREEN">
+
+		<ASSIGNMENT areaName="LocalNavigationPanel" 
+			beanSpecName="CustomerButtonSpec">
+		</ASSIGNMENT>
+      <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="Mobile Number entry"/>
+        </ASSIGNMENT>
+
+  		 <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="Enter Mobile Number"/>
+       
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="CustomerNewMobileNumberSpec">
+	 
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="MobileNumberField"/>
+          
+
+        </ASSIGNMENT>
+              <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[true],Keys[true]"/>
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CustomerNewMobileNumberSpec"/>
+         <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CustomerNewMobileNumberSpec"/>
+
+     </OVERLAYSCREEN>
+     
+     
+    
+      <BEAN
+        specName="CustomerNewMobileNumberSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DataInputBean">
+
+                
+			  <FIELD fieldName="MobileNumberField"
+			           fieldType="ConstrainedField"
+			           labelText="Mobile Number:"
+			           labelTag="MobileNumber :"
+			           paramList="MobileNumber,10,10"/>
+			           
+	  </BEAN> 	 -->
+	  
+	  <!--Changes by shyvanshu Mehra  -->
+	
+	<BEAN specName="ParkingButtonBean"
+		configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="oracle.retail.stores.pos.ui.beans"
+		beanClassName="NavigationButtonBean">
+
+		<BUTTON actionName="2Wheeler" enabled="true" keyName="F2"
+			labelTag="2 Wheeler" />
+		<BUTTON actionName="4Wheeler" enabled="true" keyName="F5"
+			labelTag="4 Wheeler" />
+	</BEAN>	     
+
+      <OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		resourceBundleFilename="posText" specName="PARKING_COUPON_SCREEN">
+
+		<ASSIGNMENT areaName="LocalNavigationPanel" beanSpecName="ParkingButtonBean">
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Clear[false],Cancel[false],Undo[true],Next[true]" />
+			<BEANPROPERTY propName="manageNextButton" propValue="true" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag" propValue="ParkingCouponScreenName" />
+		</ASSIGNMENT>
+
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="SalePromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag" propValue="SelectCouponType" />
+			<!-- <BEANPROPERTY propName="responseField"
+				propValue="oracle.retail.stores.pos.ui.beans.NumericTextField" />
+			<BEANPROPERTY propName="enterData" propValue="true" />
+			<BEANPROPERTY propName="maxLength" propValue="2" /> -->
+		</ASSIGNMENT>
+		
+     </OVERLAYSCREEN>
+     
+
+</UICFG>

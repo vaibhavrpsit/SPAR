@@ -1,0 +1,191 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/ejournal/ejournal.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="ElectronicJournal" package="oracle.retail.stores.pos.services.admin.ejournal" tourcam="OFF">
+<CARGO class="EJournalCargo">
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Search" />
+     <LETTER name="Undo" />
+     <LETTER name="Display" />
+     <LETTER name="Cancel" />
+     <LETTER name="Error" />
+     <LETTER name="Ok" />
+     <LETTER name="First" />
+     <LETTER name="Next" />
+     <LETTER name="Previous" />
+     <LETTER name="Last" />
+     <LETTER name="Done" />
+     <LETTER name="Print" />
+     <LETTER name="Continue" />
+     <LETTER name="Override" />
+     <LETTER name="Failure" />
+     <LETTER name="Success" />
+
+     <LANEACTION class="DisplayErrorAisle" />
+     <LANEACTION class="EvaluateSearchAisle" />
+     <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+
+     <SITEACTION class="DisplayDataSite" />
+     <SITEACTION class="TransactionLookupSite" />
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD 
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="TransactionLookup">
+                </ROAD>
+            </SITE>
+            
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <AISLE 
+                    name="OverrideFailed"
+                    letter="Failure"
+                    laneaction="CancelLetterAisle" >
+                </AISLE>
+                <ROAD   
+                    name="OverrideSucceeded"
+                    letter="Success"
+                    destination="TransactionLookup" >
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final" >
+                </ROAD>
+          </STATION>                 
+
+          <SITE name="TransactionLookup" siteaction="TransactionLookupSite">
+               <COMMENT>
+                    Initial site for electronic journal. The user will 
+                    input optional search criteria and hit the search 
+                    key to view transaction data.
+               </COMMENT>
+               <AISLE name="evaluateSearch" 
+                      letter="Next" 
+                      laneaction="EvaluateSearchAisle">
+                    <COMMENT>
+                         Either put up an error message or go to display data 
+                         site.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="displayError" 
+                      letter="Error" 
+                      laneaction="DisplayErrorAisle">
+               </AISLE>
+               <ROAD name="transactionLookupUndo" 
+                      letter="Undo" 
+                      destination="Final" 
+                      tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="transactionLookup" 
+                      letter="Search" 
+                      destination="TransactionLookup" 
+                      tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayData" 
+                      letter="Display" 
+                      destination="DisplayData" 
+                      tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayErrorOk" 
+                      letter="Ok" 
+                      destination="TransactionLookup" 
+                      tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="transactionLookupCancel" 
+                      letter="Cancel" 
+                      destination="Final" 
+                      tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SITE name="DisplayData" siteaction="DisplayDataSite">
+               <ROAD name="displayDataUndo" 
+                     letter="Undo" 
+                     destination="TransactionLookup" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayDataCancel" 
+                     letter="Cancel" 
+                     destination="Final" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayDataFirst" 
+                     letter="First" 
+                     destination="DisplayData" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayDataNext" 
+                     letter="Next" 
+                     destination="DisplayData" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayDataPrevious" 
+                     letter="Previous" 
+                     destination="DisplayData" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayDataLast" 
+                     letter="Last" 
+                     destination="DisplayData" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayDataDone" 
+                     letter="Done" 
+                     destination="Final" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="errorOk" 
+                     letter="Ok" 
+                     destination="TransactionLookup" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayDataPrint" 
+                     letter="Print" 
+                     destination="DisplayData" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="displayDataPrint" 
+                     letter="Retry" 
+                     destination="DisplayData" 
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

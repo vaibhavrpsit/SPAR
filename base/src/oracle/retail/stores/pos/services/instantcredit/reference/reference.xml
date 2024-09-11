@@ -1,0 +1,316 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/instantcredit/reference/reference.xml /rgbustores_13.4x_generic_branch/7 2011/08/29 10:56:02 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   08/29/11 - implement new access point function for house
+ *                         account
+ *    sgu       08/15/11 - enter operator id before prompting for reference
+ *                         inquiry
+ *    sgu       08/08/11 - remove invalid character
+ *    mchellap  08/03/11 - Bug#11832557 UI locale changes after reference
+ *                         inquiry
+ *    sgu       05/23/11 - move inquiry for payment into instantcredit service
+ *    sgu       05/20/11 - refactor instant credit inquiry flow
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Reference"
+    package="oracle.retail.stores.pos.services.instantcredit.reference"
+    tourcam="OFF">
+    <CARGO  class="InstantCreditCargo" package="oracle.retail.stores.pos.services.instantcredit"/>
+    <SERVICECODE >
+
+        <LETTER name="Approved"/>
+        <LETTER name="Declined"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Print"/>
+        <LETTER name="Done"/>
+        <LETTER name="Discard"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Call"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Next"/>
+        <LETTER name="NotFound"/>
+        <LETTER name="QueueFull"/>
+
+        <SITEACTION class="EnterInquirySite" package="oracle.retail.stores.pos.services.instantcredit"/>
+        <SITEACTION class="CreateTransactionSite"/>
+        <SITEACTION class="SaveTransactionSite"/>
+        <SITEACTION class="GetApplicationInfoSite"/>
+        <SITEACTION class="EnrollmentResultSite"/>
+        <SITEACTION class="EnrollByPhoneSite"/>
+        <SITEACTION class="PrintPassSite"/>
+        <SITEACTION class="FrankApplicationSite" package="oracle.retail.stores.pos.services.instantcredit.enrollment"/>
+        <SITEACTION class="ApplicationNotFoundSite"/>
+
+        <LANEACTION class="JournalResponseRoad"/>
+        <LANEACTION class="JournalApplicationInquiryRoad"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SaveFailedAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ReferenceSelectedRoad" package="oracle.retail.stores.pos.services.instantcredit"/>
+        <LANEACTION class="ValidateInquiryAisle" package="oracle.retail.stores.pos.services.instantcredit"/>
+
+
+   </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="EnterInquiry">
+              <SITE name="EnterInquiry" siteaction="EnterInquirySite">
+                <COMMENT>
+                  This site gets the card info from the user either by
+                  scanning it or manually entered
+                </COMMENT>
+                <AISLE
+                  name="InquiryEntered"
+                  letter="Next"
+                  laneaction="ValidateInquiryAisle">
+                </AISLE>
+                <ROAD
+                  name="GoodReferenceInquiry"
+                  letter="Reference"
+                  destination="CreateTransaction"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                  name="BadInquiry"
+                  letter="Retry"
+                  destination="EnterInquiry"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                  name="UndoEnterInquiry"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                  name="CancelEnterInquiry"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreateTransaction" siteaction="CreateTransactionSite">
+                <ROAD
+                    name="TransactionCreated"
+                    letter="Continue"
+                    destination="GetApplicationInfo"
+                    laneaction="JournalApplicationInquiryRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetApplicationInfo" siteaction="GetApplicationInfoSite">
+                <ROAD
+                    name="ApplicationApproved"
+                    letter="Approved"
+                    destination="DisplayApproved"
+                    laneaction="JournalResponseRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ApplicationDeclined"
+                    letter="Declined"
+                    destination="DisplayDeclined"
+                    laneaction="JournalResponseRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="EnrollByPhone"
+                    letter="Call"
+                    destination="DisplayEnrollByPhone"
+                    laneaction="JournalResponseRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ApplicationNotFoundRoad"
+                    letter="NotFound"
+                    destination="ApplicationNotFound"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotSupported"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="ApplicationNotFound" siteaction="ApplicationNotFoundSite">
+                <ROAD
+                    name="RetryRoad"
+                    letter="Retry"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="CancelRoad"
+                    letter="Cancel"
+                    laneaction="JournalResponseRoad"
+                    destination="FrankApplication">
+                </ROAD>
+            </SITE>
+            <SITE  name="DisplayEnrollByPhone" siteaction="EnrollByPhoneSite">
+                <ROAD
+                    name="PhoneAcknowledged"
+                    letter="Ok"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="EnrollmentFailure"
+                    letter="NotSupported"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DisplayApproved" siteaction="EnrollmentResultSite">
+                <ROAD
+                    name="ResultApproved"
+                    letter="Next"
+                    destination="PrintPass"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DisplayDeclined" siteaction="EnrollmentResultSite">
+                <ROAD
+                    name="ResultDeclined"
+                    letter="Next"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="PrintPass" siteaction="PrintPassSite">
+                <ROAD
+                    name="PassPrinted"
+                    letter="Success"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PrintPass"
+                    letter="Retry"
+                    destination="PrintPass">
+                </ROAD>
+                <ROAD
+                    name="CancelPrint"
+                    letter="Continue"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="FrankApplication" siteaction="FrankApplicationSite">
+                <ROAD
+                    name="ApplicationFranked"
+                    letter="Done"
+                    destination="SaveTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryFranking"
+                    letter="Retry"
+                    destination="FrankApplication"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ApplicationNotFranked"
+                    letter="Discard"
+                    destination="SaveTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="SaveTransaction" siteaction="SaveTransactionSite">
+            	<AISLE name="SaveFailed"
+                      letter="Ok"
+                      laneaction="SaveFailedAisle">
+                </AISLE>
+                <ROAD
+                    name="TransactionSaved"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionError"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionRetry"
+                    letter="Retry"
+                    destination="SaveTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

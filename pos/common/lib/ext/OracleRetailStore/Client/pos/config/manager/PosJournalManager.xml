@@ -1,0 +1,50 @@
+<?xml version='1.0' ?>
+
+<!DOCTYPE JOURNALMONITORCFG SYSTEM "classpath://oracle/retail/stores/foundation/dtd/jnlmntcfg.dtd">
+
+<JOURNALMONITORCFG>
+    <COMMENT>
+       This is the POS Journal Manager configuration script. It defines which
+       technicians the manager will delegate to and what the queue names are.
+       Some of the technicians may be defined in the same client JVM, like
+       "JournalTechnican". Others may exist in a remote server JVM, like
+       "JMSJournalTechnician".
+    </COMMENT>
+
+    <!-- Begin_Default_JournalTech
+    <JOURNALTECH name="LocalJournalTechnician"/>
+    End_Default_JournalTech -->
+
+    <!-- Begin_DBJournal --> 
+    <JOURNALTECH name="JournalTechnician"
+                 qname="DBJournalQueue"
+                 queueClass="oracle.retail.stores.foundation.utility.DirectoryQueue"
+                 indexable="N"
+                 retrieveable="Y"/>
+    <!-- End_DBJournal -->
+
+    <!-- Begin_CSJournal 
+    <JOURNALTECH name="JournalTechnician"
+                 qname="LocalJournalQueue"
+                 queueClass="oracle.retail.stores.foundation.utility.DirectoryQueue"
+                 indexable="Y"
+                 retrieveable="Y"/>
+    End_CSJournal -->
+
+    <!-- Begin_JMSJournalTech 
+    <JOURNALTECH name="JMSJournalTechnician"
+                 qname="JMSJournalQueue"
+                 queueClass="oracle.retail.stores.foundation.utility.DirectoryQueue"
+                 indexable="N"
+                 retrieveable="N"/>
+    End_JMSJournalTech -->
+
+    <!-- Begin_WSJournalTech --> 
+    <JOURNALTECH name="WebServiceJournalTechnician"
+                 qname="WSJournalQueue"
+                 queueClass="oracle.retail.stores.foundation.utility.DirectoryQueue"
+                 indexable="N"
+                 retrieveable="N"/>
+    <!-- End_WSJournalTech -->
+
+</JOURNALMONITORCFG>

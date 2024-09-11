@@ -1,0 +1,585 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/admin.xml /main/23 2014/07/09 13:10:48 icole Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole     07/09/14 - Forward port same till open on two registers when
+ *                         one or more is offline when opening a till.
+ *    abondala  06/06/14 - move training mode from main screen to admin screen
+ *    yiqzhao   05/29/13 - Accept Cancel letter to avoid unexpected exception.
+ *    mkutiana  05/24/13 - Added missing letter to handle Security override
+ *                         failure
+ *    mkutiana  05/08/13 - Fixed tour for when Done selected on SetAccess -
+ *                         routing backwards to AdminMenu
+ *    abhineek  02/06/13 - fix for update employee's first & last name
+ *    cgreene   08/16/11 - formatted
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                   from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Admin" package="oracle.retail.stores.pos.services.admin" tourcam="OFF">
+     <COMMENT>
+          Administration services
+     </COMMENT>
+    <CARGO class="AdminCargo"/>
+    <SERVICECODE>
+         <LETTER name="About"/>
+         <LETTER name="Administration"/>
+         <LETTER name="Cancel"/>
+         <LETTER name="Continue"/>
+         <LETTER name="Default"/>
+         <LETTER name="Done"/>
+         <LETTER name="Exit"/>
+         <LETTER name="Failure"/>
+         <LETTER name="IDError"/>
+         <LETTER name="Manager"/>
+         <LETTER name="Next"/>
+         <LETTER name="No"/>
+         <LETTER name="Ok"/>
+         <LETTER name="Override"/>
+         <LETTER name="ParameterError"/>
+         <LETTER name="Queue"/>
+         <LETTER name="Reset"/>
+         <LETTER name="Security"/>
+         <LETTER name="Success"/>
+         <LETTER name="TillNotOwned"/>
+         <LETTER name="Undo"/>
+         <LETTER name="Yes"/>
+         <LETTER name="eJournal"/>
+         <LETTER name="TrainingOnOff"/>
+
+         <SHUTTLE class="AboutLaunchShuttle"/>
+         <SHUTTLE class="EJournalLaunchShuttle" />
+         <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+         <SHUTTLE class="ManagerStationLaunchShuttle"/>
+         <SHUTTLE class="ManagerStationReturnShuttle"/>
+         <SHUTTLE class="OperatorIdLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+         <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+         <SHUTTLE class="ResetLaunchShuttle"/>
+         <SHUTTLE class="SecurityLaunchShuttle"/>
+         <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+         <SHUTTLE class="SecurityOverrideReturnShuttle"/>
+         <SHUTTLE class="SetupNormalRegisterReturnShuttle" package="oracle.retail.stores.pos.services.admin"/>
+         <SHUTTLE class="SetupNormalRegisterShuttle" package="oracle.retail.stores.pos.services.admin"/>
+         <SHUTTLE class="UserAccessCargoLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+         <LANEACTION class="AccessGrantedToEnterTransRentryModeRoad" package="oracle.retail.stores.pos.services.admin" />
+         <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+         <LANEACTION class="CheckAccessAisle" package="oracle.retail.stores.pos.services.admin.security.common" />
+         <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+         <LANEACTION class="LookupTenderLimitsParameterErrorAisle" package="oracle.retail.stores.pos.services.main"/>
+         <LANEACTION class="RentrySelectedRoad" package="oracle.retail.stores.pos.services.admin" />
+
+         <SITEACTION class="AdminMenuSite"/>
+         <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+         <SITEACTION class="DisplayAboutVersionSite"/>
+         <SITEACTION class="LookupTenderLimitsSite" package="oracle.retail.stores.pos.services.main"/>
+         <SITEACTION class="TransactionReentryActionSite">
+              <COMMENT >
+                    Process Transaction Reentry requests.
+              </COMMENT>
+         </SITEACTION>
+        <SITEACTION class="CreateTrainingModeTransactionSite" package="oracle.retail.stores.pos.services.main">
+            <ARRIVE >
+                <COMMENT >
+                    Creates a training mode transaction.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+         
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="OperatorIdStation">
+            <STATION name="OperatorIdStation"
+                    servicename="services.operatorid.operatorid"
+                    targettier="CURRENTTIER"
+                    launchshuttle="OperatorIdLaunchShuttle"
+                    returnshuttle="OperatorIdReturnShuttle">
+                <AISLE
+                    name="LoginSucceeded"
+                    letter="Success"
+                    laneaction="CheckAccessAisle" >
+                </AISLE>
+                <AISLE
+                    name="LoginUndo"
+                    letter="Undo"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT >
+                      This aisle is traversed to convert the current letter
+                      to Failure
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="AdminMenu"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LoginFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+
+            <STATION name="SecurityOverrideStation"
+                  servicename="security.override.override"
+                  targettier="CURRENTTIER"
+                  launchshuttle="SecurityOverrideLaunchShuttle" >
+              <ROAD
+                  name="AdminAccessDenied"
+                  letter="Failure"
+                  destination="Final" >
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideSucceeded"
+                  letter="Success"
+                  destination="AdminMenu"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideCancelled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+            </STATION>
+
+            <SITE name="AdminMenu" siteaction="AdminMenuSite">
+               <ROAD
+                   name="helpAboutSelected"
+                   letter="About"
+                   destination="HelpAbout"/>
+               <ROAD
+                   name="undoAdminMenu"
+                   letter="Undo"
+                   destination="Final"/> 
+               <ROAD
+                   name="undoAdminMenu"
+                   letter="Cancel"
+                   destination="Final"/>                               
+               <ROAD
+                   name="resetSelected"
+                   letter="Reset"
+                   destination="ResetHardTotalsStation">
+               </ROAD>
+               <ROAD
+                   name="SecuritySelected"
+                   letter="Security"
+                   destination="SecurityStation">
+               </ROAD>
+               <ROAD
+                   name="ejournalSelected"
+                   letter="eJournal"
+                   destination="EJournalStation">
+               </ROAD>
+               <ROAD
+                   name="QueueSelected"
+                   letter="Queue"
+                   destination="QueueStation">
+               </ROAD>
+               <ROAD
+                   name="ManagerSelected"
+                   letter="Manager"
+                   destination="ManagerStation">
+               </ROAD>
+               <ROAD
+                   name="ReentrySelected"
+                   laneaction="RentrySelectedRoad"
+                   letter="TransReentry"
+                   destination="CheckAccessForTransactionReentry">
+               </ROAD>
+               <ROAD
+                   name="TrainingModeSelected"
+                   letter="TrainingOnOff"
+                   destination="CheckAccessForTrainingOnOff">
+               </ROAD>               
+            </SITE>
+
+            <STATION name="HelpAbout"
+                   servicename="admin.admin.about"
+                   targettier="CURRENTTIER"
+                   launchshuttle="AboutLaunchShuttle">
+               <ROAD
+                   name="AboutVersionYes"
+                   letter="Continue"
+                   destination="AdminMenu">
+                  <COMMENT>
+                     Coming back from service, display Admin main options.
+                  </COMMENT>
+               </ROAD>
+            </STATION>
+            <STATION name="ResetHardTotalsStation"
+                   servicename="admin.resethardtotals.resethardtotals"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ResetLaunchShuttle">
+               <ROAD
+                   name="resetHardTotalsYes"
+                   letter="Continue"
+                   destination="AdminMenu">
+                  <COMMENT>
+                     Coming back from service, display Admin main options.
+                  </COMMENT>
+               </ROAD>
+            </STATION>
+            <STATION name="EJournalStation"
+                   servicename="admin.ejournal.ejournal"
+                   targettier="CURRENTTIER"
+                   launchshuttle="EJournalLaunchShuttle">
+               <ROAD
+                   name="eJournalCancel"
+                   letter="Cancel" destination="AdminMenu"/>
+               <ROAD
+                   name="eJournalUndo"
+                   letter="Undo"
+                   destination="AdminMenu"/>
+               <ROAD
+                   name="eJournalDone"
+                   letter="Done"
+                   destination="AdminMenu"/>
+            </STATION>
+            <STATION name="QueueStation"
+                   servicename="admin.queue.queue"
+                   targettier="CURRENTTIER"
+                   launchshuttle="UserAccessCargoLaunchShuttle">
+                <ROAD
+                   name="QueueCancel"
+                   letter="Cancel"
+                   destination="AdminMenu"/>
+              <ROAD
+                   name="QueueUndo"
+                   letter="Undo"
+                   destination="AdminMenu"/>
+            </STATION>
+
+            <STATION name="ManagerStation"
+                   servicename="services.manager.manager"
+                   targettier="CURRENTTIER"
+                   launchshuttle="ManagerStationLaunchShuttle"
+                   returnshuttle="ManagerStationReturnShuttle">
+               <ROAD
+                   name="ManagerCancel"
+                   letter="Cancel"
+                   destination="AdminMenu"/>
+               <ROAD
+                   name="ManagerCancelMenu"
+                   letter="CancelMenu"
+                   destination="AdminMenu"/>
+               <ROAD
+                   name="ManagerNext"
+                   letter="Next"
+                   destination="AdminMenu"/>
+               <ROAD
+                   name="ManagerUndo"
+                   letter="Undo"
+                   destination="AdminMenu"/>
+            </STATION>
+            <SITE name="ReloadTenderLimits" siteaction="LookupTenderLimitsSite">
+               <AISLE
+                   name="LookupTenderLimitsParameterError"
+                   letter="ParameterError"
+                   laneaction="LookupTenderLimitsParameterErrorAisle">
+                  <COMMENT>
+                     Aisle to traverse when there is a parameter error while looking up the tender limits.
+                  </COMMENT>
+               </AISLE>
+               <ROAD
+                   name="LookupTenderLimitsFailure"
+                   letter="Ok"
+                   destination="AdminMenu"
+                   tape="ADVANCE" record="OFF" index="OFF">
+                  <COMMENT>
+                     Road to traverse when no register parameter is found.
+                  </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="LookupTenderLimitsSuccess"
+                   letter="Success"
+                   destination="AdminMenu"
+                   tape="ADVANCE" record="OFF" index="OFF">
+                  <COMMENT>
+                     Road to traverse when a register lookup is complete.
+                  </COMMENT>
+               </ROAD>
+            </SITE>
+            <STATION name="SecurityStation"
+                   servicename="admin.security.security"
+                   targettier="CURRENTTIER"
+                   launchshuttle="SecurityLaunchShuttle">
+               <COMMENT>
+                  The SecurityStation is used to transfer the flow
+                  to the security service.
+               </COMMENT>
+               <ROAD
+                   name="SecurityUndo"
+                   letter="Undo"
+                   destination="ReloadTenderLimits">
+                  <COMMENT>
+                     The SecurityUndo road is traversed if an Undo letter
+                     is returned from the Security service.
+                  </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="SecurityCancel"
+                   letter="Cancel"
+                   destination="AdminMenu">
+                  <COMMENT>
+                     The SecurityCancel road is traversed if a Cancel
+                     letter is returned from the Security service.
+                  </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="SecurityFailure"
+                   letter="Failure"
+                   destination="AdminMenu">
+                  <COMMENT>
+                     The SecurityCancel road is traversed if a Failure
+                     letter is returned from the Security service.
+                  </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="SecuritySuccess"
+                   letter="Success"
+                   destination="AdminMenu">
+                  <COMMENT>
+                     The SecuritySuccess road is traversed if a Success
+                     letter is returned from the Security service.
+                  </COMMENT>
+               </ROAD>
+               
+               <ROAD
+                   name="SecurityCancelMenu"
+                   letter="CancelMenu"
+                   destination="AdminMenu">
+                  <COMMENT>
+                     The SecurityCancel road is traversed if a Cancel
+                     letter is returned from the Security service.
+                  </COMMENT>
+               </ROAD>
+               <ROAD
+                   name="SecurityContinue"
+                   letter="Continue"
+                   destination="AdminMenu">
+                  <COMMENT>
+                     The SecurityContinue road is traversed if a Continue
+                     letter is returned from the Security service.
+                  </COMMENT>
+               </ROAD>
+               <ROAD
+                    name="AdminMenuOnNoChange"
+                    letter="Exit"
+                    destination="AdminMenu"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This should go to admin menu on no change
+                    </COMMENT>
+               </ROAD>
+            </STATION>
+
+            <SITE  name="CheckAccessForTransactionReentry" siteaction="CheckAccessSite">
+              <ROAD
+                  name="OverrideRequired"
+                  letter="Override"
+                  destination="SecurityOverrideStationForTransReentry"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+              </ROAD>
+              <ROAD
+                  name="AccessGrantedToEnterTransReentryMode"
+                  letter="Continue"
+                  laneaction="AccessGrantedToEnterTransRentryModeRoad"
+                  destination="SetupRegisterStationForTransReentryOnOff"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+              </ROAD>
+            </SITE>
+            <SITE  name="CheckAccessForTrainingOnOff" siteaction="CheckAccessSite">
+                <ROAD
+                    name="OverrideRequired"
+                    letter="Override"
+                    destination="TrainingSecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessGrantedToEnterExitTrainingMode"
+                    letter="Continue"
+                    destination="CreateTrainingModeTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>   
+            
+            <STATION
+                name="TrainingSecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="TrainingEnterExitOverrideSucceeded"
+                    letter="Success"
+                    destination="CreateTrainingModeTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TrainingOverrideFailed"
+                    letter="Failure"
+                    destination="AdminMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TrainingOverrideCancelled"
+                    letter="Cancel"
+                    destination="AdminMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+
+            <STATION
+                  name="SecurityOverrideStationForTransReentry"
+                  servicename="security.override.override"
+                  targettier="CURRENTTIER"
+                  launchshuttle="SecurityOverrideLaunchShuttle"
+                  returnshuttle="SecurityOverrideReturnShuttle">
+              <ROAD
+                  name="TransReentryEnterExitOverrideSucceeded"
+                  letter="Success"
+                  destination="SetupRegisterStationForTransReentryOnOff"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+              </ROAD>
+              <ROAD
+                  name="TROverrideFailed"
+                  letter="Failure"
+                  destination="AdminMenu"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+              </ROAD>
+              <ROAD
+                  name="TROverrideCancelled"
+                  letter="Cancel"
+                  destination="AdminMenu"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+              </ROAD>
+            </STATION>
+
+            <STATION
+                  name="SetupRegisterStationForTransReentryOnOff"
+                  servicename="dailyoperations.common.setupregister"
+                  targettier="CURRENTTIER"
+                  launchshuttle="SetupNormalRegisterShuttle"
+                  returnshuttle="SetupNormalRegisterReturnShuttle">
+              <ROAD
+                  name="TRLookupStoreStatusExitBackToAdmin"
+                  letter="Failure"
+                  destination="AdminMenu"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                    Aisle to traverse when there is a database or other
+                    unexpected error on the store-status lookup. Because
+                    the hard totals do not contain the business date,
+                    the service exits.
+                  </COMMENT>
+              </ROAD>
+                <ROAD
+                    name="TillNotOwned"
+                    letter="TillNotOwned" 
+                    destination="AdminMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when no register parameter is found.
+                    </COMMENT>
+                </ROAD>                              
+              <ROAD
+                  name="TRLookupRegisterExitBackToAdmin"
+                  letter="Ok"
+                  destination="AdminMenu"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                    Road to traverse when no register parameter is found.
+                  </COMMENT>
+              </ROAD>
+              <ROAD
+                  name="LookupRegisterContinueExitTransReentryMode"
+                  letter="Continue"
+                  destination="TransactionReentryAction"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                    Road to traverse when a register lookup is complete.
+                  </COMMENT>
+              </ROAD>
+            </STATION>
+            <SITE  name="TransactionReentryAction" siteaction="TransactionReentryActionSite">
+                <COMMENT >
+                    This site handles turning Transaction Reentry mode
+                    on and off.
+                </COMMENT>
+                <ROAD
+                    name="TransactionReentryContinue"
+                    letter="Ok"
+                    destination="AdminMenu"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when a trans reentry request is made.
+                    </COMMENT>
+                  </ROAD>
+            </SITE>
+            <SITE  name="CreateTrainingModeTransaction" siteaction="CreateTrainingModeTransactionSite">
+                <ROAD
+                    name="TrainingModeTransactionCreated"
+                    letter="Success"
+                    destination="AdminMenu"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            
+            <SYSTEMSITE name="Final" action="RETURN"/>
+       </REGION>
+    </MAP>
+</SERVICE>

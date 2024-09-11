@@ -1,0 +1,600 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/pickup/pickuporder.xml /main/33 2014/06/30 10:27:32 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhinavs  07/30/14 - Fix to not display order location screen
+ *                         in xchannel enabled env
+ *    yiqzhao   06/25/14 - Add RefreshPickupLineItemSite for re-pricing.
+ *    yiqzhao   05/02/14 - Make the flow back to sale service to allow adding
+ *                         take with items.
+ *    mchellap  05/01/14 - Removed IsSerialisationEnabledSignal from
+ *                         SerialNumberEntered ailse.
+ *    mchellap  02/27/14 - Added check for duplicate serial number
+ *    cgreene   11/06/13 - deprecate negative version of trafficlight and just
+ *                         use XML option instead
+ *    mkutiana  01/10/13 - implementing Item Age Verification for order pickup
+ *    sgu       10/30/12 - refactor sites to check order status for pickup and
+ *                         cancel
+ *    sgu       10/24/12 - refactor order view and cancel flow
+ *    yiqzhao   07/27/12 - modify order search flow and populate order cargo
+ *                         for searching
+ *    sgu       07/12/12 - remove retrieve order summary by status or by
+ *                         emessage
+ *    blarsen   07/08/11 - Moved RetryCaptureUISite from tender.tenderauth
+ *                         (removed) into local service.
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *    nkgautam  12/16/09 - Code review formatting
+ *    nkgautam  12/15/09 - tour changes for serialisation
+ *
+ * ===========================================================================
+ */
+
+    $Log:
+    7    360Commerce 1.6         12/19/2007 8:25:59 AM  Manikandan Chellapan
+    PAPB FR27 Bulk Checkin -2
+    6    360Commerce 1.5         2/6/2007 2:49:23 PM    Edward B. Thorne
+    Merge from pickuporder.xml, Revision 1.3.1.0
+    5    360Commerce 1.4         11/27/2006 5:38:36 PM  Charles D. Baker CR
+    21362 - Reintroducing previously deleted funcationlity for special
+    order location behavior previously removed by inventory
+    4    360Commerce 1.3         5/4/2006 5:11:51 PM    Brendan W. Farrell
+    Remove inventory.
+    3    360Commerce 1.2         3/31/2005 4:29:21 PM   Robert Pearse
+    2    360Commerce 1.1         3/10/2005 10:24:05 AM  Robert Pearse
+    1    360Commerce 1.0         2/11/2005 12:13:03 PM  Robert Pearse
+    $
+    Revision 1.5.2.1  2005/01/20 21:03:43  bwf
+    @scr 5126 Handle QueueFull letter inorder to go back to main options screen.
+
+    Revision 1.5  2004/10/06 02:44:24  mweis
+    @scr 7012 Special and Web Orders now have Inventory.
+
+    Revision 1.4  2004/05/14 13:39:50  aachinfiev
+    @scr 5009 - Change CloseCashDrawerSite & WriteTransactionSite
+    to point to oracle.retail.stores.. rather than deprecation packages.
+
+    Revision 1.3  2004/03/26 00:24:20  aarvesen
+    @scr 0 updated tours to use the tourmap
+
+    Revision 1.2  2004/02/12 16:51:26  mcs
+    Forcing head revision
+
+    Revision 1.1.1.1  2004/02/11 01:04:19  cschellenger
+    updating to pvcs 360store-current
+
+
+    *
+    *    Rev 1.1   Sep 17 2001 13:10:20   msg
+    * header update
+    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="pickuporder"
+    package="oracle.retail.stores.pos.services.order.pickup"
+    tourcam="OFF">
+    <CARGO class="PickupOrderCargo"></CARGO>
+    <SERVICECODE>
+
+        <!-- Letters -->
+        <LETTER name="Cancel" />
+        <LETTER name="Success" />
+        <LETTER name="Failure" />
+        <LETTER name="Undo" />
+        <LETTER name="Ok" />
+        <LETTER name="DbError" />
+        <LETTER name="Continue" />
+        <LETTER name="OrderNo" />
+        <LETTER name="Customer" />
+        <LETTER name="Next" />
+        <LETTER name="NoMatch" />
+        <LETTER name="Status" />
+        <LETTER name="Tender" />
+        <LETTER name="Save" />
+        <LETTER name="ExitPrinting" />
+        <LETTER name="ExitTender" />
+        <LETTER name="ExitSpecialOrder" />
+        <LETTER name="SerialNumber" />
+        <LETTER name="Retry" />
+        <LETTER name="QueueFull" />
+        <LETTER name="No" />
+        <LETTER name="Yes" />
+        <LETTER name="Validate"/>
+        <LETTER name="Duplicate"/>
+
+        <!-- Shuttles -->
+        <SHUTTLE class="OrderShuttle" package="oracle.retail.stores.pos.services.order.common" />
+        <SHUTTLE class="TenderLaunchShuttle" />
+        <SHUTTLE class="TenderReturnShuttle" />
+        <SHUTTLE class="PrintingLaunchShuttle" package="oracle.retail.stores.pos.services.printing" />
+        <SHUTTLE class="PickupSignatureCaptureLaunchShuttle" />
+        <SHUTTLE class="PickupSignatureCaptureReturnShuttle" />
+        <SHUTTLE class="SerialValidationLaunchShuttle" package="oracle.retail.stores.pos.services.order.pickup"/>
+        <SHUTTLE class="SerialValidationReturnShuttle" package="oracle.retail.stores.pos.services.order.pickup"/>
+
+
+        <!-- Signals -->
+        <SIGNAL class="IsOneOrderSummarySignal"
+            package="oracle.retail.stores.pos.services.order.common" />
+        <SIGNAL class="IsNotOneOrderSummarySignal"
+            package="oracle.retail.stores.pos.services.order.common" />
+        <SIGNAL class="IsSerialisationEnabledSignal"
+            package="oracle.retail.stores.pos.services.common"/>
+        <SIGNAL class="IsXChannelOrderSignal"
+            package="oracle.retail.stores.pos.services.common"/>
+
+
+        <!-- Sites -->
+        <SITEACTION class="LookupOrderSite" package="oracle.retail.stores.pos.services.order.common" />
+        <SITEACTION class="CheckOrderModifiableSite" package="oracle.retail.stores.pos.services.order.common" />
+        <SITEACTION class="EditItemStatusSite" />
+        <SITEACTION class="CheckAgeRestrictionItemsSite" />
+        <SITEACTION class="ValidateAgeRestrictionItemsSite" />
+        <SITEACTION class="DisplayOrderLocationSite" package="oracle.retail.stores.pos.services.order.common" />
+        <SITEACTION class="DisplayOrderListSite" package="oracle.retail.stores.pos.services.order.common" />
+        <SITEACTION class="AutomaticEmailSite" package="oracle.retail.stores.pos.services.order.common" />
+        <SITEACTION class="CreateOrderTransactionSite" />
+        <SITEACTION class="WriteTransactionSite" package="oracle.retail.stores.pos.services.sale.complete" />
+        <SITEACTION class="CloseCashDrawerSite" package="oracle.retail.stores.pos.services.sale.complete" />
+        <SITEACTION class="EnterSerialNumberSite" />
+        <SITEACTION class="PrintCancelTransactionSite" package="oracle.retail.stores.pos.services.common" />
+        <SITEACTION class="SaveCanceledTransactionSite" package="oracle.retail.stores.pos.services.order.pickup" />
+        <SITEACTION class="ConfirmPickupDeliveryOrderSite" />
+        <SITEACTION class="RetryCaptureUISite" />
+        <SITEACTION class="ModifySerialisedItemCounterSite" package="oracle.retail.stores.pos.services.order.pickup"/>
+        <SITEACTION class="RefreshPickupLineItemSite" package="oracle.retail.stores.pos.services.order.common" />
+
+        <!-- Aisles Roads -->
+        <LANEACTION class="CheckAndUpdateOrderAisle" />
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+        <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common" />
+        <LANEACTION class="ResetOrderCargoRoad" package="oracle.retail.stores.pos.services.order.common" />
+        <LANEACTION class="OrderIDEnteredRoad" package="oracle.retail.stores.pos.services.order.common" />
+        <LANEACTION class="SetSummaryRoad" package="oracle.retail.stores.pos.services.order.common" />
+        <LANEACTION class="UndoTenderRoad" />
+        <LANEACTION class="SaveRetailTransactionAisle" package="oracle.retail.stores.pos.services.common" />
+        <LANEACTION class="SaveFailedAisle" package="oracle.retail.stores.pos.services.common" />
+        <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common" />
+        <LANEACTION class="GetSerialNumberRoad" />
+        <LANEACTION class="WaitForCashDrawerCloseRoad" package="oracle.retail.stores.pos.services.order.common" />
+        <LANEACTION class="ExitSpecialOrderConversionAisle" package="oracle.retail.stores.pos.services.order.common" />
+        <LANEACTION class="SerialNumberEnteredAisle"/>
+
+    </SERVICECODE>
+    <MAP>
+         <REGION region="SERVICE"
+            startsite="SearchOrderStation">
+            <STATION name="SearchOrderStation"
+                   launchshuttle="OrderShuttle" returnshuttle="OrderShuttle"
+                   servicename="order.search.searchorder" targettier="APPLICATIONTIER">
+               <ROAD name="SearchOrderStationMultipleFound"
+                     letter="Success"
+                     destination="DisplayOrderList"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsNotOneOrderSummarySignal"/>
+               </ROAD>
+               <ROAD name="SearchOrderStationOneFound"
+                     letter="Success"
+                     destination="LookupOrder"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <LIGHT signal="IsOneOrderSummarySignal"/>
+               </ROAD>
+               <ROAD name="ViewOrderStationNext"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="ViewOrderStationFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="ViewOrderStationCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="ViewOrderStationUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON"/>
+            </STATION>
+            <SITE name="DisplayOrderList"
+                siteaction="DisplayOrderListSite">
+                <MOCKUP image="" />
+                <ROAD name="DisplayOrderListCancel" letter="Cancel"
+                    destination="Final" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DisplayOrderListUndo" letter="Undo"
+                    destination="SearchOrderStation" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DisplayOrderListAccept" letter="Next"
+                    destination="LookupOrder" laneaction="SetSummaryRoad" record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="LookupOrder" siteaction="LookupOrderSite">
+                <AISLE name="LookupOrderOkFailure" letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <AISLE name="LookupOrderDBError" letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <ROAD name="LookupOrderFailure" letter="Failure"
+                    destination="Final" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="LookupOrderSuccess" letter="Success"
+                    destination="CheckOrderModifiable" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckOrderModifiable" siteaction="CheckOrderModifiableSite">
+               <ROAD name="CheckOrderModifiableSuccess"
+                     letter="Success"
+                     destination="EditItemStatus"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CheckOrderModifiableFailureOne"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsOneOrderSummarySignal"/>
+               </ROAD>
+               <ROAD name="CheckOrderModifiableFailureMany"
+                     letter="Failure"
+                     destination="DisplayOrderList"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="IsNotOneOrderSummarySignal"/>
+               </ROAD>
+            </SITE>
+            <SITE name="EditItemStatus"
+                siteaction="EditItemStatusSite">
+                <MOCKUP image="" />
+                <AISLE name="EditItemStatusAccept" letter="Next"
+                    laneaction="CheckAndUpdateOrderAisle">
+                </AISLE>
+                <ROAD name="EditItemStatusCancel" letter="Cancel"
+                    destination="Final" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="EditItemStatusUndo" letter="Undo"
+                    destination="SearchOrderStation" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="EditItemStatusContinue" letter="Continue"
+                    destination="CheckAgeRestrictionItems" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="EditItemStatusOk" letter="Ok"
+                    destination="EditItemStatus" record="OFF" index="OFF">
+                    <COMMENT>
+                        The "Set Status Error" dialog sends this
+                        message; It means that the use has not set any
+                        items to "Pickup".
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EditItemStatusFailureMany" letter="Failure"
+                    destination="Final" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SerializedItems" letter="SerialNumber"
+                    destination="EnterSerialNumber" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckAgeRestrictionItems" siteaction="CheckAgeRestrictionItemsSite">
+                <ROAD name="InputDOBContinue" letter="Next"
+                    destination="ValidateAgeRestrictionItems" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SkipDOBAGEValidation" letter="Skip"
+                    destination="CreateOrderTransaction" record="OFF" index="OFF">
+                <LIGHT signal="IsXChannelOrderSignal" />
+                     <COMMENT>
+                         This road is traversed when xchannel is enabled
+                     </COMMENT>
+                </ROAD>
+                <ROAD name="SkipDOBAGEValidation" letter="Skip"
+                    destination="DisplayOrderLocation" record="OFF" index="OFF">
+                 <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+                     <COMMENT>
+                         This road is traversed when xchannel is not enabled
+                     </COMMENT>  
+                </ROAD>
+                <ROAD
+                    name="CheckAgeRestrictionItemsUndo"
+                    letter="Undo"
+                    destination="EditItemStatus"
+                    record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="ValidateAgeRestrictionItems" siteaction="ValidateAgeRestrictionItemsSite">
+				<ROAD name="ValidateAge" letter="Continue"
+                    destination="CreateOrderTransaction" record="OFF" index="OFF">
+                <LIGHT signal="IsXChannelOrderSignal" />
+                </ROAD>
+                <ROAD name="ValidateAge" letter="Continue"
+                    destination="DisplayOrderLocation" record="OFF" index="OFF">
+                 <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+                </ROAD>
+                <ROAD name="InValidatedAge" letter="Invalid"
+                    destination="EditItemStatus" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="DisplayOrderLocation"
+                siteaction="DisplayOrderLocationSite">
+                <ROAD name="DisplayOrderLocationCancel" letter="Cancel"
+                    destination="Final" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DisplayOrderLocationUndo" letter="Undo"
+                    destination="EditItemStatus" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DisplayOrderLocationAccept" letter="Next"
+                    destination="CreateOrderTransaction" record="OFF" index="OFF">
+                </ROAD>
+				<ROAD name="DisplayOrderLocationSkip" letter="Skip"
+                    destination="CreateOrderTransaction" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CreateOrderTransaction"
+                siteaction="CreateOrderTransactionSite">
+                <ROAD name="ReadyPickup" 
+                    letter="Success"
+                    destination="RefreshPickupLineItem" 
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="RefreshPickupLineItem"
+                siteaction="RefreshPickupLineItemSite">
+                <ROAD name="ItemsRefreshed" 
+                    letter="Success"
+                    destination="Final" 
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemsRefreshedFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="EnterSerialNumber"
+                siteaction="EnterSerialNumberSite">
+               <AISLE name="SerialNumberEnetered"
+                      letter="Next"
+                      laneaction="SerialNumberEnteredAisle"
+                      record="OFF" index="OFF">
+                      <COMMENT>
+                          This road is traversed after operator enters serial number
+                      </COMMENT>
+                </AISLE>
+                <ROAD name="DuplicateSerialNumber"
+                      letter="Duplicate"
+                      destination="ModifySerialisedItemCounter"
+                      record="OFF" index="OFF">
+                      <COMMENT>
+                          This road is traversed when a duplicate serial number is found
+                      </COMMENT>
+                </ROAD>
+                <ROAD name="GetSerialNumber"
+                      letter="Validate"
+                      destination="ValidateSerialStation"
+                      record="OFF" index="OFF">
+                      <LIGHT signal="IsSerialisationEnabledSignal"/>
+                      <COMMENT>
+                         This road is traversed when serialization is enabled
+                      </COMMENT>
+                </ROAD>
+                <ROAD
+                      name="GetSerialNumber"
+                      letter="Validate"
+                      destination="EnterSerialNumber"
+                      record="OFF" index="OFF">
+                      <LIGHT signal="IsSerialisationEnabledSignal" negate="Y"/>
+                      <COMMENT>
+                         This road is traversed when serialization is disabled
+                      </COMMENT>
+                </ROAD>
+                <ROAD
+                     name="SerialNumbersEntered"
+                     letter="Continue"
+                     destination="CreateOrderTransaction"
+                     record="OFF" index="OFF">
+					 <LIGHT signal="IsXChannelOrderSignal" />
+                </ROAD>
+				<ROAD
+                     name="SerialNumbersEntered"
+                     letter="Continue"
+                     destination="DisplayOrderLocation"
+                     record="OFF" index="OFF">
+					 <LIGHT signal="IsXChannelOrderSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                     name="EnterSerialNumberCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="EnterSerialNumberUndo"
+                    letter="Undo"
+                    destination="EditItemStatus"
+                    record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="ModifySerialisedItemCounter" siteaction="ModifySerialisedItemCounterSite">
+                <ROAD name="ItemCounterDecrement"
+                     letter="Continue"
+                     destination="EnterSerialNumber"
+                     tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+            </SITE>
+            <STATION name="ValidateSerialStation"
+                   servicename="services.serialvalidation.serialvalidation"
+                   targettier="CURRENTTIER"
+                   launchshuttle="SerialValidationLaunchShuttle"
+                   returnshuttle="SerialValidationReturnShuttle">
+               <COMMENT>
+                    This station goes to the Validate Serial Station
+               </COMMENT>
+               <ROAD name="SellableRoad"
+                     letter="Sellable"
+                     destination="EnterSerialNumber"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="ValidationErrorRoad"
+                     letter="Invalid"
+                     destination="ModifySerialisedItemCounter"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+           </STATION>
+            <SITE name="AutomaticEmail"
+                siteaction="AutomaticEmailSite">
+                <COMMENT>
+                    This site is used to generate an automatic email to
+                    the customer.
+                </COMMENT>
+                <AISLE name="AutomaticEmailOkFailure" letter="Ok"
+                    laneaction="FailureConversionAisle" />
+                <AISLE name="AutomaticEmailDBError" letter="DbError"
+                    laneaction="DataBaseErrorAisle" />
+                <AISLE name="AutomaticEmailSuccess" letter="Success"
+                    laneaction="ExitSpecialOrderConversionAisle" />
+                <ROAD name="AutomaticEmailFailure" letter="Failure"
+                    destination="Final" laneaction="ResetOrderCargoRoad" tape="ADVANCE"
+                    record="ON" index="ON" />
+                <ROAD name="ExitPickupOrderStation"
+                    laneaction="ResetOrderCargoRoad" letter="ExitSpecialOrder"
+                    destination="Final" tape="ADVANCE" record="ON" index="ON" />
+            </SITE>
+            <SITE name="ConfirmPickupDeliveryOrder"
+                siteaction="ConfirmPickupDeliveryOrderSite">
+                <ROAD name="SignatureCaptureRoad"
+                    letter="PickupDeliveryOrder"
+                    destination="SignatureCaptureStation"
+                    record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="PrintingRoad"
+                    letter="Print"
+                    destination="PrintingStation"
+                    record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="PrintingStation"
+                servicename="services.printing.printing" targettier="CURRENTTIER"
+                launchshuttle="PrintingLaunchShuttle">
+                <COMMENT>
+                    This station is the transfer point for the Printing
+                    service.
+                </COMMENT>
+                <ROAD name="PrintingReturned" letter="ExitPrinting"
+                    destination="WriteTransaction" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE name="WriteTransaction"
+                siteaction="WriteTransactionSite">
+                <COMMENT>
+                    This site writes the transaction to the database.
+                </COMMENT>
+                <AISLE name="SaveTransaction" letter="Save"
+                    laneaction="SaveRetailTransactionAisle">
+                </AISLE>
+                <AISLE name="SaveFailed" letter="Ok"
+                    laneaction="SaveFailedAisle">
+                </AISLE>
+                <ROAD name="WriteCompleted" letter="Continue"
+                    destination="CloseCashDrawer" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="WriteTransactionQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="WriteTransactionRetry"
+                    letter="Retry"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CloseCashDrawer"
+                siteaction="CloseCashDrawerSite">
+                <AISLE name="CashDrawerClosedNotSystem"
+                    letter="Continue" laneaction="SuccessConversionAisle">
+                </AISLE>
+                <ROAD name="CashDrawerSuccess" letter="Success"
+                    destination="AutomaticEmail" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="SignatureCaptureStation"
+                launchshuttle="PickupSignatureCaptureLaunchShuttle"
+                returnshuttle="PickupSignatureCaptureReturnShuttle"
+                servicename="services.signaturecapture.signaturecapture"
+                targettier="CURRENTTIER">
+                <ROAD name="SignatureCaptured" letter="Success"
+                    destination="PrintingStation" tape="ADVANCE" record="OFF"
+                    index="OFF" />
+                <ROAD name="SignatureCausedDecline" letter="Declined"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF" />
+                <ROAD name="SignatureNotCaptured" letter="Failure"
+                    destination="RetryCapture" tape="ADVANCE" record="OFF" index="OFF" />
+                <ROAD name="SignatureVerified" letter="Yes"
+                    destination="PrintingStation" tape="ADVANCE" record="OFF"
+                    index="OFF" />
+                <ROAD name="DeviceUnavailable" letter="Unavailable"
+                    destination="PrintingStation" tape="ADVANCE" record="OFF"
+                    index="OFF" />
+                <ROAD name="SignatureNotMatchedRoad" letter="No"
+                    destination="PrintingStation" tape="ADVANCE" record="OFF"
+                    index="OFF" />
+
+            </STATION>
+            <SITE name="RetryCapture" siteaction="RetryCaptureUISite">
+                <ROAD name="RetryCancelled" letter="No"
+                    destination="PrintingStation" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="RetryRequested" letter="Yes"
+                    destination="SignatureCaptureStation" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="PrintCancelTransaction"
+                siteaction="PrintCancelTransactionSite">
+                <ROAD name="TransactionCanceled" letter="Continue"
+                    destination="SaveCanceledTransaction" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="RetryPrintCancelTransaction" letter="Retry"
+                    destination="PrintCancelTransaction" tape="ADVANCE" record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="SaveCanceledTransaction"
+                siteaction="SaveCanceledTransactionSite">
+                <AISLE name="CanceledTransactionSaved" letter="Continue"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD name="TransactionFailure" letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"></SYSTEMSITE>
+        </REGION>
+    </MAP>
+</SERVICE>

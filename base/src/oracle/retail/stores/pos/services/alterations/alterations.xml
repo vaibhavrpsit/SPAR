@@ -1,0 +1,400 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/alterations/alterations.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:08:18 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      3    360Commerce 1.2         3/31/2005 4:27:12 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:19:36 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:09:27 PM  Robert Pearse
+     $
+     Revision 1.4.4.1  2004/10/20 22:07:31  jdeleau
+     @scr 7399 Fix hang when db is offline and user selects "No" on
+     customer not found dialog
+
+     Revision 1.4  2004/03/26 00:24:12  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.3  2004/02/20 19:51:59  epd
+     @scr 3561 Updates to prompt for item size if the item requires a size
+
+     Revision 1.2  2004/02/12 16:49:04  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:14  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="alterations"
+    package="oracle.retail.stores.pos.services.alterations"
+    tourcam="OFF">
+    <CARGO  class="AlterationsCargo" package="oracle.retail.stores.pos.services.alterations"/>
+    <SERVICECODE >
+
+        <LETTER name="Cancel"/>
+        <LETTER name="Coat"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Dress"/>
+        <LETTER name="Enter"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Pants"/>
+        <LETTER name="Repairs"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Shirt"/>
+        <LETTER name="Skirt"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Yes"/>
+
+        <SHUTTLE class="CustomerLaunchShuttle"/>
+        <SHUTTLE class="CustomerReturnShuttle"/>
+
+        <LANEACTION class="AlterationInfoEnteredAisle" package="oracle.retail.stores.pos.services.alterations"/>
+        <LANEACTION class="AlterationsPriceEnteredAisle" package="oracle.retail.stores.pos.services.alterations"/>
+        <LANEACTION class="CustomerFoundRoad" package="oracle.retail.stores.pos.services.alterations"/>
+
+        <SITEACTION class="AddAlterationItemSite" package="oracle.retail.stores.pos.services.alterations"/>
+        <SITEACTION class="AlterationsErrorSite" package="oracle.retail.stores.pos.services.alterations"/>
+        <SITEACTION class="AlterationsOptionsSite" package="oracle.retail.stores.pos.services.alterations"/>
+        <SITEACTION class="CheckAlterationsPriceEntrySite" package="oracle.retail.stores.pos.services.alterations"/>
+        <SITEACTION class="CreateRetailTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="GetAlterationsCustomerSite" package="oracle.retail.stores.pos.services.alterations"/>
+        <SITEACTION class="GetTransactionSite" package="oracle.retail.stores.pos.services.alterations"/>
+        <SITEACTION class="ShowAlterationsScreenSite" package="oracle.retail.stores.pos.services.alterations"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="GetAlterationsCustomer">
+            <SITE  name="GetAlterationsCustomer" siteaction="GetAlterationsCustomerSite">
+                <ROAD
+                    name="AlterationsCustomerFound"
+                    letter="Continue"
+                    laneaction="CustomerFoundRoad"
+                    destination="AlterationsOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CustomerNotFound"
+                    letter="Failure"
+                    destination="GetTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AlterationCustomerUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetTransaction" siteaction="GetTransactionSite">
+                <ROAD
+                    name="TransactionFound"
+                    letter="Continue"
+                    destination="CustomerStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TransactionNotFound"
+                    letter="Failure"
+                    destination="CreateRetailTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CreateRetailTransaction" siteaction="CreateRetailTransactionSite">
+                <COMMENT >
+                    Creates the retail transaction required for the
+                    CustomerStation.
+                </COMMENT>
+                <ROAD
+                    name="TransactionCreated"
+                    letter="Success"
+                    destination="CustomerStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CreateTransactionFailed"
+                    letter="Failure"
+                    destination="AlterationsError"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="AlterationsOptions" siteaction="AlterationsOptionsSite">
+                <MOCKUP
+                    image=""/>
+                <ROAD
+                    name="PantSelected"
+                    letter="Pants"
+                    destination="ShowAlterationsScreen"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ShirtSelected"
+                    letter="Shirt"
+                    destination="ShowAlterationsScreen"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="JacketSelected"
+                    letter="Coat"
+                    destination="ShowAlterationsScreen"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SkirtSelected"
+                    letter="Skirt"
+                    destination="ShowAlterationsScreen"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DressSelected"
+                    letter="Dress"
+                    destination="ShowAlterationsScreen"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RepairsSelected"
+                    letter="Repairs"
+                    destination="ShowAlterationsScreen"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelAlterationsSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoAlterationsSelected"
+                    letter="Undo"
+                    destination="GetAlterationsCustomer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="ShowAlterationsScreen" siteaction="ShowAlterationsScreenSite">
+                <MOCKUP
+                    image=""/>
+                <AISLE
+                    name="AlterationInfoEntered"
+                    letter="Next"
+                    laneaction="AlterationInfoEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="AlterationsComplete"
+                    letter="Continue"
+                    destination="CheckPriceEntry"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="AlterationsOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckPriceEntry" siteaction="CheckAlterationsPriceEntrySite">
+                <COMMENT >
+                    This site checks to see if price entry is required
+                    for the item.
+                </COMMENT>
+                <AISLE
+                    name="PriceEntered"
+                    letter="Next"
+                    laneaction="AlterationsPriceEnteredAisle">
+                    <COMMENT >
+                        This aisle is traversed when the user presses the
+                        Next key in the ENTER_PRICE screen.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="AlterationNoPrice"
+                    letter="Retry"
+                    destination="CheckPriceEntry"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Item has no price.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="AlterationHasPrice"
+                    letter="Continue"
+                    destination="AddAlterationItem"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Item has a price.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoPrice"
+                    letter="Undo"
+                    destination="ShowAlterationsScreen"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the user presses the Undo
+                        key in the ENTER_PRICE menu.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelPrice"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the user presses the Cancel
+                        key from the ENTER_PRICE screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE  name="AlterationsError" siteaction="AlterationsErrorSite">
+                <MOCKUP
+                    image=""/>
+                <ROAD
+                    name="YesSelected"
+                    letter="Yes"
+                    destination="CustomerStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="NoSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="AddAlterationItem" siteaction="AddAlterationItemSite">
+                <MOCKUP
+                    image=""/>
+                <ROAD
+                    name="ItemAdded"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="CustomerStation"
+                servicename="customer.main.customermain"
+                targettier="CURRENTTIER"
+                launchshuttle="CustomerLaunchShuttle"
+                returnshuttle="CustomerReturnShuttle">
+                <ROAD
+                    name="CustomerFound"
+                    letter="Continue"
+                    laneaction="CustomerFoundRoad"
+                    destination="AlterationsOptions"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CustomerNotLinked"
+                    letter="Cancel"
+                    destination="AlterationsError"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CustomerDatabaseOFfline"
+                    letter="Offline"
+                    destination="AlterationsError"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoLinkCustomer"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/externalorder/searchorder/searchorderuicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    ohorne    09/01/10 - disabled managedNextButton for EXT_ORDER_ADV_SEARCH
+ *    ohorne    08/20/10 - enabled focused property on ExternalOrderListSpec
+ *    ohorne    08/19/10 - enabled managedNextButton for EXT_ORDER_ADV_SEARCH
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  05/20/10 - updated search flow
+ *    abondala  05/19/10 - Display list of external orders flow
+ *    abondala  05/17/10 - Siebel search flow
+ *    abondala  05/12/10 - updated
+ *    abondala  05/12/10 - search order flow ui configuration
+ *
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<UICFG>
+
+    <BEAN
+        specName="ExternalOrderButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            labelTag="AdvancedSearch"
+            actionName="AdvancedSearch"
+            enabled="true"
+            keyName="F2" />
+    </BEAN>
+        
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="externalorderText"
+        specName="EXTERNAL_ORDER">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="ExternalOrdersPromptText"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="ExternalOrdersScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ExternalOrderButtonSpec">
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>        
+    
+    <BEAN
+        specName="ExternalOrderAdvancedSearchSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ExternalOrderSearchBean">
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="externalorderText"
+        specName="EXT_ORDER_ADV_SEARCH">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ExternalOrderAdvancedSearchSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+        <BEANPROPERTY
+            propName="manageNextButton"
+            propValue="false"/>
+        <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="AdvancedSearchScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="AdvancedSearchPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="ExternalOrderAdvancedSearchSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="ExternalOrderAdvancedSearchSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="ExternalOrderAdvancedSearchSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>   
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="externalorderText"
+        specName="SEARCH_IN_PROGRESS">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SearchInProgressPrompt"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SearchInProgressScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton" propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[false],Cancel[false],Undo[false],Next[false]"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+    
+    <BEAN
+        specName="ExternalOrderListSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ListBean">
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.ExternalOrderSelectRenderer"/>
+        <BEANPROPERTY propName="labelTags" propValue="OrderNumberLabel,DateLabel,AccountLabel,LastNameLabel,TotalLabel"/>
+        <BEANPROPERTY propName="labelWeights" propValue="24,23,19,17,17"/>
+        <BEANPROPERTY propName="focused" propValue="true"/>
+    </BEAN>
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="externalorderText"
+        specName="EXTERNAL_ORDER_LIST">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ExternalOrderListSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+             areaName="StatusPanel"
+             beanSpecName="StatusPanelSpec">
+             <BEANPROPERTY
+                 propName="screenNameTag" propValue="ExternalOrderListScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ExternalOrderListPrompt"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ExternalOrderButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton" propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Next[true]"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+</UICFG>

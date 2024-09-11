@@ -1,0 +1,307 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/send/displaysendmethod/displaysendmethod.xml /main/16 2013/03/18 14:38:01 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   03/13/13 - Add reason code for shipping charge override for
+ *                         cross channel and store send.
+ *    yiqzhao   10/19/12 - Refactor to use DestinationTaxRule station to get
+ *                         line item tax from send destination postal code.
+ *    yiqzhao   04/03/12 - refactor store send for cross channel
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:44:55 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin-4
+      3    360Commerce 1.2         3/31/2005 4:27:49 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:21:05 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:10:40 PM  Robert Pearse
+     $
+     Revision 1.8  2004/08/23 16:15:58  cdb
+     @scr 4204 Removed tab characters
+
+     Revision 1.7  2004/08/12 14:04:33  rsachdeva
+     @scr 6791 Transaction Level Send
+
+     Revision 1.6  2004/07/30 20:01:57  jdeleau
+     @scr 6630 When hitting escape on a send item transaction, reset the
+     tax back to its original value.
+
+     Revision 1.5  2004/06/22 17:28:10  lzhao
+     @scr 4670: code review
+
+     Revision 1.4  2004/06/16 13:42:07  lzhao
+     @scr 4670: refactoring Send for 7.0.
+
+     Revision 1.3  2004/06/07 18:28:37  jdeleau
+     @scr 2775 Support multiple GeoCodes tax screen
+
+     Revision 1.2  2004/06/03 22:49:27  jdeleau
+     @scr 2775 For tax on send Item, prepare for the upcoming requirement
+     to put a screen up for the user to select GeoCode.
+
+     Revision 1.1  2004/05/26 16:37:47  lzhao
+     @scr 4670: add capture customer and bill addr. same as shipping for send
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="displaysendmethod"
+    package="oracle.retail.stores.pos.services.send.displaysendmethod"
+    tourcam="ON">
+    <COMMENT>
+        This services displays the linked customer's address
+        and allows update. Once the customer's send address
+        is confirmed, the service will let the operator to
+        choose one shipping method, and then the shipping
+        charges are calculated.
+    </COMMENT>
+    <CARGO class="SendCargo" package="oracle.retail.stores.pos.services.send.address"/>
+
+    <SERVICECODE>
+    <!-- Sites -->
+        <SITEACTION class="CheckDatabaseOfflineSite"/>
+        <SITEACTION class="DisplaySendMethodSite"/>
+        <SITEACTION class="AssignTransactionLevelInfoSite"/>
+        <SITEACTION class="CheckTransactionLevelSendAssignedSite"/>
+        <SITEACTION class="UndoSendSite"/>
+        <SITEACTION class="GetVatRulesSite"/>
+        <SITEACTION class="AddShippingChargeLineItemSite"/>
+        <SITEACTION class="GetDestinationTaxRuleSite"/>
+        <SITEACTION class="UpdateTaxRulesSite"/>
+        <SITEACTION class="CheckShippingChargeChangedSite"/>
+    <!-- Shuttle -->        
+        <SHUTTLE class="ShipDestinationTaxRuleLaunchShuttle"/>
+        <SHUTTLE class="ShipDestinationTaxRuleReturnShuttle"/>     
+    <!-- Letters -->
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Done"/>
+        <LETTER name="MultipleGeoCodes"/>
+        <LETTER name="Next"/>
+        <LETTER name="Continue"/>
+        <LETTER name="NotFound"/>
+
+    <!-- Roads and Aisles -->
+        <LANEACTION class="SendMethodSelectedRoad"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckDatabaseOffline">
+            <SITE name="CheckDatabaseOffline" siteaction="CheckDatabaseOfflineSite">
+                <ROAD
+                    name="DatabaseOffline"
+                    letter="Next"
+                    destination="CheckTransactionLevelSendAssigned"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NoItemSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>                
+            </SITE>
+            <SITE name="CheckTransactionLevelSendAssigned" siteaction="CheckTransactionLevelSendAssignedSite">
+                <ROAD
+                    name="TransactionLevelSendNotAssigned"
+                    letter="Next"
+                    destination="GetDestinationTaxRule"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionLevelSendAssigned"
+                    letter="Continue"
+                    destination="DisplaySendMethod"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>                
+            </SITE>
+            <SITE name="GetDestinationTaxRule" siteaction="GetDestinationTaxRuleSite">
+                <ROAD name="GetDestinationTaxRule"
+                      letter="Next"
+                      destination="GetDestinationTaxRuleStation"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="VatItemSendSkipDestinationTaxRule"
+                      letter="Continue"
+                      destination="DisplaySendMethod"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                       <COMMENT>This road will be executed by GetVatRulesSite which is specified at tourmap.xml</COMMENT>  
+                </ROAD>
+                <ROAD
+                    name="VatTxnSendSkipDestinationTaxRule"
+                    letter="Done"
+                    destination="AssignTransactionLevelInfo"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                    <COMMENT>This road will be executed by GetVatRulesSite which is specified at tourmap.xml</COMMENT> 
+                </ROAD>                
+            </SITE>            
+            <SITE name="UpdateTaxRules" siteaction="UpdateTaxRulesSite">
+                <ROAD
+                    name="TransactionLevel"
+                    letter="Done"
+                    destination="AssignTransactionLevelInfo"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ItemLevel"
+                    letter="Next"
+                    destination="DisplaySendMethod"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+            </SITE>            
+            <SITE name="DisplaySendMethod" siteaction="DisplaySendMethodSite">
+                <ROAD
+                    name="DisplaySendMethodNext"
+                    letter="Done"
+                    destination="CheckShippingChargeChanged"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DisplaySendMethodUndo"
+                    letter="Undo"
+                    destination="UndoSend"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DisplaySendMethodCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckShippingChargeChanged" siteaction="CheckShippingChargeChangedSite">
+                <ROAD name="NoNeedReasonCodeOrReasonCodeSpecified"
+                      letter="Next"
+                      destination="AddShippingChargeLineItem"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+                <ROAD name="NoNeedReasonCodeOrReasonCodeSpecified"
+                      letter="Done"
+                      destination="AddShippingChargeLineItem"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>              
+                <ROAD name="ReasonCodeNotSpecified"
+                      letter="NotFound"
+                      destination="DisplaySendMethod"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+            </SITE>            
+            <SITE name="UndoSend" siteaction="UndoSendSite">
+                <ROAD
+                    name="UndoSend"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="AddShippingChargeLineItem" siteaction="AddShippingChargeLineItemSite">
+                <ROAD
+                    name="AddShippingChargeLineItemDone"
+                    letter="Done"
+                    laneaction="SendMethodSelectedRoad"
+                    destination="Final"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DisplaySendMethodUndo"
+                    letter="Undo"
+                    destination="UndoSend"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="AssignTransactionLevelInfo" siteaction="AssignTransactionLevelInfoSite">
+                <ROAD
+                    name="TransactionLevelSendStarts"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="GetDestinationTaxRuleStation"
+                     servicename="destinationtaxrule.destinationtaxrule"
+                     targettier="CURRENTTIER"
+                     launchshuttle="ShipDestinationTaxRuleLaunchShuttle"
+                     returnshuttle="ShipDestinationTaxRuleReturnShuttle">
+                <ROAD name="TaxRuleFound"
+                      letter="Next"
+                      destination="UpdateTaxRules"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">                   
+                </ROAD>                
+                <ROAD name="TaxRuleUndo"
+                      letter="Undo"
+                      destination="Final"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="TaxRuleDone"
+                      letter="Done"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </STATION>               
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,6 @@
+version = 14.1.2.151013.1640
+${anthill.user.name}
+RGBUSTORES_MAIN_GENERIC
+branch = ${anthill.branch.name}
+${anthill.build_track.name}
+Tue Oct 13 17:15:43 IST 2015

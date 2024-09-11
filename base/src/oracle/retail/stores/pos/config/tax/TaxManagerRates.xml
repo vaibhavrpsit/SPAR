@@ -1,0 +1,53 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/config/tax/TaxManagerRates.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:31 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE TAXMANAGERCONFIG SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/TaxManagerConfig.dtd">
+
+<TAXMANAGERCONFIG>
+
+    <SALESTAXGROUP
+       salestaxgroupname="localbasetaxgroup"
+       salestaxgroupid="300"
+       salestaxgroupdescription="Base Sales tax group for local jurisdiction" 
+       salestaxjurisdiction="city1"
+    >
+        <SALESTAXRATEREF salestaxrate="tx_state" order="1" />
+        <SALESTAXRATEREF salestaxrate="localoption1" order="2" />
+        <SALESTAXRATEREF salestaxrate="county" order="3" />
+     </SALESTAXGROUP>
+
+    <SALESTAXGROUP
+       salestaxgroupname="city1option_county2"
+       salestaxgroupid="200"
+       salestaxgroupdescription="City 1 tax group with county2 tax" 
+       salestaxjurisdiction="city1"
+    >
+        <SALESTAXRATEREF salestaxrate="city1option" order="1" />
+        <SALESTAXRATEREF salestaxrate="county2" order="2" />
+    </SALESTAXGROUP>
+
+    <SALESTAXGROUP
+       salestaxgroupname="local_option"
+       salestaxgroupid="100"
+       salestaxgroupdescription="Local 5.25% tax rate" 
+       salestaxjurisdiction="city2"
+    >
+        <SALESTAXRATEREF salestaxrate="local1" order="1" />
+    </SALESTAXGROUP>
+
+</TAXMANAGERCONFIG>
+

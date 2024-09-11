@@ -1,0 +1,481 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/xchannelcreatepickup/xchannelcreatepickup.xml /main/5 2013/09/04 13:43:42 abhinavs Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   10/02/14 - Add StoreMaximumMatches checking
+ *    abhinavs  09/04/13 - Removed unused site reference
+ *    abhinavs  08/24/13 - Xchannel Inventory lookup enhancement phase I
+ *    yiqzhao   08/09/13 - Set the xc flag to true once undo from store search.
+ *    sgu       06/20/12 - change to use letter Error
+ *    sgu       06/19/12 - handle xc order id creation failure
+ *    sgu       06/18/12 - refactor ORPOS to call order manager to get new
+ *                         order id
+ *    jswan     04/18/12 - Added to support cross channel create pickup order
+ *                         feature.
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="xchannelcreatepickup" package="oracle.retail.stores.pos.services.order.xchannelcreatepickup"
+    tourcam="ON">
+    <CARGO class="XChannelCreatePickupOrderCargo" package="oracle.retail.stores.pos.services.order.xchannelcreatepickup" />
+    <SERVICECODE>
+
+        <LETTER name="Next"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Error"/>
+        <LETTER name="Success"/>
+        <LETTER name="Pickup"/>
+        <LETTER name="StoreSearch"/>
+        <LETTER name="Print"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Customer"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Offline"/>
+        <LETTER name="NotFound"/>
+        <LETTER name="TooManyMatches"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        
+
+        <SITEACTION class="RetrieveStoreGroupSite"/>
+        <SITEACTION class="ProcessOrderItemsSite"/>
+        <SITEACTION class="RetrieveAvailableToPromiseInventorySite"/>
+        <SITEACTION class="SelectStoreForPickupSite"/>
+        <SITEACTION class="EnterPickupCustomerInfoSite"/>
+        <SITEACTION class="EnterStoreSearchCriteriaSite"/>
+        <SITEACTION class="PrintAvailableToPromiseInventorySite"/>
+        <SITEACTION class="ShowPickupDateEnterScreenSite" package="oracle.retail.stores.pos.services.order.createpickup"/>
+        <SITEACTION class="CreatePickupOrderSite"/>
+        <SITEACTION class="ConfirmGroupingSite"/>
+        <SITEACTION class="GroupingItemSite"/>
+        <SITEACTION class="GroupingInventorySite"/>  
+        <SITEACTION class="NoGroupingInventorySite"/>
+        
+        <LANEACTION class="GetSelectedStoreRoad"/>
+        <LANEACTION class="GetCustomerInfoRoad"/>
+        <LANEACTION class="ResetXCCreatePickupExecutedFlagRoad"/>
+        <LANEACTION class="JournalCustomerInformationRoad" package="oracle.retail.stores.pos.services.order.createpickup"/>
+        <LANEACTION class="IncrementItemIndexRoad"/>
+        <LANEACTION class="ValidatePickupDateAisle"/>
+        <LANEACTION class="RetrieveStoreByCriteriaAisle"/>
+		<LANEACTION class="OrderOfflineAisle" package="oracle.retail.stores.pos.services.order.common"/>
+
+        <SHUTTLE class="CustomerLaunchShuttle" package="oracle.retail.stores.pos.services.order.createpickup"/>
+        <SHUTTLE class="CustomerReturnShuttle" package="oracle.retail.stores.pos.services.order.createpickup"/>
+
+        <SIGNAL  class="IsListFromStoreGroup" package="oracle.retail.stores.pos.services.order.xchannelcreatepickup"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="RetrieveStoreGroup">
+
+            <SITE name="RetrieveStoreGroup" siteaction="RetrieveStoreGroupSite">
+
+                <ROAD name="RetrieveStoreGroupSuccess"
+                      letter="Success"
+                      destination="GroupingItem"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="RetrieveStoreGroupError"
+                      letter="Error"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+            </SITE>
+            <SITE name="GroupingItem" siteaction="GroupingItemSite">
+                <ROAD
+                    name="GroupItem"
+                    letter="Continue"
+                    destination="ConfirmGrouping"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="ConfirmGrouping" siteaction="ConfirmGroupingSite">
+                <ROAD
+                    name="GroupingYes"
+                    letter="Yes"        
+                    destination="GroupingInventory"          
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GroupingNo"
+                    letter="No"
+                    destination="NoGroupingInventory"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OnlyOneLineForTheItemInTxn"
+                    letter="Continue"
+                    destination="ConfirmGrouping"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FinishCheck"
+                    letter="Next"
+                    destination="ProcessOrderItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>  
+            <SITE name="GroupingInventory" siteaction="GroupingInventorySite">
+
+				<ROAD name="GroupingItemStorage"
+				      letter="Continue"
+					  destination="ConfirmGrouping"
+					  tape="ADVANCE"
+					  record="OFF"
+					  index="OFF">
+				</ROAD>
+            </SITE>
+            <SITE name="NoGroupingInventory" siteaction="NoGroupingInventorySite">
+
+				<ROAD name="NoGroupingItemStorage"
+				      letter="Continue"
+					  destination="ConfirmGrouping"
+					  tape="ADVANCE"
+					  record="OFF"
+					  index="OFF">
+				</ROAD>
+            </SITE>
+            
+            <SITE name="ProcessOrderItems" siteaction="ProcessOrderItemsSite">
+
+				<ROAD name="ProcessingOrderItemsContinue"
+				      letter="Continue"
+					  destination="CreatePickupOrder"
+					  tape="ADVANCE"
+					  record="OFF"
+					  index="OFF">
+				</ROAD>
+
+                <ROAD name="ProcessingOrderItemsNext"
+                      letter="Next"
+                      destination="RetrieveAvailableToPromiseInventory"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+			</SITE>
+
+			<SITE name="CreatePickupOrder" siteaction="CreatePickupOrderSite">
+
+				<AISLE name="CreatePickupOrderOffline"
+                     letter="Offline"
+                     laneaction ="OrderOfflineAisle">
+                </AISLE>
+
+				<ROAD name="CreatePickupOrderSuccess"
+				      letter="Continue"
+					  destination="Final"
+					  tape="ADVANCE"
+					  record="OFF"
+					  index="OFF">
+				</ROAD>
+
+                <ROAD name="CreatePickupOrderFailure"
+                      letter="Error"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+			</SITE>
+
+            <SITE name="RetrieveAvailableToPromiseInventory" siteaction="RetrieveAvailableToPromiseInventorySite">
+
+                <ROAD name="RetrieveAvailableToPromiseInventoryContinue"
+                      letter="Continue"
+                      destination="SelectStoreForPickup"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="RetrieveAvailableToPromiseInventoryError"
+                      letter="Error"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+            </SITE>
+
+            <SITE name="SelectStoreForPickup" siteaction="SelectStoreForPickupSite">
+
+                <ROAD name="SelectStoreForPickupPickup"
+                      letter="Pickup"
+                      destination="EnterPickupCustomerInfo"
+                      laneaction="GetSelectedStoreRoad"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+
+                <ROAD name="SelectStoreForPickupStoreSearch"
+                      letter="StoreSearch"
+                      destination="EnterStoreSearchCriteria"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+
+                <ROAD name="SelectStoreForPickupPrint"
+                      letter="Print"
+                      destination="PrintAvailableToPromiseInventory"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+
+                <ROAD name="SelectStoreForPickupGroupUndo"
+                      letter="Undo"
+                      destination="Final"
+                      laneaction="ResetXCCreatePickupExecutedFlagRoad"  
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                      <LIGHT signal="IsListFromStoreGroup"/>
+                </ROAD>
+
+                <ROAD name="SelectStoreForPickupCriteriaUndo"
+                      letter="Undo"
+                      destination="RetrieveStoreGroup"
+                      laneaction="ResetXCCreatePickupExecutedFlagRoad"                        
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                      <LIGHT signal="IsListFromStoreGroup" negate="Y"/>
+                </ROAD>
+
+            </SITE>
+
+            <SITE name="EnterPickupCustomerInfo" siteaction="EnterPickupCustomerInfoSite">
+
+                <ROAD name="EnterPickupCustomerInfoNext"
+                      letter="Next"
+                      destination="ShowPickupDateEnterScreen"
+                      laneaction="GetCustomerInfoRoad"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+
+                <ROAD name="EnterPickupCustomerInfoCustomer"
+                      letter="Customer"
+                      destination="CustomerStation"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+
+                <ROAD name="EnterPickupCustomerInfoUndo"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="EnterPickupCustomerInfoCancel"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+            </SITE>
+
+            <SITE name="ShowPickupDateEnterScreen" siteaction="ShowPickupDateEnterScreenSite">
+
+               <AISLE name="ShowPickupDateEnterScreenNext"
+                     letter="Next"
+                     laneaction ="ValidatePickupDateAisle">
+               </AISLE>
+
+                <ROAD name="ShowPickupDateEnterScreenContinue"
+                      letter="Continue"
+                      destination="ProcessOrderItems"
+                      laneaction="IncrementItemIndexRoad"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="ShowPickupDateEnterScreenError"
+                      letter="Error"
+                      destination="ShowPickupDateEnterScreen"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="ShowPickupDateEnterScreenUndo"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="ShowPickupDateEnterScreenCancel"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+            </SITE>
+
+            <SITE name="PrintAvailableToPromiseInventory" siteaction="PrintAvailableToPromiseInventorySite">
+
+                <ROAD name="PrintAvailableToPromiseInventoryNext"
+                      letter="Next"
+                      destination="SelectStoreForPickup"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="ON">
+                </ROAD>
+
+                <ROAD name="PrintAvailableToPromiseInventoryError"
+                      letter="Error"
+                      destination="SelectStoreForPickup"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+            </SITE>
+
+            <SITE name="EnterStoreSearchCriteria" siteaction="EnterStoreSearchCriteriaSite">
+
+               <AISLE name="EnterStoreSearchCriteriaNext"
+                     letter="Next"
+                     laneaction ="RetrieveStoreByCriteriaAisle">
+               </AISLE>
+
+                <ROAD name="EnterStoreSearchCriteriaContinue"
+                      letter="Continue"
+                      destination="ProcessOrderItems"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="EnterStoreSearchCriteriaError"
+                      letter="Error"
+                      destination="SelectStoreForPickup"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="EnterStoreSearchCriteriaNotFound"
+                      letter="NotFound"
+                      destination="EnterStoreSearchCriteria"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                
+                <ROAD name="EnterStoreSearchCriteriaTooMany"
+                      letter="TooManyMatches"
+                      destination="EnterStoreSearchCriteria"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                
+                <ROAD name="EnterStoreSearchCriteriaUndo"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="EnterStoreSearchCriteriaCancel"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+            </SITE>
+
+            <STATION name="CustomerStation"
+                     servicename="customer.main.customermain"
+                     targettier="CURRENTTIER"
+                     launchshuttle="CustomerLaunchShuttle"
+                     returnshuttle="CustomerReturnShuttle">
+
+                <ROAD name="CustomerContinue"
+                      letter="Continue"
+                      laneaction="JournalCustomerInformationRoad"
+                      destination="EnterPickupCustomerInfo"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="CustomerUndo"
+                      letter="Undo"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD name="CustomerCancel"
+                      letter="Cancel"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+
+                <ROAD
+                    name="CustomerOffline"
+                    letter="Offline"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+
+			<SYSTEMSITE name="LastIndexed" action="BACKUP" />
+			<SYSTEMSITE name="Final" action="RETURN" />
+
+		</REGION>
+	</MAP>
+</SERVICE>

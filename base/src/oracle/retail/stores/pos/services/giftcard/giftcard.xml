@@ -1,0 +1,178 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/giftcard/giftcard.xml /main/14 2013/05/22 10:41:02 asinton Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    asinton   05/21/13 - replaced tabs with spaces
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="giftcard"
+    package="oracle.retail.stores.pos.services.giftcard"
+    tourcam="OFF">
+    <CARGO class="GiftCardCargo" package="oracle.retail.stores.pos.services.giftcard" />
+    <SERVICECODE>
+        <LETTER name="Undo"/>
+        <LETTER name="Next"/>
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Issue"/>
+        <LETTER name="Reload"/>
+        <LETTER name="ExitReload"/>
+        <LETTER name="GiftCard"/>
+        <LETTER name="GiftCert"/>
+        <LETTER name="Continue"/>
+        <LETTER name="RequestActivation"/>
+        <LETTER name="Cancel"/>
+
+        <SIGNAL class="IsFundingSelectionOnlySignal"/>
+
+        <SITEACTION class="SelectGiftCardOptionSite"/>
+
+        <LANEACTION class="SetIssueRequestTypeAisle"/>
+        <LANEACTION class="SetReloadRequestTypeAisle"/>
+
+        <SHUTTLE class="GiftCardIssueLaunchShuttle" package="oracle.retail.stores.pos.services.giftcard"/>
+        <SHUTTLE class="GiftCardIssueReturnShuttle" package="oracle.retail.stores.pos.services.giftcard"/>
+        <SHUTTLE class="GiftCardReloadLaunchShuttle" package="oracle.retail.stores.pos.services.giftcard"/>
+        <SHUTTLE class="GiftCardReloadReturnShuttle" package="oracle.retail.stores.pos.services.giftcard"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="SelectGiftCardOption">
+            <SITE name="SelectGiftCardOption" siteaction="SelectGiftCardOptionSite">
+                <AISLE
+                    name="IssueSelectedForFundingSelectionOnly"
+                    letter="Issue"
+                    laneaction="SetIssueRequestTypeAisle">
+                    <LIGHT signal="IsFundingSelectionOnlySignal"/>
+                </AISLE>
+                <AISLE
+                    name="ReloadSelectedForFundingSelectionOnly"
+                    letter="Reload"
+                    laneaction="SetReloadRequestTypeAisle">
+                    <LIGHT signal="IsFundingSelectionOnlySignal"/>
+                </AISLE>
+                <ROAD
+                    name="ContinueRoad"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="IssueSelected"
+                    letter="Issue"
+                    destination="GiftCardIssue"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="IsFundingSelectionOnlySignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="ReloadSelected"
+                    letter="Reload"
+                    destination="GiftCardReload"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <LIGHT signal="IsFundingSelectionOnlySignal" negate="Y"/>
+                </ROAD>
+            </SITE>
+         <STATION
+                name="GiftCardReload"
+                servicename="giftcard.reload.reload"
+                targettier="APPLICATIONTIER"
+                launchshuttle="GiftCardReloadLaunchShuttle"
+                returnshuttle="GiftCardReloadReturnShuttle">
+                <ROAD
+                    name="GiftCardItemAdded"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RequestActivation"
+                    letter="RequestActivation"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+         <STATION
+                name="GiftCardIssue"
+                servicename="giftcard.issue.issue"
+                targettier="APPLICATIONTIER"
+                launchshuttle="GiftCardIssueLaunchShuttle"
+                returnshuttle="GiftCardIssueReturnShuttle">
+                <ROAD
+                    name="GiftCardItemAdded"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RequestActivation"
+                    letter="RequestActivation"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

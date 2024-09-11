@@ -1,0 +1,165 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/role/setaccess/setaccess.xml /main/15 2013/07/05 15:31:26 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  07/05/13 - Updated dialog screen for Role update when offline
+ *                         error.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    mpbarnet  05/13/10 - Fix classpath for FailureConversionAisle.
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="SetAccessService" package="oracle.retail.stores.pos.services.admin.role.setaccess" tourcam="ON">
+     <COMMENT>
+          This service is used to allow the user to set the access
+          for different role functions.
+     </COMMENT>
+
+<CARGO class="SetAccessCargo"/>
+
+<SERVICECODE>
+    <LETTER name="Success"/>
+    <LETTER name="DbError"/>
+    <LETTER name="Ok"/>
+    <LETTER name="Failure"/>
+    <LETTER name="Undo"/>
+    <LETTER name="Cancel"/>
+    <LETTER name="Done"/>
+    <LETTER name="Next"/>
+    <LETTER name="UpdateHardTotals"/>
+
+    <SITEACTION class="SetAccessSite" template="siteaction.tpl">
+          <COMMENT>
+               This site is used to present the user with a list of
+               role functions to set the access for.
+          </COMMENT>
+    </SITEACTION>
+
+    <SITEACTION class="WriteHardTotalsSite" package="oracle.retail.stores.pos.services.common" />
+
+    <LANEACTION class="WriteHardTotalsErrorAisle"   package="oracle.retail.stores.pos.services.common" />
+    <LANEACTION class="FailureConversionAisle"      package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+    <LANEACTION class="SetAccessDoneAisle"/>
+    <LANEACTION class="SetAccessUpdatesAisle"/>
+    <LANEACTION class="OfflineFailureAisle" package="oracle.retail.stores.pos.services.common" />
+
+</SERVICECODE>
+<MAP>
+    <REGION region="SERVICE" startsite="SetAccess">
+        
+        <SITE name="SetAccess" siteaction="SetAccessSite">
+            <COMMENT>
+                This site is used to present the user with a list of
+                role functions to set the access for.
+            </COMMENT>
+
+            <AISLE  name="SetAccessError"
+                    letter="DbError"
+                    laneaction="OfflineFailureAisle">
+                <COMMENT>
+                    This aisle is traversed when there is a Database error
+                    and an error dialog will be displayed.
+                </COMMENT>
+            </AISLE>
+
+            <AISLE  name="SetAccessCancel"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                <COMMENT>
+                    This aisle is traversed when the user presses the
+                    Cancel button.
+                </COMMENT>
+            </AISLE>
+
+            <AISLE  name="SetAccessDone"
+                    letter="Done"
+                    laneaction="SetAccessDoneAisle">
+                <COMMENT>
+                    This aisle is traversed when the user presses the
+                    Done button.
+                </COMMENT>
+            </AISLE>
+
+            <AISLE  name="SetAccessUpdates"
+                    letter="Next"
+                    laneaction="SetAccessUpdatesAisle">
+                <COMMENT>
+                    This aisle is traversed to save changes to the Database
+                    and to Journal entries.
+                </COMMENT>
+            </AISLE>
+
+            <ROAD   name="AccessSet"
+                    letter="Success"
+                    destination="Final" tape="ADVANCE" record="OFF" index="ON">
+                <COMMENT>
+                    This road is taken when the user has successfully
+                    set the access for a role.
+                </COMMENT>
+            </ROAD>
+
+            <ROAD   name="AccessSetUpdateHardTotals"
+                    letter="UpdateHardTotals"
+                    destination="WriteHardTotals" tape="ADVANCE" record="OFF" index="OFF">
+                <COMMENT>
+                    This road is taken when the user has successfully
+                    set the access for a role.
+                </COMMENT>
+            </ROAD>
+
+            <ROAD   name="SetAccessFailure"
+                    letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                <COMMENT>
+                    The user has failed to set the access for the role functions
+                </COMMENT>
+            </ROAD>
+
+            <ROAD   name="SetAccessUndo"
+                    letter="Undo"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                <COMMENT>
+                    Undo
+                </COMMENT>
+            </ROAD>
+        </SITE>
+
+        <SITE name="WriteHardTotals" siteaction="WriteHardTotalsSite">
+            <AISLE  name="WriteHardTotalsError"
+                    letter="Failure"
+                    laneaction="WriteHardTotalsErrorAisle">
+            </AISLE>
+
+            <AISLE  name="WriteHardTotalsErrorOk"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+            </AISLE>
+
+            <ROAD   name="WriteHardTotalsSucceeded"
+                    letter="Success"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+
+            <ROAD   name="WriteHardTotalsFailed"
+                    letter="Failure"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+            </ROAD>
+        </SITE>
+
+        <SYSTEMSITE name="Final" action="RETURN"/>
+        <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+     </REGION>
+</MAP>
+</SERVICE>

@@ -1,0 +1,91 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/reversal/reversal.xml /main/2 2012/09/12 11:57:11 blarsen Exp $
+ * ===========================================================================
+ * NOTES
+ * 
+ * This service sends each "REVERSAL_PENDING" tender to the payment manager for reversal.
+ *
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   03/27/12 - implement deleting and reversing tender for
+ *                         mobilepos
+ *    blarsen   07/19/11 - Changed to use the reversal service's new cargo
+ *                         (ReversalCargo).
+ *    blarsen   07/15/11 - Changed service to *not* use the authorization
+ *                         service. Reversal requests and responses flow
+ *                         differently enough from auths to make using the auth
+ *                         service impractical.
+ *    blarsen   07/12/11 - Added routing to send reversals to authorization
+ *                         service.
+ *    blarsen   07/08/11 - Initial version. Placeholder. Does nothing.
+ *
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Reversal"
+         package="oracle.retail.stores.pos.services.tender.reversal"
+         tourcam="ON">
+
+     <CARGO class="ReversalCargo"/>
+
+     <SERVICECODE>
+          <LETTER name="Success"/>
+          <LETTER name="Cancel"/>
+          <LETTER name="Next"/>
+          <LETTER name="Continue"/>
+          <LETTER name="Retry"/>
+          <LETTER name="Failure"/>
+          <LETTER name="Undo"/>
+
+          <LANEACTION class="DeleteTenderRoad"/>
+          <LANEACTION class="ReversalFailureAisle"/>
+
+          <SHUTTLE class="ReversalAuthLaunchShuttle"/>
+          <SHUTTLE class="ReversalAuthReturnShuttle"/>
+
+          <SITEACTION class="CheckReversalSite"/>
+          <SITEACTION class="ReversalActionSite"/>
+     </SERVICECODE>
+
+     <MAP>
+         <REGION region="SERVICE" startsite="CheckReversal">
+
+            <SITE name="CheckReversal" siteaction="CheckReversalSite">
+                <ROAD name="NoReversalsRequired"
+                      letter="Success"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="DoReversals"
+                      letter="Continue"
+                      destination="ReversalAction"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="ReversalAction" siteaction="ReversalActionSite">
+                <AISLE name="ReversalsFailure"
+                     letter="Failure"
+                     laneaction="ReversalFailureAisle">
+                </AISLE>
+                <ROAD name="ReversalsSuccess"
+                      letter="Success"
+                      destination="Final"
+                      laneaction="DeleteTenderRoad"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+            <SYSTEMSITE name="Final" action="RETURN"/>
+
+          </REGION>
+     </MAP>
+</SERVICE>

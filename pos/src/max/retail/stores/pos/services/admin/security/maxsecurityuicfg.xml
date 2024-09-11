@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/security/securityuicfg.xml /main/17 2012/12/14 11:29:40 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   12/14/12 - Button image and plaf loading updates
+ *    cgreene   12/05/12 - remove menu=true so that buttons do not paint
+ *                         triangle
+ *    mjwallac  11/28/12 - ui button changes take 4
+ *    mjwallac  11/12/12 - ui button changes
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<UICFG>
+
+    <BEAN
+        specName="SecurityOptionsButtonBarSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="EmployeeOptions"
+            enabled="false"
+            keyName="F2"
+            iconName="buttonIconEmployee"
+            labelTag="Employee"/>
+
+        <BUTTON
+            actionName="Roles"
+            enabled="false"
+            keyName="F3"
+            iconName="buttonIconRoles"
+            labelTag="Roles"/>
+
+        <BUTTON
+            actionName="Parameters"
+            enabled="false"
+            keyName="F4"
+            iconName="buttonIconParameters"
+            labelTag="Parameters"/>
+
+        <BUTTON
+            actionName="ReasonCodes"
+            enabled="true"
+            keyName="F5"
+            iconName="buttonIconReasonCodes"
+            labelTag="ReasonCodes"/>
+    </BEAN>
+
+    <POPUPMENU
+            defaultScreenSpecName="EYSPOSDefaultSpec"
+            resourceBundleFilename="securityText"
+            specName="SECURITY_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SecurityOptionsButtonBarSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+</UICFG>

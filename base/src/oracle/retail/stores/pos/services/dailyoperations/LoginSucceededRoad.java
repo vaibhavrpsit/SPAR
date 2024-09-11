@@ -1,0 +1,107 @@
+/* ===========================================================================
+* Copyright (c) 1998, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/LoginSucceededRoad.java /rgbustores_13.4x_generic_branch/1 2011/05/05 14:06:17 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/03/10 - update header date
+ *
+ * ===========================================================================
+ * $Log:
+ *    3    360Commerce 1.2         3/31/2005 4:28:54 PM   Robert Pearse   
+ *    2    360Commerce 1.1         3/10/2005 10:23:12 AM  Robert Pearse   
+ *    1    360Commerce 1.0         2/11/2005 12:12:23 PM  Robert Pearse   
+ *
+ *   Revision 1.4  2004/09/27 22:32:03  bwf
+ *   @scr 7244 Merged 2 versions of abstractfinancialcargo.
+ *
+ *   Revision 1.3  2004/02/12 16:49:34  mcs
+ *   Forcing head revision
+ *
+ *   Revision 1.2  2004/02/11 21:48:14  rhafernik
+ *   @scr 0 Log4J conversion and code cleanup
+ *
+ *   Revision 1.1.1.1  2004/02/11 01:04:15  cschellenger
+ *   updating to pvcs 360store-current
+ *
+ *
+ * 
+ *    Rev 1.0   Aug 29 2003 15:56:10   CSchellenger
+ * Initial revision.
+ * 
+ *    Rev 1.0   Apr 29 2002 15:25:06   msg
+ * Initial revision.
+ * 
+ *    Rev 1.1   Mar 18 2002 23:14:04   msg
+ * - updated copyright
+ * 
+ *    Rev 1.0   Mar 18 2002 11:26:04   msg
+ * Initial revision.
+ * 
+ *    Rev 1.0   05 Nov 2001 09:50:54   epd
+ * Initial revision.
+ * Resolution for POS SCR-216: Making POS changes to accommodate OnlineOffice
+ * 
+ *    Rev 1.0   Sep 21 2001 11:18:44   msg
+ * Initial revision.
+ * 
+ *    Rev 1.1   Sep 17 2001 13:14:42   msg
+ * header update
+ * ===========================================================================
+ */
+package oracle.retail.stores.pos.services.dailyoperations;
+
+// foundation imports
+import oracle.retail.stores.pos.services.common.AbstractFinancialCargo;
+import oracle.retail.stores.domain.employee.RoleFunctionIfc;
+import oracle.retail.stores.foundation.tour.application.LaneActionAdapter;
+import oracle.retail.stores.foundation.tour.ifc.BusIfc;
+
+//------------------------------------------------------------------------------
+/**
+
+    @version $Revision: /rgbustores_13.4x_generic_branch/1 $
+**/
+//------------------------------------------------------------------------------
+public class LoginSucceededRoad extends LaneActionAdapter
+{
+
+    public static final String LANENAME = "LoginSucceededRoad";
+
+    //--------------------------------------------------------------------------
+    /**
+
+
+       @param bus the bus traversing this lane
+    **/
+    //--------------------------------------------------------------------------
+    public void traverse(BusIfc bus)
+    {
+
+        // Count was a success, add financial count to till
+
+        AbstractFinancialCargo cargo = (AbstractFinancialCargo)bus.getCargo();
+
+        cargo.setAccessFunctionID(RoleFunctionIfc.DAILY_OPERATIONS);
+    }
+
+    //--------------------------------------------------------------------------
+    /**
+
+
+       @param bus the bus traversing this lane
+    **/
+    //--------------------------------------------------------------------------
+    public void backup(BusIfc bus)
+    {
+
+
+
+
+    }
+
+}

@@ -1,0 +1,369 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/pricing/markdown/markdown.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Markdown"
+    package="oracle.retail.stores.pos.services.pricing.markdown"
+    tourcam="ON">
+    <CARGO class="PricingCargo" package="oracle.retail.stores.pos.services.pricing"/>
+    <SERVICECODE>
+        <LETTER name="Cancel"/>
+        <LETTER name="Next"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Override"/>
+        <LETTER name="Undo"/>
+      
+        <LANEACTION class="AmountEnteredAisle"/>
+        <LANEACTION class="PercentEnteredAisle"/>
+        <LANEACTION class="ProrateAmountDiscountAisle" package="oracle.retail.stores.pos.services.pricing"/>
+        
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <SITEACTION class="CheckProrateParameterSite" package="oracle.retail.stores.pos.services.pricing"/> 
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CheckDiscountAlreadyAppliedSite"/>
+        <SITEACTION class="CheckDiscountAllowedSite"/>        
+        <SITEACTION class="ModifyMarkdownPercentSite"/>
+        <SITEACTION class="ApplyMarkdownPercentSite"/>
+        <SITEACTION class="ModifyMarkdownAmountSite"/>
+        <SITEACTION class="ApplyMarkdownAmountSite"/>
+
+        <SIGNAL class="IsAmountDiscountSignal" package="oracle.retail.stores.pos.services.pricing"/>
+        <SIGNAL class="IsPercentDiscountSignal" package="oracle.retail.stores.pos.services.pricing"/>        
+
+    </SERVICECODE>
+    <MAP>
+       <REGION region="SERVICE" startsite="CheckSecurityAccess">
+         <SITE name="CheckSecurityAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="CheckDiscountAllowed"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+         </SITE>
+         
+         <STATION 
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">                
+                <ROAD 
+                    name="SecurityOverrideGranted"
+                    letter="Success"
+                    destination="CheckDiscountAllowed"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>               
+                <ROAD 
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                                  
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+         </STATION>
+
+         <SITE name="CheckDiscountAllowed" siteaction="CheckDiscountAllowedSite">
+                <ROAD
+                    name="MarkdownSucceeded"
+                    letter="Next"
+                    destination="CheckDiscountAlreadyApplied">
+                </ROAD>
+                <ROAD
+                    name="MarkdownFailed"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+         </SITE>          
+         <SITE name="CheckDiscountAlreadyApplied" siteaction="CheckDiscountAlreadyAppliedSite">
+                <ROAD
+                    name="CheckDiscountAlreadyAppliedContinue"
+                    letter="Continue"
+                    destination="ModifyMarkdownPercent">
+                    <LIGHT signal="IsPercentDiscountSignal"/>
+                </ROAD>
+                <ROAD
+                    name="CheckDiscountAlreadyAppliedProrate"
+                    letter="Continue"
+                    destination="CheckProrateParameter">
+                    <LIGHT signal="IsAmountDiscountSignal"/>
+                </ROAD>
+                <ROAD
+                    name="CheckDiscountAlreadyAppliedCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+         </SITE>
+         <SITE name="CheckProrateParameter" siteaction="CheckProrateParameterSite">
+                <AISLE
+                    name="DiscountConfirmationYesSelected"
+                    letter="Yes"
+                    laneaction="ProrateAmountDiscountAisle">
+                </AISLE>
+                <ROAD
+                    name="CheckProrateParameterContinue"
+                    letter="Continue"
+                    destination="ModifyMarkdownAmount">
+                </ROAD>
+                <ROAD
+                    name="DiscountConfirmationNoSelected"
+                    letter="No"
+                    destination="ModifyMarkdownAmount">
+                </ROAD>
+                <ROAD
+                    name="ProrateErrorAcknowledged"
+                    letter="Ok"
+                    destination="ModifyMarkdownAmount">
+                </ROAD>
+                <ROAD
+                    name="CheckProrateParameterCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+         </SITE>
+
+<!-- Modify Markdown Amount Site-->
+          <SITE name="ModifyMarkdownAmount" siteaction="ModifyMarkdownAmountSite">
+                <COMMENT>
+                    Modify the discount amount for the selected item.
+                </COMMENT>
+                <AISLE
+                    name="AmountEntered"
+                    letter="Next"
+                    laneaction="AmountEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="MultipleInvalidItemDiscountAmountYesSelected"
+                    letter="Yes"
+                    destination="ApplyMarkdownAmount">
+                    <COMMENT>
+                        One or more of the items selected are not valid for
+                        discount. The operator has selected to continue and
+                        apply the discount only to the eligible item(s).
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MultiDiscountAmountInvalid"
+                    letter="No"
+                    destination="ModifyMarkdownAmount">
+                    <COMMENT>
+                        The discount was not valid for all of the items selceted. 
+                        Return to the ModifyItemDiscountAmount site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SingleDiscountAmountInvalid"
+                    letter="Ok"
+                    destination="ModifyMarkdownAmount">
+                    <COMMENT>
+                        The discount was not valid. Return to the ModifyItemDiscountAmount
+                        site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelMarkdownAmount"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoMarkdownAmount"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="MarkdownAmountModified"
+                    letter="Continue"
+                    destination="ApplyMarkdownAmount"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        The discount was entered. Apply it.
+                    </COMMENT>
+                </ROAD>
+                 <ROAD
+                    name="ClearMarkdownAmount"
+                    letter="Clear"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+            </SITE>
+
+<!-- Validate Discount Amounts site -->
+            <SITE name="ApplyMarkdownAmount" siteaction="ApplyMarkdownAmountSite">
+                <COMMENT>
+                    Check the discount amount against the current sale
+                    price less any previous discounts.
+                </COMMENT>
+                <ROAD
+                    name="MarkdownAmountValid"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        The discount was valid, go on to the final site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MarkdownAmountInvalid"
+                    letter="Ok"
+                    destination="ModifyMarkdownAmount"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        The discount was not valid. Return to the ModifyItemDiscountAmount
+                        site.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+<!-- Modify Markdown Percent Site -->
+            <SITE name="ModifyMarkdownPercent" siteaction="ModifyMarkdownPercentSite">
+                <COMMENT>
+                    Displays the markdown by percent screen.
+                </COMMENT>
+                <AISLE
+                    name="PercentEntered"
+                    letter="Next"
+                    laneaction="PercentEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="MultipleInvalidItemDiscountPercentYesSelected"
+                    letter="Yes"
+                    destination="ApplyMarkdownPercent">
+                    <COMMENT>
+                        One or more of multiple items selceted are not eligible for 
+                        discount. The operator has selected to continue and apply the
+                        discount to only the eligible items.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MultiDiscountPercentInvalid"
+                    letter="No"
+                    destination="ModifyMarkdownPercent">
+                    <COMMENT>
+                        All items selected for discount are not valid. Return to the 
+                        ModifyItemDiscountPercent site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SingleDiscountPercentInvalid"
+                    letter="Ok"
+                    destination="ModifyMarkdownPercent">
+                    <COMMENT>
+                        The discount was not valid. Return to the ModifyItemDiscountPercent
+                        site.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MarkdownPercentModified"
+                    letter="Continue"
+                    destination="ApplyMarkdownPercent"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        The discount percent was added. Apply it.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelMarkdownPercent"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        send a final letter with a parm telling the parent
+                        to give up
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoMarkdownPercent"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        This road goes back to the Main Item Options menu.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ClearMarkdownPercent"
+                    letter="Clear"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+            </SITE>
+
+
+<!-- Apply Markdown Percent Site-->
+            <SITE name="ApplyMarkdownPercent" siteaction="ApplyMarkdownPercentSite">
+                <COMMENT>
+                    Apply the discount percent. Mail a final letter 
+                    to the parent, otherwise return to the 
+                    ModifyItemDiscountPercent Site.
+                </COMMENT>
+                <ROAD
+                    name="MarkdownPercentInvalid"
+                    letter="Ok"
+                    destination="ModifyMarkdownPercent"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        If the discount percent was invalid, return to the
+                        ModifyItemDiscountPercent.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MarkdownPercentValid"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                        Travel this road if the discount percent is valid.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

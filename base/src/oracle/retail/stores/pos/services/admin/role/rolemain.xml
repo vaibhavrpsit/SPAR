@@ -1,0 +1,196 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/role/rolemain.xml /main/18 2013/05/08 15:45:06 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  05/08/13 - Fixed tour for when Done selected on SetAccess -
+ *                         routing backwards to AdminMenu
+ *    mkutiana  05/03/13 - FailureConversionAisle on the road is incorrect,
+ *                         although it does not have any effect
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="RoleMainService" package="oracle.retail.stores.pos.services.admin.role" tourcam="OFF">
+<CARGO class="RoleMainCargo"/>
+<SERVICECODE>
+
+     <LETTER name="Failure"/>
+     <LETTER name="Success"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="DbError"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Add"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Find"/>
+     <LETTER name="Override"/>
+
+     <SHUTTLE class="RoleOptionsReturnShuttle"/>
+     <SHUTTLE class="SetAccessLaunchShuttle"/>
+     <SHUTTLE class="RoleEditLaunchShuttle"/>
+     <SHUTTLE class="RoleAddLaunchShuttle"/>
+     <SHUTTLE class="RoleAddReturnShuttle" package="oracle.retail.stores.pos.services.admin.role"/>
+     <SHUTTLE class="RoleEditReturnShuttle" package="oracle.retail.stores.pos.services.admin.role"/>
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+     <SITEACTION class="RoleMainSite" package="oracle.retail.stores.pos.services.admin.role"/>
+     <SITEACTION class="ReadAllRolesSite" package="oracle.retail.stores.pos.services.admin.role"/>
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="CheckAccess">
+          
+          <SITE name="CheckAccess" siteaction="CheckAccessSite">
+              <ROAD
+                  name="AccessDenied"
+                  letter="Override"
+                  destination="SecurityOverrideStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="AccessGranted"
+                  letter="Continue"
+                  destination="ReadAllRoles"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+          </SITE>
+          <STATION name="SecurityOverrideStation"
+              servicename="security.override.override"
+              targettier="CURRENTTIER"
+              launchshuttle="SecurityOverrideLaunchShuttle" >
+              <ROAD
+                  name="SecurityOverrideGranted"
+                  letter="Success"
+                  destination="ReadAllRoles"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideDenied"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideCancelled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+           </STATION>
+
+
+          <STATION name="RoleEditStation" servicename="role.roleedit.roleedit" targettier="CURRENTTIER" launchshuttle="RoleEditLaunchShuttle" returnshuttle="RoleEditReturnShuttle">
+               <ROAD name="RoleEditFailed"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RoleEditUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RoleEditCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RoleEditSuccess"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+
+
+          <SITE name="RoleMain" siteaction="RoleMainSite">
+               <ROAD name="FindRole"
+                     letter="Find"
+                     destination="RoleEditStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="AddRole"
+                     letter="Add"
+                     destination="RoleAddStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RoleMainUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RoleMainCancel"
+                     letter="Cancel"
+                     laneaction="FailureConversionAisle"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SITE name="ReadAllRoles" siteaction="ReadAllRolesSite">
+               <AISLE name="ReadAllRolesError"
+                      letter="DbError"
+                      laneaction="DataBaseErrorAisle">
+               </AISLE>
+               <AISLE name="DBErrorOk"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="AllRolesFound"
+                     letter="Success"
+                     destination="RoleMain"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="ReadAllRolesFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <STATION name="RoleAddStation" servicename="role.roleadd.roleadd" targettier="CURRENTTIER" launchshuttle="RoleAddLaunchShuttle" returnshuttle="RoleAddReturnShuttle">
+               <ROAD name="RoleAddFailed"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RoleAddUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RoleAddCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RoleAddSuccess"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+     </REGION>
+</MAP>
+</SERVICE>

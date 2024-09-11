@@ -1,0 +1,449 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/pricing/pricing.xml /main/18 2013/10/28 13:11:57 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  10/28/13 - item discount sliding button fix for manager
+ *                         override
+ *    mkutiana  10/28/13 - Sliding buttons Manger override fix
+ *    rabhawsa  07/30/13 - adding letter TransactionNotFound will be used in
+ *                         case server is down.
+ *    yiqzhao   07/08/13 - Avoid sliding buttons when return.
+ *    cgreene   12/12/12 - implement pricing menu as a popup
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Pricing"
+    package="oracle.retail.stores.pos.services.pricing"
+    tourcam="OFF">
+    <CARGO class="PricingCargo" package="oracle.retail.stores.pos.services.pricing"/>
+    <SERVICECODE>
+        <LETTER name="Cancel"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Damage"/>
+        <LETTER name="Discount"/>
+        <LETTER name="Employee"/>
+        <LETTER name="Exit"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="ItemsFound"/>
+        <LETTER name="Markdown"/>
+        <LETTER name="Next"/>
+        <LETTER name="Ok"/>
+        <LETTER name="PriceAdjustment"/>
+        <LETTER name="PriceOverride"/>
+        <LETTER name="ReturnItem"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="TransactionNotFound"/>
+
+        <SHUTTLE class="PriceOverrideLaunchShuttle"/>
+        <SHUTTLE class="PriceOverrideReturnShuttle"/>
+        <SHUTTLE class="ItemDiscountLaunchShuttle"/>
+        <SHUTTLE class="ItemDiscountReturnShuttle"/>
+        <SHUTTLE class="MarkdownLaunchShuttle"/>
+        <SHUTTLE class="MarkdownReturnShuttle"/>
+        <SHUTTLE class="PriceAdjustmentLaunchShuttle"/>
+        <SHUTTLE class="PriceAdjustmentReturnShuttle"/>
+
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+
+        <SITEACTION class="PricingOptionsSite"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="PricingOptions">
+        <SITE name="PricingOptions" siteaction="PricingOptionsSite">
+              <ROAD
+                  name="PriceOverrideSelected"
+                  letter="PriceOverride"
+                  destination="PriceOverrideStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="MarkdownOptionsSelected"
+                  letter="Markdown"
+                  destination="MarkdownOptionsStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="DiscountOptionsSelected"
+                  letter="Discount"
+                  destination="DiscountOptionsStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="EmployeeDiscountSelected"
+                  letter="Employee"
+                  destination="EmployeeDiscountOptionsStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              
+              <ROAD
+                  name="DamageDiscountSelected"
+                  letter="Damage"
+                  destination="DamageDiscountOptionsStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD> 
+              
+              <ROAD
+                  name="PriceAdjustmentSelected"
+                  letter="PriceAdjustment"
+                  destination="PriceAdjustmentStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>              
+                           
+              <ROAD
+                  name="PricingUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="PricingCancel"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </SITE>
+
+        <!-- Price Override Station -->
+          <STATION name="PriceOverrideStation"
+              servicename="pricing.priceoverride.priceoverride"
+              targettier="CURRENTTIER"
+              launchshuttle="PriceOverrideLaunchShuttle"
+              returnshuttle="PriceOverrideReturnShuttle">
+              <ROAD
+                  name="PriceOverrideCanceled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="PriceOverrideFailure"
+                  letter="Failure"
+                  destination="PricingOptions"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>              
+              <ROAD
+                  name="PriceOverrideUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="PriceOverrideSuccess"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                    name="PriceOverrideUnAvailable"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+          </STATION>
+
+          <STATION name="MarkdownOptionsStation"
+              servicename="pricing.markdown.markdownoptions"
+              targettier="CURRENTTIER"
+              launchshuttle="MarkdownLaunchShuttle"
+              returnshuttle="MarkdownReturnShuttle">
+              <AISLE
+                  name="MarkdownCleared"
+                  letter="Clear"
+                  laneaction="NextLetterAisle">
+              </AISLE>
+              <ROAD
+                  name="MarkdownCanceled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="MarkdownUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="MarkdownFailure"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>              
+              <ROAD
+                  name="MarkdownSuccess"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </STATION>
+
+          <STATION name="DiscountOptionsStation"
+              servicename="pricing.itemdiscount.itemdiscountoptions"
+              targettier="CURRENTTIER"
+              launchshuttle="ItemDiscountLaunchShuttle"
+              returnshuttle="ItemDiscountReturnShuttle">
+              <AISLE
+                  name="ItemDiscountCleared"
+                  letter="Clear"
+                  laneaction="NextLetterAisle">
+              </AISLE>
+              <ROAD
+                  name="ItemDiscountCanceled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              
+             <ROAD
+                  name="ItemDiscountFailure"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="ItemDiscountUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="ItemDiscountSuccess"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </STATION>
+
+          <STATION name="EmployeeDiscountOptionsStation"
+              servicename="pricing.employeediscount.employeediscountoptions"
+              targettier="CURRENTTIER"
+              launchshuttle="ItemDiscountLaunchShuttle"
+              returnshuttle="ItemDiscountReturnShuttle">
+              <AISLE
+                  name="EmployeeDiscountCleared"
+                  letter="Clear"
+                  laneaction="NextLetterAisle">
+              </AISLE>
+              <ROAD
+                  name="EmployeeDiscountCanceled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              
+             <ROAD
+                  name="EmployeeDiscountFailure"
+                  letter="Failure"
+                  destination="PricingOptions"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="EmployeeDiscountUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="EmployeeDiscountSuccess"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </STATION>
+          
+          <STATION name="DamageDiscountOptionsStation"
+              servicename="pricing.damagediscount.damagediscountoptions"
+              targettier="CURRENTTIER"
+              launchshuttle="ItemDiscountLaunchShuttle"
+              returnshuttle="ItemDiscountReturnShuttle">
+              <AISLE
+                  name="DamageDiscountCleared"
+                  letter="Clear"
+                  laneaction="NextLetterAisle">
+              </AISLE>
+              <ROAD
+                  name="DamageDiscountCanceled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              
+             <ROAD
+                  name="DamageDiscountFailure"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="DamageDiscountUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="DamageDiscountSuccess"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </STATION>
+
+          <STATION 
+              name="PriceAdjustmentStation"
+              servicename="services.priceadjustment.priceadjustment"
+              targettier="CURRENTTIER"
+              launchshuttle="PriceAdjustmentLaunchShuttle"
+              returnshuttle="PriceAdjustmentReturnShuttle">
+              <COMMENT >
+                  This station goes to the Return service.
+              </COMMENT>
+              <ROAD 
+                  name="CancelPriceAdjustmentStation"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road goes to cancel a price adjustment
+                  </COMMENT>
+              </ROAD>
+              <ROAD 
+                  name="ContinuePriceAdjustmentStation"
+                  letter="Continue"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road goes to the Show Sale Screen.
+                  </COMMENT>
+              </ROAD>
+              <ROAD 
+                  name="UndoPriceAdjustmentStation"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road goes to the ShowSaleScreen.
+                  </COMMENT>
+              </ROAD>
+              <ROAD 
+                  name="FailurePriceAdjustmentStation"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road is traversed in a Failure letter.
+                  </COMMENT>
+              </ROAD>
+              <ROAD 
+                  name="ExitPriceAdjustmentStation"
+                  letter="Exit"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road is traversed in a Exit letter.
+                  </COMMENT>
+              </ROAD>                                
+              <ROAD 
+                  name="OkLetterPriceAdjustmentStation"
+                  letter="Ok"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road is traversed in a Ok letter.
+                  </COMMENT>
+              </ROAD>                
+              <ROAD 
+                  name="SuccessPriceAdjustmentStation"
+                  letter="Success"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road is traversed in a Success letter.
+                  </COMMENT>
+              </ROAD>
+              <ROAD 
+                  name="ItemsFoundPriceAdjustmentStation"
+                  letter="ItemsFound"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road is traversed in a ItemsFound letter.
+                  </COMMENT>
+              </ROAD>
+              <ROAD 
+                  name="TransactionNotFoundPriceAdjustmentStation"
+                  letter="ReturnItem"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road is traversed in a ReturnItem letter when no transaction is found.
+                  </COMMENT>
+              </ROAD> 
+              <ROAD 
+                  name="NoTransactionFoundPriceAdjustmentStation"
+                  letter="TransactionNotFound"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      This road is traversed in a ReturnItem letter when no transaction is found.
+                  </COMMENT>
+              </ROAD>        
+              <ROAD 
+                  name="InvalidReadTransaction"
+                  letter="Invalid"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+                  <COMMENT >
+                      Transaction read is invalid for return such as house 
+                      account payment transaction.
+                  </COMMENT>
+              </ROAD>                                           
+          </STATION>
+
+          <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

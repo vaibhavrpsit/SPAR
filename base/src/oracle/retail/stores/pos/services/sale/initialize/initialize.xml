@@ -1,0 +1,533 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/sale/initialize/initialize.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    cgreene   02/24/10 - added till open offline road
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 7:49:39 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:28:22 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:22:06 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:11:24 PM  Robert Pearse
+     $
+     Revision 1.7  2004/07/18 22:35:20  cdb
+     @scr 6273 Updated so EvaluateOperator takes more responsibility
+     during till resume.
+
+     Revision 1.5  2004/06/25 22:54:54  cdb
+     @scr 1642 Updated so that Undo selected from Operator ID screen returns
+     to the calling service rather than prompting for another security override.
+
+     Revision 1.4  2004/03/26 00:24:09  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.3  2004/03/15 21:55:15  jdeleau
+     @scr 4040 Automatic logoff after timeout
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="InitializeSale"
+    package="oracle.retail.stores.pos.services.sale.initialize"
+    tourcam="OFF">
+    <CARGO  class="SaleCargo" package="oracle.retail.stores.pos.services.sale"/>
+    <SERVICECODE >
+        <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CashDrawerCloseAisle"/>
+        <LANEACTION class="CashDrawerOpenAisle"/>
+        <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ContinueOpenDrawerRoad"/>
+        <LANEACTION class="EmployeeEnteredRoad" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="EmployeeInvalidAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="EmployeeValidatedRoad"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="POSAccessOverrideRequiredRoad"/>
+        <LETTER name="AssociateID"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="CloseDrawer"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Next"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Ok"/>
+        <LETTER name="OpenDrawer"/>
+        <LETTER name="OperatorID"/>
+        <LETTER name="Override"/>
+        <LETTER name="ResumeTill"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Success"/>
+        <LETTER name="TimeoutComplete">
+            <COMMENT >
+                Sale service timed out
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Undo"/>
+        <LETTER name="Yes"/>
+        <LETTER name="OpenTill"/>
+        <LETTER  name="QueueFull"/>
+        <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OpenTillLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OperatorIDLaunchShuttle"/>
+        <SHUTTLE class="OperatorIdReturnShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="ResumeTillLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CheckAccountabilitySite"/>
+        <SITEACTION class="EnterEmployeeIDSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="EvaluateOperatorSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="EvaluateSalesAssociateSite"/>
+        <SITEACTION class="ValidateEmployeeIDSite" package="oracle.retail.stores.pos.services.common"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="CheckAccountability">
+            <SITE  name="CheckAccountability" siteaction="CheckAccountabilitySite">
+                <COMMENT >
+                    This site checks to see if Operator ID needs to be called.
+                </COMMENT>
+                <ROAD
+                    name="IdentifyOperator"
+                    letter="OperatorID"
+                    destination="OperatorIdStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when Operator ID needs to be
+                        called.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OperatorKnown"
+                    letter="Continue"
+                    destination="EvaluateOperator"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when Operator ID is not needed.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="OperatorIdStation"
+                servicename="services.operatorid.operatorid"
+                targettier="CURRENTTIER"
+                launchshuttle="OperatorIDLaunchShuttle"
+                returnshuttle="OperatorIdReturnShuttle">
+                <AISLE
+                    name="LoginError"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to Failure
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="LoginUndo"
+                    letter="Undo"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to Failure
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LoginSucceeded"
+                    letter="Success"
+                    laneaction="POSAccessOverrideRequiredRoad"
+                    destination="CheckAccess"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="LoginFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="OverrideRequired"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="POSAccessGranted"
+                    letter="Continue"
+                    destination="EvaluateOperator"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="POSSecurityOverrideSucceeded"
+                    letter="Success"
+                    destination="EvaluateOperator"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="POSSecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="OpenTillStation"
+                servicename="till.tillopen.tillopen"
+                targettier="CURRENTTIER"
+                launchshuttle="OpenTillLaunchShuttle"
+                returnshuttle="FinancialCargoShuttle">
+                <COMMENT >
+                    This station is the transfer point for the tillopen
+                    service.
+                </COMMENT>
+                <AISLE
+                    name="TillOpenFailure"
+                    letter="Failure"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="TillOpenUndo"
+                    letter="Undo"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="TillOpenCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Open Till service returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillOpenOffline"
+                    letter="Offline"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when offline and the user does not
+                        have access to correct the business date.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillOpenEvaluate"
+                    letter="Success"
+                    destination="EvaluateOperator"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the TillOpen service returns
+                        with a Success letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="TillOpenQueueFull"
+                     letter="QueueFull"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </STATION>
+            <SITE  name="EvaluateOperator" siteaction="EvaluateOperatorSite">
+                <COMMENT >
+                    Makes sure the Operator is setup correctly for Till
+                    for till accountability.
+                </COMMENT>
+                <AISLE
+                    name="CashDrawerOpen"
+                    letter="OpenDrawer"
+                    laneaction="CashDrawerOpenAisle">
+                </AISLE>
+                <AISLE
+                    name="CashDrawerClose"
+                    letter="CloseDrawer"
+                    laneaction="CashDrawerCloseAisle">
+                </AISLE>
+                <ROAD
+                    name="ContinueOpenDrawer"
+                    letter="Continue"
+                    laneaction="ContinueOpenDrawerRoad"
+                    destination="EvaluateSalesAssociate"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RetryOpenDrawer"
+                    letter="Retry"
+                    destination="EvaluateOperator"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelOpenDrawer"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ResumeTill"
+                    letter="Yes"
+                    destination="ResumeTillStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        The till is suspended.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OperatorValid"
+                    letter="Success"
+                    destination="EvaluateSalesAssociate"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        The operator has been correctly set up.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OperatorFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Exit the service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillNotOpen"
+                    letter="OpenTill"
+                    destination="OpenTillStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Till is not open.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ResumeTillStation"
+                servicename="till.tillresume.tillresume"
+                targettier="CURRENTTIER"
+                launchshuttle="ResumeTillLaunchShuttle"
+                returnshuttle="FinancialCargoShuttle">
+                <COMMENT >
+                    This station is the transfer point for the tillopen
+                    service.
+                </COMMENT>
+                <AISLE
+                    name="TillResumeFailure"
+                    letter="Failure"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="TillResumeUndo"
+                    letter="Undo"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="TillResumeCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Till Resume service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillResumeSuccess"
+                    letter="Success"
+                    destination="EvaluateOperator"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Till Resume service
+                        returns with a Success letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TillResumeQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE  name="EvaluateSalesAssociate" siteaction="EvaluateSalesAssociateSite">
+                <COMMENT >
+                    Makes sure the Sales Associate is setup correctly.
+                </COMMENT>
+                <ROAD
+                    name="AssociateValid"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        The sales associate has been correctly set up.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="IdentifyAssociate"
+                    letter="AssociateID"
+                    destination="EnterEmployeeID"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when Associate ID needs to be
+                        called.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ServiceTimeout"
+                    letter="TimeoutComplete"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        Sale service has timed out
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterEmployeeID" siteaction="EnterEmployeeIDSite">
+                <AISLE
+                    name="EnterEmployeeIDUndo"
+                    letter="Undo"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="EmployeeEntered"
+                    letter="Next"
+                    laneaction="EmployeeEnteredRoad"
+                    destination="ValidateEmployeeID"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EmployeeUndo"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateEmployeeID" siteaction="ValidateEmployeeIDSite">
+                <AISLE
+                    name="ValidationSuccess"
+                    letter="Success"
+                    laneaction="ContinueConversionAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to cancel
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="ValidationFailed"
+                    letter="Failure"
+                    laneaction="EmployeeInvalidAisle">
+                </AISLE>
+                <ROAD
+                    name="EmployeeValidated"
+                    letter="Continue"
+                    laneaction="EmployeeValidatedRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EmployeeValidateFailed"
+                    letter="Ok"
+                    destination="EnterEmployeeID"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

@@ -1,0 +1,435 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/layaway/delete/layawaydelete.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+     $Log:
+      5    360Commerce 1.4         12/19/2007 8:20:29 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      4    360Commerce 1.3         5/4/2006 5:11:50 PM    Brendan W. Farrell
+           Remove inventory.
+      3    360Commerce 1.2         3/31/2005 4:28:49 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:23:02 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:12:16 PM  Robert Pearse
+     $
+     Revision 1.6.2.1  2005/01/20 21:03:43  bwf
+     @scr 5126 Handle QueueFull letter inorder to go back to main options screen.
+
+     Revision 1.6  2004/08/23 16:15:57  cdb
+     @scr 4204 Removed tab characters
+
+     Revision 1.5  2004/06/29 22:03:31  aachinfiev
+     Merge the changes for inventory & POS integration
+
+     Revision 1.4.2.3  2004/06/17 23:43:47  jeffp
+     Removed HEAD modifications since merged_rediron_POSInvIntegration.
+
+     Revision 1.4.2.2  2004/06/07 16:27:07  aachinfiev
+     Added ability to prompt for inventory location as part of inventory & pos
+     integration requirements.
+
+     Revision 1.4.2.1  2004/06/04 19:17:28  aachinfiev
+     Merge from HEAD (June 4, 2004) onto rediron_POSInvIntegration branch
+
+     Revision 1.4  2004/05/14 13:39:50  aachinfiev
+     @scr 5009 - Change CloseCashDrawerSite & WriteTransactionSite
+     to point to oracle.retail.stores.. rather than deprecation packages.
+
+     Revision 1.3  2004/03/26 00:24:17  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:50:48  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:17  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="layawaydelete"
+    package="oracle.retail.stores.pos.services.layaway.delete"
+    tourcam="OFF">
+    <COMMENT >
+        This services deletes a Layaway.
+    </COMMENT>
+    <CARGO  class="LayawayDeleteCargo" package="oracle.retail.stores.pos.services.layaway.delete"/>
+    <SERVICECODE >
+        <LANEACTION class="CheckModifyFeeEnteredAisle" package="oracle.retail.stores.pos.services.layaway.delete"/>
+        <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.layaway.payment"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="InvalidLayawayDeletionFeeAisle"/>
+        <LANEACTION class="LayawayDeleteDefaultAccessErrorAisle"/>
+        <LANEACTION class="LayawayRefundRoad"/>
+        <LANEACTION class="SaveFailedAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SaveRetailTransactionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SaveTenderableTransactionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="TenderCompletedRoad"/>
+        <LANEACTION class="UpdateTotalsRoad"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="CheckAccess"/>
+        <LETTER name="Continue"/>
+        <LETTER name="ExitLayaway"/>
+        <LETTER name="ExitPrinting"/>
+        <LETTER name="ExitTender"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Override"/>
+        <LETTER name="QueueFull"/>
+        <LETTER name="Save"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Yes"/>
+        <LETTER  name="Retry"/>
+        <SHUTTLE class="PrintingLaunchShuttle" package="oracle.retail.stores.pos.services.layaway.payment"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="TenderLaunchShuttle" package="oracle.retail.stores.pos.services.layaway.payment"/>
+        <SHUTTLE class="TenderReturnShuttle" package="oracle.retail.stores.pos.services.layaway.payment"/>
+        <SIGNAL  class="IsInvalidLayawayDeletionFeeSignal"/>
+        <SIGNAL  class="IsNotRetailTransactionSignal" package="oracle.retail.stores.pos.services.layaway.payment"/>
+        <SIGNAL  class="IsRetailTransactionSignal" package="oracle.retail.stores.pos.services.layaway.payment"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CloseCashDrawerSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+        <SITEACTION class="DisplayLayawayConfirmDeleteSite"/>
+        <SITEACTION class="DisplayLayawayRefundSite"/>
+        <SITEACTION class="WriteTransactionSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="CheckAccess">
+            <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="DisplayLayawayConfirmDelete"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="DisplayLayawayConfirmDelete"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="DisplayLayawayConfirmDelete" siteaction="DisplayLayawayConfirmDeleteSite">
+                <AISLE
+                    name="DeleteLayawayNo"
+                    letter="No"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="DeleteLayawayYes"
+                    letter="Yes"
+                    destination="DisplayLayawayRefund"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DeleteLayawayFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DisplayLayawayRefund" siteaction="DisplayLayawayRefundSite">
+                <AISLE
+                    name="CheckModifyFeeEnteredAisle"
+                    letter="Next"
+                    laneaction="CheckModifyFeeEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="UndoDisplayLayawayRefund"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelDisplayLayawayRefund"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidLayawayRefundOk"
+                    letter="Ok"
+                    destination="DisplayLayawayRefund"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NextDisplayLayawayRefund"
+                    letter="Continue"
+                    laneaction="LayawayRefundRoad"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityAccessRequired"
+                    letter="CheckAccess"
+                    destination="CheckSecurityAccess"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="TenderStation"
+                servicename="services.tender.tender"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLaunchShuttle"
+                returnshuttle="TenderReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the tender
+                    service
+                </COMMENT>
+                <ROAD
+                    name="DisplayLayawayRefundUndo"
+                    letter="Undo"
+                    destination="DisplayLayawayRefund"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traversed when undo is selected from
+                        the tender service
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traversed when a tender is canceled
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TenderCompleted"
+                    letter="ExitTender"
+                    laneaction="TenderCompletedRoad"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traversed when a tender is completed
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="PrintingStation"
+                servicename="services.printing.printing"
+                targettier="CURRENTTIER"
+                launchshuttle="PrintingLaunchShuttle">
+                <COMMENT >
+                    This station is the transfer point for the Printing
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="PrintingReturned"
+                    letter="ExitPrinting"
+                    laneaction="UpdateTotalsRoad"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Printing service returns.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <SITE  name="WriteTransaction" siteaction="WriteTransactionSite">
+                <COMMENT >
+                    This site writes the transaction to the database.
+                </COMMENT>
+                <AISLE
+                    name="SaveRetailTransaction"
+                    letter="Save"
+                    laneaction="SaveRetailTransactionAisle">
+                    <LIGHT  signal="IsRetailTransactionSignal"/>
+                </AISLE>
+                <AISLE
+                    name="SaveTenderableTransaction"
+                    letter="Save"
+                    laneaction="SaveTenderableTransactionAisle">
+                    <LIGHT  signal="IsNotRetailTransactionSignal"/>
+                </AISLE>
+                <AISLE
+                    name="SaveFailed"
+                    letter="Ok"
+                    laneaction="SaveFailedAisle">
+                </AISLE>
+                <ROAD
+                    name="WriteCompleted"
+                    letter="Continue"
+                    destination="CloseCashDrawer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="WriteTransactionQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="WriteTransactionRetry"
+                    letter="Retry"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CloseCashDrawer" siteaction="CloseCashDrawerSite">
+                <AISLE
+                    name="CashDrawerClosedConversion"
+                    letter="Continue"
+                    laneaction="ContinueConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="CashDrawerClosed"
+                    letter="ExitLayaway"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CashDrawerSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckSecurityAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="LayawayEditSecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ModifyLayawayFeeAuthorized"
+                    letter="Continue"
+                    laneaction="LayawayRefundRoad"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="LayawayEditSecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="ModifyLayawayFeeSuccessSecurityOverride"
+                    letter="Success"
+                    laneaction="LayawayRefundRoad"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="DisplayLayawayRefund"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

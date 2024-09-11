@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE JposEntries PUBLIC "-//JavaPOS//DTD//EN"
+                             "jpos/res/jcl.dtd">
+<JposEntries>
+<!--Saved by JavaPOS jpos.config/loader (JCL) version 2.0.1 on 2/5/03 2:24 PM-->
+    <JposEntry logicalName="POSPrinter">
+        <creation factoryClass="com.lukhan.jpos.ServiceInstanceFactory" serviceClass="com.lukhan.jpos.POSPrinterService"/>
+        <vendor name="LUKHAN Co., Ltd." url="http://www.miniprinter.com"/>
+        <jpos category="POSPrinter" version="1.8"/>
+        <product description="Thermal receipt printer" name="Thermal Printer" url="http://www.miniprinter.com"/>
+        <!--Other non JavaPOS required property (mostly vendor properties and bus specific properties i.e. RS232 )-->
+        <prop name="portName" type="String" value="USB"/>
+        <prop name="portSettings" type="String" value="9600"/>
+        <prop name="deviceClassName" type="String" value="Thermal"/>
+        <prop name="statusTimeDelay" type="Long" value="500"/>
+    </JposEntry>
+    <JposEntry logicalName="CashDrawer">
+        <creation factoryClass="com.lukhan.jpos.ServiceInstanceFactory" serviceClass="com.lukhan.jpos.CashDrawerService"/>
+        <vendor name="LUKHAN Co., Ltd." url="http://www.miniprinter.com"/>
+        <jpos category="CashDrawer" version="1.8"/>
+        <product description="Cash Drawer" name="Thermal Printer" url="http://www.miniprinter.com"/>
+        <!--Other non JavaPOS required property (mostly vendor properties and bus specific properties i.e. RS232 )-->
+        <prop name="portName" type="String" value="USB"/>
+        <prop name="portSettings" type="String" value="9600"/>
+        <prop name="deviceClassName" type="String" value="Thermal"/>
+        <prop name="statusTimeDelay" type="Long" value="500"/>
+        <prop name="PinNo" type="Long" value="2"/>
+        <prop name="PulseOnTime" type="Long" value="200"/>
+        <prop name="PulseOffTime" type="Long" value="400"/>
+    </JposEntry>
+</JposEntries>

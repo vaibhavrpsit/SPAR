@@ -1,0 +1,162 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/admin/role/roleadd/roleadd.xml /main/16 2013/05/03 14:57:42 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  05/03/13 - Cancel was failing since incorrect letter was bieng
+ *                         passed backwards
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="RoleAddService" package="oracle.retail.stores.pos.services.admin.role.roleadd" tourcam="ON">
+     <COMMENT>
+          This services is used to add, find and modify roles
+          as part of security.
+     </COMMENT>
+<CARGO class="RoleAddCargo">
+     <COMMENT>
+          This cargo holds the information necessary to Return
+          Options service.
+     </COMMENT>
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Undo"/>
+     <LETTER name="Next"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Success"/>
+     <LETTER name="Continue"/>    
+     <LETTER name="Failure"/>
+     <LETTER name="DBError"/>
+     <LETTER name="Find"/>
+     <LETTER name="Add"/>
+     <LETTER name="NameError"/>
+
+     <SITEACTION class="ReadAllRolesSite"/>
+     <SITEACTION class="RoleOptionsSite"/>
+     <SITEACTION class="DisplayAccessOptionsSite"/>
+     <SITEACTION class="AddRoleNameSite"/>
+     <SITEACTION class="EditRoleSite"/>
+     <SITEACTION class="FindRoleToEditSite"/>
+     <SITEACTION class="EditRoleNameSite"/>
+
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="ValidateRoleNameAisle"/>
+     <LANEACTION class="RoleNameErrorAisle"/>
+     <LANEACTION class="ReadAllRolesErrorAisle"/>
+     <LANEACTION class="DBErrorOkAisle"/>
+     <LANEACTION class="CancelFindRoleAisle"/>
+     <LANEACTION class="AddRoleNameAcceptAisle"/>
+     <LANEACTION class="AddRoleNameRoad"/>
+     <LANEACTION class="AddRoleNameErrorAisle"/>
+     <LANEACTION class="AddRoleErrorOkAisle"/>
+     <LANEACTION class="FindRoleAcceptAisle"/>
+     <LANEACTION class="EditRoleAcceptAisle"/>
+     <LANEACTION class="EditRoleNameErrorAisle"/>
+     <LANEACTION class="EditRoleNameAcceptAisle"/>
+     <LANEACTION class="DuplicateNameFoundAisle" package="oracle.retail.stores.pos.services.common"/>
+
+     <SHUTTLE class="SetAccessLaunchShuttle" package="oracle.retail.stores.pos.services.admin.role"/>
+     <SHUTTLE class="AddToSetAccessLaunchShuttle" package="oracle.retail.stores.pos.services.admin.role"/>
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="AddRoleName">
+         
+          <SITE name="AddRoleName" siteaction="AddRoleNameSite">
+               <AISLE name="AddRoleNameAccept"
+                      letter="Next"
+                      laneaction="AddRoleNameAcceptAisle">
+               </AISLE>
+               <AISLE name="AddRoleNameError"
+                      letter="NameError"
+                      laneaction="DuplicateNameFoundAisle">
+               </AISLE>
+               <ROAD name="AddRoleNameCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traversed when there is adding
+                         a role is cancelled.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="AddRoleNameFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is traversed when there is a failure in adding
+                         a role.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="DuplicateNameErrorOk"
+                     letter="Ok"
+                     destination="AddRoleName"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                         This road is taken if the user presses the "Ok" button
+                         after reading the "Duplicate Role Name Found" error
+                         dialog.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RoleNameAdded"
+                     letter="Continue"
+                     laneaction="AddRoleNameRoad"
+                     destination="SetAccessStation"
+                     tape="ADVANCE" record="OFF" index="ON">
+                    <COMMENT>
+                         This road is taken when a role name has been successfully
+                         added.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="AddRoleNameUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </SITE>
+
+          <STATION name="SetAccessStation" servicename="role.setaccess.setaccess"
+                   targettier="CURRENTTIER"
+                   launchshuttle="AddToSetAccessLaunchShuttle">
+               <AISLE name="SetAccessCancel"
+                      letter="Cancel"
+                      laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="SetAccessSuccess"
+                     letter="Success"
+
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="SetAccessUndo"
+                     letter="Undo"
+                     destination="LastIndexed"
+                     tape="REWIND" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="SetAccessFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+          </STATION>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+     </REGION>
+</MAP>
+</SERVICE>

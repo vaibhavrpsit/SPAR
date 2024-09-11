@@ -1,0 +1,236 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2010, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/returns/returntransaction/returniteminfotransaction.xml /rgbustores_13.4x_generic_branch/2 2011/08/18 08:44:03 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     08/17/11 - Modified to prevent the return of Gift Cards as
+ *                         items and part of a transaction. Also cleaned up
+ *                         references to gift cards objects in the return
+ *                         tours.
+ *    sgu       08/02/10 - prompt for return reason code for a gift card item
+ *    jswan     07/20/10 - Removed unnecessary timeout roads.
+ *    jswan     07/17/10 - Merge due to refresh.
+ *    jswan     07/14/10 - Modifications to support pressing the escape key in
+ *                         the EnterItemInformation screen during retrieved
+ *                         transaction screen for external order integration.
+ *    jswan     07/07/10 - Code review changes and fixes for Cancel button in
+ *                         External Order integration.
+ *    jkoppolu  07/16/10 - Fix for Bug#9913802
+ *    jswan     07/05/10 - Latest changes.
+ *    jswan     06/17/10 - Checkin external order integration files for
+ *                         refresh.
+ *    jswan     06/15/10 - Added for external order integration.
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="returniteminfotransaction"
+    package="oracle.retail.stores.pos.services.returns.returntransaction"
+    tourcam="OFF">
+    <COMMENT >
+        This services allows the user to enter information about each item being returned.
+    </COMMENT>
+    <CARGO  class="ReturnTransactionCargo"/>
+    <SERVICECODE >
+        <LANEACTION class="GetReturnItemInformationAisle" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION class="SetNextReturnItemRoad"/>
+        <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="UndoReturnItemChangesRoad"/>
+        <LANEACTION class="ValidateReturnItemInformationAisle"/>
+        <LANEACTION class="ResetRestockingFeeRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION class="ResetRestockingFeeAndSetNextItemRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION class="SetExternalOrderItemToReturnedRoad"/>
+        <LANEACTION class="CompleteReturnProcessingRoad"/>
+
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="GCInquiry"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Override"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Yes"/>
+
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="TransferReturnTransactionShuttle"/>
+
+        <SIGNAL  class="IsThereAnotherItemSignal"/>
+        <SIGNAL  class="IsThereNotAnotherItemSignal"/>
+        <SIGNAL  class="IsExternalOrderOrLastItemSignal"/>
+
+        <SITEACTION class="CompleteReturnProcessingSite"/>
+        <SITEACTION class="AcceptRestockingFeeSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION class="ApplyRestockingFeeSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="EnterReturnItemInformationSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+    </SERVICECODE>
+
+    <MAP >
+        <REGION  region="SERVICE" startsite="EnterReturnItemInformation">
+
+            <SITE  name="EnterReturnItemInformation" siteaction="EnterReturnItemInformationSite">
+                <AISLE
+                    name="AcceptEnterReturnItemInformation"
+                    letter="Next"
+                    laneaction="GetReturnItemInformationAisle">
+                </AISLE>
+                <AISLE
+                    name="ContinueEnterReturnItemInformation"
+                    letter="Continue"
+                    laneaction="ValidateReturnItemInformationAisle">
+                </AISLE>
+                <ROAD
+                    name="ValidationErrorOkEnterReturnItemInformation"
+                    letter="Ok"
+                    destination="EnterReturnItemInformation">
+                </ROAD>
+                <ROAD
+                    name="SuccessEnterReturnItemInformation"
+                    letter="Success"
+                    destination="ApplyRestockingFee">
+                </ROAD>
+                <ROAD
+                    name="InvalidReturnItem"
+                    letter="Invalid"
+                    destination="AcceptRestockingFee">
+                </ROAD>
+                <ROAD
+                    name="EnterReturnInformationExternalOrderUndo"
+                    letter="Undo"
+                    laneaction="CompleteReturnProcessingRoad"
+                    destination="Final">
+                    <LIGHT  signal="IsExternalOrderOrLastItemSignal"/>
+                </ROAD>
+                <ROAD
+                    name="EnterReturnInformationUndo"
+                    letter="Undo"
+                    laneaction="UndoReturnItemChangesRoad"
+                    destination="EnterReturnItemInformation">
+                    <LIGHT  signal="IsExternalOrderOrLastItemSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="CancelReturnItemInformation"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="ApplyRestockingFee" siteaction="ApplyRestockingFeeSite">
+                <AISLE
+                    name="RestockingFeeApplied"
+                    letter="Yes"
+                    laneaction="SuccessConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="RestockingFeeDeclined"
+                    letter="No"
+                    destination="CheckAccess">
+                </ROAD>
+                <ROAD
+                    name="RestockingFeeAccepted"
+                    letter="Success"
+                    destination="AcceptRestockingFee">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="AcceptRestockingFee" siteaction="AcceptRestockingFeeSite">
+                <ROAD
+                    name="RestockingFeeSuccessful"
+                    letter="Success"
+                    laneaction="SetNextReturnItemRoad"
+                    destination="EnterReturnItemInformation">
+                    <LIGHT  signal="IsThereAnotherItemSignal"/>
+                </ROAD>
+                <ROAD
+                    name="RestockingFeeSuccessfulFinal"
+                    letter="Success"
+                    laneaction="SetExternalOrderItemToReturnedRoad"
+                    destination="CompleteReturnProcessing">
+                    <LIGHT  signal="IsThereAnotherItemSignal" negate="Y"/>
+                </ROAD>
+            </SITE>
+
+            <SITE  name="CompleteReturnProcessing" siteaction="CompleteReturnProcessingSite">
+                <ROAD
+                    name="RestockingFeeSuccessfulFinal"
+                    letter="Success"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <AISLE
+                    name="ContinueAccessGranted"
+                    letter="Continue"
+                    laneaction="SuccessConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD
+                    name="RestockingFeeAccessGrantedLastItem"
+                    letter="Success"
+                    laneaction="ResetRestockingFeeRoad"
+                    destination="CompleteReturnProcessing">
+                   <LIGHT  signal="IsThereAnotherItemSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="RestockingFeeAccessGrantedMultipleItem"
+                    letter="Success"
+                    laneaction="ResetRestockingFeeAndSetNextItemRoad"
+                    destination="EnterReturnItemInformation">
+                    <LIGHT  signal="IsThereAnotherItemSignal"/>
+                </ROAD>
+            </SITE>
+
+            <STATION
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <ROAD
+                    name="RestockingFeeAccessGrantedLastItem"
+                    letter="Success"
+                    laneaction="ResetRestockingFeeRoad"
+                    destination="CompleteReturnProcessing">
+                   <LIGHT  signal="IsThereAnotherItemSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="OverrideRestockingFeeAccessGrantedMultipleItem"
+                    letter="Success"
+                    laneaction="ResetRestockingFeeAndSetNextItemRoad"
+                    destination="EnterReturnItemInformation">
+                    <LIGHT  signal="IsThereAnotherItemSignal"/>
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailedApplyRestockingFee"
+                    letter="Failure"
+                    destination="ApplyRestockingFee">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+            </STATION>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+
+        </REGION>
+    </MAP>
+</SERVICE>

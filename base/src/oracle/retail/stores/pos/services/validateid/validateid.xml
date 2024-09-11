@@ -1,0 +1,172 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/validateid/validateid.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      2    360Commerce 1.1         12/19/2007 7:55:14 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      1    360Commerce 1.0         12/13/2005 4:47:06 PM  Barry A. Pape
+     $
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ValidateID"
+    package="oracle.retail.stores.pos.services.validateid"
+    tourcam="OFF">
+
+    <CARGO  class="ValidateIDCargo" package="oracle.retail.stores.pos.services.validateid"/>
+
+    <SERVICECODE >
+
+        <LETTER name="Next"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="State"/>
+        <LETTER name="Country"/>
+
+        <SITEACTION class="GetIDCountrySite"/>
+        <SITEACTION class="GetIDNumberSite"/>
+        <SITEACTION class="GetIDStateSite"/>
+        <SITEACTION class="GetIDTypeSite"/>
+        <SITEACTION class="IDTypeActionSite"/>
+        <SITEACTION class="ValidateIDInfoSite"/>
+
+    </SERVICECODE>
+
+    <MAP>
+        <REGION  region="SERVICE" startsite="GetIDType">
+            <SITE  name="GetIDType" siteaction="GetIDTypeSite">
+                <ROAD
+                    name="GetIDTypeNext"
+                    letter="Next"
+                    destination="GetIDNumber">
+                </ROAD>
+                <ROAD
+                    name="GetIDTypeCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GetIDTypeUndo"
+                    letter="Undo"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetIDNumber" siteaction="GetIDNumberSite">
+                <ROAD
+                    name="GetIDTypeAction"
+                    letter="Next"
+                    destination="IDTypeAction">
+                </ROAD>
+                <ROAD
+                    name="GetIDCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GetIDUndo"
+                    letter="Undo"
+                    destination="GetIDType">
+                </ROAD>
+            </SITE>
+            <SITE  name="IDTypeAction" siteaction="IDTypeActionSite">
+                <ROAD
+                    name="IDActionContinue"
+                    letter="Continue"
+                    destination="ValidateIDInfo">
+                </ROAD>
+                <ROAD
+                    name="GetStateValidate"
+                    letter="State"
+                    destination="GetIDState">
+                </ROAD>
+                <ROAD
+                    name="GetCountryValidate"
+                    letter="Country"
+                    destination="GetIDCountry">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetIDState" siteaction="GetIDStateSite">
+                <ROAD
+                    name="GetIDStateNext"
+                    letter="Next"
+                    destination="ValidateIDInfo">
+                </ROAD>
+                <ROAD
+                    name="GetIDStateCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GetIDStateUndo"
+                    letter="Undo"
+                    destination="GetIDNumber">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetIDCountry" siteaction="GetIDCountrySite">
+                <ROAD
+                    name="GetIDCountryNext"
+                    letter="Next"
+                    destination="ValidateIDInfo">
+                </ROAD>
+                <ROAD
+                    name="GetIDCountryCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GetIDCountryUndo"
+                    letter="Undo"
+                    destination="GetIDNumber">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateIDInfo" siteaction="ValidateIDInfoSite">
+                <ROAD
+                    name="LicenseInvalidYes"
+                    letter="Yes"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="LicenseInvalidNo"
+                    letter="No"
+                    destination="GetIDNumber">
+                </ROAD>
+                <ROAD
+                    name="LicenseValid"
+                    letter="Continue"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="SwipeLicenseBad"
+                    letter="Failure"
+                    destination="GetIDNumber">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

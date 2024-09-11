@@ -1,0 +1,154 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/layaway/create/layawaycreate.xml /main/16 2012/02/15 15:43:28 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  02/15/12 - Fixed missing letter exception
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="layawaycreate"
+         package="oracle.retail.stores.pos.services.layaway.create"
+         tourcam="OFF">
+    <COMMENT>
+        This services creates a Layaway.
+    </COMMENT>
+    <CARGO class="LayawayCargo" package="oracle.retail.stores.pos.services.layaway"/>
+    <SERVICECODE>
+        <!--  Letters -->
+        <LETTER name="Ok"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Success"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Customer"/>
+        <LETTER name="Continue"/>
+        <LETTER name="NoLink"/>
+        <LETTER name="Next"/>
+        <LETTER name="Link"/>
+        <LETTER name="Loop"/>
+
+        <!--  Shuttles -->
+        <SHUTTLE class="LinkCustomerLaunchShuttle"/>
+        <SHUTTLE class="LinkCustomerReturnShuttle"/>
+
+        <!--  Sites -->
+        <SITEACTION class="LayawayCustomerRequiredSite"/>
+        <SITEACTION class="DisplayLayawayCustomerSite"/>
+
+        <!--  Lanes -->
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SaveUpdatedLayawayCustomerAisle"/>
+        <LANEACTION class="DisplayNoLinkCustomerAisle"/>
+        <LANEACTION class="DisplayNoLayawayAisle"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="LayawayCustomerRequired">
+            <SITE name="LayawayCustomerRequired" siteaction="LayawayCustomerRequiredSite">
+               <ROAD name="CustomerLink"
+                      letter="Link"
+                      destination="LinkCustomerStation"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="CustomerContinue"
+                      letter="Continue"
+                      destination="DisplayLayawayCustomer"
+                      tape="ADVANCE" record="OFF" index="OFF">
+             </ROAD>
+            </SITE>
+            <SITE name="DisplayLayawayCustomer" siteaction="DisplayLayawayCustomerSite">
+                <AISLE name="SaveUpdatedLayawayCustomer"
+                       letter="Next"
+                       laneaction="SaveUpdatedLayawayCustomerAisle">
+                </AISLE>
+                <ROAD  name="LoopLayawayCustomer"
+                       letter="Loop"
+                       destination="DisplayLayawayCustomer"
+                       tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD  name="CancelLayawayCustomer"
+                       letter="Cancel"
+                       destination="Final"
+                       tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD  name="UndoLayawayCustomer"
+                       letter="Undo"
+                       destination="LayawayCustomerRequired"
+                       tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FailureLayawayCustomer"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="SuccessLayawayCustomer"
+                      letter="Success"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+             </SITE>
+             <STATION name="LinkCustomerStation"
+                     servicename="customer.main.customermain"
+                     targettier="APPLICATIONTIER"
+                     launchshuttle="LinkCustomerLaunchShuttle"
+                     returnshuttle="LinkCustomerReturnShuttle">
+                <AISLE name="DisplayNoLinkCustomer"
+                      letter="Cancel"
+                      laneaction="DisplayNoLinkCustomerAisle">
+                </AISLE>
+                <AISLE name="DisplayCustomerOffline"
+                      letter="Offline"
+                      laneaction="DisplayNoLinkCustomerAisle">
+                </AISLE>
+                <AISLE name="DisplayNoLinkCustomerFailure"
+                      letter="No"
+                      laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD name="DisplayNoLinkCustomerYes"
+                      letter="Yes"
+                      destination="LayawayCustomerRequired"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="LinkCustomer"
+                      letter="Link"
+                      destination="DisplayLayawayCustomer"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="ContinueLinkCustomer"
+                      letter="Continue"
+                      destination="DisplayLayawayCustomer"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="UndoFindSelected"
+                      letter="Undo"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FailureCustomerReturn"
+                      letter="Failure"
+                      destination="Final"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

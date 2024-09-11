@@ -1,0 +1,321 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/xchannelcreatepickup/xchannelcreatepickupuicfg.xml /main/10 2013/05/02 12:25:52 abhinavs Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhinavs  05/01/13 - Validating postalcode field under store search
+ *                         option
+ *    mkutiana  04/24/13 - Added clear/f11 button listeners to bean/screen
+ *    abhinavs  04/09/13 - Fix to change the order of customer info input
+ *                         fields on the UI
+ *    vbongu    03/20/13 - Added defaultScreenSpecName=DefaultValidatingSpec
+ *                         for XC_PICKUP_CUSTOMER spec
+ *    abhinavs  03/18/13 - Fix to enable delete button for xchannel item pickup
+ *                         customer data fields
+ *    hyin      03/05/13 - add validation to store number field.
+ *    yiqzhao   01/28/13 - change the minimum length of the first name and the
+ *                         last name to 1.
+ *    yiqzhao   01/28/13 - Use CustomerContactInfoBean.
+ *    mkutiana  01/07/13 - default buttons to disabled to prevent initial
+ *                         access
+ *    abhinavs  12/21/12 - Fix to enable and disable store pickup and print
+ *                         buttons
+ *    jswan     04/18/12 - Added to support cross channel create pickup order
+ *                         feature.
+ *
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="OrderCreatePickupOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Pickup"
+            enabled="false"
+            keyName="F2"
+            labelTag="Pickup"/>
+
+        <BUTTON
+            actionName="StoreSearch"
+            enabled="true"
+            keyName="F3"
+            labelTag="StoreSearch"/>
+
+        <BUTTON
+            actionName="Print"
+            enabled="false"
+            keyName="F4"
+            labelTag="Print"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="OrderCreatePickupCustomerOptionsSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Customer"
+            enabled="true"
+            keyName="F2"
+            labelTag="Customer"/>
+    </BEAN>
+
+    <BEAN
+        specName="StoreSelectSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ListBean">
+
+            <BEANPROPERTY propName="LabelTags" propValue="StoreNumberLabel,NameLable,StoreAddressLabel,StoreTelephoneLabel,QuantityAvailableLabel,DateAvailableLable"/>
+            <BEANPROPERTY propName="LabelWeights" propValue="15,21,23,14,11,16"/>
+            <BEANPROPERTY propName="Renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.AvailableToPromiseInventoryLineItemRenderer"/>
+            <BEANPROPERTY propName="Focused" propValue="true"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="PickupCustomerDataInputSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="CustomerContactInfoBean">
+        <FIELD fieldName="firstNameField"
+            fieldType="ConstrainedField"
+            labelTag="FirstNameLabel"
+            paramList="firstNameField,1,30,16"
+            enabled="true"
+            required="true"/>
+        <FIELD fieldName="lastNameField"
+            fieldType="ConstrainedField"
+            labelTag="LastNameLabel"
+            paramList="lastNameField,1,30,20"
+            enabled="true"
+            required="true"/>
+        <FIELD fieldName="countryField"
+            fieldType="ValidatingComboBox"
+            labelTag="CountryLabel"
+            paramList="countryField,false,15"
+            enabled="true"
+            required="false"/>
+         <FIELD fieldName="telephoneNumberField"
+            fieldType="ValidatingFormattedTextField"
+            labelTag="TelephoneNumberLabel"
+            paramList="telephoneNumberField,true,30,20"
+            enabled="true"
+            required="true"/>
+    </BEAN>
+
+    <BEAN
+        specName="StoreSearchDataInputSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="StoreSearchInfoBean">
+        <FIELD fieldName="storeNameField"
+            fieldType="ConstrainedField"
+            labelTag="StoreNameLabel"
+            paramList="storeNameField,1,30,16"
+            enabled="true"
+            required="false"/>
+        <FIELD fieldName="storeNumberField"
+            fieldType="AlphaNumericField"
+            labelTag="StoreNumberLabel"
+            paramList="storeNumberField,1,5,5"
+            enabled="true"
+            required="false"/>
+        <FIELD fieldName="countryField"
+            fieldType="ValidatingComboBox"
+            labelTag="CountryLabel"
+            paramList="countryField,false,15"
+            enabled="true"
+            required="false"/>
+        <FIELD fieldName="stateField"
+            fieldType="ValidatingComboBox"
+            labelTag="StateLabel"
+            paramList="countryField,false,15"
+            enabled="true"
+            required="false"/>
+        <FIELD fieldName="cityField"
+            fieldType="ConstrainedField"
+            labelTag="CityLabel"
+            paramList="cityField,1,30,20"
+            enabled="true"
+            required="false"/>
+        <FIELD fieldName="postalCodeField"
+            fieldType="ValidatingFormattedTextField"
+            labelTag="PostalCodeLabel"
+            paramList="postalCodeField,,true,20,15"
+            enabled="true"
+            required="false"/>
+    </BEAN>
+
+    <OVERLAYSCREEN
+        specName="XC_PICKUP_STORE_SELECT"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="StoreSelectSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="PickupOptions"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag" propValue="CreatePickupOptionsPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="OrderCreatePickupOptionsButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                   propName="manageNextButton"
+                   propValue="false"/>
+            <BEANPROPERTY
+                   propName="buttonStates"
+                   propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+        
+        <CONNECTION
+                   sourceBeanSpecName="StoreSelectSpec"
+                   targetBeanSpecName="OrderCreatePickupOptionsButtonSpec"
+                   listenerPackage="javax.swing.event"
+                   listenerInterfaceName="ListSelectionListener"
+                   adapterPackage="oracle.retail.stores.pos.ui.behavior"
+                   adapterClassName="PickupStoreListAdapter"/>
+            
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        specName="XC_PICKUP_CUSTOMER"
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="PickupCustomerDataInputSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="CatureCustomerForPU"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag" propValue="CreatePickupCustomerPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="LocalNavigationPanel"
+                beanSpecName="OrderCreatePickupCustomerOptionsSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                   propName="manageNextButton"
+                   propValue="false"/>
+            <BEANPROPERTY
+                   propName="buttonStates"
+                   propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="PickupCustomerDataInputSpec"/>  
+        <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="PickupCustomerDataInputSpec"/>
+        <CONNECTION
+                sourceBeanSpecName="PickupCustomerDataInputSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>          
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        specName="STORE_SEARCH_FOR_ORDER"
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="orderText">
+
+        <ASSIGNMENT
+                areaName="WorkPanel"
+                beanSpecName="StoreSearchDataInputSpec">
+            <BEANPROPERTY
+                propName="OptionalValidatingFields"
+                propValue="postalCodeField"/>    
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="StatusPanel"
+                beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                    propName="screenNameTag" propValue="StoreSearchForOrder"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="PromptAndResponsePanel"
+                beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                    propName="promptTextTag" propValue="StoreSearchCriteriaPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+                areaName="GlobalNavigationPanel"
+                beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                   propName="manageNextButton"
+                   propValue="false"/>
+            <BEANPROPERTY
+                   propName="buttonStates"
+                   propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        <CONNECTION
+                listenerInterfaceName="ClearActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="StoreSearchDataInputSpec"/>  
+        <CONNECTION
+                sourceBeanSpecName="StoreSearchDataInputSpec"
+                targetBeanSpecName="GlobalNavigationPanelSpec"
+                listenerPackage="javax.swing.event"
+                listenerInterfaceName="DocumentListener"/>  
+        <CONNECTION
+                listenerInterfaceName="ValidateActionListener"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                sourceBeanSpecName="GlobalNavigationPanelSpec"
+                targetBeanSpecName="StoreSearchDataInputSpec"/>   
+    </OVERLAYSCREEN>
+
+</UICFG>

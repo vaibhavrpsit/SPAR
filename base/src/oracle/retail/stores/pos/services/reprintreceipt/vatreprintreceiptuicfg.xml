@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/reprintreceipt/vatreprintreceiptuicfg.xml /main/9 2014/05/22 14:49:08 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/22/14 - use list adapter to enable gift receipt button
+ * $ 1    360Commerce 1.0         4/30/2007 4:55:58 PM   Alan N. Sinton  CR
+ *
+ * ===========================================================================
+ */
+ -->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="VATReprintSelectButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="GiftReceipt"
+            enabled="true"
+            keyName="F2"
+            labelTag="GiftReceipt"/>
+        <!-- PrintOriginal button displays only when EnableReprintOriginalReceipt parameter is 'Y' -->
+        <BUTTON
+            actionName="PrintOriginal"
+            enabled="true"
+            keyName="F3"
+            labelTag="PrintOriginal"/>
+        <!-- Print VAT Summary Button for VAT enabled environment only. -->
+        <BUTTON
+            actionName="PrintVATSummary"
+            enabled="true"
+            keyName="F4"
+            labelTag="PrintVATSummary"/>
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="POSStackedStatusScreenSpec"
+        resourceBundleFilename="reprintreceiptText"
+        specName="VAT_REPRINT_SELECT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StackedStatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ReprintSelectScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="TotalStatusPanel"
+            beanSpecName="StackedTotalPanelSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ReprintSelectPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="VATReprintSelectButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ReprintSelectSpec">
+        </ASSIGNMENT>
+
+        <CONNECTION
+            sourceBeanSpecName="ReprintSelectSpec"
+            targetBeanSpecName="VATReprintSelectButtonSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="ListSelectionListener"
+            adapterPackage="oracle.retail.stores.pos.ui.behavior"
+            adapterClassName="GiftReceiptItemListAdapter" />
+    </OVERLAYSCREEN>
+
+</UICFG>

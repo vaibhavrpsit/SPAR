@@ -1,0 +1,204 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/employee/clockentry/clockentry.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  $Log:
+   4    360Commerce 1.3         12/19/2007 8:15:34 AM  Manikandan Chellapan
+        PAPB FR27 Bulk Checkin -2
+   3    360Commerce 1.2         3/31/2005 4:27:27 PM   Robert Pearse
+   2    360Commerce 1.1         3/10/2005 10:20:16 AM  Robert Pearse
+   1    360Commerce 1.0         2/11/2005 12:10:02 PM  Robert Pearse
+  $
+  Revision 1.6  2004/06/25 22:54:54  cdb
+  @scr 1642 Updated so that Undo selected from Operator ID screen returns
+  to the calling service rather than prompting for another security override.
+
+  Revision 1.5  2004/04/08 22:20:53  bjosserand
+  @scr 0 Tourmap change
+
+  Revision 1.4  2004/03/26 00:24:15  aarvesen
+  @scr 0 updated tours to use the tourmap
+
+  Revision 1.3  2004/03/16 18:42:36  cdb
+  @scr 0 Removed tabs from all java source code.
+
+  Revision 1.2  2004/02/12 16:50:15  mcs
+  Forcing head revision
+
+  Revision 1.1.1.1  2004/02/11 01:04:16  cschellenger
+  updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ClockEntry"
+    package="oracle.retail.stores.pos.services.employee.clockentry"
+    tourcam="OFF">
+    <CARGO class="ClockEntryCargo" package="oracle.retail.stores.pos.services.employee.clockentry"/>
+    <SERVICECODE>
+        <LETTER name="Failure"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Success"/>
+        <LETTER name="Next"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Override"/>
+
+        <SHUTTLE class="OperatorIdLaunchShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <SHUTTLE class="OperatorIdReturnShuttle"/>
+        <SHUTTLE class="SecurityLaunchShuttle"/>
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <LANEACTION class="ReasonCodeEnteredAisle" package="oracle.retail.stores.pos.services.employee.clockentry"/>
+        <LANEACTION class="EntrySavedAisle"/>
+        <LANEACTION class="EntrySaveFailedAisle"/>
+        <LANEACTION class="ReasonCodeSelectedRoad"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+        <LANEACTION class="CheckAccessAisle" package="oracle.retail.stores.pos.services.admin.security.common" />
+
+        <SITEACTION class="LookupLastEntrySite" package="oracle.retail.stores.pos.services.employee.clockentry"/>
+        <SITEACTION class="SaveEntrySite" package="oracle.retail.stores.pos.services.employee.clockentry"/>
+        <SITEACTION class="EnterReasonCodeSite" package="oracle.retail.stores.pos.services.employee.clockentry"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="OperatorIdentificationStation">
+            <STATION
+                name="OperatorIdentificationStation"
+                servicename="services.operatorid.operatorid"
+                targettier="CURRENTTIER"
+                launchshuttle="OperatorIdLaunchShuttle"
+                returnshuttle="OperatorIdReturnShuttle">
+                <AISLE
+                    name="LoginUndo"
+                    letter="Undo"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT >
+                        This aisle is traversed to convert the current letter
+                        to Failure
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="LoginSucceeded"
+                    letter="Success"
+                    laneaction="CheckAccessAisle" >
+                </AISLE>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="LookupLastEntry"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LoginFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SITE name="LookupLastEntry" siteaction="LookupLastEntrySite">
+                <COMMENT>
+                    Retrieves the last time-clock entry for this user.
+                </COMMENT>
+                <ROAD
+                    name="LookupLastEntryContinue"
+                    letter="Continue"
+                    destination="EnterReasonCode">
+                </ROAD>
+            </SITE>
+            <SITE name="EnterReasonCode" siteaction="EnterReasonCodeSite">
+                <COMMENT>
+                    Displays screen for entering reason code and making
+                    time entry.
+                </COMMENT>
+                <ROAD
+                    name="ReasonCodeSelected"
+                    letter="Next"
+                    laneaction="ReasonCodeSelectedRoad"
+                    destination="SaveEntry">
+                </ROAD>
+                <ROAD
+                    name="ReasonCodeCancel"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="ReasonCodeUndo"
+                    letter="Undo"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+            <SITE name="SaveEntry" siteaction="SaveEntrySite">
+                <AISLE
+                    name="EntrySaved"
+                    letter="Success"
+                    laneaction="EntrySavedAisle">
+                </AISLE>
+                <AISLE
+                    name="EntrySavedFailure"
+                    letter="Failure"
+                    laneaction="EntrySaveFailedAisle">
+                </AISLE>
+                <ROAD
+                    name="EntrySaveConfirmed"
+                    letter="Ok"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD
+                    name="AdminAccessDenied"
+                    letter="Failure"
+                    destination="Final" >
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideSucceeded"
+                    letter="Success"
+                    destination="LookupLastEntry"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

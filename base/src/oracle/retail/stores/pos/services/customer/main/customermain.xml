@@ -1,0 +1,535 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/customer/main/customermain.xml /main/25 2013/11/19 09:42:41 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    rgour     07/23/13 - adding Manager override for customer Linkup rework
+ *    rgour     06/27/13 - adding Manager override for customer Linkup
+ *    cgreene   04/30/13 - fix repeat popup issue with customer lookup menu
+ *    cgreene   01/25/13 - rearrange customer flow to go back to main menu
+ *    jkoppolu  03/30/11 - Fix to not to add customer in case of linking from
+ *                      existing matching customers.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                      from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+
+   Revision 1.2  2004/02/12 16:49:33  mcs
+   Forcing head revision
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="CustomerMain"
+         package="oracle.retail.stores.pos.services.customer.main"
+         tourcam="ON">
+     <COMMENT>
+          The main service invoked when the user indicates
+          that he wants to work with customer information.
+     </COMMENT>
+<CARGO class="CustomerMainCargo"/>
+<SERVICECODE>
+    <!-- Shuttles -->
+    <SHUTTLE class="CustomerCargoLaunchShuttle" package="oracle.retail.stores.pos.services.customer.common"/>
+    <SHUTTLE class="CustomerCargoReturnShuttle" package="oracle.retail.stores.pos.services.customer.common"/>
+    <SHUTTLE class="CustomerDeleteLaunchShuttle"/>
+
+    <!-- Letters -->
+    <LETTER name="Next"/>
+    <LETTER name="Undo"/>
+    <LETTER name="Cancel"/>
+    <LETTER name="Add"/>
+    <LETTER name="Find"/>
+    <LETTER name="Delete"/>
+    <LETTER name="Offline"/>
+    <LETTER name="Exit"/>
+    <LETTER name="Done"/>
+    <LETTER name="Continue"/>
+    <LETTER name="Link"/>
+    <LETTER name="AddBusiness"/>
+    <LETTER name="Override"/> 
+    <LETTER name="Success"/>
+    <LETTER name="Failure"/>
+    <LETTER name="Retry"/>
+
+    <!-- Lane Actions -->
+    <LANEACTION class="CustomerIDEnteredRoad" package="oracle.retail.stores.pos.services.customer.common"/>
+    <LANEACTION class="CustomerIDForDirectLinkRoad"/>
+    <LANEACTION class="LinkCustomerIDAisle" package="oracle.retail.stores.pos.services.customer.common"/>
+    <LANEACTION class="OfflineLinkCustomerIDAisle" package="oracle.retail.stores.pos.services.customer.main"/>
+    <LANEACTION class="OfflineExitCustomerIDAisle" package="oracle.retail.stores.pos.services.customer.main"/>
+    <LANEACTION class="DontLinkCustomerIDAisle" package="oracle.retail.stores.pos.services.customer.lookup"/>
+    <LANEACTION class="CustomerSelectedAisle" package="oracle.retail.stores.pos.services.customer.lookup"/>
+    <LANEACTION class="ResetCustomerCargoRoad"/>
+    <LANEACTION class="UndoCargoRoad"/>
+
+
+    <!-- Site Actions -->
+    <SITEACTION class="SelectCustomerOptionSite"/>
+    <SITEACTION class="OfflineCustomerOptionsSite" package="oracle.retail.stores.pos.services.customer.common"/>
+    <SITEACTION class="SelectCustomerIDSite"/>
+    <SITEACTION class="CustomersFoundSite" package="oracle.retail.stores.pos.services.customer.lookup"/>
+    <SITEACTION class="LookupCustomerIDSite" package="oracle.retail.stores.pos.services.customer.common"/>
+    <SITEACTION class="CustomerLookupFailedSite"/>
+    <SITEACTION class="LinkOrDoneSite"/>
+    <SITEACTION class="ExitServiceSite"/>
+    <SITEACTION class="SaveCustomerSite" package="oracle.retail.stores.pos.services.customer.common"/>
+    <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+    <!-- Shuttle -->
+    <SHUTTLE class="SecurityOverrideNoUnlockLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+    <!-- Signals -->
+    <SIGNAL class="IsOfflineExitSignal" package="oracle.retail.stores.pos.services.customer.lookup"/>
+</SERVICECODE>
+<MAP>
+    <REGION region="SERVICE" startsite="SelectCustomerOption">
+        <SITE name="SelectCustomerOption" siteaction="SelectCustomerOptionSite">
+            <ROAD name="CustomerIDEntered"
+                  letter="Next"
+                  laneaction="CustomerIDForDirectLinkRoad"
+                  destination="CheckAccess"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionFind"
+                  letter="Find"
+                  destination="CustomerFindTransferStation"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionAdd"
+                  letter="Add"
+                  destination="CustomerAddTransferStation"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionAddBusiness"
+                  letter="AddBusiness"
+                  destination="BusinessAddTransferStation"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionDelete"
+                  letter="Delete"
+                  destination="CustomerDeleteTransferStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionUndo"
+                  letter="Undo"
+                  laneaction="UndoCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionFailure"
+                  letter="Failure"
+                  laneaction="UndoCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionCancel"
+                  letter="Cancel"
+                  laneaction="ResetCustomerCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="CheckAccess" siteaction="CheckAccessSite">
+            <ROAD name="OverrideRequired"
+                  letter="Override"
+                  destination="SecurityOverrideStation"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+            </ROAD>
+            <ROAD name="LookupCustomerAccessGranted"
+                  letter="Continue"
+                  destination="LookupCustomerID"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+            </ROAD>
+        </SITE>
+
+        <STATION name="SecurityOverrideStation"
+             servicename="security.override.override"
+             targettier="CURRENTTIER"
+             launchshuttle="SecurityOverrideNoUnlockLaunchShuttle">
+             <ROAD
+                 name="AdminAccessDenied"
+                 letter="Failure"
+                 destination="SelectCustomerOption"
+                 tape="ADVANCE"
+                 record="OFF"
+                 index="OFF">
+             </ROAD>
+             <ROAD
+                 name="ManagerOverrideSuccessful"
+                 letter="Success"
+                 destination="LookupCustomerID"
+                 tape="ADVANCE"
+                 record="OFF"
+                 index="OFF">
+             </ROAD>
+             <ROAD
+                 name="SecurityOverrideCancelled"
+                 letter="Cancel"
+                 destination="Final"
+                 tape="ADVANCE" record="OFF" index="OFF">
+             </ROAD>
+        </STATION>
+
+        <SITE name="OfflineCustomerOptions" siteaction="OfflineCustomerOptionsSite">
+            <ROAD name="SelectOfflineCustomerAdd"
+                  letter="Add"
+                  destination="CustomerAddTransferStation"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectOfflineBusinessAdd"
+                  letter="AddBusiness"
+                  destination="BusinessAddTransferStation"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionUndo"
+                  letter="Undo"
+                  laneaction="UndoCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionFailure"
+                  letter="Failure"
+                  laneaction="UndoCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="SelectCustomerOptionCancel"
+                  letter="Cancel"
+                  laneaction="ResetCustomerCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="LookupCustomerID" siteaction="LookupCustomerIDSite">
+            <ROAD name="CustomerIDFound"
+                  letter="Success"
+                  destination="SaveCustomer"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerLookupFailure"
+                  letter="Failure"
+                  destination="CustomerLookupFailed"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </SITE>
+
+        <SITE name="SaveCustomer" siteaction="SaveCustomerSite">
+            <ROAD name="CustomerSavedContinue"
+                  letter="Continue"
+                  destination="LinkOrDone"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+            </ROAD>
+            <ROAD name="NewCustomerSaved"
+                  letter="NewCustomerAdded"
+                  destination="LinkOrDone"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF">
+            </ROAD>
+            <ROAD name="CustomerSavedCancel"
+                  letter="Cancel"
+                  destination="LinkOrDone"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="CustomerLookupFailed" siteaction="CustomerLookupFailedSite">
+            <COMMENT>
+                 Handles the different reasons for failure to find the customer
+            </COMMENT>
+            <AISLE name="CustomerOfflineLink"
+                   letter="Link"
+                   laneaction="OfflineLinkCustomerIDAisle">
+            </AISLE>
+            <AISLE name="CustomerOfflineExit"
+                   letter="Exit"
+                   laneaction="DontLinkCustomerIDAisle">
+            </AISLE>
+            <ROAD name="CustomerOfflineAdd"
+                   letter="Add"
+                   destination="OfflineCustomerOptions">
+            </ROAD>
+            <ROAD name="CustomerOffline"
+                  letter="Offline"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerOfflineCancel"
+                  letter="Cancel"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerNotFoundAcknowledged"
+                  letter="Retry"
+                  laneaction="UndoCargoRoad"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerLookupDone"
+                  letter="Continue"
+                  destination="LinkOrDone"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </SITE>
+
+        <SITE name="CustomersFound"  siteaction="CustomersFoundSite">
+            <AISLE name="CustomerSelected"
+                   letter="Next"
+                   laneaction="CustomerSelectedAisle">
+            </AISLE>
+            <ROAD  name="CustomerIDSelected"
+                   letter="Continue"
+                   destination="LinkOrDone"
+                   tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD  name="CustomerIDUndo"
+                   letter="Undo"
+                   laneaction="UndoCargoRoad"
+                   destination="SelectCustomerOption"
+                   tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD  name="CustomerIDCancel"
+                   letter="Cancel"
+                   destination="ExitService"
+                   tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </SITE>
+
+        <SITE name="LinkOrDone" siteaction="LinkOrDoneSite">
+            <ROAD name="IgnoreCustomer"
+                  letter="Retry"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="LinkCustomer"
+                  letter="Continue"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </SITE>
+
+        <SITE name="ExitService" siteaction="ExitServiceSite">
+            <ROAD name="ServiceContinue"
+                  letter="Continue"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="ServiceUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="ServiceCancel"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="ServiceFailure"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="ServiceOffline"
+                  letter="Offline"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="ServiceLink"
+                  letter="Link"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </SITE>
+
+        <STATION name="CustomerFindTransferStation"
+                 servicename="customer.find.customerfind"
+                 targettier="CURRENTTIER"
+                 launchshuttle="CustomerCargoLaunchShuttle"
+                 returnshuttle="CustomerCargoReturnShuttle">
+            <ROAD name="CustomerFindTransferStationContinue"
+                  letter="Continue"
+                  destination="LinkOrDone"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="CustomerFindTransferStationDone"
+                  letter="Done"
+                  destination="LinkOrDone"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="CustomerFindTransferStationUndo"
+                  letter="Undo"
+                  laneaction = "UndoCargoRoad"
+                  destination="SelectCustomerOption"
+                  tape="REWIND" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerFindTransferStationRetry"
+                  letter="Retry"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerFindTransferStationCancel"
+                  letter="Cancel"
+                  laneaction="ResetCustomerCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerFindTransferStationCancel"
+                  letter="Cancel"
+                  laneaction="ResetCustomerCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerFindTransferStationCancelMenu"
+                  letter="CancelMenu"
+                  laneaction="ResetCustomerCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerFindTransferStationOffline"
+                  letter="Offline"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerFindTransferStationFailure"
+                  letter="Failure"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </STATION>
+
+        <STATION name="CustomerAddTransferStation"
+                 servicename="customer.add.customeradd"
+                 targettier="CURRENTTIER"
+                 launchshuttle="CustomerCargoLaunchShuttle"
+                 returnshuttle="CustomerCargoReturnShuttle">
+            <ROAD name="CustomerAddTransferStationContinue"
+                  letter="Continue"
+                  destination="LinkOrDone"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="CustomerAddTransferStationUndo"
+                  letter="Undo"
+                  laneaction="UndoCargoRoad"
+                  destination="SelectCustomerOption"
+                  tape="REWIND" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerAddTransferStationFailure"
+                  letter="Failure"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerAddTransferStationOffline"
+                  letter="Offline"
+                  destination="LinkOrDone"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerAddTransferStationCancel"
+                  letter="Cancel"
+                  laneaction="ResetCustomerCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerAddTransferStationNo"
+                   letter="Failure"
+                   destination="SelectCustomerOption"
+                   tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerAddTransferStationLink"
+                  letter="Link"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+        </STATION>
+
+        <STATION name="BusinessAddTransferStation"
+                 servicename="customer.addbusiness.businessadd"
+                 targettier="CURRENTTIER"
+                 launchshuttle="CustomerCargoLaunchShuttle"
+                 returnshuttle="CustomerCargoReturnShuttle">
+            <ROAD name="BusinessAddTransferStationContinue"
+                  letter="Continue"
+                  destination="LinkOrDone"
+                  tape="ADVANCE" record="OFF" index="ON">
+            </ROAD>
+            <ROAD name="BusinessAddTransferStationUndo"
+                  letter="Undo"
+                  laneaction = "UndoCargoRoad"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="BusinessAddTransferStationOffline"
+                  letter="Offline"
+                  destination="LinkOrDone"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="BusinessAddTransferStationFailure"
+                  letter="Failure"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="BusinessAddTransferStationCancel"
+                  letter="Cancel"
+                  laneaction="ResetCustomerCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </STATION>
+
+        <STATION name="CustomerDeleteTransferStation"
+                 servicename="customer.delete.customerdelete"
+                 targettier="CURRENTTIER"
+                 launchshuttle="CustomerDeleteLaunchShuttle">
+            <ROAD name="CustomerDeleteTransferStationCancel"
+                  letter="Cancel"
+                  laneaction="ResetCustomerCargoRoad"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerDeleteTransferStationContinue"
+                  letter="Continue"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerDeleteTransferStationUndo"
+                  letter="Undo"
+                  destination="SelectCustomerOption"
+                  tape="REWIND" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerDeleteTransferStationFailure"
+                  letter="Failure"
+                  destination="SelectCustomerOption"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="CustomerDeleteTransferStationOffline"
+                  letter="Offline"
+                  destination="ExitService"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </STATION>
+
+        <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        <SYSTEMSITE name="Final" action="RETURN"/>
+    </REGION>
+</MAP>
+</SERVICE>

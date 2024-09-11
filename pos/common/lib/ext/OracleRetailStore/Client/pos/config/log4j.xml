@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "http://jakarta.apache.org/log4j/dtd/log4j.dtd" []>
+
+<!-- ===================================================================== -->
+<!--                                                                       -->
+<!--  Log4j Configuration                                                  -->
+<!--                                                                       -->
+<!-- ===================================================================== -->
+
+
+<!-- $Id: log4j.xml /main/47 2014/02/10 19:19:21 ohorne Exp $ -->
+
+
+<!--
+   | For more configuration information and examples see the Jakarta Log4j
+   | website: http://jakarta.apache.org/log4j
+ -->
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+
+  <!-- ===================================== -->
+  <!-- View Most Recent Log Entries via JMX  -->
+  <!-- ===================================== -->
+    <appender name="LastNEntries" class="oracle.retail.stores.commext.utility.jmx.LastNEntriesLogAppender">
+        <param name="EntryCount" value="50"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %d %-5r  (%t:%c):%n      [%l] %n      %m%n%n"/>
+        </layout>
+    </appender>
+
+  <!-- Change RemoteHost value to your point to your chainsaw host -->
+  <!-- appender name="CHAINSAW" class="org.apache.log4j.net.SocketAppender"
+      <param name="RemoteHost" value="logger"/>
+      <param name="Port" value="4445"/>
+      <param name="LocationInfo" value="false"/>
+  </appender -->
+
+  <!-- ================================= -->
+  <!-- Preserve messages in a local file -->
+  <!-- ================================= -->
+  <appender name="LF5Appender" class="org.apache.log4j.lf5.LF5Appender">
+      <param name="MaxNumberOfRecords" value="1000"/>
+  </appender>
+
+  <!-- ============================== -->
+  <!-- Append messages to the console -->
+  <!-- ============================== -->
+  <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+    <param name="Target" value="System.out"/>
+    <param name="Threshold" value="ERROR"/>
+
+    <layout class="org.apache.log4j.PatternLayout">
+      <!-- The default pattern: Date Priority [Category] Message\n -->
+      <param name="ConversionPattern" value="[(%t)%l] %m%n%n"/>
+    </layout>
+  </appender>
+
+<!--   Use one of these appenders if you're running on the 4690
+       to avoid loosing file during register reboots.
+       To append to the file rather than rebooting, set Append parameter to true
+
+       WARNING: Using these options greatly slow down the application when running
+       in the Windows environment with verbose logging.
+       <appender name="FILE" class="oracle.retail.stores.foundation.manager.log.SyncFileAppender">
+       <appender name="FILE" class="oracle.retail.stores.foundation.manager.log.SyncExternallyRolledFileAppender">
+-->
+
+  <appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+      <param name="File" value="../logs/orpos.log"/>
+      <param name="Append" value="true"/>
+      <param name="maxFileSize" value="10240KB"/>
+      <param name="maxBackupIndex" value="20"/>
+      <layout class="org.apache.log4j.PatternLayout">
+        <param name="ConversionPattern" value="%-5p %d %-5r  (%t:%c):%n      [%l] %n      %m%n%n"/>
+      </layout>
+  </appender>
+
+  <appender name="AUDIT" class="org.apache.log4j.RollingFileAppender">
+      <param name="File" value="../logs/audit.log"/>
+      <param name="Append" value="true"/>
+      <param name="encoding" value="UTF-8"/>
+      <param name="maxFileSize" value="10240KB"/>
+      <param name="maxBackupIndex" value="20"/>
+      <layout class="org.apache.log4j.PatternLayout">
+        <param name="ConversionPattern" value="%m%n"/>
+      </layout>
+  </appender>
+
+  <!-- Send email to the recipients when the DTM message is not processed  -->
+  <!--Begin CO Email
+  <appender name="EMAILCO" class="org.apache.log4j.net.SMTPAppender">
+      <param name="Threshold" value="FATAL"/>
+      <param name="BufferSize" value="512"/>
+      <param name="SMTPPort" value="$SMTP_PORT$"/>
+      <param name="SMTPHost" value="$SMTP_HOST$"/>
+      <param name="From" value="$FROM_ADDRESS$"/>
+      <param name="To" value="$TO_ADDRESS$"/>
+      <param name="Subject" value="Unable to send DTM - EJournal to CentralOffice from StoreID: $STORE_ID$"/>
+      <layout class="org.apache.log4j.PatternLayout">
+        <param name="ConversionPattern" value="Date: %d{dd/MM/yyyy HH:mm:ss}  Priority Level: %-5p%n%nSubject: DTM - EJournals Failure Alert - CentralOffice%nStore Address: $SERVER_HOST$ %n%nDescription: ORPOS has encountered an error during sending transactions and EJournals to CentralOffice%n%nError Details: Class Name=>[%c]%n%n%m%n%n"/>
+      </layout>
+  </appender>
+  End CO Email-->
+  
+  <!-- Send email to the recipients when the webservice server is down  -->
+  <!--Begin Email
+  <appender name="EMAIL" class="org.apache.log4j.net.SMTPAppender">
+      <param name="Threshold" value="FATAL"/>
+      <param name="BufferSize" value="512"/>
+      <param name="SMTPPort" value="$SMTP_PORT$"/>
+      <param name="SMTPHost" value="$SMTP_HOST$"/>
+      <param name="From" value="$FROM_ADDRESS$"/>
+      <param name="To" value="$TO_ADDRESS$"/>
+      <param name="Subject" value="Unable to Connect to the Server from StoreID: $STORE_ID$"/>
+      <layout class="org.apache.log4j.PatternLayout">
+        <param name="ConversionPattern" value="Date: %d{dd/MM/yyyy HH:mm:ss}  Priority Level: %-5p%n%nStore Address: $SERVER_HOST$ %n%nDescription: ORPOS has encountered an error during processing Message%n%nError Details: Class Name=>[%c]%n%n%m%n%n"/>
+      </layout>
+  </appender>
+  End Email-->
+
+ <!--  Performance Logging - to be enabled only for perfomance measurements
+  <appender name="Performance" class="org.apache.log4j.RollingFileAppender">
+      <param name="File" value="../logs/Performance.log"/>
+      <param name="Append" value="true"/>
+      <param name="maxFileSize" value="10240KB"/>
+      <param name="maxBackupIndex" value="20"/>
+      <layout class="org.apache.log4j.PatternLayout">
+        <param name="ConversionPattern" value="%-5p %d %-5r (%t:%c):%n [%l] %n      %m%n%n"/>
+      </layout>
+  </appender>
+   -->
+
+
+
+  <!-- ====================== -->
+  <!-- More Appender examples -->
+  <!-- ====================== -->
+
+  <appender name="ASYNC" class="org.apache.log4j.AsyncAppender">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+    <!--appender-ref ref="LF5Appender"/-->
+  </appender>
+
+
+  <!-- ================ -->
+  <!-- Limit categories -->
+  <!-- ================ -->
+  <category name="oracle">
+        <priority value="ERROR" />
+  </category>
+
+  <category name="com">
+        <priority value="ERROR" />
+  </category>
+
+  <category name="org">
+        <priority value="WARN" />
+  </category>
+  
+
+<!-- Limit Foundation Logging -->
+  <category name="oracle.retail.stores.foundation">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.foundation.manager.Technician">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.foundation.tour">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.foundation.manager.data.JdbcDataConnection">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.foundation.comm.jms.JMSBroker">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.domain.manager.externalorder.atg">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.domain.manager.payment.pincomm">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.domain.manager.payment.ajb">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.commext.connector.webservice">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.common.webservice">
+        <priority value="INFO" />
+  </category>
+
+<!-- Limit Domain Logging -->
+  <category name="oracle.retail.stores.domain">
+        <priority value="WARN" />
+  </category>
+  <category name="oracle.retail.stores.domain.manager.daemon">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.domain.arts">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.domain.manager.tenderauth.isd.itk">
+        <priority value="INFO" />
+  </category>
+  <category name="DOM">
+        <priority value="ERROR" />
+  </category>
+  <category name="oracle.retail.stores.domain.manager.messagecenter.MessageCenterListener">
+        <priority value="INFO" />
+  </category>
+
+<!-- Limit Pos Logging -->
+  <category name="POS.UI">
+        <priority value="ERROR" />
+  </category>
+  <category name="oracle.retail.stores.pos.receipt.EYSPrintableDocument">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.pos.ado.tender.TenderDebitADO">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.pos.ado.tender.TenderCreditADO">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.pos.ado.tender.TenderGiftCardADO">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.pos.ado.tender.TenderCheckADO">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.pos.manager.journal.POSJMSJournalHandler">
+        <priority value="INFO" />
+  </category>
+  <category name="oracle.retail.stores.pos.services">
+        <priority value="WARN" />
+  </category>
+  <category name="oracle.retail.stores.pos.services.main.tdo.MainTDO">
+        <priority value="INFO" />
+  </category>
+
+  <!-- Limit Axis2 debug logging -->
+  <logger name="org.apache.commons.httpclient">
+       <level value="ERROR"/>
+  </logger>
+  <logger name="httpclient.wire.header">
+       <level value="ERROR"/>
+  </logger>
+  <logger name="httpclient.wire.content">
+       <level value="ERROR"/>
+  </logger>
+
+  <!--  Returns Management Logging -->
+  <logger name="oracle.retail.stores.posrmint">
+       <level value="INFO"/>
+  </logger>
+
+  <!-- JPA Logging -->  
+  <logger name="org.eclipse.persistence">
+	<level value="ERROR"/>
+  </logger>
+  
+  <logger name="oracle.retail.stores.common.jaxws.connector.JAXWSConnector">
+       <level value="ERROR"/>
+  </logger>  
+  
+   
+   <!-- AUDIT Logging.  Audit Logging should remain at INFO level. -->
+
+    <category name="oracle.retail.stores.commerceservices.audit.event">
+    </category>
+    <category name="log4j.additivity.oracle.retail.stores.commerceservices.audit.event=false">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.ENTER_BUSINESS_DATE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.START_OF_DAY">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.END_OF_DAY">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.REGISTER_OPEN">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.REGISTER_CLOSE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.TILL_RECONCILE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.TILL_OPEN">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.TILL_CLOSE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.TILL_SUSPEND">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.TILL_RESUME">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.COUNT_FLOAT_AT_RECONCILE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.ADD_EMPLOYEE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.MODIFY_EMPLOYEE_INFORMATION">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.ADD_TEMPORARY_EMPLOYEE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.MODIFY_TEMPORARY_EMPLOYEE_INFORMATION">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.ENROLL_EMPLOYEE_FINGERPRINT">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.DUPLICATE_EMPLOYEE_FINGERPRINT">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.RESET_EMPLOYEE_PASSWORD">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.RESET_TEMPORARY_EMPLOYEE_PASSWORD">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.CHANGE_PASSWORD">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.USER_LOGOUT">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.USER_LOGIN">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.USER_LOCK_OUT">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.USER_LOGIN_WITH_FINGERPRINT">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.LAUNCH_BROWSER">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.ADD_ROLE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.EDIT_ROLE">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+    <category name="oracle.retail.stores.commerceservices.audit.event.MODIFY_APPLICATION_PARAMETER">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+    <category name="oracle.retail.stores.commerceservices.audit.event.TRANSACTION_TENDERED_WITH_AUTHORIZABLE_TENDER">
+            <priority value="INFO" />
+            <appender-ref ref="AUDIT"/>
+    </category>
+
+  <!-- Siebel Integration Logging -->
+      <category name="SiebelOrderFunded">
+            <priority value="INFO" />
+    </category>
+    <category name="SiebelOrderPayment">
+            <priority value="INFO" />
+    </category>
+    <category name="SiebelTxnSync">
+            <priority value="INFO" />
+    </category>
+
+
+    <!--Enterprise DTM and EJournals logging  -->
+    <!--Begin CO Email
+    <category name="oracle.retail.stores.enterpriseconnection.manager.EnterpriseWebServiceOperation">
+        <priority value="ERROR" />
+        <appender-ref ref="EMAILCO"/>
+        <appender-ref ref="FILE"/>
+    </category>
+    End CO Email-->
+    
+    <!--  Send Email where ever there is a connection refused issue -->
+    <!--Begin Email
+    <category name="oracle.retail.stores.common.jaxws.connector.JAXWSConnector">
+        <priority value="ERROR" />
+        <appender-ref ref="EMAIL"/>
+        <appender-ref ref="FILE"/>
+    </category>
+    End Email-->      
+
+     <!-- Performance Logging
+    <category name="PerformanceLog">
+        <priority value="INFO" class="oracle.retail.stores.commerceservices.logging.PerformanceLevel" />
+        <appender-ref ref="Performance"/>
+    </category>
+     -->
+  <!-- ======================= -->
+  <!-- Setup the Root category -->
+  <!-- ======================= -->
+
+  <root>
+    <!-- appender-ref ref="CHAINSAW"/ -->
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="LastNEntries" />
+  </root>
+
+</log4j:configuration>

@@ -1,0 +1,160 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/lookup/lookuporder.xml /main/20 2013/05/01 10:33:34 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     04/29/13 - When transaction lookup for returns (by trans id,
+ *                         customer number, etc.) fails to find a match, the
+ *                         applicaiton gives the user the options to return by
+ *                         item. The modification supports the same behavior
+ *                         for lookup by Order.
+ *    jswan     10/25/12 - Modified to support returns by order.
+ *    sgu       07/16/12 - add order search by customer info
+ *    sgu       07/13/12 - fix the start site of order lookup
+ *    sgu       07/12/12 - remove retrieve order summary by status or by
+ *                         emessage
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="OrderLookup" package="oracle.retail.stores.pos.services.order.lookup" tourcam="OFF">
+     <COMMENT>
+          Retrieves order summaries and orders from the database or Conductor.
+     </COMMENT>
+<!-- cargo -->
+<CARGO class="OrderCargo" package="oracle.retail.stores.pos.services.order.common"/>
+
+<SERVICECODE>
+<!-- sites -->
+     <SITEACTION class="NarrowSearchSite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl"/>
+     <SITEACTION class="LookupSummarySite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl"/>
+     <SITEACTION class="LookupTooManySite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl"/>
+     <SITEACTION class="DisplayNoMatchSite" package="oracle.retail.stores.pos.services.order.lookup" template="siteaction.tpl"/>
+     <SITEACTION class="LookupOrderSite" package="oracle.retail.stores.pos.services.order.common" />
+<!-- letters -->
+     <LETTER name="Success"/>
+     <LETTER name="TooMany"/>
+     <LETTER name="Next"/>
+     <LETTER name="Status"/>
+     <LETTER name="DateRange"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Ok"/>
+     <LETTER name="DbError"/>
+     <LETTER name="NoMatch"/>
+     <LETTER name="NotFound"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Retry"/>
+     <LETTER name="ReturnItem"/>
+<!-- aisles/roads -->
+     <LANEACTION class="NoMatchConversionAisle" package="oracle.retail.stores.pos.services.order.lookup" template="laneaction.tpl"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="NarrowSearchAisle" package="oracle.retail.stores.pos.services.order.lookup" template="laneaction.tpl"/>
+     <LANEACTION class="ValidateDateRangeAisle" package="oracle.retail.stores.pos.services.order.lookup" template="laneaction.tpl"/>
+     <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common" />
+<!-- shuttles -->
+     <SHUTTLE class="OrderShuttle" package="oracle.retail.stores.pos.services.order.common"/>
+<!-- shuttles -->
+     <SIGNAL class="IsReadOrderFromSummary" package="oracle.retail.stores.pos.services.order.common" />
+     
+ </SERVICECODE>
+ <MAP>
+      <REGION region="SERVICE" startsite="LookupSummary">
+          <SITE name="LookupSummary" siteaction="LookupSummarySite">
+               <COMMENT>
+                  lookup the orders
+               </COMMENT>
+               <AISLE name="LookupSummaryOkFailure" letter="Ok" laneaction="FailureConversionAisle">
+               </AISLE>
+               <AISLE name="LookupSummaryDBError" letter="DbError" laneaction="DataBaseErrorAisle">
+               </AISLE>
+               <ROAD name="LookupSummaryNoMatch" letter="NotFound" destination="DisplayNoMatch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LookupSummarySuccess" letter="Success" destination="Final" tape="ADVANCE" record="ON" index="ON">
+                     <LIGHT signal="IsReadOrderFromSummary" negate="Y"/>
+               </ROAD>
+               <ROAD name="ReadOrderSuccess" letter="Success" destination="LookupOrderFromSummary" tape="ADVANCE" record="ON" index="ON">
+                     <LIGHT signal="IsReadOrderFromSummary"/>
+               </ROAD>
+               <ROAD name="LookupSummaryFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="LookupSummaryTooMany" letter="TooMany" destination="LookupTooMany" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="NarrowSearch" siteaction="NarrowSearchSite">
+               <COMMENT>
+                    date range order search
+               </COMMENT>
+               <AISLE name="NarrowSearchOkContinue" letter="Ok" laneaction="ContinueConversionAisle">
+               </AISLE>
+               <AISLE name="NarrowSearchValidateDateRange" letter="Next" laneaction="ValidateDateRangeAisle">
+               </AISLE>
+               <AISLE name="NarrowSearchCancelFailure" letter="Cancel" laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="NarrowSearchUndo" letter="Undo" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NarrowSearchFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+			   <ROAD name="NarrowSearchSuccess" letter="Success" destination="LookupSummary" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NarrowSearchContinue" letter="Continue" destination="NarrowSearch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="LookupTooMany" siteaction="LookupTooManySite">
+               <COMMENT>
+                    displays errortoomanymatches dialog screen
+               </COMMENT>
+               <AISLE name="LookupTooManyOk" letter="Ok" laneaction="NarrowSearchAisle">
+                    <COMMENT>
+                        determines whether to continue with status or date range search
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="LookupTooManyDateRange" letter="DateRange" destination="NarrowSearch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="DisplayNoMatch" siteaction="DisplayNoMatchSite">
+               <COMMENT>
+                  Displays the no match screen mails NoMatch letter to calling service
+               </COMMENT>
+               <AISLE name="DisplayNoMatchOkNoMatch" letter="Ok" laneaction="NoMatchConversionAisle">
+               </AISLE>
+               <ROAD name="DisplayNoMatchNoMatch" letter="NoMatch" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DisplayNoMatchNoMatchRetry" letter="Retry" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DisplayNoMatchNoMatchReturnItem" letter="ReturnItem" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="LookupOrderFromSummary" siteaction="LookupOrderSite">
+               <AISLE name="LookupOrderOkFailure" letter="Ok" laneaction="FailureConversionAisle">
+               </AISLE>
+               <AISLE name="LookupOrderDBError" letter="DbError" laneaction="DataBaseErrorAisle">
+               </AISLE>
+               <ROAD name="LookupOrderFailure" letter="Failure" destination="Final" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="LookupOrderSuccess" letter="Success" destination="Final" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD name="LookupOrderNoMatch" letter="NotFound" destination="DisplayNoMatch" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </SITE>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+     </REGION>
+</MAP>
+</SERVICE>

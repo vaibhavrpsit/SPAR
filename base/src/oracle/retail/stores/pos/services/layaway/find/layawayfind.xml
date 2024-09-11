@@ -1,0 +1,935 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mchellap  05/01/14 - Removed IsSerialisationEnabledSignal from
+ *                         SerialNumberEntered ailse.
+ *    mchellap  02/27/14 - Added support for checking duplicate serial numbers
+ *    mchellap  02/26/14 - Fixed serial number creation flow for serialized
+ *                         layaway items.
+ *    vtemker   12/10/13 - Forward Port - Timeout in Layaway payment detail
+ *                         screen not being written to TR_TRN table.
+ *    cgreene   11/06/13 - deprecate negative version of trafficlight and just
+ *                         use XML option instead
+ *    vtemker   07/01/13 - Forward port: Persist Canceled or Timeout Layway
+ *                         pickups 13846910
+ *    icole     06/19/13 - Added support for adding a customer to a layaway if
+ *                         the original customer has been deleted.
+ *    rsnayak   11/30/10 - forward port 10158820 fix for timeout
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    nkgautam  12/16/09 - code review updates
+ *    nkgautam  12/15/09 - tour changes for serialisation
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="findlayaway"
+         package="oracle.retail.stores.pos.services.layaway.find"
+         tourcam="ON">
+    <COMMENT>
+        This service finds 1 or more Layaways.
+    </COMMENT>
+    <CARGO class="LayawayCargo" package="oracle.retail.stores.pos.services.layaway"/>
+    <SERVICECODE>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Layaway"/>
+        <LETTER name="Customer"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Next"/>
+        <LETTER name="Success"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Payment"/>
+        <LETTER name="Pickup"/>
+        <LETTER name="Delete"/>
+        <LETTER name="ExitLayaway"/>
+        <LETTER name="NotFound"/>
+        <LETTER name="Expiration"/>
+        <LETTER name="Transaction"/>
+        <LETTER name="No"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Retry"/>
+        <LETTER name="QueueFull"/>
+        <LETTER name="Link"/>
+        <LETTER name="Validate"/>
+        <LETTER name="Duplicate"/>
+
+        <SHUTTLE class="CustomerLaunchShuttle"/>
+        <SHUTTLE class="CustomerReturnShuttle"/>
+        <SHUTTLE class="AddCustomerLaunchShuttle"/>
+        <SHUTTLE class="AddCustomerReturnShuttle"/>
+        <SHUTTLE class="SerialValidationLaunchShuttle" package="oracle.retail.stores.pos.services.layaway.find"/>
+        <SHUTTLE class="SerialValidationReturnShuttle" package="oracle.retail.stores.pos.services.layaway.find"/>
+        <SHUTTLE class="LayawayShuttle" package="oracle.retail.stores.pos.services.layaway"/>
+        <SHUTTLE class="LayawayDeleteLaunchShuttle" package="oracle.retail.stores.pos.services.layaway.delete"/>
+        <SHUTTLE class="LayawayDeleteReturnShuttle" package="oracle.retail.stores.pos.services.layaway.delete"/>
+
+        <SITEACTION class="DisplayFindLayawaySite"/>
+        <SITEACTION class="DisplayLayawayNumberSite"/>
+        <SITEACTION class="LookupLayawaySite"/>
+        <SITEACTION class="LayawayCustomerSearchSite"/>
+        <SITEACTION class="DisplayLayawayListSite"/>
+        <SITEACTION class="GetTransactionSite"/>
+        <SITEACTION class="CheckExpirationSite"/>
+        <SITEACTION class="UpdateLayawaySite"/>
+        <SITEACTION class="PrintCancelTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="SaveCanceledTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="EnterSerialNumberSite" package="oracle.retail.stores.pos.services.layaway.find"/>
+        <SITEACTION class="ModifySerialisedItemCounterSite" package="oracle.retail.stores.pos.services.layaway.find"/>
+
+        <SITEACTION class="OfflineExitSite"/>
+        <LANEACTION class="LayawayNumberSearchRoad"/>
+        <LANEACTION class="LayawayPaymentAisle"/>
+        <LANEACTION class="LayawayPickupAisle"/>
+        <LANEACTION class="LayawayDeleteAisle"/>
+        <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="DisplayExpiredLayawayAisle"/>
+        <LANEACTION class="LayawayCanceledRoad"/>
+        <LANEACTION class="LayawayUndoRoad"/>
+        <LANEACTION class="CustomerUndoRoad"/>
+        <LANEACTION class="ExitLayawayConversionAisle" package="oracle.retail.stores.pos.services.layaway"/>
+        <LANEACTION class="DisplayLayawayOfflineAisle"/>
+        <LANEACTION class="CheckForSerialisedItemAisle" package="oracle.retail.stores.pos.services.layaway.find"/>
+        <LANEACTION class="SerialNumberEnteredAisle"/>
+
+
+            <SIGNAL class="IsDeleteSignal"/>
+            <SIGNAL class="IsNotDeleteSignal"/>
+
+            <SIGNAL class="IsOfflineSignal"                package="oracle.retail.stores.pos.services.common"/>
+            <SIGNAL class="IsOnlineSignal"                 package="oracle.retail.stores.pos.services.common"/>
+            <SIGNAL class="IsSerialisationEnabledSignal"   package="oracle.retail.stores.pos.services.common"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE"
+                startsite="DisplayFindLayaway">
+
+            <SITE name="DisplayFindLayaway"
+                  siteaction="DisplayFindLayawaySite">
+                <ROAD  name="FindLayawayUndone"
+                       letter="Undo"
+                       laneaction="LayawayUndoRoad"
+                       destination="Final"
+                       tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FindLayawayCanceled"
+                      letter="Cancel"
+                      laneaction="LayawayCanceledRoad"
+                      destination="PrintCancelTransaction"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FindLayawayNumberSelected"
+                      letter="Layaway"
+                      destination="DisplayLayawayNumber"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="FindLayawayCustomerSelected"
+                      letter="Customer"
+                      destination="CustomerStation"
+                      tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+            </SITE>
+
+            <SITE name="DisplayLayawayNumber"
+                  siteaction="DisplayLayawayNumberSite">
+                <ROAD name="UndoLayawayNumber"
+                      letter="Undo"
+                      destination="DisplayFindLayaway"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="CancelLayawayNumber"
+                      letter="Cancel"
+                      laneaction="LayawayCanceledRoad"
+                      destination="PrintCancelTransaction"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="LayawayNumberEntered"
+                      letter="Next"
+                      laneaction="LayawayNumberSearchRoad"
+                      destination="LookupLayaway"
+                      tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+            </SITE>
+
+            <STATION
+                name="CustomerStation"
+                servicename="customer.main.customermain"
+                targettier="CURRENTTIER"
+                launchshuttle="CustomerLaunchShuttle"
+                returnshuttle="CustomerReturnShuttle">
+                <COMMENT>
+                    Transfer control to customer services to execute
+                    Customer functionality.
+                </COMMENT>
+                <ROAD
+                    name="CustomerContinue"
+                    letter="Continue"
+                    destination="LayawayCustomerSearch"
+                    tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                        Road to traverse when the Customer service runs to
+                        completion.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerUndo"
+                    letter="Undo"
+                    laneaction="CustomerUndoRoad"
+                    destination="DisplayFindLayaway"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        Road to traverse when the user backs out of the Customer
+                        service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerCancel"
+                    letter="Cancel"
+                    laneaction="LayawayCanceledRoad"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        Road to traverse when the user Cancels out of the Customer
+                        service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerOffline"
+                    letter="Offline"
+                    destination="LayawayCustomerSearch"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        Road to traverse when the Customer service is offline
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerFailure"
+                    letter="Failure"
+                    destination="DisplayFindLayaway"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SITE name="LayawayCustomerSearch"
+                  siteaction="LayawayCustomerSearchSite">
+                <AISLE name="DataBaseErrorLayawayCustomerSearch"
+                      letter="Failure"
+                      laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        If the database goes down during the search
+                        for the layaway, show the database error
+                        screen. It should return with an "Enter"
+                        letter, but sometimes returns with an "Ok"
+                    </COMMENT>
+                </AISLE>
+               <AISLE name="DataBaseOfflineLayawayCustomerSearch"
+                      letter="NotFound"
+                      laneaction="DisplayLayawayOfflineAisle">
+                    <COMMENT>
+                        If the database goes down during the search
+                        for the layaway, show the database error
+                        screen. It should return with an "Enter"
+                        letter, but sometimes returns with an "Ok"
+                    </COMMENT>
+                      <LIGHT signal="IsOfflineSignal"/>
+                </AISLE>
+                <ROAD name="NotFoundCustomerSearch"
+                      letter="NotFound"
+                      destination="CustomerStation"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        No Customer was found to use in a search
+                        for a layaway.
+                    </COMMENT>
+                    <LIGHT signal="IsOnlineSignal"/>
+                </ROAD>
+
+
+                <ROAD name="OfflineDeclinedCustomerSearch"
+                      letter="No"
+                      destination="OfflineExit"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="OfflineAcceptedCustomerSearch"
+                      letter="Yes"
+                      destination="LayawayPaymentStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+
+                 <ROAD name="NoErrorLayawayCustomerSearch"
+                      letter="Ok"
+                      destination="CustomerStation"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        After the user acknowledges a database error during
+                        the layaway search.
+                    </COMMENT>
+
+                </ROAD>
+                <ROAD name="SuccessLayawayCustomerSearch"
+                      letter="Success"
+                      destination="DisplayLayawayList"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        Found the list of layaways by customer.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="LookupLayaway"
+                  siteaction="LookupLayawaySite">
+                <AISLE name="DataBaseErrorLayawaySearch"
+                      letter="Failure"
+                      laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        If the database goes down during the search
+                        for the layaway, show the database error
+                        screen. It should return with an "Enter"
+                        letter, but sometimes returns with an "Ok"
+                    </COMMENT>
+                      <LIGHT signal="IsOnlineSignal"/>
+                </AISLE>
+                <AISLE name="DataBaseOfflineLayawaySearch"
+                      letter="Failure"
+                      laneaction="DisplayLayawayOfflineAisle">
+                    <COMMENT>
+                        If the database goes down during the search
+                        for the layaway, show the database error
+                        screen. It should return with an "Enter"
+                        letter, but sometimes returns with an "Ok"
+                    </COMMENT>
+                      <LIGHT signal="IsOfflineSignal"/>
+                </AISLE>
+                <ROAD name="OfflineDeclinedLayawaySearch"
+                      letter="No"
+                      destination="OfflineExit"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="OfflineAcceptedLayawaySearch"
+                      letter="Yes"
+                      destination="LayawayPaymentStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="NoErrorLayawayLayawaySearch"
+                      letter="Ok"
+                      destination="DisplayLayawayNumber"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        After the user acknowledges a database error during
+                        the layaway search.
+                    </COMMENT>
+                </ROAD>
+                 <ROAD name="NoLayawayCustomerfound"
+                      letter="Customer"
+                      destination="AddCustomerStation"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        After the user acknowledges a database error during
+                        the layaway search.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="SuccessLayawayLayawaySearch"
+                      letter="Success"
+                      destination="DisplayLayawayList"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        Found the list of layaways by customer.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="DisplayLayawayList"
+                  siteaction="DisplayLayawayListSite">
+                <AISLE name="LayawayPaymentSelected"
+                      letter="Payment"
+                      laneaction="LayawayPaymentAisle">
+                    <COMMENT>
+                        This Aisle will retrieve the Layaway from the database
+                        if required. Then send the LayawayPayment letter.
+                        If a database error occurs, it sends a Failure letter
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="LayawayPickupSelected"
+                      letter="Pickup"
+                      laneaction="LayawayPickupAisle">
+                    <COMMENT>
+                        This Aisle will saves the Pickup data operatin.
+                        Then send the LayawayTransaction letter.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="LayawayDeleteSelected"
+                      letter="Delete"
+                      laneaction="LayawayDeleteAisle">
+                    <COMMENT>
+                        This Aisle will saves the Pickup data operatin.
+                        Then send the LayawayTransaction letter.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DataBaseErrorLayawayList"
+                      letter="Failure"
+                      laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        If the database goes down during the search
+                        for the layaway, show the database error
+                        screen. It should return with an "Enter"
+                        letter, but sometimes returns with an "Ok"
+                    </COMMENT>
+                      <LIGHT signal="IsOnlineSignal"/>
+                </AISLE>
+                <AISLE name="DataBaseOfflineLayawayList"
+                      letter="Failure"
+                      laneaction="DisplayLayawayOfflineAisle">
+                    <COMMENT>
+                        If the database goes down during the search
+                        for the layaway, show the database error
+                        screen. It should return with an "Enter"
+                        letter, but sometimes returns with an "Ok"
+                    </COMMENT>
+                      <LIGHT signal="IsOfflineSignal"/>
+                </AISLE>
+                <ROAD name="OfflineDeclinedLayawayList"
+                      letter="No"
+                      destination="OfflineExit"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="OfflineAcceptedLayawayList"
+                      letter="Yes"
+                      destination="LayawayPaymentStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="LayawayTransaction"
+                     letter="Transaction"
+                     destination="GetTransaction"
+                     tape="ADVANCE"
+                     record="ON"
+                     index="ON">
+                    <COMMENT>
+                        This Road leads to the GetTransactionSite.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="AcknowledgeErrorLayawayList"
+                      letter="Ok"
+                      destination="BACKUP1"
+                      tape="REWIND" record="OFF" index="OFF">
+                    <COMMENT>
+                        After the user acknowledges a database error during
+                        the layaway search.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="LayawayListUndo"
+                     letter="Undo"
+                     destination="BACKUP1"
+                     tape="REWIND" record="OFF" index="OFF">
+                    <COMMENT>
+                        This Road leads to the previous Site
+                        if the undo button was pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="LayawayListCancel"
+                     letter="Cancel"
+                     laneaction="LayawayCanceledRoad"
+                     destination="PrintCancelTransaction"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        This Road leads to the calling service
+                        if the cancel button was pressed.
+                    </COMMENT>
+                </ROAD>
+
+            </SITE>
+
+            <STATION
+                name="AddCustomerStation"
+                servicename="customer.add.customeradd"
+                targettier="CURRENTTIER"
+                launchshuttle="AddCustomerLaunchShuttle"
+                returnshuttle="AddCustomerReturnShuttle">
+                <ROAD
+                      name="AddCustomerLinked"
+                      letter="Link"
+                      destination="UpdateLayaway"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                   </ROAD>                
+                <ROAD name="Customer Added"
+                     letter="Continue"
+                     destination="UpdateLayaway"
+                     tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>   
+                <ROAD
+                    name="AddCustomerCancel"
+                    letter="Cancel"
+                    laneaction="LayawayCanceledRoad"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                    <COMMENT>
+                        Road to traverse when the user Cancels out of the Customer
+                        service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="UndoAddSelected"
+                     letter="Undo"
+                     destination="DisplayFindLayaway"
+                     tape="REWIND"
+                     record="OFF"
+                      index="OFF">
+                  </ROAD>
+             </STATION>
+             
+            <SITE name="UpdateLayaway" siteaction="UpdateLayawaySite">
+                <ROAD name="LayawayUpdated"
+                    letter="Continue"
+                    destination="DisplayLayawayList"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>   
+                <ROAD name="LayawayUpdateFailed"
+                    letter="Cancel"
+                    laneaction="LayawayCanceledRoad"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>   
+            </SITE>
+                     
+            <SITE name="GetTransaction" siteaction="GetTransactionSite">
+                <AISLE name="DataBaseErrorGetTransaction"
+                      letter="Failure"
+                      laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                        If the database goes down during the search
+                        for the layaway, show the database error
+                        screen. It should return with an "Enter"
+                        letter, but sometimes returns with an "Ok"
+                    </COMMENT>
+                      <LIGHT signal="IsOnlineSignal"/>
+                </AISLE>
+                <AISLE name="DataBaseOfflineGetTransaction"
+                      letter="Failure"
+                      laneaction="DisplayLayawayOfflineAisle">
+                    <COMMENT>
+                        If the database goes down during the search
+                        for the layaway, show the database error
+                        screen. It should return with an "Enter"
+                        letter, but sometimes returns with an "Ok"
+                    </COMMENT>
+                      <LIGHT signal="IsOfflineSignal"/>
+                </AISLE>
+                <ROAD name="OfflineDeclinedGetTransaction"
+                      letter="No"
+                      destination="OfflineExit"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="OfflineAcceptedGetTransaction"
+                      letter="Yes"
+                      destination="LayawayPaymentStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="OfflineDelete"
+                      letter="Offline"
+                      destination="DisplayLayawayList"
+                      tape="ADVANCE" record="ON" index="OFF">
+                </ROAD>
+                <ROAD name="GetTransactionErrorAcknowledged"
+                      letter="Ok"
+                      destination="BACKUP1"
+                      tape="REWIND" record="OFF" index="OFF">
+                    <COMMENT>
+                        After the user acknowledges database error.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="GetTransactionExpirationSuccess"
+                      letter="Success"
+                      destination="CheckExpiration"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        After the user acknowledges the layaway is about to
+                        expire.
+                    </COMMENT>
+                      <LIGHT signal="IsNotDeleteSignal"/>
+                </ROAD>
+                <ROAD name="GetTransactionDeleteSuccess"
+                      letter="Success"
+                      destination="LayawayDeleteStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        After the user acknowledges the layaway is about to
+                        expire.
+                    </COMMENT>
+                      <LIGHT signal="IsDeleteSignal"/>
+                </ROAD>
+            </SITE>
+
+            <SITE name="CheckExpiration"
+                  siteaction="CheckExpirationSite">
+                <AISLE name="LayawayExpired"
+                      letter="Expiration"
+                      laneaction="DisplayExpiredLayawayAisle">
+                    <COMMENT>
+                        This Aisle will display the expired layaway dialog.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="CheckForSerialisedItem"
+                      letter="Continue"
+                      laneaction="CheckForSerialisedItemAisle">
+                    <COMMENT>
+                        This Aisle will check for serialised items in transaction.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="GetSerialNumber"
+                      letter="SerialNumber"
+                      destination="EnterSerialNumber"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        This road will be taken when serialised items are present in
+                        the transaction.
+                    </COMMENT>
+                </ROAD>
+                <!-- ROAD name="ExpiredLayawayPaymentAcknowledged"
+                      letter="Continue"
+                      destination="LayawayPaymentStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        After the user acknowledges the layaway is about to
+                        expire.
+                    </COMMENT>
+                </ROAD-->
+                <ROAD name="NoSerialisedItemRoad"
+                      letter="NoSerialisedItem"
+                      destination="LayawayPaymentStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        When the transaction contains no serialised item.
+                    </COMMENT>
+                </ROAD>
+
+            </SITE>
+
+            <SITE name="EnterSerialNumber"
+                  siteaction="EnterSerialNumberSite">
+                <COMMENT>
+                    This site prompts the user to enter the serial
+                    number of the serialized items in transaction.
+                </COMMENT>
+                <AISLE name="SerialNumberEnetered"
+                      letter="Next"
+                      laneaction="SerialNumberEnteredAisle"
+                      record="OFF" index="OFF">
+                      <COMMENT>
+                          This road is traversed after user enters serial number
+                      </COMMENT>
+                </AISLE>
+                <ROAD name="DuplicateSerialNumber"
+                      letter="Duplicate"
+                      destination="ModifySerialisedItemCounter"
+                      record="OFF" index="OFF">
+                      <COMMENT>
+                          This road is traversed when a duplicate serial number is entered
+                      </COMMENT>
+                </ROAD>
+                <ROAD name="SerialNumberValidation"
+                      letter="Validate"
+                      destination="ValidateSerialStation"
+                      record="OFF" index="OFF">
+                      <LIGHT signal="IsSerialisationEnabledSignal"/>
+                      <COMMENT>
+                          This road is traversed when serialization is enabled
+                      </COMMENT>
+                </ROAD>
+                <ROAD name="SerialNumberValidation"
+                      letter="Validate"
+                      destination="EnterSerialNumber"
+                      record="OFF" index="OFF">
+                      <LIGHT signal="IsSerialisationEnabledSignal" negate="Y"/>
+                      <COMMENT>
+                          This road is traversed when serialization is disabled
+                      </COMMENT>
+                </ROAD>
+                <ROAD name="SerialNumbersEntryCompleted"
+                      letter="Continue"
+                      destination="LayawayPaymentStation"
+                      tape="ADVANCE" record="ON" index="OFF">
+                    <COMMENT>
+                        All serial number entry is completed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="EnterSerialNumberUndo"
+                      letter="Undo"
+                      destination="DisplayLayawayList"
+                      tape="REWIND" record="OFF" index="OFF">
+
+                </ROAD>
+                <ROAD
+                    name="EnterSerialNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD name="Timeout"
+                    letter="Timeout"
+                    laneaction="LayawayCanceledRoad"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="LayawayPaymentFailedCanceled"
+                    letter="Cancel"
+                    laneaction="LayawayCanceledRoad"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="ModifySerialisedItemCounter" siteaction="ModifySerialisedItemCounterSite">
+                <ROAD name="ItemCounterDecrement"
+                     letter="Continue"
+                     destination="EnterSerialNumber"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </SITE>
+
+            <STATION name="ValidateSerialStation"
+                   servicename="services.serialvalidation.serialvalidation"
+                   targettier="CURRENTTIER"
+                   launchshuttle="SerialValidationLaunchShuttle"
+                   returnshuttle="SerialValidationReturnShuttle">
+               <COMMENT>
+                    This station goes to the Validate Serial Station
+               </COMMENT>
+               <ROAD name="SellableRoad"
+                     letter="Sellable"
+                     destination="EnterSerialNumber"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="ValidationErrorRoad"
+                     letter="Invalid"
+                     destination="ModifySerialisedItemCounter"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+           </STATION>
+
+            <STATION
+                name="LayawayPaymentStation"
+                servicename="layaway.payment.layawaypayment"
+                targettier="CURRENTTIER"
+                launchshuttle="LayawayShuttle"
+                returnshuttle="LayawayShuttle">
+              <ROAD
+                  name="LayawayPaymentFailedCanceled"
+                  letter="Cancel"
+                  laneaction="LayawayCanceledRoad"
+                  destination="PrintCancelTransaction"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF"/>
+              <ROAD
+                  name="LayawayPaymentUndone"
+                  letter="Undo"
+                  destination="BACKUP1"
+                  tape="REWIND"
+                  record="OFF"
+                  index="OFF"/>
+              <ROAD
+                  name="LayawayPaymentSucceeded"
+                  letter="ExitLayaway"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF"/>
+                <ROAD
+                    name="LayawayPaymentQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                  name="LayawayPaymentTimeout"
+                  letter="Timeout"
+                  laneaction="LayawayCanceledRoad"
+                  destination="PrintCancelTransaction"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF"/>
+            </STATION>
+
+            <STATION
+                name="LayawayDeleteStation"
+                servicename="layaway.delete.layawaydelete"
+                targettier="CURRENTTIER"
+                launchshuttle="LayawayDeleteLaunchShuttle"
+                returnshuttle="LayawayDeleteReturnShuttle">
+              <ROAD
+                  name="LayawayDeleteCanceled"
+                  letter="Cancel"
+                  laneaction="LayawayCanceledRoad"
+                  destination="PrintCancelTransaction"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF"/>
+              <ROAD
+                  name="LayawayDeleteFailed"
+                  letter="Failure"
+                  destination="BACKUP1"
+                  tape="REWIND"
+                  record="OFF"
+                  index="OFF"/>
+              <ROAD
+                  name="LayawayDeleteUndone"
+                  letter="Undo"
+                  destination="BACKUP1"
+                  tape="REWIND"
+                  record="OFF"
+                  index="OFF"/>
+              <ROAD
+                  name="LayawayDeleteExit"
+                  letter="ExitLayaway"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="OFF"
+                  index="OFF"/>
+            </STATION>
+
+          <SITE name="PrintCancelTransaction"
+                  siteaction="PrintCancelTransactionSite">
+                <COMMENT>
+                    This site cancels the current transaction and
+                    prints the canceled transaction receipt.
+                </COMMENT>
+                <ROAD
+                    name="TransactionCanceled"
+                    letter="Continue"
+                    destination="SaveCanceledTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled after the transaction has been
+                        canceled.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TransactionTimeOut"
+                    letter="Timeout"
+                    destination="SaveCanceledTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled after the transaction has been
+                        TimedOut.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="PrintCancelTransactionRetrySelected"
+                    letter="Retry"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled after the operator has
+                        selected Retry from the Printer Offline dialog.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+          <SITE name="SaveCanceledTransaction"
+                  siteaction="SaveCanceledTransactionSite">
+                <COMMENT>
+                    This site saves the current canceled transaction.
+                </COMMENT>
+                <AISLE
+                    name="TransactionCancelSelected"
+                    letter="Continue"
+                    laneaction="ExitLayawayConversionAisle">
+                    <COMMENT>
+                        This aisle is traveled the service is called from
+                        crossreach.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="TransactionCanceled"
+                    letter="ExitLayaway"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled after the transaction has been
+                        canceled.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CanceledTransactionRetry"
+                    letter="Retry"
+                    destination="SaveCanceledTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CanceledTransactionQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+          <SITE name="OfflineExit"
+                  siteaction="OfflineExitSite">
+                <COMMENT>
+                    This site cancels the current transaction.
+                </COMMENT>
+                <ROAD
+                    name="OfflineCancelTransaction"
+                    letter="Cancel"
+                    laneaction="LayawayCanceledRoad"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if a transaction ID has been
+                        burned.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="OfflineExitLayaway"
+                    letter="ExitLayaway"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if NO transaction ID has been
+                        burned.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="BACKUP1" action="BACKUP"/>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+
+        </REGION>
+    </MAP>
+</SERVICE>

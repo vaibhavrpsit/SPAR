@@ -1,0 +1,218 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/specialorder/specialorder.xml /main/19 2013/08/12 15:26:52 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  08/12/13 - fixed sliding button issue on cancel order trans
+ *                         cancel
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+      4    360Commerce 1.3         12/19/2007 8:45:34 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin-4
+      3    360Commerce 1.2         3/31/2005 4:30:07 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:25:24 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:14:20 PM  Robert Pearse
+     $
+     Revision 1.3.4.1  2005/01/20 21:03:43  bwf
+     @scr 5126 Handle QueueFull letter inorder to go back to main options screen.
+
+     Revision 1.3  2004/03/26 00:24:23  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:52:00  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:20  cschellenger
+     updating to pvcs 360store-current
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+<SERVICE name="specialorder"
+    package="oracle.retail.stores.pos.services.specialorder"
+    tourcam="ON">
+    <COMMENT>
+        This service controls the special order processing new/add.
+    </COMMENT>
+    <CARGO class="SpecialOrderCargo">
+        <COMMENT>
+            This is the cargo class for the special order service.
+        </COMMENT>
+    </CARGO>
+    <SERVICECODE>
+        <!-- Letters -->
+        <LETTER name="Modify"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="New"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Success"/>
+        <LETTER name="Canceled"/>
+        <LETTER name="Completed"/>
+        <LETTER name="Done"/>
+        <LETTER name="QueueFull"/>
+        <LETTER name="ExitSpecialOrder"/>
+    
+        <!-- Lanes -->
+        <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <!-- Shuttles -->
+        <SHUTTLE class="SpecialOrderShuttle" package="oracle.retail.stores.pos.services.specialorder"/>
+        <SHUTTLE class="SpecialOrderFindReturnShuttle" package="oracle.retail.stores.pos.services.specialorder"/>
+        <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+        <!-- Sites -->
+        <SITEACTION class="ChooseSpecialOrderOptionSite">
+            <COMMENT>
+                Prompt the operator to choose a special order option
+            </COMMENT>
+        </SITEACTION>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="ChooseSpecialOrderOption">
+            <SITE name="ChooseSpecialOrderOption" siteaction="ChooseSpecialOrderOptionSite">
+                <COMMENT>
+                    Display the options for special order processing - new/find.
+                </COMMENT>
+                <ROAD
+                    name="SpecialOrderNewSelected"
+                    letter="New"
+                    destination="AddSpecialOrderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        Road to traverse if the operator chooses the New option.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="SpecialOrderFindSelected"
+                    letter="Modify"
+                    destination="OrderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse if the operator chooses the Find option.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoOptionChosen"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the operator chooses the Undo option.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelOptionChosen"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the operator chooses the Cancel option.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelOptionsMenu"
+                    letter="CancelMenu"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Road to traverse when the popup menu cancels option.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION
+                name="AddSpecialOrderStation"
+                servicename="specialorder.add.specialorderadd"
+                targettier="CURRENTTIER"
+                launchshuttle="SpecialOrderShuttle"
+                returnshuttle="SpecialOrderShuttle">
+                <AISLE
+                    name="ContinueSuccessConversion"
+                    letter="Continue"
+                    laneaction="SuccessConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="AddSpecialOrderFailure"
+                    letter="Failure"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AddSpecialOrderCancel"
+                    letter="Cancel"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AddSpecialOrdernUndo"
+                    letter="Undo"
+                    destination="Final" tape="REWIND" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AddSpecialOrderSuccess"
+                    letter="Success"
+                    destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="OrderStation"
+                servicename="services.order.order"
+                targettier="CURRENTTIER"
+                launchshuttle="FinancialCargoShuttle"
+                returnshuttle="SpecialOrderFindReturnShuttle">
+               <ROAD
+                   name="FindSpecialFailure"
+                   letter="Failure"                   
+                   destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                   name="FindSpecialOrderCancel"
+                   letter="Cancel"
+                   destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                   name="FindSpecialOrdernUndo"
+                   letter="Undo"
+                   destination="Final" tape="REWIND" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                   name="FindSpecialOrderSuccess"
+                   letter="Success"
+                   destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+               <ROAD
+                    name="FindSpecialOrderQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <ROAD
+                   name="ExitSpecialOrder"
+                   letter="ExitSpecialOrder"
+                   destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+               </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

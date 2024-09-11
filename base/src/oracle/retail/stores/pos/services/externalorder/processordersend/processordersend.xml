@@ -1,0 +1,137 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2010, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/externalorder/processordersend/processordersend.xml /main/6 2012/10/22 15:36:17 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   10/19/12 - Disable finding tax rules from destination postal
+ *                         code when VAT enabled.
+ *    sgu       06/10/10 - donot fail the flow if the destination zipcode has
+ *                         no tax rule associated
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    acadar    05/21/10 - additional changes for process order flow
+ *    acadar    05/14/10 - initial version for process external order tour
+ *    acadar    05/14/10 - initial version
+ *
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="processordersend"
+    package="oracle.retail.stores.pos.services.externalorder.processordersend"
+    tourcam="ON">
+    <COMMENT>
+        If the transaction contains an external order and the external order contained shipping, the send tax alternate flow is executed.
+    </COMMENT>
+    <CARGO class="ProcessOrderSendCargo" package="oracle.retail.stores.pos.services.externalorder.processordersend"/>
+
+    <SERVICECODE>
+    <!-- Sites -->
+        <SITEACTION class="UpdateTransactionShipmentSite"/>
+        <SITEACTION class="CheckShippingMethodSite"/>
+        <SITEACTION class="GetVatRulesSite"/>
+        <SITEACTION class="GetDestinationTaxRuleSite"/>
+    <!-- Shuttle -->        
+        <SHUTTLE class="ShipDestinationTaxRuleLaunchShuttle"/>
+        <SHUTTLE class="ShipDestinationTaxRuleReturnShuttle"/>        
+
+    <!-- Letters -->
+        <LETTER name="Undo"/>
+        <LETTER name="Done"/>
+        <LETTER name="MultipleGeoCodes"/>
+        <LETTER name="Next"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckShippingMethod">
+            <COMMON>
+                <!-- PAPB: Common road for unknown exceptions. -->
+                <ROAD name="UnknownException"
+                    letter="UnknownException"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This common road is traveled after a fatal error occurs
+                    </COMMENT>
+                </ROAD>
+            </COMMON>
+            <SITE name="CheckShippingMethod" siteaction="CheckShippingMethodSite">
+                <ROAD
+                    name="ShippedRecordFound"
+                    letter="Next"
+                    destination="GetDestinationTaxRule"
+                    tape="ADVANCE"  record="OFF"  index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotAShippedRecord"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="GetDestinationTaxRule" siteaction="GetDestinationTaxRuleSite">
+                <ROAD
+                    name="ShippedRecordFound"
+                    letter="Next"
+                    destination="GetDestinationTaxRuleStation"
+                    tape="ADVANCE"  record="OFF"  index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotAShippedRecord"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>            
+            <SITE name="UpdateTransactionShipment" siteaction="UpdateTransactionShipmentSite">
+                <ROAD
+                    name="TransactionShipmentUpdated"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when updating the shipment succedded
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <STATION name="GetDestinationTaxRuleStation"
+                     servicename="destinationtaxrule.destinationtaxrule"
+                     targettier="CURRENTTIER"
+                     launchshuttle="ShipDestinationTaxRuleLaunchShuttle"
+                     returnshuttle="ShipDestinationTaxRuleReturnShuttle">
+                <ROAD name="TaxRuleFound"
+                      letter="Next"
+                      destination="UpdateTransactionShipment"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="TaxRuleUndo"
+                      letter="Undo"
+                      destination="Final"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="TaxRuleDone"
+                      letter="Done"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </STATION>            
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

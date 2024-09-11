@@ -1,0 +1,424 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/priceadjustment/priceadjustment.xml /main/20 2013/12/17 15:32:48 mkutiana Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana  12/16/13 - XbranchMerge lapattab_bug-17496194 from
+ *                         rgbustores_13.3x_generic_branch-Changed the laneaction 
+ *                         for TooManyReadTransaction Aisle to display the Price
+ *                         Adj error dialog and added traversal for Ok letter
+ *    rabhawsa  07/30/13 - adding letter TransactionNotFound will be used in
+ *                         case server is down.
+ *    abondala  05/07/13 - updated
+ *    abondala  05/07/13 - unable to price adjust for an order
+  *    jswan     08/18/10 - Added a missing road for the MultipleMatches letter.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+      4    360Commerce 1.3         12/19/2007 8:26:49 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      3    360Commerce 1.2         3/31/2005 4:29:28 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:24:19 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:13:21 PM  Robert Pearse
+     $
+     Revision 1.7  2004/04/27 21:30:00  jriggins
+     @scr 3979 Code review cleanup
+
+     Revision 1.6  2004/04/16 22:33:21  jriggins
+     @scr 3979 Added parameter information
+
+     Revision 1.5  2004/04/03 00:23:38  jriggins
+     @scr 3979 Price Adjustment feature dev
+
+     Revision 1.4  2004/03/30 23:49:17  jriggins
+     @scr 3979 Price Adjustment feature dev
+
+     Revision 1.3  2004/03/30 00:04:59  jriggins
+     @scr 3979 Price Adjustment feature dev
+ *
+ * ===========================================================================
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="priceadjustment"
+    package="oracle.retail.stores.pos.services.priceadjustment"
+    tourcam="OFF">
+    <COMMENT>
+        Price Adjustment service
+    </COMMENT>
+    <CARGO  class="PriceAdjustmentCargo">
+        <COMMENT>
+            Serves as the cargo for the Price Adjustment service
+        </COMMENT>
+    </CARGO>
+    <SERVICECODE>
+        <LETTER name="AccessGranted"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Exit"/>
+        <LETTER name="Failure"/>
+        <LETTER name="ItemsFound"/>
+        <LETTER name="Next"/>
+        <LETTER name="NoAccess"/>
+        <LETTER name="Override"/>
+        <LETTER name="PriceAdjError"/>
+        <LETTER name="Reenter"/>
+        <LETTER name="Success"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Undo"/>
+        <LETTER name="TooMany"/>
+        <LETTER name="DbError"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="NoItems"/>
+        <LETTER name="ParameterError"/>
+        <LETTER name="TimeLimitExpired"/>
+        <LETTER name="MultipleMatches"/>
+        <LETTER name="TransactionNotFound"/>
+        <LETTER name="TransactionHasOrder"/>
+
+        <LANEACTION class="CheckDatabaseErrorAisle" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="GetSelectedTransactionRoad" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <LANEACTION class="ValidateReceiptIDAisle" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="TooManyTransactionsErrorAisle" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION class="UndoCustomerRoad" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <LANEACTION class="PriceAdjErrorAisle" package="oracle.retail.stores.pos.services.priceadjustment"/>
+
+        <SHUTTLE    class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <SIGNAL     class="IsDBErrorSignal" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <SIGNAL     class="IsNotDBErrorSignal" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SIGNAL     class="IsThereMoreThanOneTransactionSignal" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <SIGNAL     class="IsThereOneTransactionSignal" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="EnterReceiptIDSite" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+        <SITEACTION class="CheckForPriceAdjustableItemsSite" package="oracle.retail.stores.pos.services.priceadjustment">
+            <COMMENT>
+                Attemps to retrieve the line items associated with
+                a given transaction ID. Pre Conditions: Cargo contains
+                transaction ID Post Conditions: Cargo contains
+                line items associated with transaction if a matching
+                transaction was found
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="ReadTransactionSite"/>
+        <SITEACTION class="SelectTransactionSite" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckPriceAdjustmentAccess">
+            <SITE name="CheckPriceAdjustmentAccess" siteaction="CheckAccessSite">
+                <COMMENT>
+                    Performs security check for access to the Price Adjustment
+                    feature
+                </COMMENT>
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="EnterReceiptID"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <COMMENT>
+                    Prompt for a security access override
+                </COMMENT>
+                <ROAD
+                    name="OverrideSuccess"
+                    letter="Success"
+                    destination="EnterReceiptID"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="OverrideCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="OverrideFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE name="EnterReceiptID" siteaction="EnterReceiptIDSite">
+                <AISLE
+                    name="NextEnterReceiptID"
+                    letter="Next"
+                    laneaction="ValidateReceiptIDAisle">
+                </AISLE>
+                <AISLE
+                    name="CancelEnterReceiptID"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="OkEnterReceiptID"
+                    letter="Ok"
+                    destination="EnterReceiptID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ContinueEnterReceiptID"
+                    letter="Continue"
+                    destination="ReadTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnterReceiptID"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureEnterReceiptID"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="ReadTransaction" siteaction="ReadTransactionSite">
+                <AISLE
+                    name="DbErrorReadTransaction"
+                    letter="DbError"
+                    laneaction="DataBaseErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="TooManyReadTransaction"
+                    letter="TooMany"
+                    laneaction="PriceAdjErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="OkReadTransactionDBError"
+                    letter="Ok"
+                    laneaction="CheckDatabaseErrorAisle">
+                    <LIGHT  signal="IsDBErrorSignal"/>
+                </AISLE>
+                <ROAD
+                    name="TooManyTransactionsError"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="OkReadTransactionInvalidTransEntry"
+                    letter="Retry"
+                    destination="EnterReceiptID"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MultipleTransactionMatches"
+                    letter="MultipleMatches"
+                    destination="SelectTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SuccessReadTransaction"
+                    letter="Success"
+                    destination="CheckForPriceAdjustableItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereOneTransactionSignal"/>
+                </ROAD>
+                <ROAD
+                    name="SuccessReadTransactionWithOrder"
+                    letter="TransactionHasOrder"
+                    destination="CheckForPriceAdjustableItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+                <ROAD
+                    name="SuccessReadTransactions"
+                    letter="Success"
+                    destination="SelectTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT  signal="IsThereMoreThanOneTransactionSignal"/>
+                </ROAD>
+                <ROAD
+                    name="ReturnItemReadTransactions"
+                    letter="ReturnItem"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionNotFoundReadTransactions"
+                    letter="TransactionNotFound"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InvalidReadTransaction"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        Transaction read is invalid for return such as house
+                        account payment transaction.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="SelectTransaction" siteaction="SelectTransactionSite">
+                <AISLE
+                    name="CancelSelectTransaction"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="AcceptSelectTransaction"
+                    letter="Next"
+                    laneaction="GetSelectedTransactionRoad"
+                    destination="CheckForPriceAdjustableItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelectTransaction"
+                    letter="Undo"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="FailureSelectTransaction"
+                    letter="Failure"
+                    laneaction="UndoCustomerRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckForPriceAdjustableItems" siteaction="CheckForPriceAdjustableItemsSite">
+                <COMMENT>
+                    Attemps to retrieve the line items associated with
+                    a given transaction ID and keeps only those applicable
+                    for price adjustment. Pre Conditions: Cargo contains
+                    transaction ID Post Conditions: Cargo contains
+                    those line items associated with a transaction,
+                    if a matching transaction was found, that can be price
+                    adjusted
+                </COMMENT>
+                <AISLE
+                    name="ErrorCheckForPriceAdjustableItems"
+                    letter="PriceAdjError"
+                    laneaction="PriceAdjErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="ErrorNoPriceAdjustableItems"
+                    letter="NoItems"
+                    laneaction="PriceAdjErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="ErrorParameterAccess"
+                    letter="ParameterError"
+                    laneaction="PriceAdjErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="ErrorTimeLimitExpired"
+                    letter="TimeLimitExpired"
+                    laneaction="PriceAdjErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="DbErrorCheckForPriceAdjustableItems"
+                    letter="DbError"
+                    laneaction="PriceAdjErrorAisle">
+                </AISLE>
+                <ROAD
+                    name="CheckForPriceAdjustableItemsErrorOk"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ItemsFound"
+                    letter="ItemsFound"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ExitService"
+                    letter="Exit"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ReenterReceipt"
+                    letter="Reenter"
+                    destination="EnterReceiptID"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

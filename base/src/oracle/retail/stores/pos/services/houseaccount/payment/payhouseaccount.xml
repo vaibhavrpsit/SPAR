@@ -1,0 +1,341 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/houseaccount/payment/payhouseaccount.xml /main/18 2013/07/02 13:09:09 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     07/01/13 - Fixed failure to cancel House Account Transaction
+ *                         when cancel button pressed or timout occurs.
+ *    cgreene   07/26/11 - repacked into houseaccount.payment
+ *    ohorne    05/26/11 - refactoring for APF - House Account Payment
+ *    sgu       05/23/11 - move inquiry for payment into instantcredit service
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    nkgautam  08/12/10 - added IsMSREnabledSignal class to fix unexpected
+ *                         expection
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    mjwallac  03/19/09 - check in files for bug 826822 - enable MSR during
+ *                         House Account.
+ *    arathore  03/02/09 - Updated to display MSR Entry screen on CPOI device.
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="PayHouseAccount"
+    package="oracle.retail.stores.pos.services.houseaccount.payment"
+    tourcam="OFF">
+    <CARGO  class="PayHouseAccountCargo"/>
+    <SERVICECODE >
+        <LANEACTION class="SaveFailedAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="SaveTenderableTransactionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="UndoTenderSelectedRoad"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="ExitPrinting"/>
+        <LETTER name="ExitTender"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Save"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="QueueFull"/>
+        <SHUTTLE class="PrintingLaunchShuttle"/>
+        <SHUTTLE class="TenderLaunchShuttle"/>
+        <SHUTTLE class="TenderReturnShuttle"/>
+        <SITEACTION class="ShowAccountPaymentInquiryInfoSite"/>
+        <SITEACTION class="PrintCancelTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="SaveCanceledTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="CloseCashDrawerSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+        <SITEACTION class="ProcessPaymentSite"/>
+        <SITEACTION class="WriteTransactionSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+        <SITEACTION class="CompletePaymentSite"/>
+        <SIGNAL class="IsPaymentTransactionSignal"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION  region="SERVICE" startsite="ShowAccountPaymentInquiryInfo">
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+
+            <COMMON>
+                <ROAD
+                    name="Timeout"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsPaymentTransactionSignal" negate="Y"/>
+                </ROAD>
+
+                <ROAD
+                    name="TimeoutTransaction"
+                    letter="Timeout"
+                    destination="SaveCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsPaymentTransactionSignal"/>
+                </ROAD>
+            </COMMON>
+
+            <SITE name="ShowAccountPaymentInquiryInfo" siteaction="ShowAccountPaymentInquiryInfoSite">
+                <ROAD
+                    name="DoPayment"
+                    letter="Next"
+                    destination="ProcessPayment"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelHouseAccountPayment"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsPaymentTransactionSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="CancelHouseAccountPaymentTransation"
+                    letter="Cancel"
+                    destination="SaveCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsPaymentTransactionSignal"/>
+                </ROAD>
+            </SITE>
+            
+            <SITE  name="ProcessPayment" siteaction="ProcessPaymentSite">
+                <ROAD
+                    name="PaymentProcessed"
+                    letter="Continue"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            
+            <STATION
+                name="TenderStation"
+                servicename="services.tender.tender"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLaunchShuttle"
+                returnshuttle="TenderReturnShuttle">
+                <ROAD
+                    name="TenderCompleted"
+                    letter="ExitTender"
+                    destination="PrintingStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoTenderSelected"
+                    letter="Undo"
+                    laneaction="UndoTenderSelectedRoad"
+                    destination="ShowAccountPaymentInquiryInfo"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelTenderSelected"
+                    letter="Cancel"
+                    destination="SaveCancelTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            
+            <STATION
+                name="PrintingStation"
+                servicename="services.printing.printing"
+                targettier="CURRENTTIER"
+                launchshuttle="PrintingLaunchShuttle">
+                <COMMENT >
+                    This station is the transfer point for the Printing
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="PrintingReturned"
+                    letter="ExitPrinting"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT >
+                        This road is traveled when the Printing service returns.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            
+            <SITE  name="WriteTransaction" siteaction="WriteTransactionSite">
+                <COMMENT >
+                    This site writes the transaction to the database.
+                </COMMENT>
+                <MOCKUP
+                    image=""/>
+                <AISLE
+                    name="SaveTransaction"
+                    letter="Save"
+                    laneaction="SaveTenderableTransactionAisle">
+                </AISLE>
+                <AISLE
+                    name="SaveFailed"
+                    letter="Ok"
+                    laneaction="SaveFailedAisle">
+                </AISLE>
+                <ROAD
+                    name="WriteCompleted"
+                    letter="Continue"
+                    destination="CloseCashDrawer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="WriteTransactionQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="WriteTransactionRetry"
+                    letter="Retry"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE  name="CloseCashDrawer" siteaction="CloseCashDrawerSite">
+                <MOCKUP
+                    image=""/>
+                <ROAD 
+                    name="DrawerClosed"
+                    letter="Continue"
+                    destination="CompletePayment"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            
+            <SITE  name="CompletePayment" siteaction="CompletePaymentSite">
+                <MOCKUP 
+                    image=""/>
+                <ROAD 
+                    name="Completed"
+                    letter="ExitPayment"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="SaveCancelTransaction" siteaction="SaveCanceledTransactionSite">
+                <COMMENT>
+                    This site saves the current canceled transaction.
+                </COMMENT>
+                <ROAD
+                    name="TransactionCanceled"
+                    letter="Continue"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The transaction was canceled. The calling application
+                        may continue.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TransactionCanceledTimeout"
+                    letter="Timeout"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                     <COMMENT>
+                           When Transaction timeout happens this letter
+                           is mailed to print canceled transaction receipt.
+                     </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TransactionCanceledRetry"
+                    letter="Retry"
+                    destination="SaveCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionCanceledQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="PrintCancelTransaction" siteaction="PrintCancelTransactionSite">
+                <COMMENT >
+                    This site prints the canceled transaction receipt.
+                </COMMENT>
+                <ROAD
+                    name="CancelTransactionReceiptPrinted"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                 <COMMENT >
+                        This road is traversed when the cancel transaction receipt
+                        is successfully printed or when the printer is offline
+                        and the operator selects continue.
+                 </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="PrintCancelTransactionRetry"
+                    letter="Retry"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                 <COMMENT >
+                        This road is traversed when the printer is offline
+                        and the operator selects retry.
+                 </COMMENT>
+                </ROAD>
+                <ROAD
+                   name="PrintCancelTransactionTimeout"
+                   letter="Timeout"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                <COMMENT >
+                       After Printing Cancel Transaction for a transaction timeout,
+                       this letter is mailed to return to main log in screen
+                </COMMENT>
+               </ROAD>
+            </SITE>
+        </REGION>
+    </MAP>
+</SERVICE>

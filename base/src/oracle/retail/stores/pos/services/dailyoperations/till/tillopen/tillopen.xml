@@ -1,0 +1,771 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/till/tillopen/tillopen.xml /main/19 2014/06/25 15:23:30 icole Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    cgreene   02/24/10 - convert store status aisle to site
+ *    cgreene   02/16/10 - Added ConfirmRegisterStatusPrompt and
+ *                         ConfirmStoreClosedPrompt to add additional
+ *                         notification to the End User that they are trying to
+ *                         open a Till while offline.
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="TillOpen"
+                package="oracle.retail.stores.pos.services.dailyoperations.till.tillopen"
+                tourcam="OFF">
+        <COMMENT>
+            Service called when opening a Till. It adds the till
+            to the register, adds the login operator to the till
+            array of cashiers, prompts the user for a float count
+            if needed, and changes the till status to open.
+        </COMMENT>
+<CARGO class="TillOpenCargo" package="oracle.retail.stores.pos.services.dailyoperations.till.tillopen"/>
+<SERVICECODE>
+    
+    <LETTER name="Cancel"/>
+    <LETTER name="Continue"/>
+    <LETTER name="Failure"/>
+    <LETTER name="HardTotalsError"/>
+    <LETTER name="Next"/>
+    <LETTER name="No"/>
+    <LETTER name="Ok"/>
+    <LETTER name="Override"/>
+    <LETTER name="Retry"/>
+    <LETTER name="Success"/>
+    <LETTER name="Status"/>
+    <LETTER name="TillAlreadyOpenError"/>
+    <LETTER name="TillIdError"/>
+    <LETTER name="TrainingOn"/>
+    <LETTER name="Undo"/>
+    <LETTER name="UpdateError"/>
+    <LETTER name="Yes"/>
+    <LETTER name="QueueFull"/>
+    
+    <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common" />
+    <SHUTTLE class="OpenRegisterLaunchShuttle" package="oracle.retail.stores.pos.services.dailyoperations.common" />
+    <SHUTTLE class="PosCountFloatLaunchShuttle"/>
+    <SHUTTLE class="PosCountFloatReturnShuttle"/>
+    <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    
+    <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common" />
+    <LANEACTION class="CheckOfflineModeAisle" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+    <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common" />
+    <LANEACTION class="EnterTillErrorOkAisle"/>
+    <LANEACTION class="EnterTillTillAlreadyOpenErrorAisle"/>
+    <LANEACTION class="EnterTillTillIdErrorAisle"/>
+    <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+    <LANEACTION class="FloatCountSucceededRoad"/>
+    <LANEACTION class="SetOpenTillOfflineAccessAisle"/>
+    <LANEACTION class="SetStoreAndRegisterClosedAisle" package="oracle.retail.stores.pos.services.dailyoperations.common" />
+    <LANEACTION class="TillAlreadyOpenErrorAisle"/>
+    <LANEACTION class="TillEnteredAisle"/>
+    <LANEACTION class="TillOpenInTrainingModeErrorAisle"/>
+    <LANEACTION class="UpdateStatusErrorAisle"/>
+    <LANEACTION class="WriteHardTotalsErrorAisle" package="oracle.retail.stores.pos.services.common" />
+
+    <SITEACTION class="ChangeBusinessDayPromptSite"/>
+    <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    <SITEACTION class="CheckCountFloatSite"/>
+    <SITEACTION class="CheckOpenRegisterSite" package="oracle.retail.stores.pos.services.common" />
+    <SITEACTION class="CheckOpenTillsSite" package="oracle.retail.stores.pos.services.common" />
+    <SITEACTION class="CheckTillStatusSite"/>
+    <SITEACTION class="CheckStoreStatusStaleSite"/>
+    <SITEACTION class="CheckTrainingModeSite" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+    <SITEACTION class="CloseDrawerSite"/>
+    <SITEACTION class="ConfirmRegisterStatusPromptSite"/>
+    <SITEACTION class="EnterTillSite"/>
+    <SITEACTION class="OpenDrawerSite"/>
+    <SITEACTION class="OpenTillPromptSite"/>
+    <SITEACTION class="PrintReceiptSite"/>
+    <SITEACTION class="TillOpenErrorSite"/>
+    <SITEACTION class="UpdateStatusSite"/>
+    <SITEACTION class="WriteHardTotalsSite" package="oracle.retail.stores.pos.services.common" />
+
+    <SIGNAL class="CheckStartOfDayAccessSignal"/>
+    <SIGNAL class="ShowNoWarningSignal" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+    <SIGNAL class="ShowWarningSignal" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+    <SIGNAL class="TillIdNotVerifiedSignal"/>
+    <SIGNAL class="TillIdVerifiedSignal"/>
+
+</SERVICECODE>
+<MAP>
+    <REGION region="SERVICE" startsite="CheckOpenRegister">
+
+        <SITE name="CheckOpenRegister" siteaction="CheckOpenRegisterSite">
+            <ROAD name="RegisterIsOpen"
+                letter="Success"
+                destination="CheckTrainingMode"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="RegisterIsClosed"
+                letter="Failure"
+                destination="OpenRegisterStation"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="CheckTrainingMode" siteaction="CheckTrainingModeSite">
+            <COMMENT>
+                This site checks to see if the register is in training mode.
+            </COMMENT>
+            <ROAD name="TillOpenInTrainingModeErrorAcknowledged"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <AISLE name="TillIsClosedInTrainingMode"
+                letter="TrainingOn"
+                laneaction="TillOpenInTrainingModeErrorAisle">
+                <COMMENT>
+                    This aisle is taken when the till is closed and training mode is on
+                </COMMENT>
+            </AISLE>
+            <ROAD name="NotInTrainingMode"
+                letter="Continue"
+                destination="CheckStoreStatus"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <LIGHT signal="ShowNoWarningSignal" />
+            </ROAD>
+            <ROAD name="NotInTrainingModeTillWarning"
+                letter="Continue"
+                destination="OpenTillPrompt"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <LIGHT signal="ShowWarningSignal" />
+            </ROAD>
+        </SITE>
+
+        <!-- The site checks to see if the store status is stale. -->
+        <SITE name="CheckStoreStatus" siteaction="CheckStoreStatusStaleSite">
+            <ROAD name="StoreOnlineAndStatusOkay"
+                letter="Continue"
+                destination="CheckAccess"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="StatusIsStaleSoConfirm"
+                letter="Status"
+                destination="ConfirmRegisterStatusPrompt"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <STATION name="OpenRegisterStation"
+            servicename="register.registeropen.registeropen"
+            targettier="CURRENTTIER"
+            launchshuttle="OpenRegisterLaunchShuttle"
+            returnshuttle="FinancialCargoShuttle">
+            <COMMENT>
+                This station is the transfer point for the registeropen
+                service.
+            </COMMENT>
+            <ROAD name="RegisterOpenSuccess"
+                letter="Success"
+                destination="OpenTillPrompt"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <LIGHT signal="ShowWarningSignal" />
+                <COMMENT>
+                    This road is traveled when the RegisterOpen service
+                    returns with a Success letter.
+                </COMMENT>
+            </ROAD>
+            <ROAD name="RegisterOpenSuccessNoWarning"
+                letter="Success"
+                destination="CheckAccess"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <LIGHT signal="ShowNoWarningSignal" />
+            </ROAD>
+            <ROAD name="RegisterOpenFailure"
+                letter="Failure"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="RegisterOpenCancel"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="RegisterOpenUndo"
+                letter="Undo"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </STATION>
+
+        <!-- Prompt users driving in from POS tour that they need to open a till. -->
+        <SITE name="OpenTillPrompt" siteaction="OpenTillPromptSite">
+            <AISLE name="NoOpenEntered"
+                letter="No"
+                laneaction="CancelLetterAisle">
+                <COMMENT>
+                    This aisle is traveled when the Till is not open
+                    and the user decides not to open it.
+                </COMMENT>
+            </AISLE>
+            <ROAD name="YesOpenEntered"
+                letter="Yes"
+                destination="CheckStoreStatus"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <COMMENT>
+                    This road is traversed when when the till is not open and the
+                    user agrees to open it.
+               </COMMENT>
+            </ROAD>
+            <ROAD name="CancelOpen"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <COMMENT>
+                    This road is traversed when the user presses
+                    the Cancel key from the Confirmation screen.
+               </COMMENT>
+            </ROAD>
+        </SITE>
+
+        <!-- This site should only traverse when a till is being opened while offline. -->
+        <SITE name="ConfirmRegisterStatusPrompt" siteaction="ConfirmRegisterStatusPromptSite">
+            <AISLE name="SetOpenTillOfflineAccess"
+                letter="Continue"
+                laneaction="SetOpenTillOfflineAccessAisle">
+                <COMMENT>
+                    This aisle is traversed to set the user function id to
+                    RoleFunctionIfc#START_OF_DAY since the user needs a
+                    greater access role to open a till while offline.
+               </COMMENT>
+            </AISLE>
+            <AISLE name="CancelOfflineOpen"
+                letter="Cancel"
+                laneaction="CheckOfflineModeAisle">
+                <COMMENT>
+                    This aisle is traveled when the end user does not want to
+                    open the till based upon the information in the status
+                    prompt. The aisle checks to see if the workstation is in
+                    offline mode (again).
+               </COMMENT>
+            </AISLE>
+            <ROAD name="CheckOfflineAccess"
+                letter="Ok"
+                destination="CheckAccess"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <COMMENT>
+                    This aisle is traversed when the end user has confirmed the
+                    business date and register state while offline and that they
+                    want to continue with that state to open a till.
+               </COMMENT>
+            </ROAD>
+            <ROAD name="NotInOfflineMode"
+                letter="Continue"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="RegisterStatusStillOffline"
+                letter="Offline"
+                destination="ChangeBusinessDayPrompt"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <LIGHT signal="CheckStartOfDayAccessSignal" />
+                <COMMENT>
+                    This road is traversed when the user presses the Cancel
+                    button from the Confirmation screen and the system is still
+                    offline. The signal checks if user has StartOfDay
+                    access to be displayed the ChangeBusinessDayPrompt
+               </COMMENT>
+            </ROAD>
+            <ROAD name="RegisterStatusStillOfflineNoAccess"
+                letter="Offline"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <COMMENT>
+                    This road is traversed when the user presses the Cancel
+                    button from the Confirmation screen and the system is still
+                    offline. Users with no StartOfDay will travel this road.
+               </COMMENT>
+            </ROAD>
+        </SITE>
+
+        <!-- This site should only traverse opening a till while offline is canceled. -->
+        <SITE name="ChangeBusinessDayPrompt" siteaction="ChangeBusinessDayPromptSite">
+            <AISLE name="ExitOfflineTillOpenUpdatingStoreStatus"
+                letter="Yes"
+                laneaction="SetStoreAndRegisterClosedAisle">
+                <COMMENT>
+                    This aisle is traversed when the end user confirms to set
+                    the store and register status to closed.
+               </COMMENT>
+            </AISLE>
+            <AISLE name="ExitOfflineTillOpen"
+                letter="No"
+                laneaction="CancelLetterAisle">
+                <COMMENT>
+                    This aisle is traversed when the end user does not want to
+                    set the offline store and register status to closed.
+               </COMMENT>
+            </AISLE>
+            <ROAD name="ChangeBusinessDayByOpeningStore"
+                letter="Continue"
+                destination="OpenStoreStation"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="CancelOfflineTillOpen"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <!-- Send the user to the open store tour -->
+        <STATION name="OpenStoreStation"
+                 servicename="dailyoperations.startofday.startofday"
+                 targettier="CURRENTTIER"
+                 launchshuttle="FinancialCargoShuttle"
+                 returnshuttle="FinancialCargoShuttle">
+            <COMMENT>
+                 This station is the transfer point for the startofday service.
+            </COMMENT>
+            <ROAD name="StoreOpenFailure"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="ON"
+                  index="ON">
+                 <COMMENT>
+                      This aisle is traversed to convert the current
+                      letter to cancel
+                 </COMMENT>
+            </ROAD>
+            <ROAD name="StoreOpenCancel"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="ON"
+                  index="ON">
+                 <COMMENT>
+                      This road is traveled when the StartOfDay
+                      service returns a Cancel letter.
+                 </COMMENT>
+            </ROAD>
+            <ROAD name="StoreOpenUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="ON"
+                  index="ON">
+                 <COMMENT>
+                      This road is traveled when the StartOfDay
+                      service returns a Undo letter.
+                 </COMMENT>
+            </ROAD>
+            <ROAD name="StoreOpenSuccess"
+                  letter="Success"
+                  destination="Final"
+                  tape="ADVANCE"
+                  record="ON"
+                  index="ON">
+                 <COMMENT>
+                      This road is traveled when the StartOfDay
+                      service returns with a Success letter.
+                 </COMMENT>
+            </ROAD>
+        </STATION>
+
+        <!-- Check whether or not the user has access to open the till -->
+        <SITE name="CheckAccess" siteaction="CheckAccessSite">
+            <ROAD name="NoAccess"
+                letter="Override"
+                destination="SecurityOverrideStation">
+            </ROAD>
+            <ROAD name="UserAuthorized"
+                letter="Continue"
+                destination="CheckTillStatus">
+            </ROAD>
+        </SITE>
+
+        <STATION name="SecurityOverrideStation"
+               servicename="security.override.override"
+            targettier="CURRENTTIER"
+               launchshuttle="SecurityOverrideLaunchShuttle">
+            <ROAD name="LoginSucceededSecurityOverride"
+                letter="Success"
+                destination="CheckTillStatus"
+                tape="ADVANCE"
+                record="OFF"
+                index="OFF">
+            </ROAD>
+            <ROAD name="SecurityOverrideFailed"
+                letter="Failure"
+                destination="Final"
+                tape="ADVANCE"
+                record="OFF"
+                index="OFF">
+            </ROAD>
+            <ROAD name="SecurityOverrideCancelled"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE"
+                record="OFF"
+                index="OFF">
+            </ROAD>
+        </STATION>
+
+        <SITE name="CheckTillStatus" siteaction="CheckTillStatusSite">
+            <ROAD name="TillStatusSuccess"
+                letter="Success"
+                destination="EnterTill"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="TillStatusFailure"
+                letter="Failure"
+                destination="TillOpenError"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="TillOpenError" siteaction="TillOpenErrorSite">
+            <AISLE name="TillOpenErrorAcknowledgement"
+                letter="Ok"
+                laneaction="FailureConversionAisle">
+            </AISLE>
+            <ROAD name="TillOpenExit"
+                letter="Failure"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="EnterTill" siteaction="EnterTillSite">
+            <AISLE name="TillEntered"
+                letter="Next"
+                laneaction="TillEnteredAisle">
+            </AISLE>
+            <AISLE name="EnterTillTillIdError"
+                letter="TillIdError"
+                laneaction="EnterTillTillIdErrorAisle">
+            </AISLE>
+            <AISLE name="EnterTillErrorOk"
+                letter="Ok"
+                laneaction="EnterTillErrorOkAisle">
+                <LIGHT signal="TillIdVerifiedSignal" />
+            </AISLE>
+            <AISLE name="TillIdNotVerified"
+                letter="Ok"
+                laneaction="ContinueConversionAisle">
+                <LIGHT signal="TillIdNotVerifiedSignal" />
+            </AISLE>
+            <AISLE name="EnterTillTillAlreadyOpenError"
+                letter="TillAlreadyOpenError"
+                laneaction="EnterTillTillAlreadyOpenErrorAisle">
+            </AISLE>
+            <ROAD name="EnterTillUndo"
+                letter="Undo"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="EnterTillCancel"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="EnterTillContinue"
+                letter="Continue"
+                destination="OpenDrawer"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="EnterTillIDAgain"
+                letter="Failure"
+                destination="EnterTill"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="OpenDrawer" siteaction="OpenDrawerSite">
+            <AISLE name="OpenDrawerFailureConversion"
+                letter="Cancel"
+                laneaction="FailureConversionAisle">
+                <COMMENT>
+                    catch cancel letter from open drawer cancel selection
+                    when device error has occurred
+               </COMMENT>
+            </AISLE>
+            <ROAD name="OpenDrawerContinue"
+                letter="Continue"
+                destination="CheckCountFloat"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="OpenDrawerRetry"
+                letter="Retry"
+                destination="OpenDrawer"
+                tape="ADVANCE"
+                record="OFF"
+                index="ON">
+                <COMMENT>
+                    user selects Retry to attempt to re-open the
+                    cash drawer
+               </COMMENT>
+            </ROAD>
+            <ROAD name="OpenDrawerFailure"
+                letter="Failure"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="CheckCountFloat" siteaction="CheckCountFloatSite">
+            <ROAD name="FloatCount"
+                letter="Yes"
+                destination="PosCountFloatStation"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="FloatNoCount"
+                letter="No"
+                destination="CloseDrawer"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <STATION name="PosCountFloatStation"
+               servicename="dailyoperations.poscount.poscount"
+            targettier="CURRENTTIER"
+               launchshuttle="PosCountFloatLaunchShuttle"
+            returnshuttle="PosCountFloatReturnShuttle">
+            <ROAD name="FloatCountSucceeded"
+                letter="Success"
+                laneaction="FloatCountSucceededRoad"
+                destination="CloseDrawer"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="FloatCountUndo"
+                letter="Undo"
+                destination="EnterTill"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="FloatCountCanceled"
+                letter="Cancel"
+                destination="CloseDrawerFloatCanceled"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <COMMENT>
+                    when user cancels float count, close the cash drawer,
+                    pass along Cancel to Final
+               </COMMENT>
+            </ROAD>
+        </STATION>
+
+        <SITE name="CloseDrawer" siteaction="CloseDrawerSite">
+            <ROAD name="DrawerClosed"
+                letter="Continue"
+                destination="UpdateStatus"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <COMMENT>
+                    issued when either a cash drawer device exception
+                    is thrown or when the cash drawer was closed, prior
+                    to reaching the CloseDrawer site
+               </COMMENT>
+            </ROAD>
+        </SITE>
+        <SITE name="UpdateStatus" siteaction="UpdateStatusSite">
+            <AISLE name="TillAlreadyOpenError"
+                letter="TillAlreadyOpenError"
+                laneaction="TillAlreadyOpenErrorAisle">
+            </AISLE>    
+            <AISLE name="UpdateStatusError"
+                letter="UpdateError"
+                laneaction="UpdateStatusErrorAisle">
+            </AISLE>
+            <AISLE name="UpdateStatusErrorUserResponse"
+                letter="Ok"
+                laneaction="FailureConversionAisle">
+            </AISLE>
+            <ROAD name="UpdateSucceeded"
+                letter="Success"
+                destination="WriteHardTotals"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+               <ROAD name="EnterTillIDAgain"
+                letter="EnterTill"
+                destination="EnterTill"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="UpdateStatusErrorFailure"
+                letter="Failure"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+                <COMMENT>
+                    When there is an error we exit.
+               </COMMENT>
+            </ROAD>
+            <ROAD name="UpdateStatusRetry"
+                 letter="Retry"
+                 destination="UpdateStatus"
+                 tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+            <ROAD name="UpdateStatusQueueFull"
+                 letter="QueueFull"
+                 destination="Final"
+                 tape="ADVANCE" record="ON" index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="WriteHardTotals" siteaction="WriteHardTotalsSite">
+            <AISLE name="WriteHardTotalsError"
+                letter="HardTotalsError"
+                laneaction="WriteHardTotalsErrorAisle">
+            </AISLE>
+            <AISLE name="WriteHardTotalsErrorOk"
+                letter="Ok"
+                laneaction="FailureConversionAisle">
+            </AISLE>
+            <ROAD name="WriteHardTotalsSucceeded"
+                letter="Success"
+                destination="PrintReceipt"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="WriteHardTotalsFailed"
+                letter="Failure"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="PrintReceipt" siteaction="PrintReceiptSite">
+            <AISLE name="PrintReceiptFailureConversion"
+                letter="Continue"
+                laneaction="FailureConversionAisle">
+            </AISLE>
+            <ROAD name="ReportPrinted"
+                letter="Success"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="RetryPrintReport"
+                letter="Retry"
+                destination="PrintReceipt"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+            <ROAD name="PrintReceiptFailure"
+                letter="Failure"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <SITE name="CloseDrawerFloatCanceled" siteaction="CloseDrawerSite">
+            <COMMENT>
+                canceled float count needs to close the cash drawer
+                if opened, then pass Cancel letter along to Final
+            </COMMENT>
+            <AISLE name="ClosedDrawerContinueConversion"
+                letter="Continue"
+                laneaction="CancelLetterAisle">
+            </AISLE>
+            <ROAD name="DrawerClosedFloatCancel"
+                letter="Cancel"
+                destination="Final"
+                tape="ADVANCE"
+                record="ON"
+                index="ON">
+            </ROAD>
+        </SITE>
+
+        <SYSTEMSITE name="Final" action="RETURN" />
+    </REGION>
+</MAP>
+
+</SERVICE>

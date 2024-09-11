@@ -1,0 +1,432 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/till/tillpayin/tillpayin.xml /main/18 2013/12/23 09:58:42 bhsuthar Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    bhsuthar  12/20/13 - Changed the letter from cancel to Continue and the
+ *                         tour is changed to navigate to the
+ *                         CheckAccountabilitySite once the till Pickup is done
+ *                         to check for the parameter and accordily prompt for
+ *                         the login / display the till options while printer
+ *                         is offline
+ *    subrdey   04/10/13 - Added SITE CheckAccountabilitySite and SHUTTLE
+ *                         FinancialCargoShuttle
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="TillPayIn"
+    package="oracle.retail.stores.pos.services.dailyoperations.till.tillpayin"
+    tourcam="OFF">
+    <COMMENT>
+        Service called when executing a paying in of tender
+        to a Till.
+    </COMMENT>
+    <CARGO class="TillPayInCargo"/>
+    <SERVICECODE>
+        <SITEACTION class="PrintReceiptSite"/>
+        <LETTER name="Yes"/>
+        <LETTER name="Undo"/>
+        <LETTER name="IDError"/>
+        <LETTER name="Override" />
+        <LETTER name="UpdateError"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Success"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Alternate"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="ParameterError"/>
+        <LETTER name="Continue"/>
+        <LETTER name="HardTotalsError"/>
+        <LETTER name="Local"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="QueueFull"/>
+        
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common"/>
+        
+        <SITEACTION class="EnterTillPayInAmountSite"/>
+        <SITEACTION class="OpenDrawerSite"/>
+        <SITEACTION class="UpdateStatusSite"/>
+        <SITEACTION class="WriteHardTotalsSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="CloseDrawerSite"/>
+        <SITEACTION class="PrintCancelTransactionSite" package="oracle.retail.stores.pos.services.common" />
+        <SITEACTION class="SaveCanceledTransactionSite" package="oracle.retail.stores.pos.services.common" />
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common" />
+        <SITEACTION class="CheckAccountabilitySite" package="oracle.retail.stores.pos.services.dailyoperations.till.tilloptions"/>
+        
+        <LANEACTION class="CaptureScreenDataAisle" package="oracle.retail.stores.pos.services.dailyoperations.till.tillpayin"/>
+        <LANEACTION class="UpdateStatusErrorAisle"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="WriteHardTotalsErrorAisle" package="oracle.retail.stores.pos.services.common"/>
+    
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD 
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="EnterTillPayInAmount">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD 
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="EnterTillPayInAmount"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+          </STATION>                 
+            <SITE name="OpenDrawer" siteaction="OpenDrawerSite">
+                <ROAD
+                    name="OpenDrawerFailureConversion"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="OpenDrawerContinue"
+                    letter="Continue"
+                    destination="UpdateStatus"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="OpenDrawerFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="OpenDrawerRetry"
+                    letter="Retry"
+                    destination="OpenDrawer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        user selects Retry when device exception
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="PrintCancelTransaction" siteaction="PrintCancelTransactionSite">
+                <COMMENT>
+                    This site cancels the current transaction.
+                </COMMENT>
+                <ROAD
+                    name="TransactionCanceled"
+                    letter="Continue"
+                    destination="SaveCanceledTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled after the transaction has been
+                        canceled and the receipt has been printed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="RetryPrintCancelTransaction"
+                    letter="Retry"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="SaveCanceledTransaction" siteaction="SaveCanceledTransactionSite">
+                <COMMENT>
+                    This site saves the current canceled transaction.
+                </COMMENT>
+                <ROAD
+                    name="TransactionSaved"
+                    letter="Continue"
+                    destination="CloseDrawer"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled after the transaction has been
+                        saved.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TransactionSavedRetry"
+                    letter="Retry"
+                    destination="SaveCanceledTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionSavedQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="EnterTillPayInAmount" siteaction="EnterTillPayInAmountSite">
+                <AISLE
+                    name="CaptureScreenData"
+                    letter="Next"
+                    laneaction="CaptureScreenDataAisle">
+                </AISLE>
+                <ROAD
+                    name="EnterTillPayInAmountSuccess"
+                    letter="Continue"
+                    destination="OpenDrawer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EnterTillPayInAmountCancel"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        Returning to Till Functions Screen.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterTillPayInAmountUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        Returning to Till Functions Screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="UpdateStatus" siteaction="UpdateStatusSite">
+                <AISLE
+                    name="UpdateStatusError"
+                    letter="UpdateError"
+                    laneaction="UpdateStatusErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="UpdateStatusErrorOk"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="UpdateSucceeded"
+                    letter="Success"
+                    destination="WriteHardTotals"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UpdateFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD name="UpdateStatusRetry"
+                     letter="Retry"
+                     destination="UpdateStatus"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UpdateStatusQueueFull"
+                     letter="QueueFull"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </SITE>
+            <SITE name="WriteHardTotals" siteaction="WriteHardTotalsSite">
+                <MOCKUP
+                    image=""/>
+                <AISLE
+                    name="WriteHardTotalsError"
+                    letter="HardTotalsError"
+                    laneaction="WriteHardTotalsErrorAisle">
+                </AISLE>
+                <AISLE
+                    name="WriteHardTotalsErrorOk"
+                    letter="Ok"
+                    laneaction="FailureConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="WriteHardTotalsSucceeded"
+                    letter="Success"
+                    destination="PrintReceipt"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="WriteHardTotalsFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="PrintReceipt" siteaction="PrintReceiptSite">
+               <!-- <AISLE
+                    name="PrintReceiptFailureConversion"
+                    letter="Cancel"
+                    laneaction="FailureConversionAisle">
+                    <COMMENT>
+                        converts Cancel to Failure
+                    </COMMENT>
+                </AISLE>-->
+                <ROAD name="PrintReceiptContinueConversion"
+                     letter="Continue"
+                     destination="CheckAccountability"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+                <ROAD
+                    name="ReportPrinted"
+                    letter="Success"
+                    destination="CloseDrawer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RetryPrintReport"
+                    letter="Retry"
+                    destination="PrintReceipt"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="PrintReceiptFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="CloseDrawer" siteaction="CloseDrawerSite">
+                <MOCKUP
+                    image=""/>
+                <ROAD
+                    name="CloseDrawerRoad"
+                    letter="Continue"
+                    destination="CheckAccountability"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            
+            <SITE name="CheckAccountability" siteaction="CheckAccountabilitySite">
+                <MOCKUP
+                    image=""/>
+                <ROAD
+                    name="DisplayTillFunctions"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DisplayTillFunctions"
+                    letter="FailureTill"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="StartSale"
+                    letter="StartSale"
+                    destination="StartSale"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="StartSale"
+                servicename="services.sale.sale"
+                launchshuttle="FinancialCargoShuttle"
+                targettier="CURRENTTIER">
+                 <ROAD
+                    name="LoginFailed"
+                    letter="Failure"
+                    destination="CheckAccountability"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DisplayTillFunctions"
+                    letter="FailureTill"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SaleUndo"
+                    letter="Undo"
+                    destination="CheckAccountability"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

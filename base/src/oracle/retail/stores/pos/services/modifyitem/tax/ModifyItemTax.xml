@@ -1,0 +1,712 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/modifyitem/tax/ModifyItemTax.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:22:24 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      3    360Commerce 1.2         3/31/2005 4:29:04 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:23:34 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:12:40 PM  Robert Pearse
+     $
+     Revision 1.11  2004/07/09 22:36:17  jdeleau
+     @scr 5155
+
+     Revision 1.10  2004/05/07 20:09:09  dcobb
+     @scr 4654 Added On/Off with Ineligible Items alternate flow.
+
+     Revision 1.9  2004/05/07 01:51:56  dcobb
+     @scr 4702 Tax Override - When selecting multiple items and some but not all are non-taxable, the wrong message appears
+
+     Revision 1.8  2004/05/05 22:18:53  dcobb
+     @scr 4389 Tax Override multiitem select non-taxable & taxable items, then turn off tax on these items: tax is not turned off
+
+     Revision 1.7  2004/03/26 00:24:18  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.6  2004/03/11 22:28:39  bjosserand
+     @scr 3954 Tax Override
+
+     Revision 1.5  2004/03/07 18:44:10  bjosserand
+     @scr 3954 Tax Override
+
+     Revision 1.4  2004/03/05 22:57:24  bjosserand
+     @scr 3954 Tax Override
+
+     Revision 1.3  2004/03/05 20:08:06  bjosserand
+     @scr 3954 Tax Override
+
+     Revision 1.2  2004/02/12 16:51:07  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:18  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ModifyItemTax"
+    package="oracle.retail.stores.pos.services.modifyitem.tax"
+    tourcam="ON">
+    <CARGO class="ModifyItemTaxCargo"/>
+    <SERVICECODE>
+        <!-- Letters -->
+        <LETTER name="Response"/>
+        <LETTER name="OnOff"/>
+        <LETTER name="EnterTaxAmount"/>
+        <LETTER name="Override"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="OverrideUnallowed"/>
+        <LETTER name="Yes"/>
+        <LETTER name="OverrideTaxRate"/>
+        <LETTER name="No"/>
+        <LETTER name="OverrideTaxAmount"/>
+        <LETTER name="EnterTaxRate"/>
+        <LETTER name="Next"/>
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Exit"/>
+
+        <!-- Signals -->
+        <SIGNAL class="IsNotFinalSignal"/>
+        <SIGNAL class="IsFinalSignal"/>
+        <SIGNAL class="IsSendOutOfAreaSignal"/>
+        <SIGNAL class="IsNotSendOutOfAreaSignal"/>
+
+        <!-- Shuttle -->
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <!-- Sites, Roads and Aisles -->
+        <SITEACTION class="ModifyItemTaxOptionsSite"/>
+        <SITEACTION class="TaxOverrideValidationSite"/>
+        <SITEACTION class="TaxInvalidValidationSite"/>
+        <SITEACTION class="TaxToggleInvalidValidationSite"/>
+        <SITEACTION class="TaxRateUISite"/>
+        <SITEACTION class="TaxRateValidationSite"/>
+        <SITEACTION class="TaxRateActionSite"/>
+        <SITEACTION class="TaxAmountUISite"/>
+        <SITEACTION class="TaxAmountValidationSite"/>
+        <SITEACTION class="TaxAmountActionSite"/>
+        <SITEACTION class="TaxToggleUISite"/>
+        <SITEACTION class="TaxToggleActionSite"/>
+        <SITEACTION class="ItemTaxOverrideOptionsSite"/>
+        <SITEACTION class="ShowItemTaxOptionsSite"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <LANEACTION class="OkToUndoConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+         <SITE name="CheckAccess" siteaction="CheckAccessSite">
+              <ROAD
+                  name="AccessDEnied"
+                  letter="Override"
+                  destination="SecurityOverrideStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="AccessGranted"
+                  letter="Continue"
+                  destination="ModifyItemTaxOptions"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </SITE>
+          <STATION name="SecurityOverrideStation"
+              servicename="security.override.override"
+              targettier="CURRENTTIER"
+              launchshuttle="SecurityOverrideLaunchShuttle" >
+              <ROAD
+                  name="SecurityOverrideGranted"
+                  letter="Success"
+                  destination="ModifyItemTaxOptions"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideDenied"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="SecurityOverrideCancelled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+           </STATION>
+            <SITE name="ModifyItemTaxOptions" siteaction="ModifyItemTaxOptionsSite">
+                <COMMENT>
+                    This site displays the item tax options.
+                </COMMENT>
+                <AISLE
+                    name="TaxExemptOverrideError"
+                    letter="Ok"
+                    laneaction="OkToUndoConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="UndoLetterOptions"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when the Undo key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="NextLetterOptions"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when the Next key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelLetterOptions"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This Road is traversed when the Cancel Buttons is
+                        pressed
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ShowItemTaxOptionsRoad"
+                    letter="Yes"
+                    destination="ShowItemTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This shows the various item level tax options, after the user selected yes from
+                        a confirmation dialog asking if they want to override already overridden tax changes.
+                        If no tax changes have been overridden, then this site will just mail the letter directly.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="ShowItemTaxOptions" siteaction="ShowItemTaxOptionsSite">
+                <COMMENT>
+                    This site displays the item tax options.
+                </COMMENT>
+                <AISLE
+                    name="TaxExemptOverrideError"
+                    letter="Ok"
+                    laneaction="OkToUndoConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="UndoLetterOptions"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when the Undo key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="NextLetterOptions"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traversed when the Next key is pressed
+                        on the UI.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelLetterOptions"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This Road is traversed when the Cancel Buttons is
+                        pressed
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterTaxAmountRoad"
+                    letter="OverrideTaxAmount"
+                    destination="TaxAmountOverrideValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This handles the selection of override-tax-amount
+                        from the menu.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterTaxRateRoad"
+                    letter="OverrideTaxRate"
+                    destination="TaxRateOverrideValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This handles the selection of override-tax-rate
+                        from the menu.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EnterItemTaxToggle"
+                    letter="OnOff"
+                    destination="TaxToggleInvalidValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This handles the selection of toggle-tax from the
+                        menu.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxRateOverrideValidation" siteaction="TaxOverrideValidationSite">
+                <COMMENT>
+                    This site handles the validation of already modified items.
+                </COMMENT>
+                <ROAD
+                    name="TaxRateOverrideValidationSuccess"
+                    letter="Success"
+                    destination="TaxRateInvalidValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRateAlreadyChangedYes"
+                    letter="Yes"
+                    destination="TaxRateInvalidValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if tax has already been overridden
+                        and the user wishes to proceed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxRateAlreadyChangedNo"
+                    letter="No"
+                    destination="ModifyItemTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if tax has already been overridden
+                        and the user wishes to not proceed.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxRateInvalidValidation" siteaction="TaxInvalidValidationSite">
+                <COMMENT>
+                    This site handles the validation of items.
+                </COMMENT>
+                <ROAD
+                    name="TaxRateInvalidValidationSuccess"
+                    letter="Success"
+                    destination="TaxRateUISite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRateInvalidContinue"
+                    letter="Continue"
+                    destination="TaxRateUISite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if some items are invalid
+                        and the user wishes to proceed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxRateInvalidCancel"
+                    letter="Cancel"
+                    destination="ModifyItemTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if some items are invalid
+                        and the user wishes to not proceed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxRateOverrideError"
+                    letter="Ok"
+                    destination="ModifyItemTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled if the item is non-taxable.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxRateUISite" siteaction="TaxRateUISite">
+                <COMMENT>
+                    This site retrieves the tax rate data from the user.
+                </COMMENT>
+                <ROAD
+                    name="TaxRateEntered"
+                    letter="Next"
+                    destination="TaxRateValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TaxRateCancelEntered"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnteredTaxRate"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsNotSendOutOfAreaSignal"/>
+                </ROAD>
+                <ROAD
+                    name="UndoSendEnteredTaxRate"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsSendOutOfAreaSignal"/>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxRateValidation" siteaction="TaxRateValidationSite">
+                <COMMENT>
+                    This site handles the validation of a tax rate.
+                </COMMENT>
+                <ROAD
+                    name="TaxRateValidationSuccess"
+                    letter="Success"
+                    destination="TaxRateActionSite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRateInvalid"
+                    letter="Ok"
+                    destination="TaxRateUISite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if a tax rate is invalid and
+                        the user presses the OK button on the error dialog
+                        screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxRateActionSite" siteaction="TaxRateActionSite">
+                <COMMENT>
+                    This site handles the processing of a tax rate.
+                </COMMENT>
+                <ROAD
+                    name="TaxRateActionSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             </SITE>
+             <SITE name="TaxAmountOverrideValidation" siteaction="TaxOverrideValidationSite">
+                <COMMENT>
+                    This site handles the validation of already modified items.
+                </COMMENT>
+                <ROAD
+                    name="TaxAmountOverrideValidationSuccess"
+                    letter="Success"
+                    destination="TaxAmountInvalidValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxAmountAlreadyChangedYes"
+                    letter="Yes"
+                    destination="TaxAmountInvalidValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if tax has already been overridden
+                        and the user wishes to proceed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxAmountAlreadyChangedNo"
+                    letter="No"
+                    destination="ModifyItemTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if tax has already been overridden
+                        and the user wishes to not proceed.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxAmountInvalidValidation" siteaction="TaxInvalidValidationSite">
+                <COMMENT>
+                    This site handles the validation of items.
+                </COMMENT>
+                <ROAD
+                    name="TaxAmountInvalidValidationSuccess"
+                    letter="Success"
+                    destination="TaxAmountUISite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxAmountInvalidContinue"
+                    letter="Continue"
+                    destination="TaxAmountUISite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if some items are invalid
+                        and the user wishes to proceed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxAmountInvalidCancel"
+                    letter="Cancel"
+                    destination="ModifyItemTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if some items are invalid
+                        and the user wishes to not proceed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxAmountOverrideError"
+                    letter="Ok"
+                    destination="ModifyItemTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled if the item is non-taxable.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxAmountUISite" siteaction="TaxAmountUISite">
+                <COMMENT>
+                    This site retrieves the tax amount data from the user.
+                </COMMENT>
+                <ROAD
+                    name="TaxAmountEntered"
+                    letter="Next"
+                    destination="TaxAmountValidation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="TaxAmountCancelEntered"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnteredTaxAmount"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsNotSendOutOfAreaSignal"/>
+                </ROAD>
+                <ROAD
+                    name="UndoSendEnteredTaxAmount"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <LIGHT signal="IsSendOutOfAreaSignal"/>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxAmountValidation" siteaction="TaxAmountValidationSite">
+                <COMMENT>
+                    This site handles the validation of a tax amount.
+                </COMMENT>
+                <ROAD
+                    name="TaxAmountValidationSuccess"
+                    letter="Success"
+                    destination="TaxAmountActionSite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxAmountInvalid"
+                    letter="Ok"
+                    destination="TaxAmountUISite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if a tax amount is invalid and
+                        the user presses the OK button on the error dialog
+                        screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxAmountActionSite" siteaction="TaxAmountActionSite">
+                <COMMENT>
+                    This site handles the processing of a tax amount.
+                </COMMENT>
+                <ROAD
+                    name="TaxAmountActionSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="TaxToggleInvalidValidation" siteaction="TaxToggleInvalidValidationSite">
+                <COMMENT>
+                    This site handles the validation of items.
+                </COMMENT>
+                <ROAD
+                    name="TaxToggleInvalidValidationSuccess"
+                    letter="Success"
+                    destination="TaxToggleUISite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxToggleInvalidContinue"
+                    letter="Continue"
+                    destination="TaxToggleUISite"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if some items are invalid
+                        and the user wishes to proceed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TaxToggleInvalidCancel"
+                    letter="Cancel"
+                    destination="ModifyItemTaxOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if some items are invalid
+                        and the user wishes to not proceed.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="TaxToggleUISite" siteaction="TaxToggleUISite">
+                <COMMENT>
+                    This site handles the toggling of tax.
+                </COMMENT>
+                <ROAD
+                    name="TaxToggleNext"
+                    letter="Next"
+                    destination="TaxToggleAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxToggleCancelEntered"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoEnteredTaxToggle"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+             </SITE>
+             <SITE name="TaxToggleAction" siteaction="TaxToggleActionSite">
+                <COMMENT>
+                    This site handles the processing of turning tax on/off.
+                </COMMENT>
+                <ROAD
+                    name="TaxToggleActionSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

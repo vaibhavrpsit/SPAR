@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!--
+This is for Service type objects being managed by Spring Framework.
+Beans should be named starting with prefix service_ so that in Java code it is easier
+to identify which context file is being used for the Bean.
+-->
+
+<beans>
+ 
+    <!-- Encryption Service -->
+    <!-- BEGIN RSAKeyStoreEncryptionService
+    <bean id="service_KeyStoreEncryptionService" class="oracle.retail.stores.rsakeystore.rsainterface.RSAKeyStoreEncryptionService"
+        lazy-init="true">
+        <constructor-arg index="0" type="java.lang.String" value="SunJCE"/>
+        <constructor-arg index="1" type="java.lang.String" value="SHA-256"/>
+        <constructor-arg index="2" type="java.lang.String" value="$RSA_CLIENT_CONFIG_FILE$"/>
+        <constructor-arg index="3" type="java.lang.String" value="$RSA_CIPHER_KEY_CLASS$"/>
+        <constructor-arg index="4" type="java.lang.String" value="VERSION_2_1"/>
+    </bean>
+    END RSAKeyStoreEncryptionService -->
+
+    <!-- BEGIN SimKeyStoreEncryptionService -->
+    <bean id="service_KeyStoreEncryptionService" class="oracle.retail.stores.simkeystore.siminterface.SimKeyStoreEncryptionService"
+        lazy-init="true">
+        <constructor-arg index="0" type="java.lang.String" value="SunJCE"/>
+        <constructor-arg index="1" type="java.lang.String" value="SHA-256"/>
+    </bean>
+    <!-- END SimKeyStoreEncryptionService -->
+
+    <!-- Item Price Calculator Service implements oracle.retail.stores.storeservices.services.item.ItemPriceCalculatorIfc -->
+    <bean id="service_ItemPriceCalculator"
+        class="oracle.retail.stores.storeservices.services.item.ItemPriceCalculator"
+        scope="singleton" lazy-init="true" />
+
+    <!-- PLU Item Aggregation implements oracle.retail.stores.storeservices.entities.item.PLUItemAggregationIfc -->
+    <bean id="service_PLUItemAggregation"
+        class="oracle.retail.stores.storeservices.entities.item.PLUItemAggregation"
+        scope="prototype" lazy-init="true" />
+
+    <!-- Password Policy Service -->
+    <bean id="service_PasswordPolicyService" class="oracle.retail.stores.commerceservices.security.PasswordPolicyService"
+             lazy-init="true">
+        <constructor-arg index="0" type="oracle.retail.stores.commerceservices.security.PasswordGeneratorIfc">
+            <ref bean="service_PasswordGenerator"/>
+        </constructor-arg>
+        <constructor-arg index="1" type="oracle.retail.stores.commerceservices.security.PasswordPolicyEvaluatorIfc">
+            <ref bean="service_PasswordPolicyEvaluator"/>
+        </constructor-arg>
+    </bean>
+    <bean id="service_PasswordGenerator" class="oracle.retail.stores.commerceservices.security.RandomPasswordGenerator"
+          lazy-init="true">
+    </bean>
+    <bean id="service_PasswordPolicyEvaluator" class="oracle.retail.stores.commerceservices.security.SinglePasswordPolicyEvaluator"
+          lazy-init="true">
+    </bean>
+
+    <!-- DateTime Service -->
+    <bean id="service_DateTimeService" class="oracle.retail.stores.commerceservices.common.datetime.DateTimeService"
+        lazy-init="true">
+        <constructor-arg index="0" type="oracle.retail.stores.commerceservices.common.datetime.DateTimeConverterIfc">
+            <ref bean="service_DateTimeConverter"/>
+        </constructor-arg>
+        <constructor-arg index="1" type="oracle.retail.stores.commerceservices.common.datetime.DateTimeValidatorIfc">
+            <ref bean="service_DateTimeValidator"/>
+        </constructor-arg>
+    </bean>
+    <bean id="service_DateTimeConverter" class="oracle.retail.stores.commerceservices.common.datetime.DateTimeConverter"
+          lazy-init="true">
+    </bean>
+    <bean id="service_DateTimeValidator" class="oracle.retail.stores.commerceservices.common.datetime.DateTimeValidator"
+          lazy-init="true">
+    </bean>
+
+     <!-- Currency Service -->
+    <bean id="service_CurrencyService" class="oracle.retail.stores.commerceservices.common.currency.CurrencyService"
+        lazy-init="true">
+        <constructor-arg index="0" type="oracle.retail.stores.commerceservices.common.currency.CurrencyFormatterIfc">
+            <ref bean="service_CurrencyFormatter"/>
+        </constructor-arg>
+        <constructor-arg index="1" type="oracle.retail.stores.commerceservices.common.currency.CurrencyValidatorIfc">
+            <ref bean="service_CurrencyValidator"/>
+        </constructor-arg>
+    </bean>
+    <bean id="service_CurrencyFormatter" class="oracle.retail.stores.commerceservices.common.currency.CurrencyFormatter"
+          lazy-init="true">
+    </bean>
+    <bean id="service_CurrencyValidator" class="oracle.retail.stores.commerceservices.common.currency.CurrencyValidator"
+          lazy-init="true">
+    </bean>
+
+
+<!-- IDDI configuration-->
+
+    <bean id="service_config_EMP_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="EMPLOYEE"/>
+    </bean>
+    <bean id="service_config_CUR_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="CURRENCY"/>
+    </bean>
+    <bean id="service_config_TAX_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="TAX"/>
+    </bean>
+    <bean id="service_config_ITM_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="ITEM"/>
+    </bean>
+    <bean id="service_config_PRC_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="ADVANCED_PRICING"/>
+    </bean>
+    <bean id="service_config_MER_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="MERCHANDISE"/>
+    </bean>
+    <bean id="service_config_STORE_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="STORE_INFO"/>
+    </bean>
+    <bean id="service_config_SHP_MTH_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="SHIPPING_METHOD"/>
+    </bean>
+    <bean id="service_config_DISCOUNT_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="DISCOUNT"/>
+    </bean>
+    <bean id="service_config_RSN_CODE_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="REASON_CODE"/>
+    </bean>
+    <bean id="service_config_OFFLINEDB_KEY" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="EXPORT_DB"/>
+    </bean>
+
+    <!-- File paths -->
+    <bean id="service_config_DataExportFilePath" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="IDDI"/>
+    </bean>
+    <bean id="service_config_DataExportZipFilePath" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="IDDI"/>
+    </bean>
+    <bean id="service_config_DataImportFilePath" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="IDDI_CACHE"/>
+    </bean>
+    <bean id="service_config_OfflineSchemaSQLFilePath" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="../../common/db/sql/offline/Create/CreateSchema.sql"/>
+    </bean>
+    <bean id="service_config_OfflineSchemaLogFilePath" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="../logs/CreateSchema.log"/>
+    </bean>
+    
+    <bean id="service_CustomerGroupDomainTransformer" 
+    class="oracle.retail.stores.domain.transform.entity.customer.CustomerGroupTransformer" scope="singleton"/>
+
+    <bean id="service_PricingGroupDomainTransformer" 
+    class="oracle.retail.stores.domain.transform.entity.customer.PricingGroupTransformer" scope="singleton"/>
+
+    <!-- Helper classes -->
+    <bean id="service_OfflineDBHelper" class = "oracle.retail.stores.foundation.iddi.OfflineDerbyHelper">
+       <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+       <property name="offlineSchemaSQLFilePath" ref="service_config_OfflineSchemaSQLFilePath"/>
+       <property name="offlineSchemaLogFilePath" ref="service_config_OfflineSchemaLogFilePath"/>
+    </bean>
+    <bean id="service_ApplicationVersion" class = "oracle.retail.stores.pos.PosVersion" lazy-init="true"/>
+    <bean id="service_DataFormatter" class = "oracle.retail.stores.foundation.iddi.DerbyDataFormatter"/>
+    <!--  bean to format data read from store server datbase to derby format -->
+    <bean id="service_DerbyDBFormatter" class = "oracle.retail.stores.iddi.DerbyDBFormatter"/>
+    <bean id="service_FileWriter" class = "oracle.retail.stores.foundation.iddi.IDDIFileWriter">
+        <property name="formatter" ref="service_DataFormatter"/>
+    </bean>
+    <!-- Bean used to insert data read from store server database into server side offline derby database.
+         This bean implements IDDIWriterIfc -->
+    <bean id="service_DerbyWriter" class="oracle.retail.stores.iddi.IDDIDerbyWriter">
+        <property name="formatter" ref="service_DerbyDBFormatter"/>
+        <property name="offlineSchemaSQLFilePath" ref="service_config_OfflineSchemaSQLFilePath"/>
+        <property name="offlineSchemaLogFilePath" ref="service_config_OfflineSchemaLogFilePath"/>
+    </bean>
+
+    <!-- ClientDataSetService initialization -->
+    <bean id="service_ClientDataSetService"
+     class="oracle.retail.stores.foundation.iddi.ClientDataSetService" scope="singleton">
+        <property name="consumers">
+            <map>
+                <entry key-ref="service_config_OFFLINEDB_KEY" value-ref="service_OfflineDBConsumer"/>
+                <entry key-ref="service_config_EMP_KEY" value-ref="service_EmployeeConsumer"/>
+                <entry key-ref="service_config_CUR_KEY" value-ref="service_CurrencyConsumer"/>
+                <entry key-ref="service_config_TAX_KEY" value-ref="service_TaxConsumer"/>
+                <entry key-ref="service_config_ITM_KEY" value-ref="service_ItemConsumer"/>
+                <entry key-ref="service_config_PRC_KEY" value-ref="service_AdvancedPricingConsumer"/>
+                <entry key-ref="service_config_MER_KEY" value-ref="service_MerchandiseConsumer"/>
+                <entry key-ref="service_config_STORE_KEY" value-ref="service_StoreInfoConsumer"/>
+                <entry key-ref="service_config_SHP_MTH_KEY" value-ref="service_ShippingMethodConsumer"/>
+                <entry key-ref="service_config_DISCOUNT_KEY" value-ref="service_DiscountConsumer"/>
+                <entry key-ref="service_config_RSN_CODE_KEY" value-ref="service_ReasonCodeConsumer"/>
+            </map>
+        </property>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+    </bean>
+
+    <!-- Begin Consumer Jobs -->
+
+    <!--
+        NOTE: It is not necessary leave both the InfrequentConsumer and the
+        OfflineDBConsumer configured to run since it would be redundant. The
+        InfrequentConsumer is prefered when the datasets are small. The
+        OfflineDBConsumer should be used for large volumes of data or when the
+        client workstation resources are limited.
+    -->
+
+    <!-- Job for OfflineDBConsumer for downloading and replacing offlinedb from server -->
+    <bean id="service_OfflineDBConsumerJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+        <property name="jobClass">
+            <value>oracle.retail.stores.foundation.iddi.ClientDataSetController</value>
+        </property>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="dataSets">
+                    <list>
+                         <ref local="service_config_OFFLINEDB_KEY" />
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <!-- Job for InfrequentConsumer for daily changing datasets. -->
+    <bean id="service_InfrequentConsumerJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+        <property name="jobClass">
+            <value>oracle.retail.stores.foundation.iddi.ClientDataSetController</value>
+        </property>
+        <property name="jobDataAsMap">
+            <map>
+               <entry key="dataSets">
+                    <list>
+                       <!--  <ref local="service_config_ITM_KEY"/>
+                        <ref local="service_config_CUR_KEY"/>
+                        <ref local="service_config_MER_KEY"/>
+                        <ref local="service_config_STORE_KEY"/>
+                        <ref local="service_config_SHP_MTH_KEY"/>
+                        <ref local="service_config_DISCOUNT_KEY"/>
+                        <ref local="service_config_RSN_CODE_KEY"/> -->
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <!-- Job for FrequentConsumer for volatile datasets. -->
+    <bean id="service_FrequentConsumerJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+        <property name="jobClass">
+            <value>oracle.retail.stores.foundation.iddi.ClientDataSetController</value>
+        </property>
+        <property name="jobDataAsMap">
+            <map>
+               <entry key="dataSets">
+                    <list>
+                       <!--  <ref local="service_config_EMP_KEY"/>
+                        <ref local="service_config_PRC_KEY"/>
+                        <ref local="service_config_TAX_KEY"/> -->
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <!-- End Consumer Jobs -->
+
+    <!-- Begin Consumer Job Triggers -->
+
+    <!-- Trigger for OfflineDBConsumer for replacing entire offline db. -->
+    <!-- This only triggers polling for new data set. See IDDITimeoutInterval in application.xml -->
+    <bean id="service_TriggerOfflineDBConsumer"
+        class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail">
+            <ref local="service_OfflineDBConsumerJob" />
+        </property>
+        <!-- See http://en.wikipedia.org/wiki/CRON_expression for editing CRON expressions. -->
+        <!-- Schedule OfflineDB consumer at 4:30AM one hour after the producer runs. -->
+        <property name="cronExpression" value="0 00 7 * * ?" />
+    </bean>
+
+    <!-- Trigger for InfrequentConsumer for daily changing datasets. -->
+    <bean id="service_TriggerInfrequentConsumer" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail">
+            <ref local="service_InfrequentConsumerJob"/>
+        </property>
+        <!-- See http://en.wikipedia.org/wiki/CRON_expression for editing CRON expressions. -->
+        <!-- Load Infrequent DataSets at 4:00AM one hour after producer runs. -->
+        <property name="cronExpression" value="0 00 4 * * ?"/>
+    </bean>
+
+    <!-- Trigger for FrequentConsumer for volatile datasets. -->
+    <bean id="service_TriggerFrequentConsumer" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail">
+            <ref local="service_FrequentConsumerJob"/>
+        </property>
+        <!-- See http://en.wikipedia.org/wiki/CRON_expression for editing CRON expressions. -->
+        <!-- Load Frequent DataSets every 15th and 45th minute from 6AM till 10PM. -->
+        <property name="cronExpression" value="0 15,45 6-22 * * ?"/>
+    </bean>
+
+    <!-- End Consumer Job Triggers -->
+
+    <!-- Begin IDDI Client Scheduler -->
+    <bean id="service_clientSchedulerFactory"
+          class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref local="service_TriggerFrequentConsumer"/>
+                <ref local="service_TriggerOfflineDBConsumer"/>
+            </list>
+        </property>
+        <property name="autoStartup" value="false"/>
+    </bean>
+
+    <!-- Begin DataSet Consumer Definitions -->
+    <bean id="service_CurrencyConsumer" class="oracle.retail.stores.domain.iddi.CurrencyDataSetConsumer"
+             lazy-init="true"
+             scope="singleton">
+        <property name="dataSetKey" ref="service_config_CUR_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <bean id="service_TaxConsumer" class="oracle.retail.stores.domain.iddi.TaxDataSetConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_TAX_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <bean id="service_EmployeeConsumer" class="oracle.retail.stores.domain.iddi.EmployeeDataSetConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_EMP_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <bean id="service_AdvancedPricingConsumer" class="oracle.retail.stores.domain.iddi.AdvancedPricingDataSetConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_PRC_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <bean id="service_ItemConsumer" class="oracle.retail.stores.domain.iddi.ItemDataSetConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_ITM_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <bean id="service_MerchandiseConsumer" class="oracle.retail.stores.domain.iddi.MerchandiseDataSetConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_MER_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <bean id="service_StoreInfoConsumer" class="oracle.retail.stores.domain.iddi.StoreInfoDataSetConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_STORE_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <bean id="service_ShippingMethodConsumer" class="oracle.retail.stores.domain.iddi.ShippingMethodDataSetConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_SHP_MTH_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <!-- bean for discount consumer -->
+    <bean id="service_DiscountConsumer" class="oracle.retail.stores.domain.iddi.DiscountDataSetConsumer"
+        lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_DISCOUNT_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <bean id="service_ReasonCodeConsumer" class="oracle.retail.stores.domain.iddi.ReasonCodeDataSetConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_RSN_CODE_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <!-- bean for consuming offlinedb archive downloaded from server, this bean implements DataSetConsumerIfc -->
+    <bean id="service_OfflineDBConsumer" class="oracle.retail.stores.domain.iddi.OfflineDBConsumer"
+          lazy-init="true"
+          scope="singleton">
+        <property name="dataSetKey" ref="service_config_OFFLINEDB_KEY"/>
+        <property name="dataImportFilePath" ref="service_config_DataImportFilePath"/>
+        <property name="importHelper" ref="service_OfflineDBHelper"/>
+    </bean>
+    <!-- End DataSet Consumer Definitions -->
+
+    <!-- Begin PSI Inventory Lookup Service Bean definition
+    <bean id="service_PSIInventoryLookup"
+           class="oracle.retail.stores.integration.psi.PSIInventoryLookupService" scope="singleton">
+    </bean>
+    END PSI Inventory Lookup Service Bean definition -->
+
+    <bean id="service_AuditLoggerService" class="oracle.retail.stores.commerceservices.audit.AuditLoggerService"
+        lazy-init="true" scope="singleton" />
+
+    <bean id="service_ImageUtility" class="oracle.retail.stores.image.ImageUtility"
+        lazy-init="true" scope="singleton" />
+        
+    <!--  Tender and Transaction Type Mapper Beans -->
+    <bean id="service_TenderTypeMapper" class="oracle.retail.stores.domain.tender.TenderTypeMapper"
+          lazy-init="true"
+          scope="singleton">
+        <property name="typeCodes" value="CASH,CRDT,CHCK,TRAV,GICT,MBCK,DBIT,QPON,GCRD,STCR,MACT,PRCH,MNYO,ECHK,CCSH,CCHK"/>
+        <property name="descriptors" value="Cash,Credit,Check,TravCheck,GiftCert,MailCheck,Debit,Coupon,GiftCard,StoreCredit,        MallCert,PurchaseOrder,MoneyOrder,E-Check,Canadian Cash,Canadian Check,U.K. Cash,U.K. Check,Euro Cash,Euro Check"/>
+        <property name="countedTenderDescriptors" value="Cash,Credit,Check,TravelCheck,GiftCert,,Debit,Coupon,GiftCard,StoreCredit,MallCert,PurchaseOrder,MoneyOrder,"/>
+        <property name="iXRetailDescriptors" value="Cash, Credit,Check,Trav. Check,Gift Cert.,Mail Check,Debit,Coupon,Gift Card,Store Credit,Mall Cert.,Purchase Order,Money Order,E-Check,Canadian Cash,Canadian Check,U.K. Cash,U.K. Check,Euro Cash,Euro Check"/>
+    </bean>
+
+    <bean id="service_TransactionTypeMapper" class="oracle.retail.stores.domain.transaction.TransactionTypeMapper"
+          lazy-init="true"
+          scope="singleton">
+        <property name="descriptors" value="UNKNOWN,SALE,RETURN,VOID,NO SALE,EXCHANGE,OPEN STORE,CLOSE STORE,OPEN REGISTER,CLOSE REGISTER,OPEN TILL,CLOSE TILL,TILL LOAN,TILL PICKUP,SUSPEND TILL,RESUME TILL,TILL PAY IN,TILL PAY OUT,HOUSE ACCOUNT PAYMENT,LAYAWAY,LAYAWAY PICKUP,LAYAWAY PAYMENT,LAYAWAY DELETE,SPECIAL ORDER,ORDER COMPLETE,ORDER CANCEL,ORDER PARTIAL,STORE BANK DEPOSIT,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,UNUSED,INSTANT CREDIT ENROLLMENT,REDEEM,ENTER TRAINING MODE,EXIT TRAINING MODE,SEND,TILL PAYROLL PAY OUT,ENTER TRANSACTION REENTRY MODE,EXIT TRANSACTION REENTRY MODE"/>
+    </bean>
+
+    <!-- For ACI PINCOMM on Client -->
+    <!-- BEGIN SequenceNumberGenerator 
+    <bean id="service_SequenceNumberGenerator" class="oracle.retail.stores.common.utility.SequenceNumberGenerator"
+          lazy-init="true" scope="singleton">
+          <constructor-arg type="int" value="9999"/>
+          <constructor-arg type="java.lang.String" value="./sequenceNumbers.ser"/>
+     </bean>
+     END SequenceNumberGenerator -->
+     
+    <bean id="service_TransformerMappingService" class="oracle.retail.stores.utility.xchannel.Mapper" scope="singleton">
+           <constructor-arg type="java.lang.String" value="../config/RTGTransformerMapping.xml"/>
+    </bean>	
+    
+    <!--  START JPA SERVICES -->
+    <bean id="jpaservice_CustomerService" class="oracle.retail.stores.storeservices.custom.services.customer.CustomerService"
+          lazy-init="true" scope="prototype">
+    </bean>   
+          
+    <bean id="jpaservice_ItemService" class="oracle.retail.stores.storeservices.custom.services.item.ItemService"
+          lazy-init="true" scope="prototype">
+          <property name="offlineDBUsed" value="true"/>
+    </bean> 
+     
+    <bean id="jpaservice_CodeListService" class="oracle.retail.stores.storeservices.custom.services.codelist.CodeListService"
+          lazy-init="true" scope="prototype">
+    </bean> 
+             
+    <bean id="jpaservice_OrderService" class="oracle.retail.stores.storeservices.custom.services.order.OrderService"
+          lazy-init="true" scope="prototype">
+    </bean> 
+
+    <bean id="jpaservice_CurrencyRoundingRuleService" class="oracle.retail.stores.storeservices.custom.services.currency.CurrencyRoundingRuleService"
+          lazy-init="true" scope="prototype">
+    </bean> 
+    <!--  END JPA SERVICES --> 
+
+    <!-- For AuthorizedTendersTransactionArchiveHelper Service, must implement AuthorizedTendersTransactionArchiveHelperIfc -->
+    <bean id="service_AuthorizedTendersTransactionArchiveHelper" class="oracle.retail.stores.pos.manager.archive.AuthorizedTendersTransactionArchiveHelper"
+          lazy-init="true" scope="singleton">
+    </bean>
+
+</beans>

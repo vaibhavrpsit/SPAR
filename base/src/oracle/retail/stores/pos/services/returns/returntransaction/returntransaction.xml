@@ -1,0 +1,502 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/returns/returntransaction/returntransaction.xml /main/26 2014/06/12 15:51:45 mchellap Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mchellap  05/09/14 - Exit tour after adding blind return item for MPOS
+ *                         returns
+ *    cgreene   03/11/14 - add support for returning ASA ordered items
+ *    jswan     09/21/10 - Fixed issues with pressing escape on serial number
+ *                         entry screen while performing a transaction return.
+ *    mchellap  08/31/10 - BUG#9630775 Show select item screen in case of
+ *                         multiple Serial/IMEI matches.
+ *    jswan     07/21/10 - Fixed issues around transaction search by tender.
+ *    jswan     07/20/10 - Removed unnecessary timeout roads.
+ *    jswan     07/14/10 - Modifications to support pressing the escape key in
+ *                         the EnterItemInformation screen during retrieved
+ *                         transaction screen for external order integration.
+ *    jswan     07/07/10 - Code review changes and fixes for Cancel button in
+ *                         External Order integration.
+ *    jswan     07/05/10 - Latest changes.
+ *    jswan     06/30/10 - Checkin for first promotion of External Order
+ *                         integration.
+ *    jswan     06/17/10 - Checkin external order integration files for
+ *                         refresh.
+ *    jswan     06/01/10 - Checked in for refresh to latest lable.
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    mpbarnet  03/16/10 - In site GiftCardInquiry, add road for gift card
+ *                         inquiry failure.
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:44:16 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin-4
+      3    360Commerce 1.2         3/31/2005 4:29:46 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:24:54 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:13:56 PM  Robert Pearse
+     $
+     Revision 1.24  2004/05/13 19:38:40  jdeleau
+     @scr 4862 Support timeout for all screens in the return item flow.
+
+     Revision 1.23  2004/03/26 00:24:22  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.22  2004/03/25 15:07:15  baa
+     @scr 3561 returns bug fixes
+
+     Revision 1.21  2004/03/22 06:17:49  baa
+     @scr 3561 Changes for handling deleting return items
+
+     Revision 1.20  2004/03/18 23:01:56  baa
+     @scr 3561 returns fixes for gift card
+
+     Revision 1.19  2004/03/18 15:54:59  baa
+     @scr 3561 Add changes to support giftcard returns
+
+     Revision 1.18  2004/03/09 15:34:02  epd
+     @scr 3561 refactor of bug fix to repair entering detailed item info
+
+     Revision 1.17  2004/03/08 22:54:55  epd
+     @scr 3561 Updates for entering detailed return item info
+
+     Revision 1.16  2004/03/05 21:51:54  epd
+     @scr 3561 removed unused aisles and roads
+
+     Revision 1.15  2004/03/05 21:46:58  epd
+     @scr 3561 Updates to implement select highest price item
+
+     Revision 1.14  2004/03/05 16:01:17  epd
+     @scr 3561 code reformatting and slight refactoring
+
+     Revision 1.13  2004/03/04 20:52:46  epd
+     @scr 3561 Returns.  Updates for highest price item functionality and code cleanup
+
+     Revision 1.12  2004/03/04 14:55:51  baa
+     @scr 3561 return add flow to check for returnable items
+
+     Revision 1.11  2004/03/02 18:53:14  baa
+     @scr 3561 returns size changes
+
+     Revision 1.10  2004/02/27 01:43:29  baa
+     @scr 3561 returns - selecting return items
+
+     Revision 1.9  2004/02/24 22:08:14  baa
+     @scr 3561 continue returns dev
+
+     Revision 1.8  2004/02/24 15:15:33  baa
+     @scr 3561 returns enter item
+
+     Revision 1.7  2004/02/23 13:54:52  baa
+     @scr 3561 Return Enhancements to support item size
+
+     Revision 1.6  2004/02/20 15:59:47  epd
+     @scr 3561 fixed broken XML
+
+     Revision 1.5  2004/02/19 19:29:36  epd
+     @scr 3561 Updates for Returns - Enter Size alternate flow
+
+     Revision 1.4  2004/02/19 15:37:27  baa
+     @scr 3561 returns
+
+     Revision 1.3  2004/02/18 20:36:20  baa
+     @scr 3561 Returns changes to support size
+
+     Revision 1.2  2004/02/12 16:51:53  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:20  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="returntransaction"
+    package="oracle.retail.stores.pos.services.returns.returntransaction"
+    tourcam="OFF">
+    <COMMENT >
+        This service select items for return based blind selection of items from the receipt or
+        from a list of external order items.
+    </COMMENT>
+    <CARGO  class="ReturnTransactionCargo"/>
+    <SERVICECODE >
+        <LANEACTION class="CheckForItemInNotDisplayedItemsAisle"/>
+        <LANEACTION class="DeleteItemRoad"/>
+        <LANEACTION class="FindExternalOrderItemInTransactionAisle"/>
+        <LANEACTION class="GetBlindReturnItemsAisle"/>
+        <LANEACTION class="ResetCurrentItemRoad"/>
+        <LANEACTION class="SelectIMEIItemAisle"/>
+        <LANEACTION class="SetNextReturnItemRoad"/>
+        <LANEACTION class="SetSelectedToMatchReturnedRoad"/>
+        <LANEACTION class="ProcessBlindReturnItem"/>
+        <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ValidateItemSizeAisle" package="oracle.retail.stores.pos.services.returns.returnoptions"/>
+
+        <LETTER name="Add"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Detail"/>
+        <LETTER name="Done"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="MultipleMatches"/>
+        <LETTER name="Next"/>
+        <LETTER name="NoMatch"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Search"/>
+        <LETTER name="SerialNumber"/>
+        <LETTER name="Size"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="WebManagedOrder"/>
+
+        <SHUTTLE class="ModifyItemSerialNumberLaunchShuttle"/>
+        <SHUTTLE class="ModifyItemSerialNumberReturnShuttle"/>
+        <SHUTTLE class="TransferReturnTransactionShuttle"/>
+
+        <SIGNAL  class="IsExternalOrderReturnSignal" package="oracle.retail.stores.pos.services.returns.returncommon"/>
+        <SIGNAL  class="ExitAfterItemAdditionSignal" />
+
+        <SITEACTION class="AddItemToBlindReturnSite"/>
+        <SITEACTION class="CheckForExternalOrderSite"/>
+        <SITEACTION class="EnterItemSizeSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="ProcessExternalOrderSite"/>
+        <SITEACTION class="SelectReturnItemsSite"/>
+    </SERVICECODE>
+
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckForExternalOrder">
+
+            <SITE name="CheckForExternalOrder" siteaction="CheckForExternalOrderSite">
+                <ROAD
+                    name="NoExternalOrderFound"
+                    letter="Next"
+                    destination="DisplayBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="WebManagedOrderFound"
+                    letter="WebManagedOrder"
+                    destination="DisplayBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="ExternalOrderFound"
+                    letter="ExternalOrder"
+                    destination="ProcessExternalOrder">
+                </ROAD>
+                <ROAD
+                    name="ExternalOrderFailure"
+                    letter="Failure"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+            <SITE name="DisplayBlindReturn" siteaction="SelectReturnItemsSite">
+                <AISLE
+                    name="ItemEnteredDisplayBlindReturn"
+                    letter="Next"
+                    laneaction="GetBlindReturnItemsAisle">
+                </AISLE>
+                <ROAD
+                    name="CheckForItemInBlindReturnNoSizeReq"
+                    letter="Add"
+                    destination="AddItemToBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="SizeDisplayBlindReturn"
+                    letter="Size"
+                    destination="EnterSizeOnBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="DisplayBlindReturnSerialNumber"
+                    letter="SerialNumber"
+                    destination="SerializedItemStation">
+                </ROAD>
+                <ROAD
+                    name="RetryDisplayBlindReturnError"
+                    letter="Retry"
+                    destination="DisplayBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="DoneDisplayBlindReturn"
+                    letter="Done"
+                    laneaction="ResetCurrentItemRoad"
+                    destination="ReturnItemInformationStation">
+                </ROAD>
+                <ROAD
+                    name="SelectTransactionDetail"
+                    letter="Detail"
+                    destination="DisplayTransactionDetailStation">
+                </ROAD>
+                <ROAD
+                    name="UndoDisplayBlindReturn"
+                    letter="Undo"
+                    laneaction="SetSelectedToMatchReturnedRoad"
+                    destination="Final">
+                </ROAD>
+               <ROAD
+                    name="CancelDisplayBlindReturn"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+                 <ROAD
+                    name="ClearReturnItems"
+                    letter="Clear"
+                    laneaction="DeleteItemRoad"
+                    destination="DisplayBlindReturn">
+                </ROAD>
+                 <ROAD
+                    name="InvalidReturnItems"
+                    letter="Invalid"
+                    destination="DisplayBlindReturn">
+                </ROAD>
+            </SITE>
+
+            <SITE name="ProcessExternalOrder" siteaction="ProcessExternalOrderSite">
+                <AISLE
+                    name="ProcessExternalOrderContinue"
+                    letter="Continue"
+                    laneaction="FindExternalOrderItemInTransactionAisle">
+                </AISLE>
+                <ROAD
+                    name="ProcessExternalOrderNoMatch"
+                    letter="NoMatch"
+                    destination="ProcessExternalOrder">
+                 </ROAD>
+                <ROAD
+                    name="ProcessExternalOrderAdd"
+                    letter="Add"
+                    destination="AddItemToBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="ProcessExternalOrderSize"
+                    letter="Size"
+                    destination="EnterSizeOnBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="ProcessExternalOrderSerialNumber"
+                    letter="SerialNumber"
+                    destination="SerializedItemStation">
+                </ROAD>
+                <ROAD
+                    name="ProcessExternalOrderSuccess"
+                    letter="Success"
+                    laneaction="ResetCurrentItemRoad"
+                    destination="ReturnItemInformationStation">
+                </ROAD>
+                <ROAD
+                    name="NoMatchingItemsErrorUndo"
+                    letter="Undo"
+                    laneaction="SetSelectedToMatchReturnedRoad"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+
+            <SITE name="AddItemToBlindReturn" siteaction="AddItemToBlindReturnSite">
+                <ROAD
+                     name="ItemAddedToBlindReturnRoad"
+                     letter="Continue"
+                     destination="CheckForExternalOrder">
+                     <LIGHT signal="ExitAfterItemAdditionSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="ItemAddtionDoneRoad"
+                    letter="Continue"
+                    laneaction="ProcessBlindReturnItem"
+                    destination="Final">
+                    <LIGHT signal="ExitAfterItemAdditionSignal"/>
+                </ROAD>
+                <ROAD
+                     name="InvalidItemSelectedRoad"
+                     letter="Ok"
+                     destination="CheckForExternalOrder">
+                </ROAD>
+                <ROAD
+                     name="AddItemToBlindReturnRetry"
+                     letter="Retry"
+                     destination="SerializedItemStation">
+                </ROAD>
+                <AISLE
+                    name="MultipleSerialNumberMatchesFound"
+                    letter="Next"
+                    laneaction="SelectIMEIItemAisle">
+                </AISLE>
+                <ROAD
+                    name="ItemSelectionCancelled"
+                    letter="Cancel"
+                    destination="DisplayBlindReturn">
+                </ROAD>
+
+            </SITE>
+
+            <SITE name="EnterSizeOnBlindReturn" siteaction="EnterItemSizeSite">
+                <AISLE
+                    name="ItemSizeOnBlindReturnEntered"
+                    letter="Next"
+                    laneaction="ValidateItemSizeAisle">
+                </AISLE>
+                <AISLE
+                    name="CheckForItemInBlindReturn"
+                    letter="Search"
+                    laneaction="CheckForItemInNotDisplayedItemsAisle">
+                </AISLE>
+                <ROAD
+                    name="AddItemInBlindReturnSizeReq"
+                    letter="Add"
+                    destination="AddItemToBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="EnterSizeOnBlindReturnSerialNumber"
+                    letter="SerialNumber"
+                    destination="SerializedItemStation">
+                </ROAD>
+                <ROAD
+                    name="EnterSizeOnBlindReturnRetry"
+                    letter="Retry"
+                    destination="EnterSizeOnBlindReturn">
+                </ROAD>
+                <ROAD
+                    name="ContinueEnterSizeOnBlindReturn"
+                    letter="Continue"
+                    destination="CheckForExternalOrder">
+                </ROAD>
+                <ROAD
+                    name="UndoEnterSizeOnBlindReturn"
+                    letter="Undo"
+                    laneaction="SetSelectedToMatchReturnedRoad"
+                    destination="Final">
+                </ROAD>
+                 <ROAD
+                     name="EnterSizeOnBlindReturnCancel"
+                     letter="Cancel"
+                     destination="Final">
+                 </ROAD>
+            </SITE>
+
+            <STATION
+                 name="SerializedItemStation"
+                 servicename="modifyitem.serialnumber.serializedItem"
+                 targettier="CURRENTTIER"
+                 launchshuttle="ModifyItemSerialNumberLaunchShuttle"
+                 returnshuttle="ModifyItemSerialNumberReturnShuttle">
+                 <COMMENT>
+                     This service prompts the user for serial number input and sets the serial number attribute
+                     for one or more line items.
+                 </COMMENT>
+                 <ROAD
+                     name="CancelSerializedItemStation"
+                     letter="Cancel"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="SerializedItemStationOk"
+                     letter="Ok"
+                     destination="AddItemToBlindReturn">
+                 </ROAD>
+                 <ROAD
+                     name="SerializedItemStationSucess"
+                     letter="Success"
+                     destination="AddItemToBlindReturn">
+                 </ROAD>
+                 <ROAD
+                     name="SerializedItemStationUndo"
+                     letter="Undo"
+                     laneaction="SetSelectedToMatchReturnedRoad"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="SerializedItemStationFailure"
+                     letter="Failure"
+                     destination="Final">
+                 </ROAD>
+            </STATION>
+
+            <STATION
+                 name="DisplayTransactionDetailStation"
+                 servicename="returns.returntransaction.returndisplayedtransaction"
+                 targettier="CURRENTTIER"
+                 launchshuttle="TransferReturnTransactionShuttle"
+                 returnshuttle="TransferReturnTransactionShuttle">
+                 <ROAD
+                     name="CancelDisplayTransactionDetailStation"
+                     letter="Cancel"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="DisplayTransactionDetailStationUndo"
+                     letter="Undo"
+                     laneaction="SetSelectedToMatchReturnedRoad"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="DisplayTransactionDetailStationFailure"
+                     letter="Failure"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="DisplayTransactionDetailStationSuccess"
+                     letter="Success"
+                     destination="Final">
+                 </ROAD>
+            </STATION>
+
+            <STATION
+                 name="ReturnItemInformationStation"
+                 servicename="returns.returntransaction.returniteminfotransaction"
+                 targettier="CURRENTTIER"
+                 launchshuttle="TransferReturnTransactionShuttle"
+                 returnshuttle="TransferReturnTransactionShuttle">
+                 <ROAD
+                     name="CancelReturnItemInformationStation"
+                     letter="Cancel"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="ReturnItemInformationStationUndo"
+                     letter="Undo"
+                     destination="DisplayBlindReturn">
+                    <LIGHT  signal="IsExternalOrderReturnSignal" negate="Y"/>
+                 </ROAD>
+                 <ROAD
+                     name="ReturnItemInformationStationUndoExternalOrder"
+                     letter="Undo"
+                     laneaction="SetSelectedToMatchReturnedRoad"
+                     destination="Final">
+                    <LIGHT  signal="IsExternalOrderReturnSignal"/>
+                 </ROAD>
+                 <ROAD
+                     name="ReturnItemInformationStationFailure"
+                     letter="Failure"
+                     destination="Final">
+                 </ROAD>
+                 <ROAD
+                     name="ReturnItemInformationStationSuccess"
+                     letter="Success"
+                     destination="Final">
+                 </ROAD>
+            </STATION>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+
+        </REGION>
+    </MAP>
+</SERVICE>

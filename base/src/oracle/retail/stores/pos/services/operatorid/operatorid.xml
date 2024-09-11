@@ -1,0 +1,762 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/operatorid/operatorid.xml /main/20 2013/11/19 09:42:41 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    mkutiana 07/12/13 - Manager override Failure road added
+ *    cgreene  06/04/13 - implement manager override as dialogs
+ *    mkutiana 03/30/12 - cleanup related to XbranchMerge of
+ *                         spurkaya_bug-13243938 from
+ *                         rgbustores_13.3x_generic_branch
+ *    blarsen   05/25/10 - added support for biometric login
+ *    blarsen   06/09/10 - XbranchMerge blarsen_biometrics-poc from
+ *                         st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala 01/02/10 - Update Header date
+ *    abondala 12/16/09 - Added ADE Header
+     $Log:
+      6    360Commerce 1.5         4/9/2008 5:06:13 PM    Maisa De Camargo CR
+           31238 - Selecting ESC on the Change Password Screen returns the
+           user to an incorrect screen.
+           Update the tour to use the index feature of the tourcam.
+      5    360Commerce 1.4         12/19/2007 8:24:44 AM Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      4    360Commerce 1.3         11/2/2006 6:46:12 AM   Rohit Sachdeva
+           21237: Activating Password Policy Evaluation and Change Password
+      3    360Commerce 1.2         3/31/2005 4:29:12 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:23:48 AM Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:12:50 PM Robert Pearse
+     $
+     Revision 1.7 2004/06/25 22:54:54 cdb
+     @scr 1642 Updated so that Undo selected from Operator ID screen returns
+     to the calling service rather than prompting for another security override.
+
+     Revision 1.6 2004/03/16 16:32:59 baa
+     @scr 0 fix pointers to deprecated files in pos old service
+
+     Revision 1.5 2004/02/26 21:11:12 jriggins
+     @scr 3782 Removed unecessary new roads in favor of placing the logic in the appropriate site's depart() method
+ *
+ * ===========================================================================
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="OperatorId"
+    package="oracle.retail.stores.pos.services.operatorid"
+    tourcam="ON">
+    <COMMENT>
+        This service excutes the Operator Identification
+        Package cases.
+    </COMMENT>
+    <CARGO class="OperatorIdCargo" package="oracle.retail.stores.pos.services.operatorid">
+        <COMMENT>
+            This cargo contains the login information.
+        </COMMENT>
+    </CARGO>
+    <SERVICECODE>
+        <LANEACTION class="DefaultRoad" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="ConvertToFailureAisle" package="oracle.retail.stores.pos.services.postvoid"/>
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="EmployeeEnteredRoad">
+            <TRAVERSE>
+                <COMMENT>
+                    This road stores the employeeID in the cargo.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="LoginEnteredRoad">
+            <TRAVERSE>
+                <COMMENT>
+                    This road stores the Login in the cargo.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+
+        <LANEACTION class="EmployeeInvalidAisle" package="oracle.retail.stores.pos.services.common">
+            <TRAVERSE>
+                <COMMENT>
+                    Displays error messages.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="EmployeeLockoutAisle">
+            <TRAVERSE>
+                <COMMENT>
+                    Displays error messages.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common">
+            <TRAVERSE>
+                <COMMENT>
+                    Mails a Next letter.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="IDErrorLetterAisle">
+            <TRAVERSE>
+                <COMMENT>
+                    Traversed when user agrees to open Store/Register/Till
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="MatchPasswordAisle" package="oracle.retail.stores.pos.services.operatorid">
+            <COMMENT>
+                Makes sure that the two newly entered passwords are
+                the same
+            </COMMENT>
+            <TRAVERSE>
+                <COMMENT>
+                    Makes sure that the two newly entered passwords are
+                    the same
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="MatchPasswordSuccessRoad" package="oracle.retail.stores.pos.services.operatorid">
+            <COMMENT>
+                New passwords supplied match. Persist in data storage
+                and move to final.
+            </COMMENT>
+            <TRAVERSE>
+                <COMMENT>
+                    New passwords supplied match. Persist in data storage
+                    and move to final.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="ChangePasswordEnteredRoad" package="oracle.retail.stores.pos.services.operatorid">
+            <COMMENT>
+                Change Password entered Road
+            </COMMENT>
+            <TRAVERSE>
+                <COMMENT>
+                    Change Password entered Road
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common">
+            <TRAVERSE>
+                <COMMENT>
+                    Mails a Next letter.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LANEACTION class="PasswordEnteredRoad">
+            <TRAVERSE>
+                <COMMENT>
+                    This road stores the password in the cargo.
+                </COMMENT>
+            </TRAVERSE>
+        </LANEACTION>
+        <LETTER name="CancelFailedMatchPassword">
+            <COMMENT>
+                New passwords do not match and user does not want to
+                reenter
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="NewPassword">
+            <COMMENT>
+                Handles case where login was successful but the employee
+                needs to enter a new password.
+            </COMMENT>
+        </LETTER>
+        <LETTER name="Next"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Password"/>
+        <LETTER name="RetryFailedMatchPassword">
+            <COMMENT>
+                New passwords do not match and user wants to retry
+            </COMMENT>
+        </LETTER>
+        <LETTER name="ShowError"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Validate"/>
+        <SIGNAL class="IsNewPasswordNeededSignal" package="oracle.retail.stores.pos.services.operatorid">
+            <COMMENT>
+                If true then causes transitions to the EnterNewPassword
+                site.
+            </COMMENT>
+        </SIGNAL>
+        <SIGNAL class="IsNotRetrySignal"/>
+        <SIGNAL class="IsRetrySignal"/>
+        <SITEACTION class="CheckEmployeeIDSite">
+            <COMMENT>
+                This site determines if the Operator has entered
+                a an employee id that match one the employees in the
+                list passed from the calling service.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="CheckLoginSite">
+            <COMMENT>
+                This site determines if the Operator has entered
+                sufficient creditials to login.
+            </COMMENT>
+        </SITEACTION>
+        <SITEACTION class="LoginSite">
+            <COMMENT>
+                This site displays the PASSWORD Screen.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    Displays the PASSWORD Screen.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="EnterNewPasswordSite" package="oracle.retail.stores.pos.services.operatorid">
+            <COMMENT>
+                Handles case where the employee needs to enter a new
+                password for his/her account.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    Handles case where the employee needs to enter a new
+                    password for his/her account.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="EnterPasswordSite">
+            <COMMENT>
+                This site displays the PASSWORD Screen.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    Displays the PASSWORD Screen.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="EnterChangePasswordSite">
+            <COMMENT>
+                This site displays the CHANGE PASSWORD Screen.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    Displays the CHANGE PASSWORD Screen.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="EvaluateChangePasswordPolicySite">
+            <COMMENT>
+                This site uses Password Policy Evaluator for Change Password.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    This site uses Password Policy Evaluator for Change Password.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="PasswordPolicyEvaluationSite">
+            <COMMENT>
+                This site uses Password Policy Evaluator for Generic Password Policy Evaluation.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    This site uses Password Policy Evaluator for Generic Password Policy Evaluation.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="ExitFromNewPasswordSite" package="oracle.retail.stores.pos.services.operatorid">
+            <COMMENT>
+                This site is traversed when a user decides to cancel
+                or undo while in the process of creating a new password.
+                It will log them out since they had successfully logged
+                in with their temporary passwords but had chosen
+                not to update their passwords as required.
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    This site is traversed when a user decides to cancel
+                    or undo while in the process of creating a new password.
+                    It will log them out since they had successfully logged
+                    in with their temporary passwords but had chosen
+                    not to update their passwords as required.
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="ReenterNewPasswordSite" package="oracle.retail.stores.pos.services.operatorid">
+            <COMMENT>
+                Handles case where the employee needs to enter a new
+                password for his/her account to match for consistency
+            </COMMENT>
+            <ARRIVE>
+                <COMMENT>
+                    Handles case where the employee needs to enter a new
+                    password for his/her account to match for consistency
+                </COMMENT>
+            </ARRIVE>
+        </SITEACTION>
+        <SITEACTION class="ValidateLoginSite">
+            <COMMENT>
+                This site reads the employee record and compares
+                its password to the password entered by the user.
+            </COMMENT>
+        </SITEACTION>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="Login">
+            <SITE name="Login" siteaction="LoginSite">
+                <COMMENT>
+                    This site displays the LOGIN screen.
+                </COMMENT>
+                <AISLE
+                    name="DialogConfirmed"
+                    letter="Ok"
+                    laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This aisle travels whed the user confirms the dialog.
+                        The letter is converted to "Next" to also handle when
+                        the dialog is driven by the global navigation bar.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="DialogCancelled"
+                    letter="Cancel"
+                    laneaction="ConvertToFailureAisle">
+                    <COMMENT>
+                        This aisle travels when the user cancels the dialog. The
+                        letter is converted to "Failure" for handling by the
+                        receiving transfer stations.
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LoginEntered"
+                    letter="Next"
+                    laneaction="LoginEnteredRoad"
+                    destination="CheckLogin"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the employee ID has been
+                        entered and the user confirms the dialog.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EmployeeFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when log in fails.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="EmployeeUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ChangePassword"
+                    letter="ChangePassword"
+                    destination="EnterChangePassword"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Change Password key has been pressed
+                        from the IDENTIFICATION Screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="CheckEmployeeID" siteaction="CheckEmployeeIDSite">
+                <COMMENT>
+                    This site displays the PASSWORD screen.
+                </COMMENT>
+                <ROAD
+                    name="OperatorLoggedIn"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when operator is in the list
+                        of employees passed in by the calling service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="GoToPassword"
+                    letter="Password"
+                    destination="EnterPassword"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled if the user must also enter a
+                        password
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="ValidationRequired"
+                    letter="Validate"
+                    destination="ValidateLogin"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="CheckLogin" siteaction="CheckLoginSite">
+                <ROAD
+                    name="OperatorLoggedIn"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ValidationRequired"
+                    letter="Validate"
+                    destination="ValidateLogin"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="EnterPassword" siteaction="EnterPasswordSite">
+                <COMMENT>
+                    This site displays the PASSWORD screen.
+                </COMMENT>
+                <ROAD
+                    name="PasswordEntered"
+                    letter="Next"
+                    laneaction="PasswordEnteredRoad"
+                    destination="ValidateLogin"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                    <COMMENT>
+                        This road is traveled when the password has been entered.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoPassword"
+                    letter="Undo"
+                    destination="Login"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Undo key has been pressed
+                        from the PASSWORD Screen.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="EnterChangePassword" siteaction="EnterChangePasswordSite">
+                <COMMENT>
+                    This site displays the CHANGE PASSWORD screen.
+                </COMMENT>
+                <ROAD
+                    name="ChangePasswordEntered"
+                    letter="Next"
+                    laneaction="ChangePasswordEnteredRoad"
+                    destination="ValidateLogin"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoPassword"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="ValidateLogin" siteaction="ValidateLoginSite">
+                <COMMENT>
+                    This site validates the login information.
+                </COMMENT>
+                <AISLE
+                    name="LoginInvalid"
+                    letter="ShowError"
+                    laneaction="EmployeeInvalidAisle">
+                    <COMMENT>
+                        This aisle is traveled when the login information
+                        is invalid.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="InvalidLoginForOk"
+                    letter="Ok"
+                    laneaction="NextLetterAisle">
+                    <COMMENT>
+                        The user acknowledges the Invalid ID screen by pressing
+                        the OK button. This aisle mails a Next letter so that
+                        the site can use the retry signals to decide whether
+                        to Retry or exit.
+                    </COMMENT>
+                </AISLE>
+                <AISLE
+                    name="LoginStopQuit"
+                    letter="Next"
+                    laneaction="EmployeeLockoutAisle">
+                    <COMMENT>
+                        The login process will be stopped and the user will have to quit.
+                    </COMMENT>
+                    <LIGHT signal="IsNotRetrySignal"/>
+                </AISLE>
+                <ROAD
+                    name="InvalidLoginRetry"
+                    letter="Next"
+                    destination="Login"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled login has failed but there are
+                        still attempts left.
+                    </COMMENT>
+                    <LIGHT signal="IsRetrySignal"/>
+                </ROAD>
+                <ROAD
+                    name="LoginValidNewPassword"
+                    letter="Success"
+                    destination="EnterChangePassword"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="OFF">
+                    <COMMENT>
+                        Handles case where login was successful but Change Password is needed.
+                    </COMMENT>
+                    <LIGHT signal="IsNewPasswordNeededSignal"/>
+                </ROAD>
+                 <ROAD
+                    name="PasswordPolicy"
+                    letter="Success"
+                    destination="PasswordPolicyEvaluation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Successful login. User id and password entered at the Prompt.
+                        Change Password was not needed here.
+                    </COMMENT>
+                    <LIGHT signal="IsNewPasswordNeededSignal" negate="Y"/>
+                </ROAD>
+                <ROAD
+                    name="ChangePasswordPolicy"
+                    letter="LoginValidationChangePassword"
+                    destination="EvaluateChangePasswordPolicy"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Successful login. This is for User Id and Password Entered
+                        at ChangePassword Screen. So, it goes to EvaluateChangePasswordPolicy.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LoginFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        Failed login.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="EvaluateChangePasswordPolicy" siteaction="EvaluateChangePasswordPolicySite">
+                <ROAD
+                    name="GoAheadChangePasswordSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GoToChangePassword"
+                    letter="ChangePasswordPolicyFailure"
+                    destination="EnterChangePassword"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="Offline"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="PasswordPolicyEvaluation" siteaction="PasswordPolicyEvaluationSite">
+                  <ROAD
+                    name="LoginValid"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GoToChangeFromPasswordPasswordPolicy"
+                    letter="ChangePasswordFromPasswordPolicy"
+                    destination="EnterChangePassword"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GoToLockoutFromPasswordPasswordPolicy"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE name="EnterNewPassword" siteaction="EnterNewPasswordSite">
+                <COMMENT>
+                    Handles case where the employee needs to enter a new
+                    password for his/her account.
+                </COMMENT>
+                <MOCKUP
+                    image="NEW_PASSWORD"/>
+                <ROAD
+                    name="NewPasswordEntered"
+                    letter="Next"
+                    destination="ReenterNewPassword"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        New password has been entered. Now we need to confirm
+                        this password by prompting again.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoEnterNewPassword"
+                    letter="Undo"
+                    destination="ExitFromNewPassword"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        Undo entering a new password. Must also remove any
+                        login context for the successful initial login.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="ReenterNewPassword" siteaction="ReenterNewPasswordSite">
+                <COMMENT>
+                    Handles case where the employee needs to enter a new
+                    password for his/her account to match for consistency
+                </COMMENT>
+                <MOCKUP
+                    image="REENTER_NEW_PASSWORD"/>
+                <AISLE
+                    name="MatchPassword"
+                    letter="Next"
+                    laneaction="MatchPasswordAisle">
+                    <COMMENT>
+                        Makes sure that the two newly entered passwords are
+                        the same
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="MatchPasswordFailedRetry"
+                    letter="RetryFailedMatchPassword"
+                    destination="EnterNewPassword"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        New passwords do not match and user wants to retry
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoReenterNewPassword"
+                    letter="Undo"
+                    destination="EnterNewPassword"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        Undo the new password reentry
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MatchPasswordFailedCancel"
+                    letter="CancelFailedMatchPassword"
+                    destination="ExitFromNewPassword"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        New passwords do not match and user does not want to
+                        reenter
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="MatchPasswordSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        New passwords supplied match. Persist in data storage
+                        and move to final.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="ExitFromNewPassword" siteaction="ExitFromNewPasswordSite">
+                <COMMENT>
+                    This site is traversed when a user decides to cancel
+                    or undo while in the process of creating a new password.
+                    It will log them out since they had successfully logged
+                    in with their temporary passwords but had chosen
+                    not to update their passwords as required.
+                </COMMENT>
+                <ROAD
+                    name="NewPasswordExit"
+                    letter="Success"
+                    destination="Login"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <COMMENT>
+                        Returns user to startsite
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

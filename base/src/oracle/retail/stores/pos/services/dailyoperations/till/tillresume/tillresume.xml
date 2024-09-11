@@ -1,0 +1,290 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/till/tillresume/tillresume.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="TillResume" package="oracle.retail.stores.pos.services.dailyoperations.till.tillresume" tourcam="OFF">
+     <COMMENT>
+          Service called when resuming a Till.
+     </COMMENT>
+<CARGO class="TillResumeCargo" />
+<SERVICECODE>
+     <LETTER name="Success" />
+     <LETTER name="Failure" />
+     <LETTER name="Yes" />
+     <LETTER name="No" />
+     <LETTER name="Ok" />
+     <LETTER name="Cancel" />
+     <LETTER name="Undo" />
+     <LETTER name="Continue" />
+     <LETTER name="CashierError" />
+     <LETTER name="NoTillsOpenError" />
+     <LETTER name="RegisterClosedError" />
+     <LETTER name="UpdateError" />
+     <LETTER name="IDError" />
+     <LETTER name="TillNotSuspendedError" />
+     <LETTER name="NoCashDrawersAvailable" />
+     <LETTER name="HardTotalsError" />
+     <LETTER name="Retry" />
+     <LETTER name="OtherTillOpenError" />
+     <LETTER name="DrawerError" />
+     <LETTER name="TillId" />
+     <LETTER name="Next" />
+     <LETTER name="Error" />
+     <LETTER name="QueueFull" />
+    
+     <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common" />
+     <SHUTTLE class="OpenRegisterLaunchShuttle" package="oracle.retail.stores.pos.services.dailyoperations.common" />
+     
+    
+     <SITEACTION class="ResumeTillPromptSite" />
+     <SITEACTION class="CheckStatusSite" />
+     <SITEACTION class="UpdateStatusSite" />
+     <SITEACTION class="WriteHardTotalsSite" package="oracle.retail.stores.pos.services.common" />
+     <SITEACTION class="CloseDrawerSite" />
+     <SITEACTION class="OpenDrawerSite" />
+     <SITEACTION class="EnterTillSite" package="oracle.retail.stores.pos.services.dailyoperations.till.tillopen" />
+     <SITEACTION class="CheckOpenRegisterSite" package="oracle.retail.stores.pos.services.common" />
+
+     <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="CheckStatusCashierErrorAisle" />
+     <LANEACTION class="UpdateStatusErrorAisle" />
+     <LANEACTION class="CheckStatusNoTillsOpenErrorAisle" />
+     <LANEACTION class="CheckStatusRegisterClosedErrorAisle" />
+     <LANEACTION class="OkToFailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="CheckStatusTillNotSuspendedErrorAisle" />
+     <LANEACTION class="CheckStatusNoCashDrawersAvailableErrorAisle" />
+     <LANEACTION class="WriteHardTotalsErrorAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="CheckStatusOtherTillNotSuspendedErrorAisle" />
+     <LANEACTION class="InsertTillRoad" />
+     <LANEACTION class="DrawerOccupiedErrorAisle" />
+     <LANEACTION class="UpdateSucceededMessageAisle" />
+     <LANEACTION class="TillEnteredAisle"/>
+     <LANEACTION class="DisplayErrorAisle" package="oracle.retail.stores.pos.services.dailyoperations.till" />
+     
+     <SIGNAL class="ShowNoWarningSignal" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+     <SIGNAL class="ShowWarningSignal" package="oracle.retail.stores.pos.services.dailyoperations.common"/>
+     
+
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="CheckOpenRegister">
+          <SITE name="CheckOpenRegister" siteaction="CheckOpenRegisterSite">
+               <ROAD name="RegisterIsOpen"
+                     letter="Success"
+                     destination="CheckStatus"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="ShowNoWarningSignal"/>
+               </ROAD>
+               <ROAD name="RegisterIsOpenWarning"
+                     letter="Success"
+                     destination="ResumeTillPrompt"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <LIGHT signal="ShowWarningSignal"/>
+               </ROAD>
+               <ROAD name="RegisterIsClosed"
+                     letter="Failure"
+                     destination="OpenRegisterStation"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <STATION name="OpenRegisterStation"
+                   servicename="register.registeropen.registeropen"
+                   targettier="CURRENTTIER"
+                   launchshuttle="OpenRegisterLaunchShuttle"
+                   returnshuttle="FinancialCargoShuttle">
+               <COMMENT>
+                    This station is the transfer point for the registeropen
+                    service.
+               </COMMENT>
+               <ROAD name="RegisterOpenSuccess"
+                     letter="Success"
+                     destination="ResumeTillPrompt"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the RegisterOpen service
+                         returns with a Success letter.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterOpenFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RegisterOpenCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="RegisterOpenUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </STATION>
+          <SITE name="ResumeTillPrompt" siteaction="ResumeTillPromptSite">
+               <AISLE name="NoResumeEntered"
+                      letter="No"
+                      laneaction="CancelLetterAisle">
+                    <COMMENT>
+                         This aisle is traveled when the Till is suspended
+                         and the user decides not to resume it.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="YesResumeEntered"
+                     letter="Yes"
+                     destination="CheckStatus"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traveled when the till is 
+                         suspended and the user agrees to resume it.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="CancelResume"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is traversed when the user presses
+                         the Cancel key from the Confirmation screen.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+
+
+
+          <SITE name="CheckStatus" siteaction="CheckStatusSite">
+               <MOCKUP image=""/>
+               <AISLE name="CheckStatusCashierError" letter="CashierError" laneaction="CheckStatusCashierErrorAisle">
+               </AISLE>
+               <AISLE name="CheckStatusTillNotSuspendedError" letter="TillNotSuspendedError" laneaction="CheckStatusTillNotSuspendedErrorAisle">
+               </AISLE>
+               <AISLE name="CheckStatusNoCashDrawersAvailableError" letter="NoCashDrawersAvailable" laneaction="CheckStatusNoCashDrawersAvailableErrorAisle">
+               </AISLE>
+               <AISLE name="CheckStatusRegisterClosedError" letter="RegisterClosedError" laneaction="CheckStatusRegisterClosedErrorAisle">
+               </AISLE>
+               <AISLE name="CheckStatusErrorOk" letter="Ok" laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         Check error condition and send Continue or Exit letter. 
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="CheckStatusExit" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CheckStatusContinue" letter="Continue" destination="OpenDrawer" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="NoPromptNeeded" letter="Success" destination="UpdateStatus" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CheckStatusTillId"
+                     letter="TillId"
+                     destination="EnterTill"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="EnterTill" siteaction="EnterTillSite">
+               <AISLE name="EnterTillNext"
+                      letter="Next"
+                      laneaction="TillEnteredAisle">
+               </AISLE>
+               <AISLE name="EnterTillError"
+                      letter="Error"
+                      laneaction="DisplayErrorAisle">
+               </AISLE>
+               <ROAD name="EnterTillOk"
+                     letter="Ok"
+                     destination="EnterTill"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="EnterTillFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>              
+               <ROAD name="EnterTillContinue"
+                     letter="Continue"
+                     destination="OpenDrawer"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="EnterTillUndo"
+                     letter="Undo"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="EnterTillCancel"
+                     letter="Cancel"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="OpenDrawer" siteaction="OpenDrawerSite">
+               <MOCKUP image=""/>
+               <AISLE name="DrawerOpenFailureConversion" letter="Cancel" laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="OpenDrawerFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="OpenDrawerRetry" letter="Retry" destination="OpenDrawer" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="DrawerOpenContinue" letter="Continue" destination="CloseDrawer" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+			   <ROAD name="SkipDrawerOpen" letter="Skip" destination="UpdateStatus" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CloseDrawer" siteaction="CloseDrawerSite">
+               <MOCKUP image=""/>
+               <ROAD name="DrawerCloseContinue" letter="Continue" destination="UpdateStatus" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="UpdateStatus" siteaction="UpdateStatusSite">
+               <MOCKUP image=""/>
+               <AISLE name="UpdateStatusError" letter="UpdateError" laneaction="UpdateStatusErrorAisle">
+               </AISLE>
+               <AISLE name="UpdateStatusErrorOk" letter="Ok" laneaction="FailureConversionAisle">
+               </AISLE>
+               <AISLE name="UpdateSucceededMessage" letter="Success" laneaction="UpdateSucceededMessageAisle">
+               </AISLE>
+               <ROAD name="UpdateFailed" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UpdateStatusSucceeded" letter="Continue" destination="WriteHardTotals" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UpdateStatusRetry" letter="Retry" destination="UpdateStatus" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="UpdateStatusQueueFull" letter="QueueFull" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="WriteHardTotals" siteaction="WriteHardTotalsSite">
+               <MOCKUP image=""/>
+               <AISLE name="WriteHardTotalsError" letter="HardTotalsError" laneaction="WriteHardTotalsErrorAisle">
+               </AISLE>
+               <AISLE name="WriteHardTotalsErrorOk" letter="Ok" laneaction="FailureConversionAisle">
+               </AISLE>
+               <ROAD name="WriteHardTotalsSucceeded" letter="Success" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="WriteHardTotalsFailed" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

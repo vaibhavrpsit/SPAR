@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+	<component name="COMMON">
+		<element name="Flag">
+			<mapping xc="Y" store="true"/>
+			<mapping xc="N" store="false"/>
+		</element>
+		<element name="PhoneType" store_dflt="5" xc_dflt="OTHER">
+			<mapping xc="HOME" store="0"/>
+			<mapping xc="WORK" store="1"/>
+			<mapping xc="MOBILE" store="2"/>
+			<mapping xc="FAX" store="3"/>
+			<mapping xc="PAGER" store="4"/>
+			<mapping xc="OTHER" store="5"/>
+		</element>
+		<element name="AddrType" store_dflt="0" xc_dflt="HOME">
+            <mapping xc="HOME" store="0"/>
+            <mapping xc="WORK" store="1"/>
+            <mapping xc="OTHER" store="2"/>
+        </element>
+        <element name="EmailType" store_dflt="0" xc_dflt="HOME">
+            <mapping xc="HOME" store="0"/>
+            <mapping xc="WORK" store="1"/>
+            <mapping xc="OTHER" store="2"/>
+        </element>
+    </component>
+    <component name="CUSTOMER">
+        <element name="GenderType" store_dflt="0" xc_dflt="UNSPECIFIED">
+            <mapping xc="UNSPECIFIED" store="0"/>
+            <mapping xc="FEMALE" store="1"/>
+            <mapping xc="MALE" store="2"/>
+        </element>
+        <element name="CustomerType" store_dflt="true" xc_dflt="REGULAR">
+            <mapping xc="REGULAR" store="true"/>
+            <mapping xc="BUSINESS" store="false"/>
+        </element>
+        <element name="ReceiptPreference" store_dflt="0" xc_dflt="NONE">
+            <mapping xc="NONE" store="0"/>
+            <mapping xc="PRINT" store="1"/>
+            <mapping xc="EMAIL" store="2"/>
+            <mapping xc="BOTH" store="3"/>
+        </element>
+    </component>
+	<component name="ORDER">
+	    <element name="OrderStatus">
+			<mapping xc="NEW" store="0"/>
+			<mapping xc="PARTIAL" store="1"/>
+			<mapping xc="FILLED" store="3"/>
+			<mapping xc="CANCELED" store="4"/>
+			<mapping xc="COMPLETED" store="5"/>
+		</element>
+		<element name="ItemType">
+			<mapping xc="STCK" store="1"/>
+			<mapping xc="SERV" store="2"/>
+			<mapping xc="CPON" store="3"/>
+		</element>
+		<element name="ProductGroup" store_dflt="UNDF">
+			<mapping xc="ALTR" store="ALTR"/>
+			<mapping xc="GCRD" store="GCRD"/>
+			<mapping xc="GCRT" store="GCRT"/>
+		</element>
+		<element name="EnumEntryMethod">
+			<mapping xc="MANUAL" store="Manual"/>
+			<mapping xc="SCAN" store="Scan"/>
+		    <mapping xc="MICR" store="Micr"/>
+			<mapping xc="SWIPE" store="Swipe"/>
+			<mapping xc="ICC" store="ICC"/>
+		    <mapping xc="WAVE" store="Wave"/>
+			<mapping xc="AUTO" store="Automatic"/>
+		    <mapping xc="ICCFLBK" store="ICC_Fallback"/>
+		</element>
+	    <element name="EntryMethod">
+			<mapping xc="MANUAL" store="Manual"/>
+			<mapping xc="SCAN" store="Scan"/>
+		    <mapping xc="MICR" store="Micr"/>
+			<mapping xc="SWIPE" store="Swipe"/>
+			<mapping xc="ICC" store="ICC"/>
+		    <mapping xc="WAVE" store="Wave"/>
+			<mapping xc="AUTO" store="Automatic"/>
+		    <mapping xc="ICCFLBK" store="ICC_Fallback"/>
+		</element>
+		<element name="PaymentType">
+			<mapping xc="CASH" store="0"/>
+			<mapping xc="CREDIT" store="1"/>
+		    <mapping xc="CHECK" store="2"/>
+			<mapping xc="COUPON" store="7"/>
+			<mapping xc="DEBIT" store="6"/>
+		    <mapping xc="ECHECK" store="13"/>
+			<mapping xc="GIFTCARD" store="8"/>
+		    <mapping xc="GIFTCERT" store="4"/>
+		    <mapping xc="MAILCHECK" store="5"/>
+			<mapping xc="MALLCERT" store="10"/>
+		    <mapping xc="MONEYORDER" store="12"/>
+			<mapping xc="PURCHASEORDER" store="11"/>
+		    <mapping xc="STORECREDIT" store="9"/>
+		    <mapping xc="TRAVCHECK" store="3"/>
+		</element>
+		<element name="EnumTaxModScope">
+			<mapping xc="ORD" store="0"/>
+			<mapping xc="ITM" store="1"/>
+		</element>
+		<element name="EnumTaxMode">
+			<mapping xc="STANDARD" store="0"/>
+			<mapping xc="EXEMPT" store="1"/>
+			<mapping xc="OVERRIDEAMT" store="2"/>
+			<mapping xc="OVERRIDERATE" store="3"/>
+			<mapping xc="TOGGLEOFF" store="4"/>
+			<mapping xc="TOGGLEON" store="5"/>
+			<mapping xc="NONTAXABLE" store="6"/>
+		</element>
+		<element name="EnumDiscountScope">
+			<mapping xc="ORD" store="0"/>
+			<mapping xc="ITM" store="1"/>
+		</element>
+		<element name="EnumDiscountMethod" store_dflt="2" xc_dflt="AMT">
+			<mapping xc="PCT" store="1"/>
+			<mapping xc="AMT" store="2"/>
+		</element>
+		<element name="EnumDiscountAssignBasis" store_dflt="4" xc_dflt="OTHR">
+			<mapping xc="MANU" store="0"/>
+			<mapping xc="CUST" store="1"/>
+			<mapping xc="ITEM" store="2"/>
+			<mapping xc="CPON" store="3"/>
+			<mapping xc="OTHR" store="4"/>
+			<mapping xc="EMPL" store="5"/>
+		</element>
+		<element name="EnumDiscountAcctMethod">
+			<mapping xc="DISCOUNT" store="0"/>
+			<mapping xc="MARKDOWN" store="1"/>
+		</element>
+	    <element name="CouponType">
+			<mapping xc="MANUFACTURER" store="0"/>
+			<mapping xc="STORE" store="1"/>
+			<mapping xc="ELECTRONIC" store="2"/>
+		</element>
+	    <element name="State">
+			<mapping xc="REDEEM" store="REDEEM"/>
+			<mapping xc="ISSUE" store="ISSUED"/>
+		</element>
+	    <element name="CertificateType">
+			<mapping xc="STORE" store="Store"/>
+			<mapping xc="CORP" store="Corporate"/>
+			<mapping xc="FOREIGN" store="Foreign"/>
+		</element>
+	    <element name="AuthorizationMethod">
+			<mapping xc="AUTO" store="Automatic"/>
+			<mapping xc="SYST" store="System"/>
+			<mapping xc="MANU" store="Manual"/>
+		</element>
+	    <element name="EcheckConversionCode">
+			<mapping xc="CONV" store="C"/>
+			<mapping xc="VERIFY" store="V"/>
+			<mapping xc="GUARENTEE" store="G"/>
+		</element>
+	    <element name="CardType">
+			<mapping xc="VISA" store="Visa"/>
+			<mapping xc="MASTER" store="MasterCard"/>
+			<mapping xc="AMEX" store="AmEx"/>
+			<mapping xc="DISCOVER" store="Discover"/>
+			<mapping xc="DINERS" store="Diners"/>
+			<mapping xc="HOUSECARD" store="HouseCard"/>
+			<mapping xc="JCB" store="JCB"/>
+			<mapping xc="GIFTCARD" store="GiftCard"/>
+		</element>
+	    <element name="GiftcardReqType">
+			<mapping xc="ISSUE" store="0"/>
+			<mapping xc="RELOAD" store="1"/>
+		</element>
+	    <element name="AlterationType">
+			<mapping xc="COAT" store="3"/>
+			<mapping xc="DRESS" store="5"/>
+			<mapping xc="PANTS" store="1"/>
+			<mapping xc="SHIRT" store="2"/>
+			<mapping xc="SKIRT" store="4"/>
+			<mapping xc="REPAIR" store="6"/>
+		</element>
+		<element name="InitiateLocType">
+			<mapping xc="O" store="0"/>
+			<mapping xc="S" store="1"/>
+		</element>
+	    <element name="UnitOfMeasure">
+			<mapping xc="EA" store="UN"/>
+		</element>		
+    </component>
+</config>
+

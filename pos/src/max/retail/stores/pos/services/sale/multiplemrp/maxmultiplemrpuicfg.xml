@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!-- /**
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2016-2017 MAXHyperMarkets, Inc.    All Rights Reserved.
+  Rev 1.0	Nadia Arora		20 Feb,2017		MMRP Changes
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */ -->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+	<!-- Pick One Related Item screen -->
+
+	<BEAN specName="PickOneItemMRPSpec" configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="max.retail.stores.pos.ui.beans"
+		beanClassName="MAXMaximumRetailPriceListBean">
+		<BEANPROPERTY propName="renderer"
+			propValue="max.retail.stores.pos.ui.beans.MAXMaximumRetailPriceListRenderer" />
+		<BEANPROPERTY propName="labelTags" propValue="MRPLabel,RSPLabel" />
+		<BEANPROPERTY propName="labelWeights" propValue="50,50" />
+		<BEANPROPERTY propName="focused" propValue="true" />
+	</BEAN>
+
+	<BEAN specName="PickOneItemMRPButtonSpec" configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="oracle.retail.stores.pos.ui.beans"
+		beanClassName="NavigationButtonBean">
+		<BUTTON actionName="PickInactiveMRP" enabled="true" keyName="F2"
+			labelTag="InActiveMRP" />
+	</BEAN>
+
+	<!-- Pick One Related Item Overlay -->
+	<OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+		resourceBundleFilename="itemMRPText" specName="PICK_ONE_MRP">
+
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="manageNextButton" propValue="true" />
+
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true]" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="WorkPanel" beanSpecName="PickOneItemMRPSpec">
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+
+			<BEANPROPERTY propName="promptTextTag" propValue="PickOneItemMRPPrompt" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+
+			<BEANPROPERTY propName="screenNameTag" propValue="PickOneItemMRPScreenName" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="LocalNavigationPanel" beanSpecName="PickOneItemMRPButtonSpec">
+		</ASSIGNMENT>
+
+	</OVERLAYSCREEN>
+
+</UICFG>

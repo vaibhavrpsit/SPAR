@@ -1,0 +1,155 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012-2013 MAXHyperMarket, Inc.    All Rights Reserved.
+  Rev 1.0	1/May/2013	  	Tanmaya, Home Delivery Special Order
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="displaysendmethod"
+    package="oracle.retail.stores.pos.services.send.displaysendmethod"
+    tourcam="ON">
+    <COMMENT>
+        This services displays the linked customer's address
+        and allows update. Once the customer's send address
+        is confirmed, the service will let the operator to
+        choose one shipping method, and then the shipping
+        charges are calculated.
+    </COMMENT>
+    <CARGO class="SendCargo" package="oracle.retail.stores.pos.services.send.address"/>
+
+    <SERVICECODE>
+    <!-- Sites -->
+        <SITEACTION class="CheckDatabaseOfflineSite"/>
+        <SITEACTION class="MAXOrderDisplaySendMethodSite" package="max.retail.stores.pos.services.order.pickup.displaysendmethod"/>
+        <SITEACTION class="GetTaxRulesSite"/>
+        <SITEACTION class="DisplayMultipleGeoCodesSite"/>
+        <SITEACTION class="AssignTransactionLevelInfoSite"/>
+        <SITEACTION class="MAXOrderCheckTransactionLevelSendAssignedSite" package="max.retail.stores.pos.services.order.pickup.displaysendmethod"/>
+        <SITEACTION class="UndoSendSite"/>
+    <!-- Letters -->
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Done"/>
+        <LETTER name="MultipleGeoCodes"/>
+        <LETTER name="Next"/>
+        <LETTER name="Continue"/>
+
+    <!-- Roads and Aisles -->
+        <LANEACTION class="MAXOrderSendMethodSelectedRoad"  package="max.retail.stores.pos.services.order.pickup.displaysendmethod"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckDatabaseOffline">
+            <SITE name="CheckDatabaseOffline" siteaction="CheckDatabaseOfflineSite">
+                <ROAD
+                    name="DatabaseOffline"
+                    letter="Next"
+                    destination="CheckTransactionLevelSendAssigned"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="CheckTransactionLevelSendAssigned" siteaction="MAXOrderCheckTransactionLevelSendAssignedSite">
+                <ROAD
+                    name="TransactionLevelSendNotAssigned"
+                    letter="Next"
+                    destination="GetTaxRules"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionLevelSendAssigned"
+                    letter="Continue"
+                    destination="DisplaySendMethod"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="GetTaxRules" siteaction="GetTaxRulesSite">
+                <ROAD
+                    name="MultipleGeoCodesFound"
+                    letter="MultipleGeoCodes"
+                    destination="DisplayMultipleGeoCodes"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRulesFound"
+                    letter="Next"
+                    destination="DisplaySendMethod"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRulesFoundTransactionInProgress"
+                    letter="Done"
+                    destination="AssignTransactionLevelInfo"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayMultipleGeoCodes" siteaction="DisplayMultipleGeoCodesSite">
+                <ROAD
+                    name="GeoCodeSelected"
+                    letter="Next"
+                    destination="GetTaxRules"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TaxRulesFound"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplaySendMethod" siteaction="MAXOrderDisplaySendMethodSite">
+                <ROAD
+                    name="DisplaySendMethodNext"
+                    letter="Done"
+                    laneaction="MAXOrderSendMethodSelectedRoad"
+                    destination="Final"
+                    tape="ADVANCE"     record="OFF"    index="OFF">
+                    <COMMENT>
+                        Road to traverse when a shipping method is selected
+                        from the shipping method list and Next is pressed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DisplaySendMethodUndo"
+                    letter="Undo"
+                    destination="UndoSend"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DisplaySendMethodCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"       index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="UndoSend" siteaction="UndoSendSite">
+                <ROAD
+                    name="UndoSend"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"      record="OFF"  index="OFF">
+                    <COMMENT>
+                        Make sure to roll back to the original state.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="AssignTransactionLevelInfo" siteaction="AssignTransactionLevelInfoSite">
+                <ROAD
+                    name="TransactionLevelSendStarts"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>                
+            </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

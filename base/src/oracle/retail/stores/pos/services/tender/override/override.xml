@@ -1,0 +1,144 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/override/override.xml /rgbustores_13.4x_generic_branch/2 2011/08/29 13:18:28 rrkohli Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    rrkohli   08/29/11 - fix for 'Forward Port: APPLICATION CRASH-WHEN
+ *                         TENDERING WITH FOREIGN CURRENCY'
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    360Commerce 1.3         12/19/2007 7:53:10 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:29:15 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:23:56 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:12:56 PM  Robert Pearse
+     $
+     Revision 1.4  2004/08/23 16:15:58  cdb
+     @scr 4204 Removed tab characters
+
+     Revision 1.3  2004/06/15 16:37:35  awilliam
+     @scr 5455 and 5248 tender override displays wrong error msg when tender override not in securityaccess for manager override list for a no acces user creating endless loop updated to use the common security procedure also added a security return shuttle
+
+     Revision 1.2  2004/06/08 20:03:22  cdb
+     @scr 3857 Updated to return to TenderLimitOverrideAction site after security override
+     to clear the evaluateTenderLimits attribute as would occur if not overriding security.
+
+     Revision 1.1  2004/04/02 20:56:24  epd
+     @scr 4263 Updates to accommodate new tender limit override station
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.override"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Tender Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Yes"/>
+
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="TenderLimitOverrideActionSite"/>
+
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="SecurityOverrideReturnShuttle" package="oracle.retail.stores.pos.services.tender.override"/>
+        <SHUTTLE class="CheckLoginLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="CheckLoginReturnShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    </SERVICECODE>
+
+    <MAP >
+        <REGION  region="SERVICE" startsite="TenderLimitOverrideAction">
+            <SITE  name="TenderLimitOverrideAction" siteaction="TenderLimitOverrideActionSite">
+                <ROAD
+                    name="OverrideSuccessful"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OverrideFailed"
+                    letter="Failure"
+                    destination="CheckAccess"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="ManagerOverrideChosen"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle"
+                returnshuttle="SecurityOverrideReturnShuttle">
+                <ROAD
+                    name="AdminAccessDenied"
+                    letter="Failure"
+                    destination="Final" >
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ManagerOverrideSuccessful"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+              </STATION>
+          <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

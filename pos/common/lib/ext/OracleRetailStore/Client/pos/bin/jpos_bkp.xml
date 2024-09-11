@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE JposEntries PUBLIC "-//JavaPOS//DTD//EN"
+                             "jpos/res/jcl.dtd">
+<JposEntries>
+<!--Saved by JavaPOS jpos.config/loader (JCL) version 2.1.0-RC3 on 2008/6/13 下午 1:20-->
+    
+   
+    
+    
+    <JposEntry logicalName="CR Demo">
+        <creation factoryClass="posiflex.jpos.Factory" serviceClass="posiflex.jpos.CrService"/>
+        <vendor name="Posiflex" url="http://www.posiflex.com.tw"/>
+        <jpos category="CashDrawer" version="1.7"/>
+        <product description="Posiflex Cash Drawer" name="Posiflex Cash Drawer" url="http://www.posiflex.com.tw"/>
+
+        <!--Other non JavaPOS required property (mostly vendor properties and bus specific properties i.e. RS232 )-->
+        <prop name="openCode" type="String" value="PPCR1"/>
+        <prop name="portName" type="String" value="COM14"/>
+        <prop name="deviceBus" type="String" value="RS232"/>
+        <prop name="baudRate" type="String" value="115200"/>
+        <prop name="parity" type="String" value="None"/>
+        <prop name="dataBits" type="String" value="8"/>
+        <prop name="stopBits" type="String" value="1"/>
+        <prop name="flowControl" type="String" value="Hardware"/>
+	</JposEntry>
+
+
+    <JposEntry logicalName="LD Demo">
+        <creation factoryClass="posiflex.jpos.Factory" serviceClass="posiflex.jpos.LdService"/>
+        <vendor name="Posiflex" url="http://www.posiflex.com.tw"/>
+        <jpos category="LineDisplay" version="1.7"/>
+        <product description="Posiflex Line Display" name="Posiflex Line Display" url="http://www.posiflex.com.tw"/>
+
+        <!--Other non JavaPOS required property (mostly vendor properties and bus specific properties i.e. RS232 )-->
+	<prop name="Model" type="String" value="PD2XXX"/>
+        <prop name="deviceBus" type="String" value="RS232"/>
+        <prop name="portName" type="String" value="COM3"/>
+        <prop name="baudRate" type="String" value="9600"/>
+        <prop name="parity" type="String" value="None"/>
+        <prop name="dataBits" type="String" value="8"/>
+        <prop name="stopBits" type="String" value="1"/>
+        <prop name="flowControl" type="String" value="Hardware"/>
+        <prop name="sleep" type="String" value="800"/>
+        <prop name="Language" type="String" value="English"/>
+        <prop name="encoding" type="String" value="cp437"/>
+	</JposEntry>
+    
+   
+    
+    <JposEntry logicalName="PP Demo">
+        <creation factoryClass="posiflex.jpos.Factory" serviceClass="posiflex.jpos.PpService"/>
+        <vendor name="Posiflex Inc." url="http://www.posiflex.com.tw"/>
+        <jpos category="POSPrinter" version="1.7"/>
+        <product description="Posiflex POS Printer" name="Posiflex POS Printer" url="http://www.posiflex.com.tw"/>
+
+        <!--Other non JavaPOS required property (mostly vendor properties and bus specific properties i.e. RS232 )-->
+	<prop name="Model" type="String" value="PP8000"/>
+        <prop name="deviceBus" type="String" value="RS232"/>
+        <prop name="portName" type="String" value="COM14"/>
+        <prop name="baudRate" type="String" value="115200"/>
+        <prop name="parity" type="String" value="None"/>
+        <prop name="dataBits" type="String" value="8"/>
+        <prop name="stopBits" type="String" value="1"/>
+        <prop name="flowControl" type="String" value="Hardware"/>
+        <prop name="sleep" type="String" value="800"/>
+		<prop name="RecLineChars" type="String" value="56"/>
+        <prop name="LineSize" type="String" value="60"/>
+	
+        <prop name="Language" type="String" value="English"/>
+        <prop name="encoding" type="String" value="cp437"/>
+		<prop name="RecLineChars" type="String" value="56"/>
+		<prop name="LineSize" type="String" value="60"/>
+	</JposEntry>
+
+<JposEntry logicalName="MetroUSBSerial">
+      <creation factoryClass="com.honeywell.javapos.so.HoneywellScannerServiceFactory"
+       serviceClass="com.honeywell.javapos.so.MetroScanRS232v111"/>
+       <vendor name="Metrologic Instruments, Inc" url="http://www.metrologic.com"/>
+       <jpos category="Scanner" version="1.7"/>
+       <product description="Metrologic bar code scanner" name="2400" url="http://www.metrologic.com/corporate/products.htm"/>
+       <prop name="portName" type="String" value="COM13"/>
+       <prop name="Interface" type="String" value="RS232"/>
+       <prop name="dataBits" type="String" value="8"/>
+       <prop name="Model" type="String" value="2400"/>
+       <prop name="HasScale" type="String" value="0"/>
+       <prop name="parity" type="String" value="None"/>
+       <prop name="flowControl" type="String" value="None"/>
+       <prop name="stopBits" type="String" value="1"/>
+       <prop name="deviceBus" type="String" value="RS232"/>
+       <prop name="baudRate" type="String" value="9600"/>
+       <prop name="PortNumber" type="String" value="1"/>
+       <prop name="ScannerType" type="String" value="16"/>
+       <prop name="ProcessorType" type="String" value="0"/>
+       <prop name="FuncMode" type="String" value="4"/>
+       <prop name="USBSerial" type="String" value="no"/>
+	   <prop name="LogFile" type="String" value="JPOS.txt"/>
+	   <prop name="LogFileSize" type="String" value="2KB"/>
+	   <prop name="NumberOfLogFile" type="String" value="2"/>
+	   <prop name="Manufacturer" type="String" value="Honeywell"/>
+   </JposEntry>
+	
+</JposEntries>

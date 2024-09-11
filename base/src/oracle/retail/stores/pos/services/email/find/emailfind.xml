@@ -1,0 +1,298 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/email/find/emailfind.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:30 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+
+     $Log:
+      4    360Commerce 1.3         12/19/2007 8:15:22 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      3    360Commerce 1.2         3/31/2005 4:27:55 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:21:15 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:10:47 PM  Robert Pearse
+     $
+     Revision 1.3  2004/03/26 00:24:15  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.2  2004/02/12 16:50:13  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:16  cschellenger
+     updating to pvcs 360store-current
+
+
+ *
+ *    Rev 1.1   Sep 17 2001 13:10:20   msg
+ * header update
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="emailfind" package="oracle.retail.stores.pos.services.email.find" tourcam="OFF">
+     <COMMENT>
+          This service is used to find the emails messages by
+          order number or by customer or to display all messages.
+     </COMMENT>
+<CARGO class="EmailCargo" package="oracle.retail.stores.pos.services.email">
+</CARGO>
+<SERVICECODE>
+     <!-- LETTERS -->
+     <LETTER name="Customer"/>
+     <LETTER name="OrderNo"/>
+     <LETTER name="InBox"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Search"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Ok"/>
+     <LETTER name="NoMatch"/>
+     <LETTER name="DbError"/>
+     <LETTER name="TooMany"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="OneMatch"/>
+     <LETTER name="DateRange"/>
+     <LETTER name="Next"/>
+     <LETTER name="NotFound"/>
+     <LETTER name="OrderSearch"/>
+     <LETTER name="CustomerSearch"/>
+     <LETTER name="Override"/>
+
+     <!-- Shuttles -->
+     <SHUTTLE class="OrderShuttle" package="oracle.retail.stores.pos.services.order.common"/>
+     <SHUTTLE class="EmailFindToDetailShuttle" package="oracle.retail.stores.pos.services.email"/>
+     <SHUTTLE class="CustomerShuttle">
+          <COMMENT>
+               This shuttle is used to return the Customer found
+               through the Customer Find service.
+          </COMMENT>
+     </SHUTTLE>
+     <SHUTTLE class="CustomerFindLaunchShuttle" package="oracle.retail.stores.pos.services.email.find"/>
+     <SHUTTLE class="CustomerFindReturnShuttle" package="oracle.retail.stores.pos.services.email.find"/>
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+     <!-- Sites -->
+     <SITEACTION class="DisplayNoMatchSite"/>
+     <SITEACTION class="EmailSearchOptionsSite" />
+     <SITEACTION class="InBoxSearchSite"/>
+     <SITEACTION class="SearchEmailDateRangeSite"/>
+     <SITEACTION class="DisplayEmailListSite"/>
+     <SITEACTION class="LookupEmailByOrderIDSite"/>
+     <SITEACTION class="EnterOrderIDSite" package="oracle.retail.stores.pos.services.email.find">
+          <COMMENT>
+               This site prompts the user to enter an Order number
+               to search for emails.
+          </COMMENT>
+         </SITEACTION>
+     <SITEACTION class="TooManyMatchesSite" template="siteaction.tpl"/>
+     <SITEACTION class="LookupEmailByCustomerSite" template="siteaction.tpl"/>
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+     <!-- Roads and Aisles -->
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="ContinueConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="OkToFailureConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="ValidateDateRangeAisle" package="oracle.retail.stores.pos.services.email.find" template="laneaction.tpl"/>
+     <LANEACTION class="CustomerSearchSetupRoad" package="oracle.retail.stores.pos.services.email.find" template="laneaction.tpl"/>
+
+     <!-- Signals -->
+     <SIGNAL class="IsCustomerSearchSignal" package="oracle.retail.stores.pos.services.email.find"/>
+     <SIGNAL class="IsOrderIDSearchSignal" package="oracle.retail.stores.pos.services.email.find"/>
+     <SIGNAL class="IsInBoxSearchSignal" package="oracle.retail.stores.pos.services.email.find"/>
+     <SIGNAL class="IsOnlineSignal" package="oracle.retail.stores.pos.services.common"/>
+     <SIGNAL class="IsOfflineSignal" package="oracle.retail.stores.pos.services.common"/>
+     <SIGNAL class="IsNotInBoxSearchSignal" package="oracle.retail.stores.pos.services.email.find"/>
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="CheckAccess">
+        <SITE name="CheckAccess" siteaction="CheckAccessSite">
+            <ROAD name="NoAccess"
+                  letter="Override"
+                  destination="SecurityOverrideStation">
+            </ROAD>
+            <ROAD name="UserAuthorized"
+                  letter="Continue"
+                  destination="EmailSearchOptions">
+            </ROAD>
+        </SITE>
+
+          <SITE name="EmailSearchOptions" siteaction="EmailSearchOptionsSite">
+               <ROAD name="EmailSearchCustomer"
+                     letter="Customer"
+                     destination="CustomerFindStation"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Search for emails based on a customer.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EmailSearchInBox"
+                     letter="InBox"
+                     destination="InBoxSearch"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Search for emails based on the InBox.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="EmailSearchOptionsCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="EmailSearchOptionsUndo" letter="Undo" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="EmailSearchOrder" letter="OrderNo" destination="EnterOrderID" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <STATION name="CustomerFindStation" servicename="customer.main.customermain" targettier="APPLICATIONTIER" launchshuttle="CustomerFindLaunchShuttle" returnshuttle="CustomerFindReturnShuttle">
+               <COMMENT>
+                    This station is used to launch the Customer Find service
+                    to search for the customer.
+               </COMMENT>
+               <AISLE name="CustomerFindStationOffline"
+                     letter="Continue"
+                                         laneaction ="FailureConversionAisle">
+                     <COMMENT>
+                         Road to take when the user the database goes down
+                         during the customer service.
+                     </COMMENT>
+                                         <LIGHT signal ="IsOfflineSignal"/>
+               </AISLE>
+               <ROAD name="CustomerFindStationContinue"
+                     letter="Continue"
+                     laneaction="CustomerSearchSetupRoad"
+                     destination="LookupEmailByCustomer"
+                     tape="ADVANCE" record="ON" index="ON">
+                                         <LIGHT signal ="IsOnlineSignal"/>
+                           </ROAD>
+               <ROAD name="CustomerFindStationCancel" letter="Cancel" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="CustomerFindStationUndo" letter="Undo" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="CustomerFindStationFailure" letter="Failure" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+          </STATION>
+
+          <SITE name="InBoxSearch" siteaction="InBoxSearchSite">
+               <AISLE name="InBoxSearchOkFailure" letter="Ok" laneaction="OkToFailureConversionAisle"/>
+               <AISLE name="InBoxSearchDBError" letter="DbError" laneaction="DataBaseErrorAisle"/>
+               <ROAD name="InBoxSearchNoMatches" letter="NotFound" destination="DisplayNoMatch" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="InBoxSearchSuccess" letter="Success" destination="DisplayEmailList" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if the system has success fully
+                         found more than one match.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="InBoxSearchOneFound" letter="OneMatch" destination="EmailDetailStation" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="InBoxSearchFailure" letter="Failure" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <STATION name="EmailDetailStation" servicename="email.detail.emaildetail" targettier="APPLICATIONTIER" launchshuttle="EmailFindToDetailShuttle">
+               <ROAD name="EmailDetailStationSuccessInBox" letter="Success" destination="InBoxSearch" tape="ADVANCE" record="ON" index="ON">
+               <LIGHT signal="IsInBoxSearchSignal"/>
+                           </ROAD>
+               <ROAD name="EmailDetailStationSuccessSearch" letter="Success" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON">
+               <LIGHT signal="IsNotInBoxSearchSignal"/>
+                           </ROAD>
+               <ROAD name="EmailDetailStationFailure" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="EmailDetailStationCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="EmailDetailStationUndo" letter="Undo" destination="DisplayEmailList" tape="ADVANCE" record="ON" index="ON"/>
+          </STATION>
+          <SYSTEMSITE name="Final" action="RETURN"/>
+          <SITE name="LookupEmailByOrderID" siteaction="LookupEmailByOrderIDSite">
+               <COMMENT>
+                    This site is used to search for emails based on an Order
+                    number.
+               </COMMENT>
+               <AISLE name="LookupEmailByOrderIDOkFailure" letter="Ok" laneaction="FailureConversionAisle"/>
+               <AISLE name="LookupEmailByOrderIDDbError" letter="DbError" laneaction="DataBaseErrorAisle"/>
+               <ROAD name="LookupEmailByOrderIDNotFound" letter="NotFound" destination="DisplayNoMatch" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupEmailByOrderIDSuccess" letter="Success" destination="DisplayEmailList" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupEmailByOrderIDFailure" letter="Failure" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupEmailByOrderIDOneFound" letter="OneMatch" destination="EmailDetailStation" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupEmailByOrderIDTooMany" letter="TooMany" destination="TooManyMatches" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <SITE name="LookupEmailByCustomer" siteaction="LookupEmailByCustomerSite">
+               <AISLE name="LookupEmailByCustomerOkFailure" letter="Ok" laneaction="FailureConversionAisle"/>
+               <AISLE name="LookupEmailByCustomerDbError" letter="DbError" laneaction="DataBaseErrorAisle"/>
+               <ROAD name="LookupEmailByCustomerNotFound" letter="NotFound" destination="DisplayNoMatch" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupEmailByCustomerSuccess" letter="Success" destination="DisplayEmailList" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupEmailByCustomerFailure" letter="Failure" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupEmailByCustomerOneFound" letter="OneMatch" destination="EmailDetailStation" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="LookupEmailByCustomerTooMany" letter="TooMany" destination="TooManyMatches" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <SITE name="EnterOrderID" siteaction="EnterOrderIDSite">
+               <COMMENT>
+                    This site prompts the user to enter an Order number
+                    to search for emails.
+               </COMMENT>
+               <ROAD name="EnterOrderIDCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="EnterOrderIDUndo" letter="Undo" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="OrderIDEntered" letter="Next" destination="LookupEmailByOrderID" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <SITE name="SearchEmailDateRange" siteaction="SearchEmailDateRangeSite">
+               <AISLE name="SearchEmailDateRangeOkContinue" letter="Ok" laneaction="ContinueConversionAisle"/>
+               <AISLE name="SearchEmailDateRangeValidate" letter="Next" laneaction="ValidateDateRangeAisle"/>
+               <ROAD name="SearchEmailDateRangeFailure" letter="Failure" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="SearchEmailDateRangeCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="SearchEmailDateRangeUndo" letter="Undo" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="SearchEmailDateRangeOrderID" letter="OrderSearch" destination="LookupEmailByOrderID" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="SearchEmailDateRangeCustomer" letter="CustomerSearch" destination="LookupEmailByCustomer" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="SearchEmailDateRangeContinue" letter="Continue" destination="SearchEmailDateRange" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <SITE name="DisplayEmailList" siteaction="DisplayEmailListSite">
+               <ROAD name="DisplayEmailListCancel" letter="Cancel" destination="Final" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="DisplayEmailListUndo" letter="Undo" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON"/>
+               <ROAD name="EmailsListed" letter="Next" destination="EmailDetailStation" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <SITE name="TooManyMatches" siteaction="TooManyMatchesSite">
+               <ROAD name="EmailNarrowSearchDateRange" letter="Ok" destination="SearchEmailDateRange" tape="ADVANCE" record="ON" index="ON"/>
+          </SITE>
+          <SITE name="DisplayNoMatch" siteaction="DisplayNoMatchSite">
+               <COMMENT>
+                              Displays the no match screen mails Ok letter to continue
+               </COMMENT>
+               <ROAD name="DisplayNoMatchNoMatchOkCustmer" letter="Ok" destination="CustomerFindStation" tape="ADVANCE" record="ON" index="ON">
+               <LIGHT signal="IsCustomerSearchSignal"/>
+               </ROAD>
+               <ROAD name="DisplayNoMatchNoMatchOkOrderID" letter="Ok" destination="EnterOrderID" tape="ADVANCE" record="ON" index="ON">
+               <LIGHT signal="IsOrderIDSearchSignal"/>
+               </ROAD>
+               <ROAD name="DisplayNoMatchNoMatchOkInBox" letter="Ok" destination="EmailSearchOptions" tape="ADVANCE" record="ON" index="ON">
+               <LIGHT signal="IsInBoxSearchSignal"/>
+               </ROAD>
+          </SITE>
+        <STATION name="SecurityOverrideStation"
+                 servicename="security.override.override"
+                 targettier="CURRENTTIER"
+                 launchshuttle="SecurityOverrideLaunchShuttle" >
+            <ROAD name="LoginSucceededSecurityOverride"
+                  letter="Success"
+                  destination="EmailSearchOptions"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="SecurityOverrideFailed"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+            <ROAD name="SecurityOverrideCancelled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+            </ROAD>
+        </STATION>
+
+     </REGION>
+</MAP>
+</SERVICE>

@@ -1,0 +1,281 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/nosale/nosale.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="NoSale" package="oracle.retail.stores.pos.services.nosale">
+    <COMMENT>
+        This service represents the No Sale package.
+    </COMMENT>
+    <CARGO class="NoSaleCargo"/>
+    <SERVICECODE>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Next"/>
+        <LETTER name="Retry"/>
+        <LETTER name="OpenCashDrawer"/>
+        <LETTER name="CashDrawerClosed"/>
+        <LETTER name="CashDrawerOffline"/>
+        <LETTER name="CashDrawerOnline"/>
+        <LETTER name="CashDrawerComplete"/>
+        <LETTER name="RendezVous"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Override"/>
+        <LETTER name="Print"/>
+		<LETTER name="QueueFull"/>
+        <LETTER name="RetryContinue"/>
+        <!-- Shuttles -->
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <!-- Sites, Aisles, and Roads -->
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SITEACTION class="CompleteNoSaleSite"/>
+        <SITEACTION class="GetReasonCodeSite"/>
+        <SITEACTION class="CloseDrawerSite"/>
+
+        <LANEACTION class="ReasonEnteredRoad"/>
+        <LANEACTION class="CashDrawerOpenAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+        <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CashDrawerOnlineAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CashDrawerOfflineContinueAisle"/>
+        <LANEACTION class="CashDrawerRetryAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="CashDrawerClosedAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="NoSaleSlipPrintAisle" package="oracle.retail.stores.pos.services.nosale"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="GetReasonCode">
+                </ROAD>
+            </SITE>
+
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="GetReasonCode"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+          </STATION>
+
+          <SITE name="GetReasonCode" siteaction="GetReasonCodeSite">
+                <COMMENT>
+                    This site displays the NOSALE_REASON form.
+                </COMMENT>
+                <ROAD name="NoReasonNeeded"
+                      letter="Continue"
+                      destination="CompleteNoSale">
+                    <COMMENT>
+                        This road is traveled when the No Sale Reason Code
+                        is not needed.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="ReasonEntered"
+                      letter="Next"
+                      laneaction="ReasonEnteredRoad"
+                      destination="CompleteNoSale">
+                    <COMMENT>
+                        This road is traveled after the user has entered the
+                        No Sale Reason code.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="UndoPressed"
+                      letter="Undo"
+                      destination="Final">
+                    <COMMENT>
+                        This road is traveled when the user presses the
+                        Undo key.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="UserCanceled"
+                      letter="Cancel"
+                      destination="Final">
+                    <COMMENT>
+                        This road is traveled if the user presses the Cancel
+                        key.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+
+            <SITE name="CompleteNoSale" siteaction="CompleteNoSaleSite">
+                <COMMENT>
+                    This site completes the no-sale transaction and displays
+                    the NOSALE_COMPLETE screen.
+                </COMMENT>
+                <AISLE name="NoSaleSlipPrint"
+                       letter="Print"
+                       laneaction="NoSaleSlipPrintAisle">
+                    <COMMENT>
+                        This aisle is traversed if a NoSale Slip is to be printed.
+                    </COMMENT>
+                </AISLE>
+                 <AISLE name="NoSaleSlipPrintRetry"
+                       letter="Retry"
+                       laneaction="NoSaleSlipPrintAisle">
+                    <COMMENT>
+                        This aisle is traversed if printer error.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="OpenDrawer"
+                       letter="OpenCashDrawer"
+                       laneaction="CashDrawerOpenAisle">
+                    <COMMENT>
+                        This aisle is traversed when the cash drawer is to
+                        be opened.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DrawerClosed"
+                       letter="CashDrawerClosed"
+                       laneaction="CashDrawerClosedAisle">
+                    <COMMENT>
+                        This aisle is traversed when the user closes the cash
+                        drawer.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DrawerOnlineComplete"
+                       letter="CashDrawerComplete">
+                    <COMMENT>
+                        This the online aisle sends this letter when when it has
+                        finished its work.  The is no lane action here because
+                        for this service this letter is a no op.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DrawerOffline"
+                       letter="CashDrawerOffline"
+                       laneaction="CashDrawerOfflineContinueAisle">
+                    <COMMENT>
+                        This aisle is traversed when the user closes the cash
+                        drawer.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DrawerRetry"
+                       letter="Retry"
+                       laneaction="CashDrawerRetryAisle">
+                    <COMMENT>
+                        This aisle is traversed when the user wants to try to
+                        open the drawer again.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DrawerContinue"
+                       letter="Continue"
+                       laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This road is traversed when the user continues without the cash
+                        drawer.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="NoSaleFinished"
+                      letter="RendezVous"
+                      laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This road is traveled when the service is finished.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="DBErrorDialogResponse"
+                       letter="Ok"
+                       laneaction="NextLetterAisle">
+                    <COMMENT>
+                        When an error occurs sending the "No Sale" transaction to
+                        the database, the system displays an Error Dialog.  This
+                        We traverses this Aisle after the user presses the Ok button.
+                        drawer.
+                    </COMMENT>
+                </AISLE>
+                <AISLE name="PrinterCancel"
+                       letter="Cancel"
+                       laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This Aisle is traversed when the user continues without the receipt.
+                    </COMMENT>
+                </AISLE>                
+                <ROAD name="ExitService"
+                      letter="Next"
+                      destination="CloseDrawer">
+                    <COMMENT>
+                        This road is traveled when the service is finished.
+                    </COMMENT>
+                </ROAD>
+                <ROAD name="NoSaleRetry"
+                      letter="RetryContinue"
+                      destination="CompleteNoSale">
+                </ROAD>
+                <ROAD name="NoSaleQueueFull"
+                      letter="QueueFull"
+                      destination="Final">
+                </ROAD>
+            </SITE>
+		<ROAD name="UserCanceled"
+                      letter="Cancel"
+                      destination="Final">
+                    <COMMENT>
+                        This road is traveled if the user presses the Cancel
+                        key.
+                    </COMMENT>
+                </ROAD>   
+            
+          <SITE name="CloseDrawer" siteaction="CloseDrawerSite">
+                <AISLE name="DrawerClosed"
+                      letter="Continue"
+                      laneaction="NextLetterAisle">
+                    <COMMENT>
+                        This road is traveled when the service is finished.
+                    </COMMENT>
+                </AISLE>
+               <ROAD name="Finished"
+                     letter="Next"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

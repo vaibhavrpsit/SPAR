@@ -1,0 +1,488 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/foreigncurrency/foreigncurrency.xml /main/15 2014/02/10 12:20:18 vtemker Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    vtemker   02/10/14 - Externalize the number of supported alternate
+ *                         currencies
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ForeignCurrency"
+    package="oracle.retail.stores.pos.services.foreigncurrency"
+    tourcam="ON">
+    <CARGO class="ForeignCurrencyCargo" package="oracle.retail.stores.pos.services.foreigncurrency"/>
+    <SERVICECODE >
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Button1"/>
+        <LETTER name="Button2"/>
+        <LETTER name="Button3"/>
+        <LETTER name="Button4"/>
+        <LETTER name="Button5"/>
+        <LETTER name="Button6"/>
+        <LETTER name="Button7"/>
+        <LETTER name="Button8"/>
+        <LETTER name="Button9"/>
+        <LETTER name="Button10"/>
+
+        <SITEACTION class="GetForeignCurrencySite"/>
+        <SITEACTION class="GetExchangeRateSite"/>
+
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="GetForeignCurrency">
+            <SITE  name="GetForeignCurrency" siteaction="GetForeignCurrencySite">
+                <COMMENT >
+                    This site displays the FOREIGN_CURRENCY screen.
+                    If additional letters for alternate currencies are added
+                    here, then the GetForeignCurrencySite must be updated as
+                    well.
+                </COMMENT>
+                <ROAD
+                    name="Button1Selected"
+                    letter="Button1"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button2Selected"
+                    letter="Button2"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button3Selected"
+                    letter="Button3"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button4Selected"
+                    letter="Button4"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button5Selected"
+                    letter="Button5"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button6Selected"
+                    letter="Button6"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button7Selected"
+                    letter="Button7"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button8Selected"
+                    letter="Button8"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button9Selected"
+                    letter="Button9"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button10Selected"
+                    letter="Button10"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button11Selected"
+                    letter="Button11"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button12Selected"
+                    letter="Button12"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button13Selected"
+                    letter="Button13"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button14Selected"
+                    letter="Button14"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button15Selected"
+                    letter="Button15"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button16Selected"
+                    letter="Button16"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button17Selected"
+                    letter="Button17"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button18Selected"
+                    letter="Button18"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button19Selected"
+                    letter="Button19"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button20Selected"
+                    letter="Button20"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>        
+                <ROAD
+                    name="Button21Selected"
+                    letter="Button21"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button22Selected"
+                    letter="Button22"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button23Selected"
+                    letter="Button23"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button24Selected"
+                    letter="Button24"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button25Selected"
+                    letter="Button25"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button26Selected"
+                    letter="Button26"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button27Selected"
+                    letter="Button27"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Button28Selected"
+                    letter="Button28"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button29Selected"
+                    letter="Button29"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button30Selected"
+                    letter="Button30"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button31Selected"
+                    letter="Button31"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button32Selected"
+                    letter="Button32"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button33Selected"
+                    letter="Button33"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button34Selected"
+                    letter="Button34"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button35Selected"
+                    letter="Button35"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button36Selected"
+                    letter="Button36"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button37Selected"
+                    letter="Button37"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button38Selected"
+                    letter="Button38"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button39Selected"
+                    letter="Button39"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button40Selected"
+                    letter="Button40"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD> 
+                <ROAD
+                    name="Button41Selected"
+                    letter="Button41"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>          
+                <ROAD
+                    name="Button42Selected"
+                    letter="Button42"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button43Selected"
+                    letter="Button43"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button44Selected"
+                    letter="Button44"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button45Selected"
+                    letter="Button45"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button46Selected"
+                    letter="Button46"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button47Selected"
+                    letter="Button47"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button48Selected"
+                    letter="Button48"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button49Selected"
+                    letter="Button49"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="Button50Selected"
+                    letter="Button50"
+                    destination="GetExchangeRate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>    
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetExchangeRate" siteaction="GetExchangeRateSite">
+                <ROAD
+                    name="ConversionDoneRoad"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

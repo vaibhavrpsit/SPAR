@@ -1,0 +1,22 @@
+<?xml version='1.0' ?>
+
+<!DOCTYPE JMXCONFIG SYSTEM "classpath://oracle/retail/stores/foundation/jmx/jmxconfig.dtd">
+<JMXCONFIG >
+    <MBEANS>
+
+        <MBEAN mbeanclass="oracle.retail.stores.commext.utility.jmx.ShutdownHook"
+               mbeanname="Adapter:name=shutdownhook">
+        </MBEAN>
+
+        <!-- REMOVE THE COMMENTS AROUND THE NEXT SECTION TO ACTIVATE THE SYSTEM OUT -->
+        <!--
+        <MBEAN mbeanclass="oracle.retail.stores.foundation.jmx.sysout.SysoutConnector"
+               mbeanname="Adapter:name=system_out" >
+             <PROPERTY propname="delineateMessages" propvalue="true" proptype="BOOLEAN"/>
+        </MBEAN>
+        -->
+
+     </MBEANS>
+
+</JMXCONFIG>
+

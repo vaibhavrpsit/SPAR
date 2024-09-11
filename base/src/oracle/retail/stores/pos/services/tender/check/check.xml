@@ -1,0 +1,502 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/check/check.xml /rgbustores_13.4x_generic_branch/7 2011/10/27 11:07:15 rrkohli Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    rrkohli   10/27/11 - fix for 'Cash Change More than Max dialog does not
+ *                         display when cash change more than max previously
+ *                         attempted for Check tender'
+ *    rrkohli   10/14/11 - fix for 'Cash Change More than Max dialog does not
+ *                         display when cash change more than max previously
+ *                         attempted for Check tender'
+ *    mkutiana  08/10/11 - Undid incorrect changes for bug 11838309 -
+ *                         MAX_CHANGE_LIMIT_VIOLATED is checked at
+ *                         CheckLimitActionSite
+ *    ohorne    05/09/11 - APF changes
+ *    mchellap  03/24/11 - BUG#11838309 Over tendering allowed for check
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+     $Log:
+      4    360Commerce 1.3         12/19/2007 7:51:01 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:27:23 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:20:03 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:09:52 PM  Robert Pearse
+     $
+     Revision 1.3.2.1  2004/11/15 21:39:22  bwf
+     @scr 7725 Handle continue letter from override service.
+
+     Revision 1.3  2004/06/07 22:45:46  cdb
+     @scr 3857 Backed out previous change.
+
+     Revision 1.1  2004/04/13 21:07:36  bwf
+     @scr 4263 Decomposition of check.
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.check"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the check use case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Next"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Validate"/>
+        <LETTER name="NoValidate"/>
+        <LETTER name="Override"/>
+        <LETTER name="ExitTender"/>
+
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+        <SITEACTION class="CheckActionSite"/> 
+        <SITEACTION class="CheckIDTypeActionSite"/>
+        <SITEACTION class="CheckLimitActionSite"/>
+        <SITEACTION class="GetCheckIDNumberSite"/>
+        <SITEACTION class="GetCheckIDPhoneSite"/>
+        <SITEACTION class="GetCheckIDStateSite"/>
+        <SITEACTION class="GetCheckIDTypeSite"/>
+        <SITEACTION class="GetCheckMICRSite"/>
+        <SITEACTION class="GetCheckNumberSite"/>
+        <SITEACTION class="ValidateDriversLicenseSite"/>
+        <SITEACTION class="ValidateMICRSite"/>
+
+        <LANEACTION class="ConvertLetterToExitTenderAisle"/>
+        <LANEACTION class="CheckNumberEnteredAisle"/>
+        <LANEACTION class="RemoveCheckTenderGroupRoad" package="oracle.retail.stores.pos.ado.transaction"/>
+
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <SHUTTLE class="TenderLimitOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+    </SERVICECODE>
+
+    <MAP>
+        <REGION  region="SERVICE" startsite="CheckLimitAction">
+            <SITE  name="CheckLimitAction" siteaction="CheckLimitActionSite">
+                <ROAD
+                    name="CheckAmountOK"
+                    letter="Success"
+                    destination="GetCheckIDType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckTenderOverrideRoad"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CheckAmountBad"
+                    letter="No"
+                    laneaction ="RemoveCheckTenderGroupRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckInvalidAmount"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetCheckIDType" siteaction="GetCheckIDTypeSite">
+                <ROAD
+                    name="GetCheckIDTypeNext"
+                    letter="Next"
+                    destination="GetCheckIDNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckIDTypeCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckIDTypeUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetCheckIDNumber" siteaction="GetCheckIDNumberSite">
+                <ROAD
+                    name="GetCheckIDTypeAction"
+                    letter="Next"
+                    destination="CheckIDTypeAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GetCheckIDCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckIDUndo"
+                    letter="Undo"
+                    destination="GetCheckIDType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckIDTypeAction" siteaction="CheckIDTypeActionSite">
+                <ROAD
+                    name="GetCheckPhoneNoValidate"
+                    letter="NoValidate"
+                    destination="ValidateDriversLicense"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckStateValidate"
+                    letter="Validate"
+                    destination="GetCheckIDState"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetCheckIDState" siteaction="GetCheckIDStateSite">
+                <ROAD
+                    name="GetCheckIDStateNext"
+                    letter="Next"
+                    destination="ValidateDriversLicense"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InvalidLicenseOK"
+                    letter="Yes"
+                    destination="GetCheckIDPhone"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InvalidLicenseBad"
+                    letter="No"
+                    destination="GetCheckIDNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckIDStateCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckIDStateUndo"
+                    letter="Undo"
+                    destination="GetCheckIDNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateDriversLicense" siteaction="ValidateDriversLicenseSite">
+                <ROAD
+                    name="LicenseInvalidYes"
+                    letter="Yes"
+                    destination="CheckAccess"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LicenseInvalidNo"
+                    letter="No"
+                    destination="GetCheckIDNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="LicenseValid"
+                    letter="Continue"
+                    destination="GetCheckIDPhone"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SwipeLicenseBad"
+                    letter="Failure"
+                    destination="GetCheckIDNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetCheckIDPhone" siteaction="GetCheckIDPhoneSite">
+                <ROAD
+                    name="GetCheckIDPhoneSuccess"
+                    letter="Next"
+                    destination="GetCheckMICR"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckIDPhoneCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetIDPhoneUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="ON"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetCheckMICR" siteaction="GetCheckMICRSite">
+                <ROAD
+                    name="GetCheckMICRCheckNum"
+                    letter="Next"
+                    destination="ValidateMICR"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckMICRCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckMICRUndo"
+                    letter="Undo"
+                    destination="GetCheckIDPhone"
+                    tape="REWIND"
+                    record="ON"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateMICR" siteaction="ValidateMICRSite">
+                <ROAD
+                    name="CheckMICRInvalid"
+                    letter="Failure"
+                    destination="GetCheckMICR"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckValidAuth"
+                    letter="Continue"
+                    destination="CheckAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckValidGetNum"
+                    letter="Next"
+                    destination="GetCheckNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+           </SITE>
+           <SITE  name="GetCheckNumber" siteaction="GetCheckNumberSite">
+                <AISLE name="GetEnteredCheckNumber"
+                    letter="Next"
+                    laneaction="CheckNumberEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="GetCheckNumberValid"
+                    letter="Success"
+                    destination="CheckAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetCheckNumberUndo"
+                    letter="Undo"
+                    destination="GetCheckMICR"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+            <SITE  name="CheckAction" siteaction="CheckActionSite">
+                <ROAD
+                    name="CheckTenderAdded"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckTenderInvalid"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                
+            </SITE>
+     
+            <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="AccessDenied"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="GetCheckIDPhone"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle">
+                <AISLE
+                    name="ConvertLetterToExitTender"
+                    letter="Cancel"
+                    laneaction="ConvertLetterToExitTenderAisle">
+                </AISLE>
+                <ROAD
+                    name="SecurityOverrideGranted"
+                    letter="Success"
+                    destination="GetCheckIDPhone"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideDenied"
+                    letter="Failure"
+                    destination="GetCheckIDNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="ExitTender"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+             <STATION
+                name="TenderLimitOverrideStation"
+                servicename="tender.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLimitOverrideLaunchShuttle"
+                returnshuttle="TenderLimitOverrideReturnShuttle">
+                <ROAD
+                    name="TenderLimitOverrideSuccess"
+                    letter="Success"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideContinue"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

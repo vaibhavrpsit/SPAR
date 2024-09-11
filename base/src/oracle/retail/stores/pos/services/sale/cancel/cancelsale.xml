@@ -1,0 +1,129 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/sale/cancel/cancelsale.xml /main/1 2012/09/12 11:57:17 blarsen Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   03/20/12 - refactor into cancelsale tour
+ *    cgreene   03/19/12 - initial version
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="CancelSale"
+    package="oracle.retail.stores.pos.services.sale.cancel"
+    tourcam="OFF">
+    <COMMENT>
+        This tour saves the canceled transaction, then prints it.
+    </COMMENT>
+    <CARGO class="SaleCargo" package="oracle.retail.stores.pos.services.sale"/>
+    <SERVICECODE>
+        <LETTER name="Continue"/>
+        <LETTER name="QueueFull"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Timeout"/>
+
+        <SITEACTION class="PrintCancelTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="SaveCanceledTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="SaveCancelTransaction">
+            <SITE name="SaveCancelTransaction" siteaction="SaveCanceledTransactionSite">
+                <COMMENT>
+                    This site saves the current canceled transaction.
+                </COMMENT>
+                <ROAD
+                    name="TransactionCanceled"
+                    letter="Continue"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        The transaction was canceled. The calling application
+                        may continue.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TransactionCanceledTimeout"
+                    letter="Timeout"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                     <COMMENT>
+                           When Transaction timeout happens this letter
+                           is mailed to print canceled transaction receipt.
+                     </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="TransactionCanceledRetry"
+                    letter="Retry"
+                    destination="SaveCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionCanceledQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="PrintCancelTransaction" siteaction="PrintCancelTransactionSite">
+                <COMMENT >
+                    This site prints the canceled transaction receipt.
+                </COMMENT>
+                <ROAD
+                    name="CancelTransactionReceiptPrinted"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                 <COMMENT >
+                        This road is traversed when the cancel transaction receipt
+                        is successfully printed or when the printer is offline
+                        and the operator selects continue.
+                 </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="PrintCancelTransactionRetry"
+                    letter="Retry"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                 <COMMENT >
+                        This road is traversed when the printer is offline
+                        and the operator selects retry.
+                 </COMMENT>
+                </ROAD>
+                <ROAD
+                   name="PrintCancelTransactionTimeout"
+                   letter="Timeout"
+                   destination="Final"
+                   tape="ADVANCE"
+                   record="OFF"
+                   index="OFF">
+                <COMMENT >
+                       After Printing Cancel Transaction for a transaction timeout,
+                       this letter is mailed to return to main log in screen
+                </COMMENT>
+               </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

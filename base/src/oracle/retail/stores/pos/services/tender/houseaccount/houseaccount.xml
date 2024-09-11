@@ -1,0 +1,204 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/houseaccount/houseaccount.xml /rgbustores_13.4x_generic_branch/1 2011/06/10 16:09:10 ohorne Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    ohorne    06/01/11 - created tour
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.houseaccount"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Tender Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Retry"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Next"/>
+        <LETTER name="Valid"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="HouseAccount"/>
+
+        <SITEACTION class="DetermineTenderSubTourStartSite" package="oracle.retail.stores.pos.services.tender"/>
+        <SITEACTION class="HouseAccountLimitActionSite"/>
+        <SITEACTION class="HouseAccountTenderUISite"/>
+        <SITEACTION class="HouseAccountTenderExpDateUISite"/>
+        <SITEACTION class="ValidateNumberSite"/>
+        <SITEACTION class="ValidateExpirationDateSite"/>
+        
+
+    </SERVICECODE>
+
+    <MAP >
+        <REGION  region="SERVICE" startsite="DetermineTenderSubTourStart">
+            <SITE  name="DetermineTenderSubTourStart" siteaction="DetermineTenderSubTourStartSite">
+                <ROAD
+                    name="HouseAccountSelected"
+                    letter="HouseAccount"
+                    destination="HouseAccountLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AuthorizeHouseAccount"
+                    letter="Next"
+                    destination="HouseAccountLimitAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="HouseAccountLimitAction" siteaction="HouseAccountLimitActionSite">
+                <ROAD
+                    name="AmountOk"
+                    letter="Continue"
+                    destination="HouseAccountTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AmountBad"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="HouseAccountTenderNumberUI" siteaction="HouseAccountTenderUISite">
+                <ROAD
+                    name="HouseAccountCardNumberEntered"
+                    letter="Next"
+                    destination="ValidateHouseAccountNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountUndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountCancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InstantCreditEnrolled"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateHouseAccountNumber" siteaction="ValidateNumberSite">
+                <ROAD
+                    name="NumberValidated"
+                    letter="Valid"
+                    destination="HouseAccountTenderExpDateUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NumberInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NumberRetry"
+                    letter="Retry"
+                    destination="HouseAccountTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="HouseAccountTenderExpDateUI" siteaction="HouseAccountTenderExpDateUISite">
+                <ROAD
+                    name="CreditTenderExpDateEntered"
+                    letter="Next"
+                    destination="ValidateExpirationDate"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderExpDateNotRequired"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CreditTenderExpDateUndo"
+                    letter="Undo"
+                    destination="HouseAccountTenderNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="HouseAccountTenderExpDateCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateExpirationDate" siteaction="ValidateExpirationDateSite">
+                <ROAD
+                    name="ExpirationDateValidated"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ExpirationDateInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

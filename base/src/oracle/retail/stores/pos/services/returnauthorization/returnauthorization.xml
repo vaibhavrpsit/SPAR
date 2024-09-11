@@ -1,0 +1,272 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/returnauthorization/returnauthorization.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ReturnAuthorization"
+    package="oracle.retail.stores.pos.services.returnauthorization"
+    tourcam="OFF">
+    <COMMENT >
+        This service gets return authorization from RM.
+    </COMMENT>
+    <CARGO  class="ReturnAuthorizationCargo" package="oracle.retail.stores.pos.services.returnauthorization"/>
+    <SERVICECODE >
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Done"/>
+        <LETTER name="Undo"/>
+        <LETTER name="RPIEnabled"/>
+        <LETTER name="RPIDisabled"/>
+        <LETTER name="SkipCapturePositiveID"/>
+        <LETTER name="SecurityOverride"/>
+        <LETTER name="Approved"/>
+        <LETTER name="Denied"/>
+        <LETTER name="ManagerOverride"/>
+        <LETTER name="AllApprovedFromRM"/>
+        <LETTER name="CallManagerOverrideStation"/>
+        <LETTER name="Offline"/>
+        <SHUTTLE class="ReturnAuthorizationLaunchShuttle" />
+        <SHUTTLE class="ReturnAuthorizationReturnShuttle" />
+        <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+        <LANEACTION class="CheckManagerOverrideRequiredAisle"/>
+        <SITEACTION class="CheckRPIEnabledSite"/>
+        <SITEACTION class="CheckRPIEnabledSite"/>
+        <SITEACTION class="CapturePositiveIDSite"/>
+        <SITEACTION class="AuthorizeReturnItemsSite"/>
+        <SITEACTION class="ShowReturnItemsSummarySite"/>
+        <SITEACTION class="UpdateTransactionSite"/>
+        <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="CheckRPIEnabled">
+            <SITE  name="CheckRPIEnabled" siteaction="CheckRPIEnabledSite">
+                <COMMENT >
+                    confirm RPIEnabled parameter is set to true or not
+                </COMMENT>
+                <ROAD
+                    name="RPIEnabled"
+                    letter="RPIEnabled"
+                    destination="CapturePositiveID"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SkipCapturePositiveID"
+                    letter="SkipCapturePositiveID"
+                    destination="AuthorizeReturnItems"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RPIDisabled"
+                    letter="RPIDisabled"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CapturePositiveID" siteaction="CapturePositiveIDSite">
+                <COMMENT >
+                    Get customer positive identification
+                </COMMENT>
+                <ROAD
+                    name="PositiveIDReceived"
+                    letter="Next"
+                    destination="AuthorizeReturnItems"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelSeleted "
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="AuthorizeReturnItems" siteaction="AuthorizeReturnItemsSite">
+                <ROAD
+                    name="AuthorizationApproved"
+                    letter="Approved"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AuthorizationDenied"
+                    letter="Denied"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AuthorizationOffline"
+                    letter="Offline"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ManagerOverrideRequried"
+                    letter="ManagerOverride"
+                    destination="ShowReturnItemsSummary"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="ShowReturnItemsSummary" siteaction="ShowReturnItemsSummarySite">
+                 <ROAD
+                    name="RMApproved"
+                    letter="AllApprovedFromRM"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                 </ROAD>
+                 <ROAD
+                    name="ManagerOverrideApproved"
+                    letter="Success"
+                    destination="ShowReturnItemsSummary"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                 </ROAD>
+                 <ROAD
+                    name="ManagerOverrideDenied"
+                    letter="Failure"
+                    destination="ShowReturnItemsSummary"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ShowReturnItemSummaryDone"
+                    letter="Next"
+                    destination="UpdateTransaction"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                 </ROAD>
+                 <AISLE
+                    name="ManagerOverrideClicked"
+                    letter="ManagerOverride"
+                    laneaction="CheckManagerOverrideRequiredAisle">
+                </AISLE>
+                <ROAD
+                    name="ManagerOverride"
+                    letter="CallManagerOverrideStation"
+                    destination="CheckAccess"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="Authorization"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AuthorizeDelete"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="AuthorizeSkip"
+                    letter="Skip"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+           <SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="ManagerOverrideChosen"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="ShowReturnItemsSummary"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+              servicename="security.override.override"
+              targettier="CURRENTTIER"
+              launchshuttle="SecurityOverrideLaunchShuttle">
+              <ROAD
+                  name="ManagerOverrideSuccessful"
+                  letter="Success"
+                  destination="ShowReturnItemsSummary"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="AdminAccessDenied"
+                  letter="Failure"
+                  destination="ShowReturnItemsSummary"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+            </STATION>
+           	<SITE name="UpdateTransaction" siteaction="UpdateTransactionSite">
+               	<COMMENT>
+                    This site displays the VOID_TRANSACTION screen.
+               	</COMMENT>
+                <ROAD
+                    name="UpdateTransactionDone"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+          	</SITE>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

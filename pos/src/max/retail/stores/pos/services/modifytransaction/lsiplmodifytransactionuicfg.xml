@@ -1,0 +1,1057 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+ * Copyright (c) 2015   Lifestyle India Pvt. Ltd.All Rights Reserved.
+ * Rev 1.5      19th Apr, 2019	Vidhya Kommareddi	Suspend Retrieve using Mobile Number CR
+ * Rev 1.4      Sep 20,2017     Nitika Arora     Omni Channel integration 
+ *
+ * Rev 1.3      Aug 22,2017     Kritica Agarwal
+ * capture GSTIN number
+ * Rev 1.2		Oct 14,2015		Hitesh Dua(EYLLP)
+ * apply listener on TRANSACTION_BUSINESS_ASSOCIATE spec.
+ * Resolve Unexpected exception while retrieving suspended exception
+ *
+ * Rev 1.1		Oct 09,2015		Hitesh Dua(EYLLP)
+ * Changes for disabling Post Void(F7) button on Transaction Screen.
+ *
+ * Rev 1.0		Sept 26th,2015		Aakash Gupta(EYLLP)
+ * Changes for disabling Delete(F11) button on Suspend List Screen.
+ *
+ * ===========================================================================
+ */-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+
+    <BEAN
+        specName="TransOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Tax"
+            enabled="false"
+            keyName="F2"
+            iconName="buttonIconTax"
+            labelTag="Tax"/>
+
+        <BUTTON
+            actionName="SalesAssociate"
+            enabled="true"
+            keyName="F3"
+            iconName="buttonIconSalesAssociate"
+            labelTag="SalesAssociate"/>
+
+        <BUTTON
+            actionName="GiftRegistry"
+            enabled="true"
+            keyName="F4"
+            iconName="buttonIconGiftRegistry"
+            labelTag="GiftRegistry"/>
+
+        <BUTTON
+            actionName="GiftReceipt"
+            enabled="true"
+            keyName="F5"
+            iconName="buttonIconGiftReceipt"
+            labelTag="GiftReceipt"/>
+
+        <BUTTON
+            actionName="Layaway"
+            enabled="true"
+            keyName="F6"
+            iconName="buttonIconLayaway"
+            labelTag="Layaway"/>
+
+
+<!-- changes form true to false according to version 12 customization-->
+        <BUTTON
+            actionName="Send"
+            enabled="false"
+            keyName="F7"
+            iconName="buttonIconSend"
+            labelTag="Send"/>
+<!-- changes for rev1.1: start -->
+          <BUTTON
+            actionName="Void"
+            enabled="false"
+            keyName="F8"
+            iconName="buttonIconPostVoid"
+            labelTag="Void"/>
+<!-- changes for rev1.1: end -->
+        <BUTTON
+            actionName="Suspend"
+            enabled="true"
+            keyName="F2"
+            iconName="buttonIconSuspendTrans"
+            labelTag="Suspend"/>
+
+	    
+	    <!-- chanegs for rev1.2:start-->
+	    <BUTTON
+            actionName="Resume"
+            enabled="true"
+            keyName="F3"
+	    	iconName="buttonIconResumeTrans"
+            labelTag="Retrieve"/>
+	    <!-- chanegs for rev1.2:end-->
+	      <!-- changes Added by Himanshu for BA starts -->
+            
+              <BUTTON
+            actionName="BusninessAssociate"
+            enabled="true"
+            keyName="F4"
+			iconName="buttonIconCustomer"
+            labelTag="BusinessAssociate"/>
+            
+         <!-- changes Added by Himanshu for BA ends -->
+
+         <BUTTON
+            actionName="Order"
+            enabled="false"
+            keyName="F5"
+            iconName="buttonIconOrders"
+            labelTag="Order"/>
+
+         <BUTTON
+            actionName="ItemBasket"
+            enabled="true"
+            keyName="F6"
+            iconName="buttonIconItemBasket"
+            labelTag="FindBasket"/>
+         <BUTTON
+            actionName="ExternalOrder"
+            enabled="true"
+            keyName="F7"
+            iconName="buttonIconExternalOrder"
+            labelTag="ExternalOrder"/>
+         <BUTTON
+            actionName="BillPay"
+            enabled="true"
+            keyName="F8"
+            iconName="buttonIconBillPay"
+            labelTag="BillPay"/> 
+            <!-- Change for Rev 1.3 :Starts -->
+          <BUTTON
+            actionName="CutomerGSTIN"
+            enabled="true"
+            keyName="F2"
+            iconName="buttonIconSuspendTrans"
+            labelTag="CutomerGSTIN"/>            
+ 			<!-- Change for Rev 1.3 : Ends -->
+ 			<!-- Changes start for Omni Channel integration -->
+          <BUTTON
+            actionName="ClickAndCollect"
+            enabled="true"
+            keyName="F3"
+            iconName="buttonIconSuspendTrans"
+            labelTag="ClickAndCollect"/>            
+			<!-- Changes end for Omni Channel integration -->
+    </BEAN>
+
+    <BEAN
+        specName="TransTaxOptButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="OverrideTaxRate"
+            enabled="true"
+            keyName="F2"
+            labelTag="OverrideTaxRate"/>
+
+        <BUTTON
+            actionName="OverrideTaxAmount"
+            enabled="true"
+            keyName="F3"
+            labelTag="OverrideTaxAmount"/>
+
+        <BUTTON
+            actionName="Exempt"
+            enabled="true"
+            keyName="F4"
+            labelTag="TaxExempt"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="TransTaxExemptSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="TransTaxExemptBean">
+   </BEAN>
+
+    <BEAN
+        specName="EnterTransactionButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="List"
+            enabled="true"
+            keyName="F2"
+            labelTag="List"/>
+            <!-- Rev 1.5 start -->
+        <BUTTON
+            actionName="MobNum"
+            enabled="true"
+            keyName="F3"
+            labelTag="Mobile Number"/>
+            <!-- Rev 1.5 end  -->
+    </BEAN>
+
+    <BEAN
+        specName="SelectReasonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SelectReasonBean">
+    </BEAN>
+
+    <BEAN
+        specName="SuspendListSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ListBean">
+
+        <BEANPROPERTY propName="focused" propValue="true"/>
+
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.SuspendListItemRenderer"/>
+
+        <BEANPROPERTY propName="labelTags" propValue="RegisterTillNumberLabel,TransactionNumberLabel,ItemDescriptionLabel,SubtotalLabel"/>
+
+        <BEANPROPERTY propName="labelWeights" propValue="24,24,32,20"/>
+    </BEAN>
+
+    <BEAN
+        specName="SuspendListButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Done"
+            enabled="true"
+            keyName="F2"
+            labelTag="Done"/>
+    </BEAN>
+
+    <POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANS_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="TransOptionsButtonSpec">
+        </ASSIGNMENT>
+    </POPUPMENU>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANS_DISC_AMT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Next[true],Clear[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="DiscAmountEntrySpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="DiscAmountField,ReasonCodeField"/>
+		
+	<!-- changes from false to true	-->
+            <BEANPROPERTY
+                propName="EditableList" propValue="true"/>
+            <BEANPROPERTY
+                propName="PrependCodeID" propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionDiscountAmountScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionDiscountAmountPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="DiscAmountEntrySpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="DiscAmountEntrySpec"/>
+        <CONNECTION
+            sourceBeanSpecName="DiscAmountEntrySpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANS_DISC_PCNT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Next[true],Clear[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="DiscPercentEntrySpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="DiscPercentField,ReasonCodeField"/>
+           	<!-- changes from false to true	-->
+	    <BEANPROPERTY
+                propName="EditableList" propValue="true"/>
+            <BEANPROPERTY
+                propName="PrependCodeID" propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionDiscountPercentScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionDiscountPercentPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="DiscPercentEntrySpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="DiscPercentEntrySpec"/>
+        <CONNECTION
+            sourceBeanSpecName="DiscPercentEntrySpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANSACTION_TAX_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionTaxOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionTaxOptionsPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="TransTaxOptButtonSpec">
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANSACTION_TAX_OVERRIDE_RATE">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+           <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Next[true],Clear[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="TaxOverrideRateSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="TaxRateField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionTaxOverrideRateScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionTaxOverrideRatePrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="TaxOverrideRateSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="TaxOverrideRateSpec"/>
+        <CONNECTION
+            sourceBeanSpecName="TaxOverrideRateSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANSACTION_TAX_OVERRIDE_AMOUNT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+           <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+
+            <BEANPROPERTY
+                 propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Next[true],Clear[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="TaxOverrideAmountSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="TaxAmountField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionTaxOverrideAmountScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionTaxOverrideAmountPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="TaxOverrideAmountSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="TaxOverrideAmountSpec"/>
+        <CONNECTION
+            sourceBeanSpecName="TaxOverrideAmountSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANSACTION_TAX_EXEMPT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+               propName="buttonStates"
+               propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="TransTaxExemptSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="CertificateField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionTaxExemptScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionTaxExemptPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            sourceBeanSpecName="TransTaxExemptSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="TransTaxExemptSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="TransTaxExemptSpec"/>
+
+    </OVERLAYSCREEN>
+   <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANSACTION_SALES_ASSOCIATE">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionSalesAssociateScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionSalesAssociatePrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY
+                propName="maxLength" propValue="10"/>
+            <BEANPROPERTY
+              propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="PROMPT_RETRIEVE_TRANSACTION">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="EnterTransactionScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="EnterTransactionPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.NumericTextField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="EnterTransactionButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="SELECT_SUSPEND_REASON_CODE">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SelectReasonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SuspendReasonScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SuspendReasonPrompt"/>
+        </ASSIGNMENT>
+
+<!--
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="SelectReasonSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="SelectReasonSpec"/>
+-->
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="ListBeanModel"
+        resourceBundleFilename="modifytransactionText"
+        specName="SUSPEND_LIST">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SuspendListSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SuspendListScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SuspendListButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SuspendListPrompt"/>
+            <BEANPROPERTY propName="responseField" propValue="javax.swing.JTextField"/>
+            <BEANPROPERTY propName="enterData" propValue="false"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <!-- Changes for Rev 1.0:Starts -->
+            <BEANPROPERTY propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true],Keys[true]"/>
+            <!-- Changes for Rev 1.0:Ends -->
+        </ASSIGNMENT>
+
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANSACTION_GIFT_REGISTRY">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionGiftRegistryScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionGiftRegistryPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY
+                propName="minLength"
+                propValue="1"/>
+            <BEANPROPERTY
+                propName="maxLength"
+                propValue="14"/>
+            <BEANPROPERTY
+              propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+         <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+    
+    <!--  changes by Himanshu for BA starts here  -->
+    
+    <!-- Screen For Entering Business Associate ID -->
+    
+   <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="modifytransactionText"
+        specName="TRANSACTION_BUSINESS_ASSOCIATE">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="TransactionBusinessAssociateScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="TransactionBusinessAssociatePrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY
+                propName="maxLength" propValue="14"/>
+        </ASSIGNMENT>
+        <!-- changes for rev1.2: start -->
+        <ASSIGNMENT
+			areaName="GlobalNavigationPanel"
+			beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY
+				propName="buttonStates"
+				propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[false]"/>
+		</ASSIGNMENT>
+
+  		<CONNECTION sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="ClearActionListener"/>
+            
+        <CONNECTION
+			listenerInterfaceName="DocumentListener"
+			listenerPackage="javax.swing.event"
+			sourceBeanSpecName="PromptAndResponsePanelSpec"
+			targetBeanSpecName="GlobalNavigationPanelSpec"/>
+		<!-- changes for rev1.2: end -->
+    </OVERLAYSCREEN>
+    
+    
+  <!-- Screen For showing Business Associate Information -->
+ 
+      <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="modifytransactionText" modelClassName="DataInputBeanModel"
+        specName="SHOW_BUSN_ASSOC">
+
+        <ASSIGNMENT areaName="WorkPanel" beanSpecName="ShowBusnAssocInfoSpec">
+		</ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="ShowBusinessAssociatePrompt"/>
+        </ASSIGNMENT>
+        
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[false],Cancel[false],Undo[true],Clear[false],Next[true]"/>
+        </ASSIGNMENT>
+        
+       <ASSIGNMENT areaName="LocalNavigationPanel" beanSpecName="BusnAssocLinkOptButtonSpec">
+		</ASSIGNMENT>
+       
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="BusnAssocInfo"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+    
+    <!-- Bean created for Showing Business Associate Information By Himanshu-->
+    
+      <BEAN specName="ShowBusnAssocInfoSpec" configuratorPackage="oracle.retail.stores.pos.ui"
+		configuratorClassName="POSBeanConfigurator" beanPackage="lsipl.retail.stores.pos.ui.beans"
+		beanClassName="LSIPLShowBusnAssocInfoBean">
+      </BEAN>
+    
+      <BEAN
+        specName="BusnAssocLinkOptButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Link"
+            enabled="true"
+            keyName="F2"
+            labelTag="Link"/>
+    
+     </BEAN>
+     
+ 
+    <!--  changes by Himanshu for BA ends here  -->
+    <!-- Change fro Rev 1.3 : Starts --> 
+ <OVERLAYSCREEN defaultScreenSpecName="ResponseEntryScreenSpec"
+		resourceBundleFilename="webOrderText" specName="GSTIN_CAPTURE">
+		
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="manageNextButton" propValue="true" />
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag" propValue="Capture GSTIN" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag" propValue="Enter Customer GSTIN Number" />
+			<BEANPROPERTY propName="responseField"
+				     propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField" />
+			<BEANPROPERTY propName="enterData" 						propValue="true" />
+			<BEANPROPERTY propName="clearResponseOnSetScannerData" 	propValue="true"/>
+            <BEANPROPERTY propName="maxLength"                     	propValue="15"/>
+			<BEANPROPERTY propName="minLength"                     	propValue="15"/>
+			<BEANPROPERTY propName="doubleByteCharsAllowed" 		propValue="false"/>
+		</ASSIGNMENT>
+		<!-- <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="GstinCaptureSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="GSTinField"/>
+		     <BEANPROPERTY propName="enterData" 						propValue="true" />
+			<BEANPROPERTY propName="clearResponseOnSetScannerData" 	propValue="true"/>
+            <BEANPROPERTY propName="maxLength"                     	propValue="15"/>
+			<BEANPROPERTY propName="doubleByteCharsAllowed" 		propValue="false"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag" propValue="GSTIN Number" />
+		</ASSIGNMENT> -->
+		
+		
+    </OVERLAYSCREEN>
+    <!-- <BEAN
+        specName="GstinCaptureSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="lsipl.retail.stores.pos.ui.beans"
+        beanClassName="LSIPLGSTINCaptureBean">
+   </BEAN> -->
+    <!-- Change fro Rev 1.3 : Ends -->
+    
+ 			<!-- Changes start for Omni Channel integration -->
+ <!-- <OVERLAYSCREEN defaultScreenSpecName="ResponseEntryScreenSpec"
+		resourceBundleFilename="webOrderText" specName="CLICK_AND_COLLECT">
+		
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="manageNextButton" propValue="true" />
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag" propValue="Click And Collect" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag" propValue="Enter Order ID" />
+			<BEANPROPERTY propName="responseField"
+				     propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField" />
+			<BEANPROPERTY propName="enterData" 						propValue="true" />
+			<BEANPROPERTY propName="clearResponseOnSetScannerData" 	propValue="true"/>
+            <BEANPROPERTY propName="maxLength"                     	propValue="15"/>
+			<BEANPROPERTY propName="minLength"                     	propValue="1"/>
+			<BEANPROPERTY propName="doubleByteCharsAllowed" 		propValue="false"/>
+		</ASSIGNMENT>
+    </OVERLAYSCREEN>-->
+
+ <!-- Changes start for Omni Channel integration -->
+  <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="returnsText"
+        specName="CLICKANDCOLLECT_ONLINE_ORDER_NUMBER">
+
+         <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="Click And Collect"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="OnlineOrderNumberPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="1"/>
+            <BEANPROPERTY propName="maxLength" propValue="15"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+            <BEANPROPERTY propName="clearResponseOnSetScannerData" 	propValue="true"/>
+            <BEANPROPERTY  propName="enterData"     propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+<!--             <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/> -->
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+    </OVERLAYSCREEN>
+
+			<!-- Changes end for Omni Channel integration --> 
+			<!-- Rev 1.5 start -->
+			<OVERLAYSCREEN defaultScreenSpecName="ResponseEntryScreenSpec"
+		resourceBundleFilename="modifytransactionText" specName="SUSPEND_RETRIEVE_TRAN_MOBILE_NUMBER">
+		
+		<ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+			<BEANPROPERTY propName="manageNextButton" propValue="true" />
+			<BEANPROPERTY propName="buttonStates"
+				propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="StatusPanel" beanSpecName="StatusPanelSpec">
+			<BEANPROPERTY propName="screenNameTag" propValue="RetrieveTranMobileNumberScreenName" />
+		</ASSIGNMENT>
+
+		<ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+			<BEANPROPERTY propName="promptTextTag" propValue="EnterMobileNumberForRetrievingTran" />
+			<BEANPROPERTY propName="responseField"
+				     propValue="oracle.retail.stores.pos.ui.beans.NumericTextField" />
+			<BEANPROPERTY propName="minLength" propValue="10" />
+			<BEANPROPERTY propName="maxLength" propValue="10" />
+			<BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+		</ASSIGNMENT>		
+
+    </OVERLAYSCREEN>
+    
+    <!--  Rev 1.5 end -->
+</UICFG>

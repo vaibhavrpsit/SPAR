@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/returns/returnfindtrans/crossborderreturn/crossborderreturn.xml /main/1 2012/04/05 10:22:49 rsnayak Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    rsnayak   04/02/12 - Cross Border Return
+ * ===========================================================================
+ */
+-->
+
+<SERVICE
+    name="CrossBorderReturnStation"
+    package="oracle.retail.stores.pos.services.returns.returnfindtrans.crossborderreturn"
+    tourcam="OFF">
+    <COMMENT >
+        This service performs cross border return related changes to the transaction object
+    </COMMENT>
+    <CARGO  class="ReturnFindTransCargo" package="oracle.retail.stores.pos.services.returns.returnfindtrans"/>
+     <SERVICECODE >
+    	<LETTER name="Success"/>
+    	<SITEACTION class="CrossBorderReturnStartSite"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CrossBorderReturn">
+         <SITE  name="CrossBorderReturn" siteaction="CrossBorderReturnStartSite">
+         <ROAD
+               name="ReturnSuccess"
+               letter="Success"
+               destination="Final"
+               tape="ADVANCE"
+               record="OFF"
+               index="OFF">
+         </ROAD>
+         </SITE>
+         <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

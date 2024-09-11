@@ -1,0 +1,343 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/giftcertificate/giftcertificate.xml /main/16 2012/03/27 10:57:14 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     03/26/12 - Modified to support centralized gift certificate and
+ *                         store credit.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/*===========================================================================
+     $Log:
+      6    360Commerce 1.5         5/16/2008 5:33:13 AM   Neeraj Gautam   Added
+            road GiftCertOverTenderNotAllowed to take care of the flow that
+           takes the control back to the tendering options. - CR 31526
+      5    360Commerce 1.4         3/28/2008 4:14:08 AM   VIVEKANAND KINI
+           Change the destination of the road GiftCertificateNumberUndo to a
+           final screen.
+      4    360Commerce 1.3         12/19/2007 7:51:53 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin - 1
+      3    360Commerce 1.2         3/31/2005 4:28:18 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:21:56 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:11:15 PM  Robert Pearse
+     $
+     Revision 1.4.2.1  2004/11/15 21:39:22  bwf
+     @scr 7725 Handle continue letter from override service.
+
+     Revision 1.4  2004/06/08 17:30:55  dfierling
+     @scr 5376 - Corrected flow if select "Undo" after entering Invalid GCert Number
+
+     Revision 1.3  2004/06/03 18:38:38  crain
+     @scr 4931 Gift Certificate Tender Parameters_Valid Values Incorrect
+
+     Revision 1.2  2004/04/22 20:52:17  epd
+     @scr 4513 FIxes to tender, especially gift card, gift cert, and store credit
+
+     Revision 1.1  2004/04/20 23:04:20  bwf
+     @scr 4263 Decomposition of gift certificate.
+
+
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="Tender"
+    package="oracle.retail.stores.pos.services.tender.giftcertificate"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the gift cert Use Case of the
+        Tender Package.
+    </COMMENT>
+    <CARGO  class="TenderCargo" package="oracle.retail.stores.pos.services.tender"/>
+
+    <SERVICECODE >
+        <LETTER name="Success"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Yes"/>
+        <LETTER name="No"/>
+        <LETTER name="Ok"/>
+        <LETTER name="Next"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Continue"/>
+        <LETTER name="GiftCert"/>
+        <LETTER name="GiftCertRefund"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Loop"/>
+        <LETTER name="Corporate"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Offline"/>
+
+        <SITEACTION class="DetermineTenderSubTourStartSite" package="oracle.retail.stores.pos.services.tender"/>
+        <SITEACTION class="EnterDocumentFaceValueSite" package="oracle.retail.stores.pos.services.tender"/>
+        <SITEACTION class="GetGiftCertificateNumberSite"/>
+        <SITEACTION class="GetChangeGiftCertificateNumberSite"/>
+        <SITEACTION class="GiftCertificateTenderActionSite"/>
+        <SITEACTION class="GiftCertificateTenderLimitActionSite"/>
+
+        <LANEACTION class="GetDocumentFaceValueAisle" package="oracle.retail.stores.pos.services.tender"/>
+
+        <SHUTTLE class="TenderLimitOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+        <SHUTTLE class="TenderLimitOverrideReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+    </SERVICECODE>
+
+    <MAP>
+        <REGION  region="SERVICE" startsite="DetermineTenderSubTourStart">
+            <SITE name="DetermineTenderSubTourStart" siteaction="DetermineTenderSubTourStartSite">
+                <ROAD name="GiftCertTender"
+                      letter="GiftCert"
+                      destination="GiftCertificateTenderLimitAction"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="GiftCertAltTender"
+                      letter="GiftCertAlt"
+                      destination="GiftCertificateTenderLimitAction"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="GiftCertTender"
+                      letter="GiftCertReturn"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="GiftCertAltTender"
+                      letter="GiftCertAltReturn"
+                      destination="Final"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+                <ROAD name="GiftCertRefund"
+                      letter="GiftCertRefund"
+                      destination="GetChangeGiftCertificateNumber"
+                      tape="ADVANCE"
+                      record="OFF"
+                      index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GiftCertificateTenderLimitAction" siteaction="GiftCertificateTenderLimitActionSite">
+                <ROAD
+                    name="GiftCertificateAddedRoad"
+                    letter="Success"
+                    destination="GetGiftCertificateNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateOverrideRoad"
+                    letter="Yes"
+                    destination="TenderLimitOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateInvalidRoad"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertOverTenderNotAllowed"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetGiftCertificateNumber" siteaction="GetGiftCertificateNumberSite">
+                <ROAD
+                    name="GiftCertificateNumberEntered"
+                    letter="Next"
+                    destination="GiftCertificateTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateNumberUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetGiftCertificateNumberRetry" siteaction="GetGiftCertificateNumberSite">
+                <ROAD
+                    name="GiftCertificateNumberEntered"
+                    letter="Next"
+                    destination="GiftCertificateTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateNumberCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateNumberUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GiftCertificateTenderAction" siteaction="GiftCertificateTenderActionSite">
+                <ROAD
+                    name="GiftCertificateTenderAdded"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateTenderInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateValidationOffline"
+                    letter="Offline"
+                    destination="EnterDocumentFaceValue"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateNumberInvalid"
+                    letter="Loop"
+                    destination="GetGiftCertificateNumberRetry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="GetChangeGiftCertificateNumber" siteaction="GetChangeGiftCertificateNumberSite">
+                <ROAD
+                    name="ChangeGiftCertificateNumberEntered"
+                    letter="Next"
+                    destination="GiftCertificateTenderAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ChangeGiftCertificateNumberUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="EnterDocumentFaceValue" siteaction="EnterDocumentFaceValueSite">
+                <AISLE
+                    name="DocumentFaceValueEntered"
+                    letter="Next"
+                    laneaction="GetDocumentFaceValueAisle">
+                </AISLE>
+                <ROAD
+                    name="DocumentFaceValueSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DocumentFaceValueCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DocumentFaceValueUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <STATION
+                name="TenderLimitOverrideStation"
+                servicename="tender.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLimitOverrideLaunchShuttle"
+                returnshuttle="TenderLimitOverrideReturnShuttle">
+                <ROAD
+                    name="TenderLimitOverrideSuccess"
+                    letter="Success"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideContinue"
+                    letter="Continue"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderLimitOverrideFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>

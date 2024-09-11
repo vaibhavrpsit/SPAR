@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/********************************************************************************
+*   
+*  Copyright (c) 2016 MAX Hyper Market Inc.    All Rights Reserved.
+*
+*	Rev	1.0 	15dec,2016	Hitesh.Dua			Receipt Changes FES
+*
+********************************************************************************/
+-->
+
+<blueprint id="Transaction" copies="1">
+    <linkReport documentType="Ankle" idePath="/pos/deploy/client/receipts/Ankle.bpt" id="4524213" cutPaper="false">
+        <dependsOn returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+            <method returns="boolean" name="isSuspended" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+        </dependsOn>
+    </linkReport>
+    <report name="TransactionReport" id="28180616" cutPaper="false">
+        <group id="908342820">
+            <line id="25086455">
+				<element text="--------------------------------------------------------------" id="561914238" justified="left"/>
+            </line>			
+			<line id="27182317">
+                <element text="Till:" id="802697176" justified="center" />
+                <methodElement id="1213286481">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="String" name="getTillID" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>
+                <element text=" Bill No :" id="635315678" />
+                <methodElement fixedWidth="4" precededBySpace="false" id="396957609">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="String" name="getFormattedTransactionSequenceNumber" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>                
+                <dateTimeElement formatter="dd-MMM-yyyy" id="8439983" />
+				<dateTimeElement formatter="HH:mm:ss" id="29350564" />
+                <element text=" " id="511877" stretch="false" />
+            </line>
+          <line id="9624795">
+                <element text="StoreID:" id="1220036792" justified="left" />
+                <methodElement precededBySpace="false" id="9699476">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="String" name="getFormattedStoreID" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>				
+                <element text=" Reg:" id="1980528140" />
+                <methodElement precededBySpace="false" id="1609326572">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="String" name="getFormattedWorkstationID" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>
+                <element text=" Cashier:" id="1260931880" />
+                <methodElement fixedWidth="10" precededBySpace="false" id="557261111">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="EmployeeIfc" name="getCashier" class="oracle.retail.stores.domain.transaction.TransactionIfc">
+                            <method returns="String" name="getEmployeeID" class="oracle.retail.stores.domain.employee.EmployeeIfc" />
+                        </method>
+                    </method>
+                </methodElement>
+            </line>
+            <line id="10509681" dependsOnPresenceOf="18779350">
+                <element text="Order Number:" id="10123093" dependsOnPresenceOf="18779350" />
+                <methodElement id="18779350">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="String" name="getExternalOrderNumber" class="oracle.retail.stores.domain.transaction.SaleReturnTransactionIfc" />
+                    </method>
+                </methodElement>
+            </line>
+			<line id="13540959" dependsOnPresenceOf="8470851">
+                <methodElement precededBySpace="false" printedWhenLengthZero="false" valuePrintedWhenFalse="" valuePrintedWhenTrue="** Canceled Transaction **" id="8470851" justified="1" stretch="false">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="boolean" name="isCanceled" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>
+            </line>
+			<line id="250864155">
+                <element text="--------------------------------------------------------------" id="561914338" justified="left"/>
+			</line>
+			
+			 <line id="143187016">
+                <methodElement precededBySpace="false" printedWhenLengthZero="false" valuePrintedWhenFalse="It's a Computer Generated Invoice Original / Customer Copy" 
+					valuePrintedWhenTrue="It's a Computer Generated Invoice Duplicate / Customer Copy" id="109850137" justified="1" stretch="false">
+					<method returns="boolean" name="isDuplicateReceipt" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                </methodElement>
+            </line>
+			<line id="250684155">
+                <element text="Unless otherwise stated,tax is not payable under reverse charge" id="561914338" justified="left"/>
+			</line>
+        </group>
+    </report>
+</blueprint>
+

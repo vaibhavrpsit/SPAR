@@ -1,0 +1,164 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/createpickup/pickup.xml /main/14 2012/05/02 14:07:48 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     04/13/12 - Moved to the order package during the cross
+ *                         channel project to provide better organization for
+ *                         the order create process.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="pickup" package="oracle.retail.stores.pos.services.order.createpickup"
+    tourcam="ON">
+    <CARGO class="PickupDeliveryOrderCargo" package="oracle.retail.stores.pos.services.order.createpickup" />
+    <SERVICECODE>
+
+        <LETTER name="Undo" />
+        <LETTER name="Cancel" />
+        <LETTER name="Failure" />
+        <LETTER name="Success" />
+        <LETTER name="Done" />
+        <LETTER name="Next" />
+        <LETTER name="CaptureCustomerInfo" />
+        <LETTER name="PickupDate" />
+        <LETTER name="AskForDate" />
+
+        <LANEACTION class="JournalCustomerInformationRoad" />
+
+        <SITEACTION class="CreatePickupDeliveryOrderSite" />
+        <SITEACTION class="EnterCustomerInformationSite" />
+        <SITEACTION class="GetPickupDateEnteredSite" />
+        <SITEACTION class="ShowPickupDateEnterScreenSite" />
+
+		<SHUTTLE class="CustomerLaunchShuttle" />
+		<SHUTTLE class="CustomerReturnShuttle" />
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="EnterCustomerInformation">
+            <SITE name="EnterCustomerInformation"
+                siteaction="EnterCustomerInformationSite">
+
+				<ROAD name="AddCustomerRoad" letter="AddCustomer"
+					destination="CustomerStation" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+
+				<ROAD name="AskForDateRoad" letter="AskForDate"
+					destination="ShowPickupDateEnterScreen" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+
+
+			</SITE>
+			<STATION name="CustomerStation"
+				servicename="customer.main.customermain" targettier="CURRENTTIER"
+				launchshuttle="CustomerLaunchShuttle"
+				returnshuttle="CustomerReturnShuttle">
+				<COMMENT>
+					Transfer control to customer services to execute
+					Customer functionality.
+				</COMMENT>
+				<ROAD name="CustomerContinue" letter="Continue"
+				    laneaction="JournalCustomerInformationRoad"
+					destination="ShowPickupDateEnterScreen" tape="ADVANCE" record="OFF"
+					index="OFF">
+					<COMMENT>
+						Road to traverse when the Customer service runs
+						to completion.
+					</COMMENT>
+				</ROAD>
+				<ROAD name="CustomerUndo" letter="Undo"
+					destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+					<COMMENT>
+						Road to traverse when the user backs out of the
+						Customer service.
+					</COMMENT>
+				</ROAD>
+				<ROAD name="CustomerCancel" letter="Cancel"
+					destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+					<COMMENT>
+						Road to traverse when the user Cancels out of
+						the Customer service.
+					</COMMENT>
+				</ROAD>
+				<ROAD
+                    name="DeliveryOffline"
+                    letter="Offline"
+                    destination="ShowPickupDateEnterScreen"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+					<COMMENT >
+                        This road is traveled when the shippingaddress service
+                        returns with a Cancel letter.
+                    </COMMENT>
+				</ROAD>
+			</STATION>
+
+			<SITE name="GetPickupDateEntered"
+				siteaction="GetPickupDateEnteredSite">
+				<ROAD name="SameAddressProcessedRoad"
+					letter="Continue" destination="CreatePickupDeliveryOrder"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="OkLetterRoad" letter="Ok"
+					destination="ShowPickupDateEnterScreen" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="CancelRoad" letter="Cancel"
+					destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+				<ROAD name="UndoRoad" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+			</SITE>
+
+			<SITE name="ShowPickupDateEnterScreen"
+				siteaction="ShowPickupDateEnterScreenSite">
+				<ROAD name="CheckSameAddressProcessedRoad" letter="Next"
+					destination="GetPickupDateEntered" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+
+				<ROAD name="CancelRoad" letter="Cancel"
+					destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+				<ROAD name="UndoRoad" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+			</SITE>
+			<SITE name="CreatePickupDeliveryOrder"
+				siteaction="CreatePickupDeliveryOrderSite">
+				<ROAD name="OrderCreatedRoad" letter="Continue"
+					destination="Final" tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+			</SITE>
+
+			<SYSTEMSITE name="LastIndexed" action="BACKUP" />
+			<SYSTEMSITE name="Final" action="RETURN" />
+
+		</REGION>
+	</MAP>
+</SERVICE>

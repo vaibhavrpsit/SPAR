@@ -1,0 +1,505 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/redeem/redeemuicfg.xml /main/18 2012/12/14 11:29:40 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   12/14/12 - Button image and plaf loading updates
+ *    mjwallac  11/12/12 - ui button changes
+ *    cgreene   06/07/11 - update to first pass of removing pospal project
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *    cgreene   12/16/09 - add Keys button
+ *    sgu       12/08/09 - fix the maxlength of REDEEM_AMOUNT to be 9 based on
+ *                         the spec
+ *    asinton   08/12/09 - Configure Redeem Number screen to use barcode
+ *                         scanner
+ *    miparek   01/06/09 - changing defaultscreenspecname of DISCOUNTER_AMOUNT
+ *                         to DefaultValidatingSpec
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     $Log:
+      4    I18N_P2    1.2.1.0     2/6/2008 2:14:02 PM    Sandy Gu        Set
+           promps to optional take multi byte characters.
+      3    360Commerce 1.2         3/31/2005 4:29:36 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:24:36 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:13:36 PM  Robert Pearse
+     $
+     Revision 1.15.2.1  2004/12/10 17:05:23  lzhao
+     @scr 7824: Cancel button print/save cancelled txn, Undo goes to previous screen
+
+     Revision 1.15  2004/08/23 16:15:59  cdb
+     @scr 4204 Removed tab characters
+
+     Revision 1.14  2004/07/15 21:00:52  crain
+     @scr 6289 Redeem- System crashed after pressing enter at Discounted Amt screen for gift cert redeem
+
+     Revision 1.13  2004/06/15 16:33:23  blj
+     @scr 5597 - added msr and scanning capability to the Redeem Gift Card Inquiry screen.
+
+     Revision 1.12  2004/05/20 20:56:21  tmorris
+     @scr 5098 -Changed max length of response field for the redeem amount.
+
+     Revision 1.11  2004/05/20 04:49:49  crain
+     @scr 5091 Tender Redeem_Local Navigation "Next" for REDEEM_NUMBER Screen Incorrect
+
+     Revision 1.10  2004/05/02 05:48:03  crain
+     @scr 4553 Redeem Gift Certificate
+
+     Revision 1.9  2004/04/30 21:04:56  crain
+     @scr 4553 Redeem Gift Certificate
+
+     Revision 1.8  2004/04/23 00:35:07  crain
+     @scr 4553 Redeem Gift Certificate
+
+     Revision 1.7  2004/04/16 14:58:25  blj
+     @scr 3872 - fixed a few flow and screen text issues.
+
+     Revision 1.6  2004/04/15 20:56:18  blj
+     @scr 3871 - updated to fix problems with void and offline.
+
+     Revision 1.5  2004/04/07 22:49:40  blj
+     @scr 3872 - fixed problems with foreign currency, fixed ui labels, redesigned to do validation and adding tender to transaction in separate sites.
+
+     Revision 1.4  2004/03/25 23:01:23  lzhao
+     @scr #3872 Redeem Gift Card
+
+     Revision 1.3  2004/03/22 23:59:08  lzhao
+     @scr 3872 - add gift card redeem (initial)
+
+     Revision 1.2  2004/03/08 23:36:26  blj
+     @scr 3872 - redeem tour sites and shuttles
+
+     Revision 1.1  2004/02/26 04:48:54  blj
+     @scr 0 - redeem services has moved to _360commerce.  Redeem is now an ADO service.
+
+     Revision 1.2  2004/02/12 16:51:41  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:19  cschellenger
+     updating to pvcs 360store-current
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="RedeemOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            labelTag="GiftCard"
+            actionName="GiftCard"
+            enabled="true"
+            iconName="buttonIconRedeemGiftCard"
+            keyName="F2" />
+        <BUTTON
+            labelTag="GiftCert"
+            actionName="GiftCert"
+            enabled="true"
+            iconName="buttonIconRedeemGiftCertificate"
+            keyName="F3" />
+        <BUTTON
+            labelTag="StoreCredit"
+            actionName="StoreCredit"
+            enabled="true"
+            iconName="buttonIconRedeemStoreCredit"
+            keyName="F4" />
+
+    </BEAN>
+
+    <BEAN
+        specName="GiftCardRedeemSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DataInputBean">
+
+        <FIELD fieldName="giftCardNumberField"
+               fieldType="displayField"
+               labelText="Gift Card Number:"
+               labelTag="GiftCardNumber"
+               paramList="giftCardNumberField"/>
+
+        <FIELD fieldName="giftCardBalanceField"
+               fieldType="displayField"
+               labelText="Refund Amount:"
+               labelTag="RefundAmount"
+               paramList="giftCardBalanceField"/>
+    </BEAN>
+
+    <BEAN
+        specName="ForeignRedeemButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+        <BUTTON
+            labelTag="Foreign"
+            actionName="Foreign"
+            enabled="true"
+            keyName="F2" />
+    </BEAN>
+
+    <BEAN
+        specName="ForeignTenderNumberSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DataInputBean">
+
+        <FIELD fieldName="FaceValueAmountLabel"
+               fieldType="displayField"
+               labelText="Redeem Face Value:"
+               labelTag="FaceValueAmountLabel"
+               paramList="FaceValueAmountLabel"/>
+
+        <FIELD fieldName="IssuingStoreLabel"
+               fieldType="displayField"
+               labelText="Issuing Store:"
+               labelTag="IssuingStoreLabel"
+               paramList="IssuingStoreLabel"/>
+    </BEAN>
+
+    <BEAN
+        specName="DiscountedAmountSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DataInputBean">
+
+        <FIELD fieldName="PrintedAmountLabel"
+               fieldType="displayField"
+               labelText="Printed Amount:"
+               labelTag="PrintedAmountLabel"
+               paramList="PrintedAmountLabel"/>
+
+        <FIELD fieldName="discountedAmountField"
+               fieldType="CurrencyField"
+               labelText="Discounted Amount:"
+               labelTag="DiscountedAmountLabel"
+               paramList="discountedAmountField,false,false,false"
+               enabled="true"
+               required="true"/>
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="redeemText"
+        specName="REDEEM_OPTIONS">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[true],Undo[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="RedeemOptionsButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="RedeemOptionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="RedeemOptionsPrompt"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="redeemText"
+        specName="GIFT_CARD_REDEEM_INQUIRY">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardRedeemInquiryScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardRedeemInquiryPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="13"/>
+            <BEANPROPERTY propName="maxLength" propValue="19"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="redeemText"
+        specName="GIFT_CARD_REDEEM">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="GiftCardRedeemSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[false],Undo[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardRedeemScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardRedeemPrompt"/>
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="redeemText"
+        specName="REDEEM_NUMBER">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ForeignRedeemButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="RedeemNumberScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="RedeemNumberPrompt"/>
+                <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="minLength"
+                propValue= "6"/>
+            <BEANPROPERTY
+                propName="maxLength"
+                propValue= "14"/>
+            <BEANPROPERTY
+            	propName="doubleByteCharsAllowed"
+            	propValue="false"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+    </OVERLAYSCREEN>
+
+       <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="redeemText"
+        modelClassName="DataInputBeanModel"
+        specName="REDEEM_FOREIGN_NUMBER">
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ForeignTenderNumberSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ForeignNumberScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="RedeemNumberPrompt"/>
+                <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="minLength"
+                propValue= "6"/>
+            <BEANPROPERTY
+                propName="maxLength"
+                propValue= "14"/>
+            <BEANPROPERTY
+            	propName="doubleByteCharsAllowed"
+            	propValue="false"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="redeemText"
+        specName="REDEEM_AMOUNT">
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="RedeemAmountScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="RedeemAmountPrompt"/>
+                <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.CurrencyTextField"/>
+            <BEANPROPERTY propName="enterData" propValue="true"/>
+            <BEANPROPERTY
+                propName="minLength"
+                propValue= "4"/>
+            <BEANPROPERTY
+                propName="maxLength"
+                propValue="9"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+       <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="redeemText"
+        modelClassName="DataInputBeanModel"
+        specName="DISCOUNTED_AMOUNT">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="DiscountedAmountSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="discountedAmountField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="DiscountedAmountScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="DiscountedAmountPrompt"/>
+            <BEANPROPERTY propName="enterData" propValue="false"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="DiscountedAmountSpec"/>
+
+    </OVERLAYSCREEN>
+
+</UICFG>

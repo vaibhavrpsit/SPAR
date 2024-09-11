@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/browserfoundation/browserfoundationuicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:28 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreen 05/26/10 - convert to oracle packaging
+ *    nkgaut 02/11/10 - Removed ALT HOME key of HOME button as JDIC is not
+ *                      supporting it
+ *    abonda 01/02/10 - Update Header date
+ *    nkgaut 01/21/09 - Updated labels
+ *    nkgaut 01/19/09 - Button Key Label updates
+ *    kulu   10/29/08 - before review
+ *    nkgaut 09/30/08 - A new uicfg xml for browserfoundation
+ * ===========================================================================
+ */
+-->
+
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<UICFG>
+
+   <BEAN
+        specName="BrowserNavigationPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="GlobalBrowserNavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="Undo"
+            keyName=""
+            enabled="true"
+            labelTag="Close"/>
+
+        <BUTTON
+            actionName="Back"
+            keyName="ALT Left Arrow"
+            enabled="true"
+            labelTag="Back"/>
+
+        <BUTTON
+            actionName="Forward"
+            keyName="ALT Right Arrow"
+            labelTag="Forward"
+            enabled="true"/>
+
+        <BUTTON
+            actionName="Stop"
+            keyName="ESC"
+            enabled="true"
+            labelTag="Stop"/>
+
+        <BUTTON
+            actionName="Refresh"
+            keyName="F5"
+            enabled="true"
+            labelTag="Refresh"/>
+
+        <BUTTON
+            actionName="Home"
+            keyName=""
+            enabled="true"
+            labelTag="NavigateHome"/>
+    </BEAN>
+
+    <BEAN
+        specName="BrowserFoundationSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="BrowserFoundationDisplayBean">
+    </BEAN>
+
+    <TEMPLATE
+        specName="BrowserFoundationTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+
+        <AREA
+            areaName="BrowserPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="1.0" fill="BOTH" ipadx="0" ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="BrowserNavigationPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="1" gridwidth="REMAINDER" gridheight="6"
+                weightx="0.02" weighty="0.0" anchor="SOUTH" fill="BOTH" ipadx="0" ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+    </TEMPLATE>
+
+    <DEFAULTSCREEN
+        specName="BrowserFoundationDefaultSpec"
+        templateSpecName="BrowserFoundationTemplateSpec"
+        displaySpecName="BrowserFoundationDialogDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="commonText">
+
+        <ASSIGNMENT
+            areaName="BrowserPanel"
+            beanSpecName="BrowserFoundationSpec"/>
+
+        <ASSIGNMENT
+            areaName="BrowserNavigationPanel"
+            beanSpecName="BrowserNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Done[true],Back[true],Forward[true],Stop[true],Refresh[true],Home[true]"/>
+        </ASSIGNMENT>
+    </DEFAULTSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="BrowserFoundationDefaultSpec"
+        resourceBundleFilename="commonText"
+        specName="BROWSER_FOUNDATION">
+
+        <ASSIGNMENT
+            areaName="BrowserPanel"
+            beanSpecName="BrowserFoundationSpec">
+        </ASSIGNMENT>
+
+         <ASSIGNMENT
+            areaName="BrowserNavigationPanel"
+            beanSpecName="BrowserNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Done[true],Back[true],Forward[true],Stop[true],Refresh[true],Home[true]"/>
+        </ASSIGNMENT>
+
+         <CONNECTION
+            listenerInterfaceName="BrowserBackActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behaviour"
+            sourceBeanSpecName="BrowserNavigationPanelSpec"
+            targetBeanSpecName="BrowserFoundationSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="BrowserForwardActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behaviour"
+            sourceBeanSpecName="BrowserNavigationPanelSpec"
+            targetBeanSpecName="BrowserFoundationSpec"/>
+
+       <CONNECTION
+            listenerInterfaceName="BrowserRefreshActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behaviour"
+            sourceBeanSpecName="BrowserNavigationPanelSpec"
+            targetBeanSpecName="BrowserFoundationSpec"/>
+
+       <CONNECTION
+            listenerInterfaceName="BrowserStopActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behaviour"
+            sourceBeanSpecName="BrowserNavigationPanelSpec"
+            targetBeanSpecName="BrowserFoundationSpec"/>
+
+       <CONNECTION
+            listenerInterfaceName="BrowserHomeActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behaviour"
+            sourceBeanSpecName="BrowserNavigationPanelSpec"
+            targetBeanSpecName="BrowserFoundationSpec"/>
+
+    </OVERLAYSCREEN>
+</UICFG>

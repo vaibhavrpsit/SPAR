@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/* ===========================================================================
+ * Copyright (c) 2016 MAX Hyper Market Inc.    All Rights Reserved.
+ *
+ * Rev 1.3 	Hitesh.dua 		28Feb,2017	  Changes for till reconcile related reports
+ * Replace  TillCountReport with MAXTillCountReport.java
+ *
+ * Rev 1.2 	Hitesh.dua 		15Feb,2017	  Changes for till reconcile related reports
+ * Replace SummaryReport with MAXSummaryReport.java
+ *
+ * Rev 1.1 	Hitesh.dua 		31jan,2017	 bug_fix: Unexpected error is displayed when click on Next once quantity of weighted item is entered on Unit of measure screen
+ * Replace SaleReturnLineItemJournalFormatter with MAXSaleReturnLineItemJournalFormatter and
+ * Replace VATSaleReturnLineItemJournalFormatter with MAXVATSaleReturnLineItemJournalFormatter   
+ *
+ * Rev 1.0 	Hitesh.dua 		15dec,2016	 Initial revision
+ * Replace ReceiptParameterBeanIfc with MAXReceiptParameterBeanIfc for printing customized receipt 
+ *
+ * ===========================================================================
+ */ 
+ -->
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!--
+This is for Application type objects being managed by Spring Framework.
+These could be like Utility or UI related objects that we use at the Application layer level directly.
+Beans should be named starting with prefix application_ so that in Java code it is easier
+to identify which context file is being used for the Bean.
+-->
+
+<beans>
+
+    <!-- This is used to load configurations from the application.properties -->
+    <bean id="propertyConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:config/application.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- The fallback resource loader. Must implement oracle.retail.stores.common.utility.LanguageResourceBundleIfc -->
+    <bean id="application_LanguageResourceBundle" class="oracle.retail.stores.common.utility.LanguageResourceBundle"
+        scope="prototype"/>
+
+    <!-- A reference to the constant LocaleConstantsIfc#DEFAULT_LOCALE -->
+    <bean id="oracle.retail.stores.domain.utility.LocaleConstantsIfc.DEFAULT_LOCALE"
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+
+    <!-- The value of the default locale from the LocaleMap -->
+    <bean id="defaultLocale" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass"><value>oracle.retail.stores.common.utility.LocaleMap</value></property>
+        <property name="targetMethod"><value>getLocale</value></property>
+        <property name="arguments">
+            <list>
+                <ref bean="oracle.retail.stores.domain.utility.LocaleConstantsIfc.DEFAULT_LOCALE"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- The value of the receipt locale from the LocaleMap -->
+    <bean id="receiptLocale" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass"><value>oracle.retail.stores.common.utility.LocaleMap</value></property>
+        <property name="targetMethod"><value>getLocale</value></property>
+        <property name="arguments">
+            <list>
+                <ref local="oracle.retail.stores.domain.utility.LocaleConstantsIfc.RECEIPT"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- A reference to the constant LocaleConstantsIfc#RECEIPT -->
+    <bean id="oracle.retail.stores.domain.utility.LocaleConstantsIfc.RECEIPT"
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+
+    <!-- PasswordPolicyTDO TDOFactory create method functionality -->
+    <bean id="application_PasswordPolicyTDO" class="oracle.retail.stores.pos.ado.utility.tdo.PasswordPolicyTDO"
+          scope="prototype"/>
+          
+    <!-- Password policy TDO used for fingerprint based logins -->
+    <bean id="application_FingerprintPasswordPolicyTDO" class="oracle.retail.stores.pos.ado.utility.tdo.FingerprintPasswordPolicyTDO"
+          scope="prototype"/>
+          
+    <!-- Main TDO -->
+    <bean id="application_MainTDO" class="oracle.retail.stores.pos.services.main.tdo.MainTDO"
+          scope="prototype"/>
+    <!-- Locale Map Loader -->
+    <bean id="application_LocaleMapLoader" class="oracle.retail.stores.commerceservices.common.utility.LocaleMapLoader"
+          lazy-init="true"/>
+
+    <!-- Parameter bean used for printing AlterationReceipt blueprint.  Class must extend oracle.retail.stores.pos.receipt.AlterationReceiptParameterBeanIfc -->
+    <bean id="application_AlterationReceipt" class="oracle.retail.stores.pos.receipt.AlterationReceiptParameterBean"
+          lazy-init="true"/>
+
+    <!-- Blueprint receipt printing. Class must extend oracle.retail.stores.pos.receipt.blueprint.BlueprintedReceipt -->
+    <bean id="application_BlueprintedReceipt" class="oracle.retail.stores.pos.receipt.blueprint.BlueprintedReceipt"
+          lazy-init="true"/>
+          
+    <!-- Fiscal Blueprint receipt printing. Class must extend oracle.retail.stores.pos.receipt.blueprint.BlueprintedReceipt -->
+    <bean id="application_BlueprintedFiscalReceipt" class="oracle.retail.stores.pos.receipt.blueprint.BlueprintedFiscalReceipt"
+          lazy-init="true"/>
+
+
+    <!-- Parameter bean used for printing GiftCardInquirySlip blueprint.  Class must extend oracle.retail.stores.pos.receipt.GiftCardInquirySlip -->
+    <bean id="application_GiftCardInquirySlip" class="oracle.retail.stores.pos.receipt.GiftCardInquirySlip"
+          scope="prototype" />
+
+    <!-- Parameter bean used for printing InstantCreditInquiryInfoSlip blueprint.  Class must extend oracle.retail.stores.pos.receipt.InstantCreditInquiryInfoSlip -->
+    <bean id="application_InstantCreditInquiryInfoSlip" class="oracle.retail.stores.pos.receipt.InstantCreditInquiryInfoSlip"
+          scope="prototype" />
+
+    <!-- Parameter bean used for printing NameVerificationSlip blueprint.  Class must extend oracle.retail.stores.pos.receipt.NameVerificationSlip -->
+    <bean id="application_NameVerificationSlip" class="oracle.retail.stores.pos.receipt.NameVerificationSlip"
+          scope="prototype" />
+
+    <!-- Parameter bean used for printing NoSaleSlip blueprint.  Class must extend oracle.retail.stores.pos.receipt.NoSaleSlip -->
+    <bean id="application_NoSaleSlip" class="oracle.retail.stores.pos.receipt.NoSaleSlip"
+          scope="prototype" />
+	
+	<!--changes for rev 1.2 start-->
+    <!-- Parameter bean used for printing SummaryReport blueprint.  Class must extend oracle.retail.stores.pos.reports.SummaryReport -->
+    <bean id="application_SummaryReport" class="max.retail.stores.pos.reports.MAXSummaryReport" scope="prototype">
+       <property name="tenderItemComparator" ref="application_FinancialCountTenderItemComparator"/>
+    </bean>
+
+      <!-- Parameter bean used for printing TillSummaryReport blueprint.  Class must extend oracle.retail.stores.pos.reports.SummaryReport -->
+    <bean id="application_TillSummaryReport" class="max.retail.stores.pos.reports.MAXSummaryReport" scope="prototype">
+       <property name="tenderItemComparator" ref="application_FinancialCountTenderItemComparator"/>
+    </bean>
+	<!--changes for rev 1.2 end-->
+    
+    <!-- Parameter bean used for printing TempShoppingPass blueprint.  Class must extend oracle.retail.stores.pos.receipt.TempShoppingPass -->
+    <bean id="application_TempShoppingPass" class="oracle.retail.stores.pos.receipt.TempShoppingPass"
+          scope="prototype" />
+
+    <!-- Parameter bean used for printing TillCountReport blueprint.  Class must extend oracle.retail.stores.pos.reports.TillCountReport -->
+    <bean id="application_TillCountReport" class="max.retail.stores.pos.reports.MAXTillCountReport" scope="prototype">
+       <property name="comparator" ref="application_FinancialCountTenderItemComparator"/>
+    </bean>
+
+    <!-- Parameter bean used for sorting financial tender items.  Class must extend oracle.retail.stores.pos.reports.FinancialCountTenderItemComparator -->
+    <bean id="application_FinancialCountTenderItemComparator" class="oracle.retail.stores.pos.reports.FinancialCountTenderItemComparator"
+          scope="prototype" />
+
+    <!-- SaleReturnTransactionJournalFormatter -->
+    <bean id="application_SaleReturnTransactionJournalFormatter" class="oracle.retail.stores.pos.journal.SaleReturnTransactionJournalFormatter"
+          scope="prototype"/>
+
+    <!-- VATSaleReturnTransactionJournalFormatter -->
+    <bean id="application_VATSaleReturnTransactionJournalFormatter" class="oracle.retail.stores.pos.journal.VATSaleReturnTransactionJournalFormatter"
+          scope="prototype"/>
+
+    <!-- SaleReturnLineItemJournalFormatter -->
+    <!-- changes for rev 1.1 start -->
+    <bean id="application_SaleReturnLineItemJournalFormatter" class="max.retail.stores.pos.journal.MAXSaleReturnLineItemJournalFormatter"
+          scope="prototype"/>
+
+    <!-- VATSaleReturnLineItemJournalFormatter -->
+    <bean id="application_VATSaleReturnLineItemJournalFormatter" class="max.retail.stores.pos.journal.MAXVATSaleReturnLineItemJournalFormatter"
+          scope="prototype"/>
+    <!-- changes for rev 1.1 end -->
+
+    <!-- KitHeaderLineItemJournalFormatter -->
+    <bean id="application_KitHeaderLineItemJournalFormatter" class="oracle.retail.stores.pos.journal.KitHeaderLineItemJournalFormatter"
+          scope="prototype"/>
+
+    <!-- VATKitHeaderLineItemJournalFormatter -->
+    <bean id="application_VATKitHeaderLineItemJournalFormatter" class="oracle.retail.stores.pos.journal.VATKitHeaderLineItemJournalFormatter"
+          scope="prototype"/>
+
+    <!-- KitComponentLineItemJournalFormatter -->
+    <bean id="application_KitComponentLineItemJournalFormatter" class="oracle.retail.stores.pos.journal.KitComponentLineItemJournalFormatter"
+          scope="prototype"/>
+
+    <!-- VATKitComponentLineItemJournalFormatter -->
+    <bean id="application_VATKitComponentLineItemJournalFormatter" class="oracle.retail.stores.pos.journal.VATKitComponentLineItemJournalFormatter"
+          scope="prototype"/>
+
+    <!-- VoidTransactionJournalFormatter -->
+    <bean id="application_VoidTransactionJournalFormatter" class="oracle.retail.stores.pos.journal.VoidTransactionJournalFormatter"
+          scope="prototype"/>
+
+    <!-- VATVoidTransactionJournalFormatter -->
+    <bean id="application_VATVoidTransactionJournalFormatter" class="oracle.retail.stores.pos.journal.VATVoidTransactionJournalFormatter"
+          scope="prototype"/>
+
+    <!-- RedeemTransactionJournalFormatter -->
+    <bean id="application_redeemTransactionJournalFormatter" class="oracle.retail.stores.pos.journal.RedeemTransactionJournalFormatter"
+          scope="prototype"/>
+    
+    <!-- BillPayTransactionJournalFormatter -->
+    <bean id="application_BillPayTransactionJournalFormatter" class="oracle.retail.stores.pos.journal.BillPayTransactionJournalFormatter"
+          scope="prototype"/>
+          
+	<!-- changes for rev 1.0  -->
+    <!-- A receipt parameter bean use for blueprints. Must implement oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc -->
+    <bean id="application_ReceiptParameterBean" class="max.retail.stores.pos.receipt.MAXReceiptParameterBean"
+            scope="prototype">
+        <property name="locale"><ref local="receiptLocale"/></property>
+        <property name="defaultLocale"><ref local="defaultLocale"/></property>
+    </bean>
+    
+    <!-- A receipt parameter bean use for blueprints. Must implement oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc -->
+    <bean id="application_FrankingReceiptParameterBean" class="oracle.retail.stores.pos.receipt.FrankingReceiptParameterBean"
+            scope="prototype">
+        <property name="locale"><ref local="receiptLocale"/></property>
+        <property name="defaultLocale"><ref local="defaultLocale"/></property>
+    </bean>
+
+    <!-- A manager to display popups like cash under warning. Must implement oracle.retail.stores.pos.ui.popup.PopupMessageManagerIfc -->
+    <bean id="application_PopupMessageManager" class="oracle.retail.stores.pos.ui.popup.PopupMessageManager">
+        <property name="animationDelay">
+            <value>${CashDrawerWarning.AnimationDelay}</value>
+        </property>
+       <property name="initialDelay">
+            <value>${CashDrawerWarning.InitialDelay}</value>
+        </property>
+       <property name="lifeTime">
+            <value>${CashDrawerWarning.LifeTime}</value>
+        </property>
+    </bean>
+
+    <!-- AuthorizedTenderADOBuilder - Builds TenderADO object. Class must implement oracle.retail.stores.pos.ado.tender.AuthorizedTenderADOBuilderIfc. -->
+    <bean id="application_AuthorizedTenderADOBuilder" class="oracle.retail.stores.pos.ado.tender.AuthorizedTenderADOBuilder"
+          scope="prototype"/>
+          
+    <!-- application_PinCommFormatUtils: Format Utility bean for format/translation of data communication with PinComm.  Class must implement oracle.retail.stores.domain.manager.payment.pincomm.PinCommFormatUtilsIfc -->
+    <!-- application_ISDTK: ISD Java Toolkit used to communicate with PIN Comm.  Class must extend oracle.retail.stores.domain.manager.payment.pincomm.IsdToolkitAdapter -->
+    <!-- BEGIN application objects for PINComm integration
+    <bean id="application_PinCommFormatUtils" class="oracle.retail.stores.domain.manager.payment.pincomm.PinCommFormatUtils" />
+    <bean id="application_ISDTK" class="oracle.retail.stores.domain.manager.payment.pincomm.IsdToolkitAdapter"
+        lazy-init="false" scope="singleton">
+        <property name="primaryIpAddress" value="$PINCOMM_PRIMARY_IP"/>
+        <property name="primaryPort" value="$PINCOMM_PRIMARY_PORT"/>
+        <property name="secondaryIpAddress" value="$PINCOMM_SECONDARY_IP"/>
+        <property name="secondaryPort" value="$PINCOMM_SECONDARY_PORT"/>
+        <property name="tertiaryIpAddress" value="$PINCOMM_TERTIARY_IP"/>
+        <property name="tertiaryPort" value="$PINCOMM_TERTIARY_PORT"/>
+        <property name="logFile" value="../logs/isd.log"/>
+        <property name="logLevel" value="ERROR"/>
+        <property name="imageCaptureUri" value="$PINCOMM_IMAGE_CAPTURE_URI"/>
+        <property name="applicationName" value="Oracle Retail Point-of-Service"/>
+        <property name="newUnpaddingEnabled" value="false"/>
+        <property name="keepAliveIntervalInSeconds" value="60"/>
+        <property name="sslEnabled" value="$PINCOMM_SSL_ENABLED"/>
+        <property name="keyStoreFile" value="$PINCOMM_SSL_KEY_STORE"/>
+        <property name="keyStorePassword" value="SSLKeyStore"/>
+        <property name="trustStoreFile" value="$PINCOMM_SSL_TRUST_STORE"/>
+        <property name="trustStorePassword" value="SSLTrustStore"/>
+    </bean>
+    END application objects for PINComm integration -->          
+
+
+    <!-- TODO: AJB: will there be a tookit adaptor (perhaps a CAFipay adaptor - i'm sure a lot of this will change  -->
+    <!-- application_AJBFormatUtils: Format Utility bean for format/translation of data communication with AJB.  Class must implement oracle.retail.stores.domain.manager.payment.ajb.AJBFormatUtilsIfc -->
+    <!-- application_CAFipay: AJB CAFipay Java API used to communicate with AJB.  Class must extend oracle.retail.stores.domain.manager.payment.ajb.AJBCAFipayAdapter -->
+    <!-- BEGIN application objects for AJB integration
+    <bean id="application_AJBFormatUtils" class="oracle.retail.stores.domain.manager.payment.ajb.AJBFormatUtils" />
+    <bean id="application_AJBCAFipay" class="oracle.retail.stores.domain.manager.payment.ajb.AJBCAFipayAdapter"
+        lazy-init="false" scope="singleton">
+        <property name="ipAddress" value="$AJB_IP"/>
+        <property name="port" value="$AJB_PORT"/>
+        <property name="responseMonitorFrequency" value="300"/>
+    </bean>
+    END application objects for AJB integration -->    
+    
+
+    <!--  TenderType Helper Beans -->
+    <bean id="application_TenderTypeHelper" class="max.retail.stores.pos.ado.tender.MAXTenderTypeHelper"
+          lazy-init="true"
+          scope="singleton">
+          <!--  Configure TenderEnumeration Parameters  -->
+          <!--  First value in list is the name of the enumerate type required -->
+          <!--  Second value in list is the class of the retail domain object required -->
+          <!--  Third value in list is required description of the enumerated type -->
+        <property name="tenderEnumParameters">
+             <list>
+                <list>
+                    <value>Cash</value>
+                    <value>oracle.retail.stores.domain.tender.TenderCashIfc</value>
+                    <value>Cash</value>
+                </list>
+            <list>
+                <value>Check</value>
+                <value>oracle.retail.stores.domain.tender.TenderCheckIfc</value>
+                <value>Check</value>
+            </list>
+            <list>
+                   <value>Coupon</value>
+                   <value>oracle.retail.stores.domain.tender.TenderCouponIfc</value>
+                   <value>Coupon</value>
+                   </list>
+             <list>
+                   <value>Credit</value>
+                   <value>oracle.retail.stores.domain.tender.TenderChargeIfc</value>
+                   <value>Credit</value>
+             </list>
+            <list>
+                <value>Debit</value>
+                <value>oracle.retail.stores.domain.tender.TenderDebitIfc</value>
+                <value>Debit</value>
+            </list>
+            <list>
+                <value>GiftCard</value>
+                <value>oracle.retail.stores.domain.tender.TenderGiftCardIfc</value>
+                <value>GiftCard</value>
+            </list>
+            <list>
+                <value>GiftCert</value>
+                <value>oracle.retail.stores.domain.tender.TenderGiftCertificateIfc</value>
+                <value>GiftCert</value>
+            </list>
+            <list>
+                <value>MailCheck</value>
+                <value>oracle.retail.stores.domain.tender.TenderMailBankCheckIfc</value>
+                <value>MailCheck</value>
+            </list>
+            <list>
+                <value>PurchaseOrder</value>
+                <value>max.retail.stores.domain.tender.MAXTenderPurchaseOrderIfc</value>
+                <value>PurchaseOrder</value>
+            </list>
+            <list>
+                <value>StoreCredit</value>
+                <value>max.retail.stores.domain.tender.MAXTenderStoreCreditIfc</value>
+                <value>StoreCredit</value>
+            </list>
+            <list>
+                <value>TravCheck</value>
+                <value>oracle.retail.stores.domain.tender.TenderTravelersCheckIfc</value>
+                <value>TravCheck</value>
+            </list>
+            <list>
+                <value>MallCert</value>
+                <value>oracle.retail.stores.domain.tender.TenderGiftCertificateIfc</value>
+                <value>MallCert</value>
+            </list>
+            <list>
+                <value>MoneyOrder</value>
+                <value>oracle.retail.stores.domain.tender.TenderMoneyOrderIfc</value>
+                <value>MoneyOrder</value>
+            </list>
+            <list>
+                <value>HouseAccount</value>
+                <value>oracle.retail.stores.domain.tender.TenderChargeIfc</value>
+                <value>HouseAccount</value>
+            </list>
+            <list>
+                <value>Alternate</value>
+                <value></value>
+                <value>Alternate</value>
+            </list>
+            <list>
+                <value>LoyaltyPoints</value>
+                <value>max.retail.stores.domain.tender.MAXTenderLoyaltyPointsIfc</value>
+                <value>LoyaltyPoints</value>
+            </list>
+            <list>
+                <value>EComPrepaid</value>
+                <value>max.retail.stores.domain.tender.MAXTenderEComPrepaidIfc</value>
+                <value>EComPrepaid</value>
+            </list>
+            <list>
+                <value>EComCOD</value>
+                <value>max.retail.stores.domain.tender.MAXTenderEComCODIfc</value>
+                <value>EComCOD</value>
+            </list>
+			 <!--Paytm –Mobikwik Integration Changes Start  -->
+             <list>
+                <value>Paytm</value>
+                <value>max.retail.stores.domain.tender.MAXTenderPaytmIfc</value>
+                <value>Paytm</value>
+            </list>
+			<list>
+                <value>Mobikwik</value>
+                <value>max.retail.stores.domain.tender.MAXTenderMobikwikIfc</value>
+                <value>Mobikwik</value>
+            </list>
+			<!--Paytm/Mobikwik Integration Changes Start  -->
+			
+			  <list>
+                <value>AmazonPay</value>
+                <value>max.retail.stores.domain.tender.MAXTenderAmazonPayIfc</value>
+                <value>AmazonPay</value>
+            </list>
+			
+            <!--  Add new TenderTypeEnums here -->
+            <!-- 
+            <list>
+                <value>CustomTenderTypeEnum_1</value>
+                <value>my.store.pos.ado.tender.CustomTenderLineItemType</value>
+                <value>CustomTenderTypeEnum_1</value>
+            </list>
+            -->
+        </list>
+        </property>
+    </bean>
+    
+    <!--  Journal Helper Bean -->
+    <bean id="application_JournalHelper" class="oracle.retail.stores.pos.ado.journal.JournalHelper"
+          lazy-init="true"
+          scope="singleton">
+        <!--  Journal Action Enumerations are extended by declaring the new values in a comma delimited list -->
+        <!--  <property name="tenderEnumParameters" value="ext_one,ext_two" /> -->
+    </bean>
+
+<!-- Retail Transaction Service Beans -->
+    <bean id="application_RetailTransactionCancel" class="oracle.retail.stores.commerceservices.transaction.RetailTransactionCancelService"
+          lazy-init="true"
+          scope="singleton">
+    </bean>          
+    
+</beans>

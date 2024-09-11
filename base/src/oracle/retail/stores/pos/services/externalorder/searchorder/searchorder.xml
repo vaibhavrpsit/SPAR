@@ -1,0 +1,254 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2010, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/externalorder/searchorder/searchorder.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    acadar    05/21/10 - merged with tip
+ *    abondala  05/20/10 - Updated Search Flow
+ *    abondala  05/19/10 - search flow update
+ *    acadar    05/19/10 - connect process order service
+ *    abondala  05/19/10 - Display list of external orders flow
+ *    abondala  05/17/10 - Siebel search flow
+ *    abondala  05/12/10 - Search external orders flow
+ *    acadar    05/03/10 - added logic for searching for external orders by the
+ *                         default search criteria
+ *    acadar    05/03/10 - initial checkin for external order search
+ *    acadar    05/03/10 - external order search initial check in
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="SearchOrder"
+    package="oracle.retail.stores.pos.services.externalorder.searchorder"
+    tourcam="ON">
+    <COMMENT>
+        This service provides the user with the ability to search for orders in an external system like Siebel
+    </COMMENT>
+    <CARGO class="SearchOrderCargo" package="oracle.retail.stores.pos.services.externalorder.searchorder">
+        <COMMENT> This is the cargo for storing the payload that needs to be moved accros sites</COMMENT>
+    </CARGO>
+    <SERVICECODE>
+
+        <!-- Letters -->
+        <LETTER name="Cancel" />
+        <LETTER name="Success" />
+        <LETTER name="Undo" />
+        <LETTER name="Next" />
+        <LETTER name="Continue" />
+        <LETTER name="Retry" />
+        <LETTER name="Failure" />
+        <LETTER name="Offline" />
+        <LETTER name="UnknownException" />
+
+
+
+        <!-- Site Actions -->
+        <SITEACTION class="DefaultCriteriaSearchOrderSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        <SITEACTION class="PerformSearchOrdersSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        <SITEACTION class="DisplayOrderErrorSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        <SITEACTION class="DisplayOrderSummarySite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        <SITEACTION class="AdvancedCriteriaSearchOrderSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+        <LANEACTION class="ValidateAdvancedSearchCriteriaAisle"
+            template="siteaction.tpl">
+        </LANEACTION>
+        <SITEACTION class="GetOrderDetailSite"
+            template="siteaction.tpl">
+        </SITEACTION>
+
+	    <LANEACTION class="SetSelectedExternalOrderRoad"/>
+
+        <!-- Lane Actions -->
+        <LANEACTION class="ValidateAdvancedSearchCriteriaAisle"
+            template="laneaction.tpl" />
+
+        <!-- Shuttles -->
+		<SHUTTLE class="ProcessExternalOrderLaunchShuttle"/>
+        <SHUTTLE class="ProcessExternalOrderReturnShuttle"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="DefaultCriteriaSearchOrder">
+            <SITE name="DefaultCriteriaSearchOrder"
+                siteaction="DefaultCriteriaSearchOrderSite">
+                <COMMENT>
+                    The DefaultCriteriaSearchOrder site creates an external order search criteria where the
+                    status field indicates that the order is ready for funding
+                </COMMENT>
+                <ROAD name="DefaultCriteriaCreated" letter="Continue"
+                    destination="PerformSearchOrders" tape="ADVANCE" record="ON" index="ON">>
+                </ROAD>
+            </SITE>
+            <SITE name="PerformSearchOrders"
+                siteaction="PerformSearchOrdersSite">
+                <COMMENT>
+                    This is the site that displays a screen indicating that the search is in progress and also calling
+                    the external order manager's query API with the search criteria passed in through the cargo
+                </COMMENT>
+                <ROAD name="PerformSearchOrdersErrors" letter="Error"
+                    destination="DisplayOrderError" tape="ADVANCE"
+                    record="ON" index="ON">
+                </ROAD>
+                <ROAD name="MatchesFound" letter="Continue"
+                    destination="DisplayOrderSummary" tape="ADVANCE"
+                    record="ON" index="ON">
+                </ROAD>
+                <ROAD name="PerformSearchOrdersFailed" letter="Failure"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="PerformSearchOrdersRetry" letter="Offline"
+                    destination="PerformSearchOrders" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="MaximumNumberOfMatchesExceeded" letter="Retry"
+                      destination="AdvancedCriteriaSearchOrder" tape="ADVANCE"
+                      record="ON" index="ON">
+                </ROAD>
+                <ROAD name="OrderDetailFound" letter="Next"
+                    destination="ProcessOrderStation" tape="ADVANCE" record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayOrderError"
+                siteaction="DisplayOrderErrorSite">
+                <COMMENT>
+                    This site is used to display all the errors
+                </COMMENT>
+
+                <ROAD name="SearchOrdersFailed" letter="Failure"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="SearchOrdersRetry" letter="Offline"
+                    destination="PerformSearchOrders" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="MaximumNumberOfMatchesExceeded" letter="Retry"
+                      destination="AdvancedCriteriaSearchOrder" tape="ADVANCE"
+                      record="ON" index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayOrderSummary"
+                siteaction="DisplayOrderSummarySite">
+                <COMMENT>
+                    This site is used to display all the external orders in ready for funding state.
+                    This site also displays the button for Advanced Search Criteria
+                </COMMENT>
+
+                <ROAD name="AdvancedSearchRequested" letter="AdvancedSearch"
+                    destination="AdvancedCriteriaSearchOrder" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="DisplayOrderSummaryCancel" letter="Cancel"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="DisplayOrderSummaryUndo" letter="Undo"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                </ROAD>
+	            <ROAD name="ExternalOrderEntrySelected"
+	                  letter="Next"
+	                  laneaction="SetSelectedExternalOrderRoad"
+	                  destination="GetOrderDetail"
+	                  tape="ADVANCE" record="ON" index="ON">
+	            </ROAD>
+            </SITE>
+            <SITE name="AdvancedCriteriaSearchOrder"
+                siteaction="AdvancedCriteriaSearchOrderSite">
+                <COMMENT>
+                    This site is used to enter an advanced search criteria for external order search
+                </COMMENT>
+                <AISLE name="AdvancedSearchCriteriaEntered" letter="Next"
+                    laneaction="ValidateAdvancedSearchCriteriaAisle">
+                </AISLE>
+                <ROAD name="CriteriaValid" letter="Continue"
+                    destination="PerformSearchOrders" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="AdvancedCriteriaSearchOrderCancel" letter="Cancel"
+                    destination="Final" tape="DISCARD" record="OFF" index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="AdvancedCriteriaSearchInvalid" letter="Retry"
+                    destination="AdvancedCriteriaSearchOrder" tape="REWIND" record="OFF" index="OFF">
+                    <COMMENT></COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE name="GetOrderDetail"
+                siteaction="GetOrderDetailSite">
+                <COMMENT>
+                    This site populates an external order search criteria for getting the order details
+                </COMMENT>
+
+                <ROAD name="OrderDetailsSearchEntered" letter="Continue"
+                    destination="ProcessOrderStation" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT></COMMENT>
+                </ROAD>
+                <ROAD name="GetOrderDetailUnknownError" letter="Cancel"
+                    destination="Final" tape="ADVANCE"
+                    record="ON" index="ON">
+                </ROAD>
+                <ROAD name="GetOrderDetailErrors" letter="Error"
+                    destination="DisplayOrderError" tape="ADVANCE"
+                    record="ON" index="ON">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="ProcessOrderStation"
+                servicename="externalorder.processorder.processorder"
+                targettier="CURRENTTIER"
+                launchshuttle="ProcessExternalOrderLaunchShuttle"
+                returnshuttle="ProcessExternalOrderReturnShuttle">
+                <COMMENT >
+                    This station goes to the process the order send information
+                </COMMENT>
+
+                <ROAD
+                    name="FailureProcessOrderStation"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed in a Success letter.
+                    </COMMENT>
+                </ROAD>
+
+                <ROAD
+                    name="SuccessProcessOrderStation"
+                    letter="Done"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed in a Success letter.
+                    </COMMENT>
+                </ROAD>
+			</STATION>
+
+            <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+            <SYSTEMSITE name="Final" action="RETURN" />
+
+        </REGION>
+    </MAP>
+</SERVICE>

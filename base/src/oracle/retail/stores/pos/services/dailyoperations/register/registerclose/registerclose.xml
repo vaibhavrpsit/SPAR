@@ -1,0 +1,307 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/register/registerclose/registerclose.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="RegisterClose"
+         package="oracle.retail.stores.pos.services.dailyoperations.register.registerclose" tourcam="OFF">
+     <COMMENT>
+          This service provides all the functionality necessary
+          for closing the register.
+     </COMMENT>
+<CARGO class="RegisterCloseCargo">
+     <COMMENT>
+          Cargo holds the information for running Register
+          Close service.
+     </COMMENT>
+</CARGO>
+<SERVICECODE>
+     <LETTER name="No"/>
+     <LETTER name="Yes"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Success"/>
+     <LETTER name="Failure"/>
+     <LETTER name="HardTotalsError"/>
+     <LETTER name="Retry"/>
+     <LETTER name="Override"/>
+     <SHUTTLE class="FinancialCargoShuttle" package="oracle.retail.stores.pos.services.common" />
+     <SHUTTLE class="TillCloseReturnShuttle"/>
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     
+     <SITEACTION class="RegisterClosedErrorSite"/>
+     <SITEACTION class="RegisterUpdateSite"/>
+     <SITEACTION class="RegisterUpdateErrorSite"/>
+     <SITEACTION class="CheckOpenTillsSite" package="oracle.retail.stores.pos.services.common" />
+     <SITEACTION class="CheckOfflineSite"/>
+     <SITEACTION class="JournalRegisterStatusSite"/>
+     <SITEACTION class="TillsOpenErrorSite"/>
+     <SITEACTION class="CheckOpenRegisterSite" package="oracle.retail.stores.pos.services.common">
+          <COMMENT>
+               This site checks the status of the register.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="WriteHardTotalsSite" package="oracle.retail.stores.pos.services.common">
+          <COMMENT>
+               This site writes data to the hard totals device.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="PrintReportsSite">
+          <COMMENT>
+               this site deals with printing the automatic till
+               summary report
+          </COMMENT>
+     </SITEACTION>
+
+     <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" />
+     <LANEACTION class="WriteHardTotalsErrorAisle" package="oracle.retail.stores.pos.services.common">
+          <TRAVERSE>
+               <COMMENT>
+                    This aisle displays an error message when the hard-totals
+                    write fails.
+               </COMMENT>
+          </TRAVERSE>
+     </LANEACTION>
+     <LANEACTION class="JournalOverrideSuccessRoad"/>
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     
+</SERVICECODE>
+<MAP>
+     <REGION region="SERVICE" startsite="CheckAccess">
+            <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD 
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="CheckOpenRegister">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD 
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="CheckOpenRegister"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+          </STATION>                 
+          <SITE name="CheckOpenRegister" siteaction="CheckOpenRegisterSite">
+               <COMMENT>
+                    This site checks the status of the register.
+               </COMMENT>
+               <ROAD name="RegisterIsClosed"
+                     letter="Failure"
+                     destination="RegisterClosedError">
+                    <COMMENT>
+                         This road is taken when the operator attempts to
+                         close register when the register is already closed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterIsOpen"
+                     letter="Success"
+                     destination="CheckOffline">
+                    <COMMENT>
+                         This aisle is taken when the register is open.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="RegisterClosedError" siteaction="RegisterClosedErrorSite">
+               <AISLE name="StatusCheckFailed"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This aisle is taken when the register is already
+                         closed.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="CheckFailed"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken if the status check is
+                         not passed.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="CheckOffline" siteaction="CheckOfflineSite">
+               <AISLE name="CheckOfflineErrorAcknowledged"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This aisle is taken when the register is already
+                         closed.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="CheckOfflineFailure"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="CheckOfflineSuccess"
+                     letter="Success"
+                     destination="CheckOpenTills"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="CheckOpenTills" siteaction="CheckOpenTillsSite">
+               <ROAD name="TillsAreClosed"
+                     letter="Failure"
+                     destination="RegisterUpdate"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="TillsAreOpen"
+                     letter="Success"
+                     destination="TillsOpenError"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="TillsOpenError" siteaction="TillsOpenErrorSite">
+               <ROAD name="TillsOpenAcknowledgement"
+                     letter="Ok"
+                     destination="Final">
+                    <COMMENT>
+                         This road is taken when there are tills open.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="RegisterUpdate" siteaction="RegisterUpdateSite">
+               <COMMENT>
+                    This site sets the Register to closed and writes to
+                    the journal.
+               </COMMENT>
+               <ROAD name="UpdateRegisterCloseSuccess"
+                     letter="Success"
+                     destination="WriteHardTotals">
+                    <COMMENT>
+                         This road is taken when the register is
+                         successfully closed.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="RegisterUpdateFailure"
+                     letter="Failure"
+                     destination="RegisterUpdateError">
+                    <COMMENT>
+                         This road is taken when an error occurs setting
+                         the register to closed.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="RegisterUpdateError" siteaction="RegisterUpdateErrorSite">
+               <AISLE name="RegisterUpdateErrorAcknowledged"
+                      letter="Ok"
+                      laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         This aisle is taken when the register update fails.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="RegisterUpdateErrorExit"
+                     letter="Failure"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the register update fails.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="WriteHardTotals" siteaction="WriteHardTotalsSite">
+               <COMMENT>
+                    This site writes to the hard totals device.
+               </COMMENT>
+               <AISLE name="WriteHardTotalsError"
+                      letter="HardTotalsError"
+                      laneaction="WriteHardTotalsErrorAisle">
+                    <COMMENT>
+                         This aisle displays a message when the hard-totals
+                         write fails.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="WriteHardTotalsExit"
+                      letter="Ok"
+                      laneaction="SuccessConversionAisle">
+                    <COMMENT>
+                         Road to traverse when an error occurs writing to the
+                         hard totals.
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="WriteHardTotalsComplete"
+                     letter="Success"
+                     destination="JournalRegisterStatus"
+                     tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         This road is taken when the hard-totals write is complete.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="JournalRegisterStatus" siteaction="JournalRegisterStatusSite">
+               <ROAD name="RegisterStatusJournalled"
+                     letter="Continue"
+                     destination="PrintReport"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SITE name="PrintReport" siteaction="PrintReportsSite">
+               <COMMENT>
+                    this site deals with printing the automatic till
+                    summary report
+               </COMMENT>
+               <AISLE name="PrintReportFailureConversion"
+                      letter="Continue"
+                      laneaction="SuccessConversionAisle">
+               </AISLE>
+               <AISLE name="PrintReportDatabaseFailureConversion"
+                      letter="Ok"
+                      laneaction="SuccessConversionAisle">
+               </AISLE>
+               <ROAD name="RetryPrintReport"
+                     letter="Retry"
+                     destination="PrintReport"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+               <ROAD name="ReportPrinted"
+                     letter="Success"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>          
+          <SYSTEMSITE name="Final" action="RETURN"/>
+     </REGION>
+</MAP>
+</SERVICE>

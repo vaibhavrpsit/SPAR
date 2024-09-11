@@ -1,0 +1,1400 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/inquiry/iteminquiry/ItemInquiry.xml /main/36 2014/06/22 09:20:30 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     11/18/14 - Added cancel letter to "ShowItem" site to prevent
+ *	                       hang when button is pressed.
+ *    jswan     11/17/14 - Fixed recommended item read failure.
+ *    asinton   10/08/14 - Fix tour ItemInquriy tour flow.
+ *    abhinavs  10/03/14 - Taking back to advance search screen on 'UNDO'
+                           action.
+ *    asinton   09/03/14 - reworked some tour handling to replace signals
+ *                         with a site in order to handle more complex
+ *                         logic.
+ *    jswan     06/16/14 - Modified to support display of extended item
+ *                         recommended items on the Sale Item Screen.
+ *    abhinavs  06/11/14 - Filtering item search results cleanup
+ *    abhinavs  05/20/14 - Filtering item search results enhancement phase 2
+ *    abhinavs  05/12/14 - Filtering Item search results enhancement
+ *    tksharma  01/15/14 - added DisplayItemSite to display a single item in a
+ *                         non editable screen from advance search.
+ *    abhinavs  07/30/13 - Fix to send cancel letter on cancel action and
+ *                         handling it accordingly
+ *    abhinavs  04/24/13 - Fix to enable search webstore button on item list
+ *                         screen
+ *    abhinavs  04/19/13 - Fix to implement correct undo action on item inquiry
+ *                         screen
+ *    abhinavs  04/18/13 - Fix to implement different undo action for item
+ *                         search based on from where it is invoked
+ *    vbongu    02/14/13 - Change destination of ShowListItemUndo and
+ *                         ShowItemUndo to LastIndexed
+ *    yiqzhao   01/23/13 - Remove deadlock when store server is offline.
+ *    jswan     01/07/13 - Modified to support item manager rework.
+ *    hyin      11/13/12 - enable adv search from result screen.
+ *    yiqzhao   11/08/12 - Using different sites to display different types of
+ *                         related items.
+ *    yiqzhao   11/07/12 - Add display related item screens for item lookup.
+ *    jswan     09/24/12 - Modified to support request of Advanced Item Search
+ *                         through JPA.
+ *    hyin      09/10/12 - add search item in webstore
+ *    hyin      09/05/12 - meta tag item search: add to transaction
+ *    tksharma  08/09/11 - Introducing dialog box for age restriction site
+ *    rsnayak   07/12/11 - Label batch creation feature in item list screen
+ *    rsnayak   03/01/11 - pos lat integration for label batch
+ *    
+ *    jswan     11/01/10 - Changes per code review
+ *    jswan     11/01/10 - Fixed issues with UNDO and CANCEL letters; this
+ *                         includes properly canceling transactions when a user
+ *                         presses the cancel button in the item inquiry and
+ *                         item inquiry sub tours.
+ *    nkgautam  08/10/10 - fixed timeout issue
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/26/10 - XbranchMerge cgreene_tech11_techissueseatel from
+ *                         st_rgbustores_techissueseatel_generic_branch
+ *    rsnayak   04/21/10 - Transaction number skipped fix
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+     $Log:
+      9    360Commerce 1.8         3/6/2008 1:26:24 AM    Anil Kandru     The
+           current price, promotion end date and the unit of measure is
+           displayed properly in the item detail screen
+      8    360Commerce 1.7         2/25/2008 5:43:01 AM   Naveen Ganesh
+           Cancel options is handled properly
+      7    360Commerce 1.6         12/19/2007 8:18:34 AM  Manikandan Chellapan
+           PAPB FR27 Bulk Checkin -2
+      6    360Commerce 1.5         11/22/2007 10:59:06 PM Naveen Ganesh   PSI
+           Code checkin
+      5    360Commerce 1.4         5/4/2006 5:11:50 PM    Brendan W. Farrell
+           Remove inventory.
+      4    360Commerce 1.3         12/13/2005 4:42:41 PM  Barry A. Pape
+           Base-lining of 7.1_LA
+      3    360Commerce 1.2         3/31/2005 4:28:31 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:22:27 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:11:38 PM  Robert Pearse
+     $
+     Revision 1.13  2004/06/17 19:13:24  lzhao
+     @scr 5673: fix the problem for adding alteration items.
+
+     Revision 1.12  2004/04/27 17:59:08  awilliam
+     @scr 4289 price inquiry adds item to sell item screen
+
+     Revision 1.11  2004/04/19 14:09:39  lzhao
+     @scr 4387, 4388, 4396, 4065: for retry return.
+
+     Revision 1.10  2004/04/09 14:43:39  lzhao
+     @scr 4293: return to advance search for info not found.
+
+     Revision 1.9  2004/03/26 00:24:16  aarvesen
+     @scr 0 updated tours to use the tourmap
+
+     Revision 1.8  2004/02/27 18:21:37  lzhao
+     @scr 3841 Inquiry Options Enhancement.
+     Only add item when it is necessary.
+
+     Revision 1.7  2004/02/27 17:08:20  lzhao
+     @scr 3841 Inquiry Options Enhancement
+     Add AddItemRoad.
+
+     Revision 1.6  2004/02/27 15:15:47  lzhao
+     @scr 3841 Inquiry Option Enhancement
+     Fix the defect for add sale line item incorrectly.
+
+     Revision 1.5  2004/02/23 19:35:56  lzhao
+     @scr 3841 Inquiry Options Enhancement.
+     Remove comments.
+
+     Revision 1.3  2004/02/16 22:41:16  lzhao
+     @scr 3841:Inquiry Option Enhancement
+     add gift code and add multiple inquiry.
+
+     Revision 1.2  2004/02/12 16:50:30  mcs
+     Forcing head revision
+
+     Revision 1.1.1.1  2004/02/11 01:04:16  cschellenger
+     updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="ItemInquiry"
+    package="oracle.retail.stores.pos.services.inquiry.iteminquiry"
+    tourcam="ON">
+    <COMMENT >
+        This service implements the Item Inquiry Package
+        of the POS Component Set
+    </COMMENT>
+    <CARGO  class="ItemInquiryCargo"/>
+    <SERVICECODE >
+        <!-- Letter -->
+        <LETTER name="Add"/>
+        <LETTER name="Alterations"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="Detail"/>
+        <LETTER name="Done"/>
+        <LETTER name="Failure"/>
+        <LETTER name="GiftCard"/>
+        <LETTER name="Invalid"/>
+        <LETTER name="Loop"/>
+        <LETTER name="Next"/>
+        <LETTER name="No"/>
+        <LETTER name="Retry"/>
+        <LETTER name="RecommendedItemSearch"/>
+        <LETTER name="Success"/>
+        <LETTER name="Undo"/>
+        <LETTER name="GiftCode"/>
+        <LETTER name="Search"/>
+        <LETTER name="AdvanceSearch"/>
+        <LETTER name="Skip"/>
+        <LETTER name="Inventory"/>
+        <LETTER name="RequestTicket"/>
+        <LETTER name="AUTO"/>
+        <LETTER name="CROSSSELL"/>
+        <LETTER name="UPSELL"/>
+        <LETTER name="SUBSTITUTE"/>
+        <LETTER name="ItemSearch"/>
+ 
+        <!-- Signals -->
+        <SIGNAL  class="IsPriceInquiryToBeInvokedSignal"/>
+        <SIGNAL  class="IsPriceInquiryNotToBeInvokedSignal"/>
+        <SIGNAL  class="IsRecommendedItemDisplaySignal"/>
+        
+        <!-- Sites -->
+        <SITEACTION class="PriceInquirySite"/>
+        <SITEACTION class="AddItemSite"/>
+        <SITEACTION class="CheckItemTypeSite"/>
+        <SITEACTION class="CheckPriceEntrySite" package="oracle.retail.stores.pos.services.common"/>
+        <SITEACTION class="CheckUnitOfMeasureSite"/>
+        <SITEACTION class="ShowItemListSite"/>
+        <SITEACTION class="ShowItemSite"/>
+        <SITEACTION class="DisplayItemSite"/>
+        <SITEACTION class="ValidateItemInfoSite"/>
+        <SITEACTION class="AdvanceSearchSite"/>
+        <SITEACTION class="GetAgeRestrictionDOBSite"/>
+        <SITEACTION class="ValidateAgeRestrictedDOBSite"/>
+        <SITEACTION class="ItemSelectedSite"/>
+        <SITEACTION class="DisplayAutoRelatedItemSite"/>
+        <SITEACTION class="DisplayCrossSellRelatedItemSite"/>
+        <SITEACTION class="DisplayUpsellRelatedItemSite"/>
+        <SITEACTION class="DisplaySubstituteRelatedItemSite"/>
+        <SITEACTION class="SearchItemInLocalOrWebStoreSite"/>
+        <SITEACTION class="ShowFilterItemSite"/>
+        <SITEACTION class="UndoDisplayItemActionSite"/>
+        <SITEACTION class="UndoItemListActionSite"/>
+
+        <!-- Lanes -->
+        <LANEACTION class="GiftCardAddLetterConversionAisle"/>
+        <LANEACTION class="InquiryDoneAisle"/>
+        <LANEACTION class="InvalidDataFoundAisle"/>
+        <LANEACTION class="ItemDetailDisplayedRoad"/>
+        <LANEACTION class="ItemInfoEnteredRoad"/>
+        <LANEACTION class="LocalSearchItemInfoEnteredRoad"/>
+        <LANEACTION class="PriceEnteredItemInquiryAisle"/>
+        <LANEACTION class="ResetCargoRoad"/>
+        <LANEACTION class="UnitOfMeasureEnteredAisle"/>
+        <LANEACTION class="CreateTransactionRoad"/>
+        <LANEACTION class="RequestTicketAisle"/>
+        <LANEACTION class="GetItemRoad"/>
+        <LANEACTION class="LabelBatchTicketAisle" package="oracle.retail.stores.pos.services.inquiry.iteminquiry.itemcheck"/>
+        <LANEACTION class="SetSearchInWebStoreRoad"/>
+        <LANEACTION class="FilterSearchResultsRoad"/>
+        <LANEACTION class="PopResultSetsOutRoad"/>
+        <SITEACTION class="RecommendedItemSearchRoad"/>
+
+        <!-- Shuttles -->
+        <SHUTTLE class="AlterationsLaunchShuttle"/>
+        <SHUTTLE class="AlterationsReturnShuttle"/>
+        <SHUTTLE class="GiftCardIssueLaunchShuttle"/>
+        <SHUTTLE class="GiftCardIssueReturnShuttle"/>
+        <SHUTTLE class="InventoryInquiryLaunchShuttle" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+        <SHUTTLE class="InventoryInquiryReturnShuttle" package="oracle.retail.stores.pos.services.inquiry.iteminquiry"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="PriceInquiry">
+            <SITE  name="PriceInquiry" siteaction="PriceInquirySite">
+                <ROAD
+                    name="ItemInquiryUndo"
+                    letter="Undo"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemInfoEntered"
+                    letter="Next"
+                    laneaction="ItemInfoEnteredRoad"
+                    destination="ValidateItemInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EnterItemInfoCancel"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="EnterGiftCode"
+                    letter="GiftCode"
+                    destination="GiftCodeStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="EnterAdvanceSearch"
+                    letter="AdvanceSearch"
+                    destination="AdvanceSearch"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FetchSelectedRecommendedItem"
+                    letter="RecommendedItemSearch"
+                    laneaction="RecommendedItemSearchRoad"
+                    destination="SearchItemInLocalOrWebStore"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="AdvanceSearch" siteaction="AdvanceSearchSite">
+                <ROAD
+                    name="ItemInfoEntered"
+                    letter="Next"
+                    laneaction="ItemInfoEnteredRoad"
+                    destination="ValidateItemInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="PriceInquiry">
+                    <LIGHT  signal="IsPriceInquiryToBeInvokedSignal"/>
+                </ROAD>
+               <ROAD
+                    name="UndoToSaleSelected"
+                    letter="Undo"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                    <LIGHT  signal="IsPriceInquiryNotToBeInvokedSignal"/>
+                </ROAD>
+                <ROAD
+                    name="Search"
+                    letter="ItemSearch"
+                    destination="ShowItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateItemInfo" siteaction="ValidateItemInfoSite">
+                <AISLE
+                    name="InvalidDataFound"
+                    letter="Invalid"
+                    laneaction="InvalidDataFoundAisle">
+                </AISLE>
+                <ROAD
+                    name="ItemInfoReentered"
+                    letter="Retry"
+                    laneaction="ResetCargoRoad"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SearchItem"
+                    letter="Search"
+                    destination="SearchItemInLocalOrWebStore"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="SearchItemInLocalOrWebStore" siteaction="SearchItemInLocalOrWebStoreSite">
+                <ROAD
+                    name="SearchInWebStore"
+                    letter="Search"
+                    laneaction="SetSearchInWebStoreRoad"
+                    destination="SearchItemInLocalOrWebStore"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemInfoReentered"
+                    letter="Retry"
+                    laneaction="ResetCargoRoad"
+                    destination="PriceInquiry"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OneItemFound"
+                    letter="Success"
+                    destination="DisplayItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MultipleItemsFound"
+                    letter="Next"
+                    destination="ShowItemList"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"
+                    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="UndoSelectedForRecommendedItem"
+                    letter="Undo"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"
+                    record="OFF" index="OFF"
+                    destination="Final">
+                    <LIGHT  signal="IsRecommendedItemDisplaySignal"/>
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    laneaction="ResetCargoRoad"
+                    tape="REWIND"
+                    record="OFF" index="OFF"
+                    destination="LastIndexed">
+                    <LIGHT  signal="IsRecommendedItemDisplaySignal" negate="Y"/>
+                </ROAD>
+            </SITE>
+            <SITE  name="ShowItemList" siteaction="ShowItemListSite">
+                <AISLE name="LabelBatchRequest"
+                       letter="RequestTicket"
+                       laneaction="LabelBatchTicketAisle">
+                </AISLE>
+                <ROAD
+                    name="GetItemToBeAdded"
+                    letter="Add"
+                    laneaction="GetItemRoad"
+                    destination="ItemSelected"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FinishInquiry"
+                    letter="Next"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ItemDetailDisplayed"
+                    letter="Detail"
+                    laneaction="ItemDetailDisplayedRoad"
+                    destination="DisplayItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ShowListItemUndo"
+                    letter="Undo"
+                    laneaction="PopResultSetsOutRoad"
+                    destination="UndoItemListAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ShowItemListCanceled"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InventorySelected"
+                    letter="Inventory"
+                    destination="InventoryStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AutoRelatedItemsSelected"
+                    letter="AUTO"
+                    laneaction="GetItemRoad"
+                    destination="DisplayAutoRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CrossSellRelatedItemsSelected"
+                    letter="CROSSSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayCrossSellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UpsellRelatedItemsSelected"
+                    letter="UPSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayUpsellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SubstitutionRelatedItemsSelected"
+                    letter="SUBSTITUTE"
+                    laneaction="GetItemRoad"
+                    destination="DisplaySubstituteRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SearchInWebStore"
+                    letter="WebStore"
+                    laneaction="SetSearchInWebStoreRoad"
+                    destination="SearchItemInLocalOrWebStore"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FilterSearchResults"
+                    letter="FilterResults"
+                    laneaction="FilterSearchResultsRoad"
+                    destination="ShowFilterItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="UndoItemListAction" siteaction="UndoItemListActionSite">
+                <ROAD
+                    name="UndoItemListRoad"
+                    letter="ItemList"
+                    destination="ShowItemList"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when the operator selects Undo while viewing
+                        a filtered search result list of items and there's more results.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoItemSearchRoad"
+                    letter="AdvanceSearch"
+                    destination="ShowItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when the operator selects Undo after
+                        viewing a list of search results generated from an advanced
+                        search (ITEM_INFO screen) and there are no more results.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoItemSearchRoad"
+                    letter="Search"
+                    destination="PriceInquiry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when the operator selects Undo after
+                        viewing a list of search results generated from an advance
+                        inquiry )and there are no more results.
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE  name="GetAgeRestrictedDOB" siteaction="GetAgeRestrictionDOBSite">
+                <ROAD
+                    name="DOBNotNeeded"
+                    letter="Continue"
+                    destination="CheckItemType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DOBNeeded"
+                    letter="Next"
+                    destination="ValidateAgeRestrictedDOB"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="DOBSkip"
+                    letter="Skip"
+                    destination="CheckItemType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DOBCancel"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DOBUndo"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DOBInvalid"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE name="ValidateAgeRestrictedDOB" siteaction="ValidateAgeRestrictedDOBSite">
+                 <ROAD
+                    name="OldEnough"
+                    letter="Continue"
+                    destination="CheckItemType"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="NotOldEnough"
+                    letter="Invalid"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckItemType" siteaction="CheckItemTypeSite">
+                <ROAD
+                    name="ItemType"
+                    letter="Add"
+                    destination="CheckPriceEntry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardIssued"
+                    letter="Continue"
+                    destination="CheckPriceEntry"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardType"
+                    letter="GiftCard"
+                    destination="IssueGiftCardStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AlterationType"
+                    letter="Alterations"
+                    destination="AlterationStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traversed when an alteration item is
+                        entered in the showsalescreen
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <!-- Introducing filtering item search functionality flow-->
+            <SITE  name="ShowItem" siteaction="ShowItemSite">
+                <ROAD
+                    name="ItemInfoEntered"
+                    letter="Next"
+                    laneaction="ItemInfoEnteredRoad"
+                    destination="ValidateItemInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ItemInfoUndo"
+                    letter="Undo"
+                    destination="AdvanceSearch"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ItemInfoCancel"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="ShowFilterItem" siteaction="ShowFilterItemSite">
+                <ROAD
+                    name="FilteringEntered"
+                    letter="Next"
+                    laneaction="ItemInfoEnteredRoad"
+                    destination="ValidateItemInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FilteringUndoEntered"
+                    letter="Undo"
+                    laneaction="ItemInfoEnteredRoad"
+                    destination="ShowItemList"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="FilterItemResultsCanceled"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE name="DisplayItem" siteaction="DisplayItemSite">
+                <ROAD
+                    name="ItemToBeAdded"
+                    letter="Add"
+                    laneaction="GetItemRoad"
+                    destination="ItemSelected"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="AnotherSearch"
+                    letter="Search"
+                    laneaction="LocalSearchItemInfoEnteredRoad"
+                    destination="ValidateItemInfo"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ShowItemUndo"
+                    letter="Undo"
+                    destination="UndoDisplayItemAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               <ROAD
+                    name="InquiryDone"
+                    letter="Next"
+                    laneaction="InquiryDoneAisle"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AddItemCanceled"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InventorySelected"
+                    letter="Inventory"
+                    destination="InventoryStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InquiryTimeOut"
+                    letter="Timeout"
+                    laneaction="InquiryDoneAisle"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <AISLE
+                    name="RequestTicketSelected"
+                    letter="RequestTicket"
+                    laneaction="RequestTicketAisle">
+                </AISLE>
+                <ROAD
+                    name="AutoRelatedItemsSelected"
+                    letter="AUTO"
+                    laneaction="GetItemRoad"
+                    destination="DisplayAutoRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="CrossSellRelatedItemsSelected"
+                    letter="CROSSSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayCrossSellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UpsellRelatedItemsSelected"
+                    letter="UPSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayUpsellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="SubstitutionRelatedItemsSelected"
+                    letter="SUBSTITUTE"
+                    laneaction="GetItemRoad"
+                    destination="DisplaySubstituteRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="UndoDisplayItemAction" siteaction="UndoDisplayItemActionSite">
+                <ROAD
+                    name="UndoActionUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                    <COMMENT>
+                        This road is traversed when the operator selects Undo after
+                        selecting a recommended item from the sell item screeen. 
+                    </COMMENT>
+                <ROAD
+                    name="UndoActionItemList"
+                    letter="ItemList"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF"
+                    destination="ShowItemList">
+                    <COMMENT >
+                        This road is traversed when the operator selects Undo after
+                        viewing an item from a search result list or filter of such list.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoActionSearch"
+                    letter="Search"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF"
+                    destination="PriceInquiry">
+                    <COMMENT>
+                        This road is traversed when the operator selects Undo after
+                        performing a price inquiry.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoActionAdvSearch"
+                    letter="AdvanceSearch"
+                    laneaction="ResetCargoRoad"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF"
+                    destination="ShowItem">
+                    <COMMENT>
+                        This road is traversed when the operator selects Undo after
+                        performing an advance search query and search result has only one 
+                        item
+                    </COMMENT>
+                </ROAD>
+            </SITE>
+            <SITE  name="ItemSelected" siteaction="ItemSelectedSite">
+                <ROAD
+                    name="GetItemSucess"
+                    letter="Success"
+                    destination="GetAgeRestrictedDOB"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GetItemCanceled"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="AddItem" siteaction="AddItemSite">
+                <ROAD
+                    name="ItemAdded"
+                    letter="Add"
+                    laneaction="CreateTransactionRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemReturned"
+                    letter="Next"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCard"
+                    letter="GiftCard"
+                    destination="IssueGiftCardStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckUnitOfMeasure" siteaction="CheckUnitOfMeasureSite">
+                <MOCKUP
+                    image=""/>
+                <AISLE
+                    name="UOMEntered"
+                    letter="Next"
+                    laneaction="UnitOfMeasureEnteredAisle">
+                </AISLE>
+                <ROAD
+                    name="UOMRetry"
+                    letter="Loop"
+                    destination="CheckUnitOfMeasure"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UOMItemContinue"
+                    letter="Continue"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UOMItemAdd"
+                    letter="Add"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoUOM"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UnitOfMeasureCanceled"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemGiftCard"
+                    letter="GiftCard"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckPriceEntry" siteaction="CheckPriceEntrySite">
+                <AISLE
+                    name="PriceEntered"
+                    letter="Next"
+                    laneaction="PriceEnteredItemInquiryAisle">
+                </AISLE>
+                <ROAD
+                    name="CheckPriceEntryGiftCard"
+                    letter="GiftCard"
+                    destination="CheckUnitOfMeasure"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CheckPriceEntryContinue"
+                    letter="Continue"
+                    destination="CheckUnitOfMeasure"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AddPrice"
+                    letter="Add"
+                    destination="CheckUnitOfMeasure"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoPriceEntry"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="PriceEntryCanceled"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DisplayAutoRelatedItems" siteaction="DisplayAutoRelatedItemSite">
+                <ROAD
+                    name="AutoRelatedItemsSelected"
+                    letter="AUTO"
+                    laneaction="GetItemRoad"
+                    destination="DisplayAutoRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CrossSellRelatedItemsSelected"
+                    letter="CROSSSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayCrossSellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UpsellRelatedItemsSelected"
+                    letter="UPSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayUpsellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SubstitutionRelatedItemsSelected"
+                    letter="SUBSTITUTE"
+                    laneaction="GetItemRoad"
+                    destination="DisplaySubstituteRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DisplayRelatedItemsUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="DisplayCrossSellRelatedItems" siteaction="DisplayCrossSellRelatedItemSite">
+                <ROAD
+                    name="AutoRelatedItemsSelected"
+                    letter="AUTO"
+                    laneaction="GetItemRoad"
+                    destination="DisplayAutoRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CrossSellRelatedItemsSelected"
+                    letter="CROSSSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayCrossSellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UpsellRelatedItemsSelected"
+                    letter="UPSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayUpsellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SubstitutionRelatedItemsSelected"
+                    letter="SUBSTITUTE"
+                    laneaction="GetItemRoad"
+                    destination="DisplaySubstituteRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DisplayRelatedItemsUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DisplayUpsellRelatedItems" siteaction="DisplayUpsellRelatedItemSite">
+                <ROAD
+                    name="AutoRelatedItemsSelected"
+                    letter="AUTO"
+                    laneaction="GetItemRoad"
+                    destination="DisplayAutoRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CrossSellRelatedItemsSelected"
+                    letter="CROSSSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayCrossSellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UpsellRelatedItemsSelected"
+                    letter="UPSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayUpsellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SubstitutionRelatedItemsSelected"
+                    letter="SUBSTITUTE"
+                    laneaction="GetItemRoad"
+                    destination="DisplaySubstituteRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DisplayRelatedItemsUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="DisplaySubstituteRelatedItems" siteaction="DisplaySubstituteRelatedItemSite">
+                <ROAD
+                    name="AutoRelatedItemsSelected"
+                    letter="AUTO"
+                    laneaction="GetItemRoad"
+                    destination="DisplayAutoRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CrossSellRelatedItemsSelected"
+                    letter="CROSSSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayCrossSellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UpsellRelatedItemsSelected"
+                    letter="UPSELL"
+                    laneaction="GetItemRoad"
+                    destination="DisplayUpsellRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SubstitutionRelatedItemsSelected"
+                    letter="SUBSTITUTE"
+                    laneaction="GetItemRoad"
+                    destination="DisplaySubstituteRelatedItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="DisplayRelatedItemsUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="IssueGiftCardStation"
+                servicename="giftcard.issue.issue"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardIssueLaunchShuttle"
+                returnshuttle="GiftCardIssueReturnShuttle">
+                <AISLE
+                    name="GiftCardIssued"
+                    letter="Continue"
+                    laneaction="GiftCardAddLetterConversionAisle">
+                </AISLE>
+                <ROAD
+                    name="ContinueIssueCard"
+                    letter="Add"
+                    laneaction="CreateTransactionRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardCancelSelected"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="AlterationStation"
+                servicename="services.alterations.alterations"
+                targettier="CURRENTTIER"
+                launchshuttle="AlterationsLaunchShuttle"
+                returnshuttle="AlterationsReturnShuttle">
+                <ROAD
+                    name="AlterationsCompletedNext"
+                    letter="Next"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="AlterationsCompletedContinue"
+                    letter="Continue"
+                    destination="AddItem"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoAlterations"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelAlterations"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelAlterationsNoCustomer"
+                    letter="No"
+                    laneaction="ResetCargoRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="GiftCodeStation"
+                servicename="giftreceipt.inquiry.giftreceiptinquiry"
+                targettier="CURRENTTIER">
+                <ROAD
+                    name="GiftReceiptInquirySucceded"
+                    letter="Next"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptInquiryFailed"
+                    letter="Failure"
+                    tape="REWIND"    record="OFF" index="OFF"
+                    destination="LastIndexed">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptInquiryCancelSelected"
+                    letter="Cancel"
+                    tape="ADVANCE"    record="OFF" index="OFF"
+                    destination="Final">
+                </ROAD>
+                <ROAD
+                    name="GiftReceiptInquiryUndoSelected"
+                    letter="Undo"
+                    tape="REWIND"    record="OFF" index="OFF"
+                    destination="LastIndexed">
+                </ROAD>
+            </STATION>
+            <STATION
+            name="InventoryStation"
+            servicename="services.inventoryinquiry.inventoryinquiry"
+            targettier="CURRENTTIER"
+            launchshuttle="InventoryInquiryLaunchShuttle"
+            returnshuttle="InventoryInquiryReturnShuttle">
+                <ROAD
+                    name="InventoryUndo"
+                    letter="Undo"
+                    laneaction="ResetCargoRoad"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InventoryRetry"
+                    letter="Retry"
+                    laneaction="ResetCargoRoad"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InventoryDone"
+                    letter="Done"
+                    laneaction="ResetCargoRoad"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="InventoryNewSearch"
+                    letter="NewSearch"
+                    laneaction="ResetCargoRoad"
+                    destination="PriceInquiry"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="InventoryDone"
+                    letter="Cancel"
+                    laneaction="ResetCargoRoad"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+
+            </STATION>
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

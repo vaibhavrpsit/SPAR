@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/********************************************************************************
+*   
+*  Copyright (c) 2016 MAX Hyper Market Inc.    All Rights Reserved.
+*   Rev 1.1     23 MAY 2017 Kritica Agarwal		GST Changes
+*	Rev	1.0 	15dec,2016	Hitesh.Dua			Receipt Changes FES
+*
+********************************************************************************/
+-->
+<blueprint id="Footer" copies="1">
+    <report name="FooterReport" id="1" cutPaper="false">
+        <group id="1">
+            <!--line id="9343039">
+			        <methodElement precededBySpace="false"  id="65464" justified="center" stretch="true">
+                    <method returns="String" name="getReceiptFooter" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc" />
+                </methodElement>
+            </line-->
+			<line id="9343042">
+                <element text="--------------------------------------------------------------" id="27234588" justified="left"/>
+            </line>
+			 <!--line id="9343039">
+                <element text="THANK YOU !!! DO VISIT AGAIN" id="27234588" stretch="false" justified="center"/>
+            </line-->
+			<line id="9343040">
+                <element text="E&amp;OE" id="27234588" stretch="false" justified="center" />
+            </line>
+			<line id="9343041">
+                <element text="FOR EXCHANGE POLICY PLEASE VISIT www.sparindia.com/faq" id="27234588" stretch="false" justified="center"/>
+            </line>
+			<line id="9343042">
+                <element text="--------------------------------------------------------------" id="27234588" justified="left"/>
+            </line>
+			<line id="9343043">
+                <element text="Also Order at - www.sparindia.com" id="27234588" stretch="false" justified="center"/>
+            </line>
+			<line id="9343044">
+                <element text="--------------------------------------------------------------" id="27234588" justified="left"/>
+            </line>			
+        </group>
+        <group id="3434">
+		<!--Change for Rev 1.1 : Starts -->
+            <line id="28991606" dependsOnPresenceOf="31970155" >
+                <methodElement precededBySpace="false" formatter="1#Tax Invoice/ Bill of Supply - SALE|2#Return|3#POST VOID|4#No Sale|5#Exchange|12#Till Loan|13#Till Pickup|16#Pay In|17#Pay Out|18#House Account Payment|19#LAYAWAY|20#LAYAWAY PICKUP|21#LAYAWAY PAYMENT|22#LAYAWAY DELETE|23#Order|24#Order Complete|25#Order Cancel|26#Order|36#Redeem|40#Payroll Pay Out|44#Bill Pay Receipt" id="31970155" justified="center">
+                    <method returns="int" name="getTransactionType" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc" />
+                </methodElement>
+            </line>
+			<!--Change for Rev 1.1 : Starts -->
+            <!--line id="12968500" dependsOnPresenceOf="18567660">
+                <methodElement precededBySpace="false" printedWhenLengthZero="false" valuePrintedWhenFalse=" " valuePrintedWhenTrue="" id="18567660" justified="1" stretch="true">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="boolean" name="isSuspended" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>
+            </line-->
+            <line id="12968500" dependsOnPresenceOf="3234443">
+                <methodElement precededBySpace="false" printedWhenLengthZero="false" valuePrintedWhenFalse="" valuePrintedWhenTrue="SUSPENDED TRANSACTION" id="3234443" justified="1" stretch="true">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="boolean" name="isSuspended" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>
+            </line>
+        </group>
+    </report>
+	<linkReport documentType="Blank" idePath="/pos/deploy/client/receipts/MAXTransaction.bpt" id="157665" cutPaper="false" />	
+    <!--report name="BarcodeReport" id="281111566" cutPaper="false">
+        <group id="9964620">
+            <line id="3874616">
+                <methodElement precededBySpace="false" id="1551719549" printedAsBarcode="true" justified="center" stretch="false">
+                    <method returns="TenderableTransactionIfc" name="getTransaction" class="oracle.retail.stores.pos.receipt.ReceiptParameterBeanIfc">
+                        <method returns="String" name="getTransactionID" class="oracle.retail.stores.domain.transaction.TransactionIfc" />
+                    </method>
+                </methodElement>
+            </line>
+        </group>
+    </report-->
+</blueprint>
+

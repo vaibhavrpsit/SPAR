@@ -1,0 +1,783 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/dailyoperations/till/tilluicfg.xml /main/15 2012/12/14 11:29:40 cgreene Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   12/14/12 - Button image and plaf loading updates
+ *    mjwallac  11/12/12 - ui button changes
+ *    mchellap  09/12/11 - Renamed TillReconcile letter to match name in
+ *                         CommonActionIfc
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/16/09 - add Keys button
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+<UICFG>
+
+    <BEAN
+        specName="TillFunctionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            labelTag="Pickup"
+            actionName="TillPickup"
+            enabled="true"
+            iconName="buttonIconTillPickup"
+            keyName="F2" />
+        <BUTTON
+            labelTag="Loan"
+            actionName="TillLoan"
+            enabled="true"
+            iconName="buttonIconTillLoan"
+            keyName="F3" />
+        <BUTTON
+            labelTag="PayIn"
+            actionName="TillPayIn"
+            enabled="true"
+            iconName="buttonIconTillPayin"
+            keyName="F4" />
+        <BUTTON
+            labelTag="PayOut"
+            actionName="TillPayOut"
+            enabled="true"
+            iconName="buttonIconTillPayout"
+            keyName="F5" />
+        <BUTTON
+            labelTag="PayrollPayOut"
+            actionName="TillPayrollPayOut"
+            enabled="true"
+            iconName="buttonIconTillPayrollPayout"
+            keyName="F6" />
+        <!-- removed per trunk CR 27956 
+        <BUTTON
+            labelTag="Logoff"
+            actionName="Logoff"
+            enabled="true"
+            keyName="F7" />
+        -->
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="tillText"
+        specName="TILL_FUNCTIONS">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="promptTextTag" propValue="TillFunctionsPromptText"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="TillFunctionsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[false],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="TillFunctionsButtonSpec">
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+<BEAN
+        specName="EnterTillPayInSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="EnterTillPayInBean">
+</BEAN>
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="tillText"
+        specName="PAY_IN">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="EnterTillPayInSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="amountField,reasonCodeField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+        <BEANPROPERTY
+            propName="manageNextButton"
+            propValue="false"/>
+        <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="PayInScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="PayInPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EnterTillPayInSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EnterTillPayInSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="EnterTillPayInSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+</OVERLAYSCREEN>
+
+<BEAN
+        specName="EnterTillPayOutSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="EnterTillPayOutBean">
+</BEAN>
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="tillText"
+        specName="PAY_OUT">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="EnterTillPayOutSpec">
+            <BEANPROPERTY 
+                propName="RequiredValidatingFields" 
+                propValue="amountField,reasonCodeField,paidToField,approvalCodeField"/> 
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+        <BEANPROPERTY
+            propName="manageNextButton"
+            propValue="false"/>
+        <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="PayOutScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="PayOutPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EnterTillPayOutSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EnterTillPayOutSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="EnterTillPayOutSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+</OVERLAYSCREEN>
+
+<BEAN
+        specName="EnterTillPayrollPayOutSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="EnterTillPayrollPayOutBean">
+</BEAN>
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="tillText"
+        specName="PAYROLL_PAY_OUT">
+
+        <ASSIGNMENT 
+            areaName="WorkPanel" 
+            beanSpecName="EnterTillPayrollPayOutSpec"> 
+            <BEANPROPERTY 
+                propName="RequiredValidatingFields" 
+                propValue="amountField,reasonCodeField,paidToField,employeeIDField,approvalCodeField"/> 
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+        <BEANPROPERTY
+            propName="manageNextButton"
+            propValue="false"/>
+        <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="PayrollPayOutScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="PayrollPayOutPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EnterTillPayrollPayOutSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="EnterTillPayrollPayOutSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="EnterTillPayrollPayOutSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+</OVERLAYSCREEN>
+
+
+<BEAN
+        specName="TillOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="TillOpen"
+            enabled="true"
+            keyName="F2"
+            iconName="buttonIconTillOpen"
+            labelTag="Open"/>
+
+        <BUTTON
+            actionName="TillClose"
+            enabled="true"
+            keyName="F3"
+            iconName="buttonIconTillClose"
+            labelTag="Close"/>
+
+        <BUTTON
+            actionName="TillSuspend"
+            enabled="true"
+            keyName="F4"
+            iconName="buttonIconTillSuspend"
+            labelTag="Suspend"/>
+
+        <BUTTON
+            actionName="TillResume"
+            enabled="true"
+            keyName="F5"
+            iconName="buttonIconTillResume"
+            labelTag="Resume"/>
+
+        <!-- Reconcile button displays only when TillReconcile system setting is 'Y' -->            
+        <BUTTON
+            actionName="Reconcile"
+            enabled="true"
+            keyName="F6"
+            iconName="buttonIconTillReconcile"
+            labelTag="Reconcile"/>
+
+</BEAN>
+
+<BEAN
+    specName="SelectTenderLocalNavigationPanelSpec"
+    beanClassName="NavigationButtonBean"
+    configuratorPackage="oracle.retail.stores.pos.ui"
+    configuratorClassName="POSBeanConfigurator"
+    beanPackage="oracle.retail.stores.pos.ui.beans">
+
+        <BUTTON
+            actionName="Cash"
+            enabled="false"
+            keyName="F2"
+            labelTag="Cash"/>
+
+        <BUTTON
+            actionName="Check"
+            enabled="false"
+            keyName="F3"
+            labelTag="Check"/>
+
+        <BUTTON
+            actionName="ECheck"
+            enabled="false"
+            keyName="F4"
+            labelTag="ECheck"/>
+            
+        <BUTTON
+            actionName="Credit"
+            enabled="false"
+            keyName="F5"
+            labelTag="Credit"/>
+
+        <BUTTON
+            actionName="Debit"
+            enabled="false"
+            keyName="F6"
+            labelTag="Debit"/>
+
+        <BUTTON
+            actionName="GiftCard"
+            enabled="false"
+            keyName="F7"
+            labelTag="GiftCard"/>
+
+        <BUTTON
+            actionName="GiftCert"
+            enabled="false"
+            keyName="F8"
+            labelTag="GiftCertificate"/>
+
+        <BUTTON
+            actionName="TravelCheck"
+            enabled="false"
+            keyName="F2"
+            labelTag="TravelersCheck"/>
+
+        <BUTTON
+            actionName="Coupon"
+            enabled="false"
+            keyName="F3"
+            labelTag="Coupon"/>
+
+        <BUTTON
+            actionName="StoreCredit"
+            enabled="false"
+            keyName="F4"
+            labelTag="StoreCredit"/>
+
+        <BUTTON
+            actionName="MallCert"
+            enabled="false"
+            keyName="F5"
+            labelTag="MallCertificate"/>
+
+        <BUTTON
+            actionName="PurchaseOrder"
+            enabled="false"
+            keyName="F6"
+            labelTag="PurchaseOrder"/>
+
+        <BUTTON
+            actionName="MoneyOrder"
+            enabled="false"
+            keyName="F7"
+            labelTag="MoneyOrder"/>
+
+</BEAN>
+
+<BEAN
+    specName="SelectChargeLocalNavigationPanelSpec"
+    beanClassName="NavigationButtonBean"
+    configuratorPackage="oracle.retail.stores.pos.ui"
+    configuratorClassName="POSBeanConfigurator"
+    beanPackage="oracle.retail.stores.pos.ui.beans">
+
+        <BUTTON
+            actionName="ButtonPressed"
+            enabled="true"
+            keyName="F2"
+            labelTag="VisaLabel"/>
+
+        <BUTTON
+            actionName="ButtonPressed"
+            enabled="true"
+            keyName="F3"
+            labelTag="MasterCardLabel"/>
+
+        <BUTTON
+            actionName="ButtonPressed"
+            enabled="true"
+            keyName="F4"
+            labelTag="AmexLabel"/>
+
+        <BUTTON
+            actionName="ButtonPressed"
+            enabled="true"
+            keyName="F5"
+            labelTag="DiscoverLabel"/>
+
+        <BUTTON
+            actionName="ButtonPressed"
+            enabled="true"
+            keyName="F6"
+            labelTag="DinersLabel"/>
+
+        <BUTTON
+            actionName="ButtonPressed"
+            enabled="true"
+            keyName="F7"
+            labelTag="HouseCardLabel"/>
+            
+        <BUTTON
+            actionName="ButtonPressed"
+            enabled="true"
+            keyName="F8"
+            labelTag="JCBLabel"/>    
+</BEAN>
+
+<BEAN
+    specName="SelectForeignTenderLocalNavigationPanelSpec"
+    beanClassName="NavigationButtonBean"
+    configuratorPackage="oracle.retail.stores.pos.ui"
+    configuratorClassName="POSBeanConfigurator"
+    beanPackage="oracle.retail.stores.pos.ui.beans">
+</BEAN>
+
+<POPUPMENU
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="tillText"
+        specName="TILL_OPTIONS">
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="TillOptionsButtonSpec">
+        </ASSIGNMENT>
+</POPUPMENU>
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="tillText"
+        specName="ENTER_TILL_ID">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="EnterTillIDScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="EnterTillIDPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY
+                propName="enterData" propValue="true"/>
+            <BEANPROPERTY propName="maxLength" propValue="5"/>
+            <BEANPROPERTY 
+            	propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+</OVERLAYSCREEN>
+
+<BEAN
+        specName="SummaryTenderMenuSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SummaryTenderMenuBean">
+</BEAN>
+
+<BEAN
+        specName="SummaryChargeMenuSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SummaryChargeMenuBean">
+</BEAN>
+
+<BEAN
+        specName="SummaryForeignTenderMenuSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SummaryForeignTenderMenuBean">
+</BEAN>
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="tillText"
+        specName="SELECT_TENDER_TO_COUNT">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SummaryTenderMenuSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SelectTenderScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SelectTenderPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="javax.swing.JTextField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+        <BEANPROPERTY
+            propName="manageNextButton"
+            propValue="false"/>
+        <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SelectTenderLocalNavigationPanelSpec"/>
+
+</OVERLAYSCREEN>
+
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="tillText"
+        specName="SELECT_CHARGE_TO_COUNT">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SummaryChargeMenuSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SelectChargeScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SelectChargePrompt"/>
+            <BEANPROPERTY
+                propName="enterData" propValue="false"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="javax.swing.JTextField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+                    beanSpecName="GlobalNavigationPanelSpec">
+                    <BEANPROPERTY propName="buttonStates" propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SelectChargeLocalNavigationPanelSpec">
+        </ASSIGNMENT>
+
+</OVERLAYSCREEN>
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="tillText"
+        specName="SELECT_FOREIGN_TENDER_TO_COUNT">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SummaryForeignTenderMenuSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SelectTenderScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SelectTenderPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="javax.swing.JTextField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+        <BEANPROPERTY
+            propName="manageNextButton"
+            propValue="false"/>
+        <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SelectForeignTenderLocalNavigationPanelSpec"/>
+
+</OVERLAYSCREEN>
+
+<BEAN
+    specName="ForeignCurrencyCountLocalNavigationPanelSpec"
+    beanClassName="NavigationButtonBean"
+    configuratorPackage="oracle.retail.stores.pos.ui"
+    configuratorClassName="POSBeanConfigurator"
+    beanPackage="oracle.retail.stores.pos.ui.beans">  
+</BEAN>
+
+<BEAN
+        specName="SummaryForeignCurrencyCountMenuSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="SummaryForeignCurrencyCountMenuBean">
+</BEAN>
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="tillText"
+        specName="FOREIGN_CURRENCY_COUNT">
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="SummaryForeignCurrencyCountMenuSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ForeignCurrencyCountScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ForeignCurrencyCountPrompt"/>
+            <BEANPROPERTY
+                propName="enterData" propValue="false"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+                    beanSpecName="GlobalNavigationPanelSpec">
+                    <BEANPROPERTY propName="buttonStates" propValue="Help[true],Cancel[false],Undo[false],Clear[false],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="ForeignCurrencyCountLocalNavigationPanelSpec">
+        </ASSIGNMENT>
+
+</OVERLAYSCREEN>
+
+<BEAN
+        specName="CurrencyTypeButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+</BEAN>
+
+<OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="tillText"
+        specName="SELECT_CURRENCY_TYPE">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SelectCurrencyTypeScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SelectCurrencyTypePrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="CurrencyTypeButtonSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+                    beanSpecName="GlobalNavigationPanelSpec">
+                    <BEANPROPERTY propName="buttonStates" propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+</OVERLAYSCREEN>
+
+</UICFG>

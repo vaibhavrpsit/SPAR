@@ -1,0 +1,214 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012 - 2013 MAX, Inc.    All Rights Reserved.
+  Rev 1.2   Feb 16,2016 Nitika Arora    Changes for handling Cancel Menu letter.
+  Rev 1.1	3/07/2013	Jyoti	 		Fix for Bug 6838  Gift Option screen displayed rather than sale item screen 
+   Rev 1.0	3/06/2013	Izhar	 		Till Threshold
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE 
+    name="GiftOptions"
+    package="oracle.retail.stores.pos.services.giftoptions"
+    tourcam="ON">
+    <COMMENT >
+        Point-Of-Sale is the implementation of the Gift Options 
+        Package Requirements.
+    </COMMENT>
+    <CARGO  class="MAXGiftCardCargo" package="max.retail.stores.pos.services.giftcard"/>
+    <SERVICECODE >
+        <LETTER  name="GiftCard"/>
+        <LETTER  name="GiftCert"/>
+        <LETTER  name="Success"/>
+        <LETTER  name="Continue"/>
+        <!--MAX Rev 1.0: Change: Start  -->
+      <LETTER  name="blockgiftoption"/>
+      <!--MAX Rev 1.0: Change: end  -->
+        <LETTER  name="Cancel"/>
+        <LETTER  name="Undo"/>
+	<LETTER  name="UndoGift"/>
+	
+      <SHUTTLE class="GiftCardLaunchShuttle"/>
+      <SHUTTLE class="GiftCardReturnShuttle"/>
+ <!--MAX Rev 1.0: Change: Start  -->
+        <SITEACTION  class="MAXSelectGiftOptionSite" package="max.retail.stores.pos.services.giftoptions"/>
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="SelectGiftOption">
+        <!--MAX Rev 1.0: Change: Start  -->
+            <SITE name="SelectGiftOption" siteaction="MAXSelectGiftOptionSite">
+                <COMMENT>
+                    This site handles gift card and gift certificate
+                </COMMENT>
+                <ROAD 
+                    name="GiftCardOptionsSelected"
+                    letter="GiftCard"
+                    destination="GiftCardOptionsStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+               
+               <ROAD name="BlockTrans"
+                     letter="blockgiftoption"
+                     destination="Final"
+                     tape="ADVANCE" record="ON" index="ON">
+                     <COMMENT>
+                         This road is traversed when the user select gift registry.
+                     </COMMENT>
+               </ROAD>
+                <!--MAX Rev 1.0: Change: end  -->
+                <ROAD 
+                    name="GiftCertSelected"
+                    letter="GiftCert"
+                    destination="GiftCertificateIssueStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoGiftOptionsSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CancelGiftOptionsSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="MenuCancelled"
+                    letter="CancelMenu"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION 
+                name="GiftCardOptionsStation"
+                servicename="services.giftcard.giftcard"
+                targettier="APPLICATIONTIER"
+                launchshuttle="GiftCardLaunchShuttle"
+            returnshuttle="GiftCardReturnShuttle">
+                <ROAD
+                    name="GiftCardItemAdded"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="UndoGiftCardOptionsSelected"
+                    letter="Undo"
+                    destination="SelectGiftOption"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="OptionsMenuCanceled"
+                    letter="CancelMenu"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Rev 1.1 changes start -->
+                 <ROAD 
+                    name="UndoGiftCardOptionsSelectedForItem"
+                    letter="UndoGift"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <!-- Rev 1.1 changes end -->
+                <ROAD 
+                    name="GiftCardOptionsCanceled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+         <STATION
+                name="GiftCardIssueStation"
+                servicename="giftcard.issue.issue"
+                targettier="APPLICATIONTIER"
+                launchshuttle="GiftCardLaunchShuttle"
+                returnshuttle="GiftCardReturnShuttle">
+                <ROAD
+                    name="GiftCardItemAdded"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+         <STATION
+                name="GiftCertificateIssueStation"
+                servicename="giftcertificate.issue.issue"
+                targettier="APPLICATIONTIER"
+                launchshuttle="GiftCardLaunchShuttle"
+                returnshuttle="GiftCardReturnShuttle">
+                <ROAD
+                    name="GiftCertificateItemAdded"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CancelSelected"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>

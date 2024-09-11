@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012 - 2013 MAXHyperMarket, Inc.    All Rights Reserved.
+  Rev 1.0	5/04/2013	Jyoti	 		Initial Draft: Changes for Employee Discount
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="EmployeeDiscountOptions"
+	package="oracle.retail.stores.pos.services.pricing.employeediscount"
+	tourcam="OFF">
+	<CARGO class="MAXPricingCargo" package="max.retail.stores.pos.services.pricing" /> <!-- Rev 1.0 changes -->
+	<SERVICECODE>
+		<LETTER name="ItemDiscAmt" />
+		<LETTER name="ItemDiscPer" />
+		<LETTER name="TransDiscAmt" />
+		<LETTER name="TransDiscPer" />
+		<LETTER name="Continue" />
+		<LETTER name="Next" />
+		<LETTER name="Clear" />
+		<LETTER name="Undo" />
+
+		<LETTER name="Back" />
+		<LETTER name="Cancel" />
+		<LETTER name="Failure" />
+		<LETTER name="AutoEmpDisc" /><!-- Rev 1.0 changes -->
+		<LETTER name="RemoveAutoEmpDisc" /><!-- Rev 1.0 changes -->
+		<SHUTTLE class="ItemDiscountLaunchShuttle" package="oracle.retail.stores.pos.services.pricing" />
+		<SHUTTLE class="ItemDiscountReturnShuttle" package="oracle.retail.stores.pos.services.pricing" />
+		<SHUTTLE class="ModifyEmployeeTransactionDiscountPercentLaunchShuttle"
+			package="oracle.retail.stores.pos.services.pricing.employeediscount" />
+		<SHUTTLE class="ModifyEmployeeTransactionDiscountPercentReturnShuttle"
+			package="oracle.retail.stores.pos.services.pricing.employeediscount" />
+			<SHUTTLE class="ModifyEmployeeTransactionDiscountPercentLaunchShuttle"
+			package="oracle.retail.stores.pos.services.pricing.employeediscount" />
+		<SHUTTLE class="ModifyEmployeeTransactionDiscountPercentReturnShuttle"
+			package="oracle.retail.stores.pos.services.pricing.employeediscount" />
+		<!-- Rev 1.0 changes start here-->
+		<SHUTTLE class="MAXModifyEmployeeTransactionDiscountPercentLaunchShuttle"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+		<SHUTTLE class="MAXModifyEmployeeTransactionDiscountPercentReturnShuttle"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+			<!-- Rev 1.0 changes end here-->
+		<SHUTTLE class="ModifyEmployeeTransactionDiscountAmountLaunchShuttle"
+			package="oracle.retail.stores.pos.services.pricing.employeediscount" />
+		<SHUTTLE class="ModifyEmployeeTransactionDiscountAmountReturnShuttle"
+			package="oracle.retail.stores.pos.services.pricing.employeediscount" />
+
+		<LANEACTION class="DiscountAmountSelectedRoad"
+			package="oracle.retail.stores.pos.services.pricing" />
+		<LANEACTION class="DiscountPercentSelectedRoad"
+			package="oracle.retail.stores.pos.services.pricing" />
+		<LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common" />
+	<!-- Rev 1.0 changes start here-->
+		<LANEACTION class="MAXEmployeeNumberCapturedAisle" 
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+
+		<SITEACTION class="MAXCaptureEmployeeNumberSite"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+			<!-- Rev 1.0 changes end here-->
+		<SITEACTION class="CheckOnlyOneDiscountSite"
+			package="oracle.retail.stores.pos.services.pricing" />
+		<!--  <SITEACTION class="DiscountOptionsSite" />  -->
+		<!-- kajal for employee discount validation through OTP START -->
+<SITEACTION class="MAXWebRequestResponseInfoSite"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+		<SITEACTION class="MAXEnterOtpSite"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+			<LANEACTION class="MAXEmployeeDiscountOTPValidationAilse"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+				<LANEACTION class="MAXEmployeediscountOtpOverrideAilse"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+		<SITEACTION class="MAXDiscountOptionsSite"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+		<!-- Rev 1.0 changes end here-->	
+		<SITEACTION  class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+
+		 <SHUTTLE    class="MAXSecurityOverrideLaunchShuttle" package="max.retail.stores.pos.services.pricing.employeediscount"/>
+      	<SITEACTION class="MAXSecurityRemoveDiscountSite" package="max.retail.stores.pos.services.pricing.employeediscount"/>
+      	<SITEACTION class="MAXCheckEmpOtpStatusSite"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+		 
+		<!-- kajal for employee discount validation through OTP END-->
+      	<!--  from ls customized 12 version store -->	
+<SITEACTION class="MAXDiscountOptionsSite"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+		<!-- Change Start by Akanksha for DiscountCardDiscount Remove in EmployeeDiscount 
+			transaction -->
+		<LANEACTION class="MAXDiscountValidationAisle"
+			package="max.retail.stores.pos.services.pricing.employeediscount" />
+		<!-- Change End by Akanksha for DiscountCardDiscount Remove in EmployeeDiscount 
+			transaction -->
+		<!-- akanksha -->
+		
+		<!--  from ls customized 12 version END -->
+	</SERVICECODE>
+	<MAP>
+	<!-- Rev 1.0 changes start-->
+		<REGION region="SERVICE" startsite="CheckSecurityAccess">
+		 <SITE  name="CheckSecurityAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="CheckOnlyOneDiscount"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION 
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXSecurityOverrideLaunchShuttle">
+                <ROAD 
+                    name="SecurityOverrideSucceded"
+                    letter="Success"
+                    destination="CheckOnlyOneDiscount"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <!-- Rev 1.0 changes end-->
+			<SITE name="CheckOnlyOneDiscount" siteaction="CheckOnlyOneDiscountSite">
+				<ROAD name="EmployeeDiscountSucceeded" letter="Continue"
+					destination="CaptureEmployeeNumber">
+				</ROAD>
+				<ROAD name="EmployeeDiscountFailed" letter="Cancel"
+					destination="Final">
+				</ROAD>
+			</SITE>
+			<!-- Rev 1.0 changes start here-->
+			<SITE name="CaptureEmployeeNumber" siteaction="MAXCaptureEmployeeNumberSite">
+				<COMMENT>
+					Prompts the associate to enter the employee number.  
+                </COMMENT>
+				
+				<AISLE name="EmployeeNumberCaptured" letter="Next"
+					laneaction="MAXEmployeeNumberCapturedAisle">
+				</AISLE>
+				<!-- Rev 1.0 changes end here-->
+				<ROAD name="EmployeeDiscountFailure" letter="Failure"
+					destination="CaptureEmployeeNumber" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+	<!--  kajal check -->
+				<ROAD name="EmpDiscOtpEnableCheck" letter="OK" destination="EmpDiscOtpEnableCheck">
+					<COMMENT>
+						The discount amount was added. Validate it.
+					</COMMENT>
+				</ROAD>
+				
+				<!-- kajal for employee discount validation through OTP START-->
+				<ROAD name="RequestResponse" letter="OK" destination="EmpDiscOtpEnableCheck">
+					<COMMENT>
+						The discount amount was added. Validate it.
+					</COMMENT>
+				</ROAD>
+				<!-- kajal for employee discount validation through OTP ENDS -->
+				<ROAD name="removeEmpDis" letter="Continue" destination="removeEmpDis">
+					<COMMENT>
+						The discount amount was added. Validate it.
+                    </COMMENT>
+
+                </ROAD>
+
+				<ROAD name="EmployeeIDReceived" letter="Continue" destination="DiscountOptions">
+					<COMMENT>
+						The discount amount was added. Validate it.
+                    </COMMENT>
+				</ROAD>
+				<ROAD name="EmployeeIDBack" letter="Back" destination="CaptureEmployeeNumber"
+					tape="ADVANCE" record="OFF" index="OFF">
+					<COMMENT>
+						User press No to enter employee id again.
+                    </COMMENT>
+				</ROAD>
+				<ROAD name="CancelEmployeeNumber" letter="Cancel" destination="Final">
+					<COMMENT>
+						send a final letter with a parm telling the parent
+						to give up
+                    </COMMENT>
+				</ROAD>
+				<ROAD name="EmployeeNumberUndo" letter="Undo" destination="Final">
+				</ROAD>
+			</SITE>
+<SITE name="removeEmpDis" siteaction="MAXDiscountOptionsSite">
+                   
+           
+				<ROAD name="RemoveTransDiscPerSelected" letter="RemoveAutoEmpDisc"
+					destination="EmployeeTransDiscountPercentStation" tape="ADVANCE"
+					record="OFF" index="OFF">
+				</ROAD>
+			
+				  </SITE> 
+			<!-- Rev 1.0 changes start here-->
+			<SITE name="DiscountOptions" siteaction="MAXDiscountOptionsSite">
+
+				<ROAD name="ItemDiscAmtSelected" letter="ItemDiscAmt"
+					laneaction="DiscountAmountSelectedRoad" destination="EmployeeDiscountStation">
+				</ROAD>
+
+				<ROAD name="ItemDiscPerSelected" letter="ItemDiscPer"
+					laneaction="DiscountPercentSelectedRoad" destination="EmployeeDiscountStation">
+				</ROAD>
+
+				<ROAD name="TransDiscAmtSelected" letter="TransDiscAmt"
+					destination="EmployeeTransDiscountAmountStation" tape="ADVANCE"
+					record="OFF" index="OFF">
+				</ROAD>
+
+		<!-- Rev 1.0 changes start here-->
+				<!-- <ROAD name="AutomaticEmployeeDiscount" letter="AutoEmpDisc" 
+					destination="EmployeeDiscountStation" tape="ADVANCE" record="OFF" index="OFF"> 
+					</ROAD>  -->
+
+			<!-- Rev 1.0 changes end here-->
+				<ROAD name="TransDiscPerSelected" letter="TransDiscPer"
+					destination="EmployeeTransDiscountPercentStation" tape="ADVANCE"
+					record="OFF" index="OFF">
+				</ROAD>
+				<!-- jyoti to remove employee -->
+				<ROAD name="RemoveTransDiscPerSelected" letter="RemoveAutoEmpDisc"
+					destination="EmployeeTransDiscountPercentStation" tape="ADVANCE"
+					record="OFF" index="OFF">
+				</ROAD>
+				<!-- jyoti to remove employee -->
+
+				<ROAD name="AutomaticEmployeeDiscount" letter="AutoEmpDisc"
+					destination="EmployeeTransDiscountPercentStation" tape="ADVANCE"
+					record="OFF" index="OFF">
+				</ROAD>
+
+				<ROAD name="PricingUndo" letter="Undo" destination="Final">
+				</ROAD>
+				<ROAD name="PricingCancel" letter="Cancel" destination="Final">
+				</ROAD>
+			</SITE>
+
+			<!-- Item Discount Station -->
+			<STATION name="EmployeeDiscountStation" servicename="pricing.employeediscount.employeediscount"
+				targettier="CURRENTTIER" launchshuttle="ItemDiscountLaunchShuttle"
+				returnshuttle="ItemDiscountReturnShuttle">
+				<AISLE name="ItemDiscountCleared" letter="Clear" laneaction="NextLetterAisle">
+				</AISLE>
+				<ROAD name="ItemDiscountCanceled" letter="Cancel" destination="Final">
+				</ROAD>
+
+				<ROAD name="ItemDiscountFailure" letter="Failure" destination="DiscountOptions">
+				</ROAD>
+				<ROAD name="ItemDiscountUndo" letter="Undo" destination="DiscountOptions">
+				</ROAD>
+				<ROAD name="ItemDiscountSuccess" letter="Next" destination="Final">
+				</ROAD>
+			</STATION>
+
+			<!-- Transaction Discount Percent Station -->
+			<STATION name="EmployeeTransDiscountPercentStation"
+				servicename="modifytransaction.employeediscount.modifyemployeetransactiondiscount"
+				targettier="CURRENTTIER" launchshuttle="MAXModifyEmployeeTransactionDiscountPercentLaunchShuttle"
+				returnshuttle="MAXModifyEmployeeTransactionDiscountPercentReturnShuttle">  <!-- Jyoti -->
+				<COMMENT>
+					This station will go to the Modify Transaction Discount
+					service.
+               </COMMENT>
+				<ROAD name="UndoDiscountPercent" letter="Undo" destination="DiscountOptions"
+					tape="ADVANCE" record="ON" index="ON">
+					<COMMENT>
+						This road is traversed when the Undo letter is received
+						from the Discount service.
+                        </COMMENT>
+				</ROAD>
+				<ROAD name="NextDiscountPercent" letter="Next" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+					<COMMENT>
+						This road is traversed when the Next Letter is received
+						from the Discount service.
+                        </COMMENT>
+				</ROAD>
+				<ROAD name="CancelDiscountPercent" letter="Cancel" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+					<COMMENT>
+						This road is traversed when the Cancel letter is received
+						from the Discount service.
+                        </COMMENT>
+				</ROAD>
+				<ROAD name="FailureDiscountPercent" letter="Failure"
+					destination="DiscountOptions" tape="ADVANCE" record="ON" index="ON">
+					<COMMENT>
+						This road is traversed when the Failure letter is received
+						from the Discount service.
+                        </COMMENT>
+				</ROAD>
+			</STATION>
+
+			<!-- Transaction Discount Amount Station -->
+			<STATION name="EmployeeTransDiscountAmountStation"
+				servicename="modifytransaction.employeediscount.modifyemployeetransactiondiscount"
+				targettier="CURRENTTIER" launchshuttle="ModifyEmployeeTransactionDiscountAmountLaunchShuttle"
+				returnshuttle="ModifyEmployeeTransactionDiscountAmountReturnShuttle">
+				<COMMENT>
+					This station will transfer to the Modify Transaction
+					Discount service.
+               </COMMENT>
+				<ROAD name="NextDiscountAmount" letter="Next" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+					<COMMENT>
+						This road is traversed when the Next letter is received
+						from the Discount service.
+                    </COMMENT>
+				</ROAD>
+				<ROAD name="CancelDiscountAmount" letter="Cancel" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+					<COMMENT>
+						This road is traversed when the Cancel letter is received
+						from the Discount service.
+                    </COMMENT>
+				</ROAD>
+				<ROAD name="FailureDiscountAmount" letter="Failure"
+					destination="DiscountOptions" tape="ADVANCE" record="ON" index="ON">
+					<COMMENT>
+						This road is traversed when the Failure letter is received
+						from the Discount service.
+                    </COMMENT>
+				</ROAD>
+				<ROAD name="UndoDiscountAmount" letter="Undo" destination="DiscountOptions"
+					tape="ADVANCE" record="ON" index="ON">
+					<COMMENT>
+						This road is traversed when the Undo letter is received
+						from the Discount service.
+                    </COMMENT>
+				</ROAD>
+			</STATION>
+			<!-- kajal for employee discount validation through OTP START -->
+				<SITE name="reqres" siteaction="MAXWebRequestResponseInfoSite">			 
+			 	
+			 	<ROAD name="EnterOtp" letter="Success" destination="EnterOtp">
+					<COMMENT>
+						The enterOtp Screen appears.
+					</COMMENT>
+				</ROAD>
+					<!-- <ROAD name="Cancel" letter="Cancel" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD> -->
+				
+               <!-- Rev No 1.1: Start -->
+				<ROAD name="Cancel" letter="Cancel" 
+		  laneaction="MAXEmployeediscountOtpOverrideAilse" destination="CheckAccess"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			   <!-- Rev No 1.1: End -->
+				</SITE>
+				<SITE name="EnterOtp" siteaction="MAXEnterOtpSite">	
+				<AISLE  name="ValidateOtp" letter="Next"
+					laneaction="MAXEmployeeDiscountOTPValidationAilse">
+				</AISLE >		 
+			 	
+			 	
+					 <ROAD name="EmployeeOtpValidate" letter="OtpSucessfull" destination="DiscountOptions">
+					<COMMENT>
+						The discount amount was added. Validate it.
+					</COMMENT>
+				</ROAD>
+				<ROAD name="Cancel" letter="Cancel" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				
+				<!--  <ROAD name="Retrying" letter="Retry" destination="EnterOtp" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD> -->
+                 <ROAD name="Retrying" letter="Retry" destination="EnterOtp" tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="Again" letter="MaximumOTPAttempsReached" laneaction="MAXEmployeediscountOtpOverrideAilse" destination="CheckAccess"
+					tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+
+
+				
+			<ROAD name="EnterOtpUndo" letter="Undo" destination="Final">
+				</ROAD>
+ 
+				</SITE>
+				<SITE  name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD 
+                    name="OverrideRequired"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="CancelTransactionAccessGranted"
+                    letter="Continue"
+                    destination="DiscountOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            
+			   <STATION 
+                name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXSecurityOverrideLaunchShuttle">
+                <ROAD 
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="DiscountOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="MAXSecurityRemoveDiscount"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="MAXSecurityRemoveDiscount"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                
+            </STATION>
+			<SITE name="MAXSecurityRemoveDiscount" siteaction="MAXSecurityRemoveDiscountSite">
+				<ROAD name="DiscountIdRemoved"
+				letter="Failure"
+				destination="Final">
+				</ROAD>
+			</SITE>	
+			<SITE name="MAXSecurityRemoveDiscount" siteaction="MAXSecurityRemoveDiscountSite">
+				<ROAD name="DiscountIdRemoved"
+				letter="Failure"
+				destination="Final">
+				</ROAD>
+			</SITE>	
+		<!-- kajal for employee discount validation through OTP START -->
+		<!-- kajal check -->
+		<SITE name="EmpDiscOtpEnableCheck" siteaction="MAXCheckEmpOtpStatusSite">
+				<ROAD name="EmpDiscOtpEnable"
+				letter="EmpDisOtp"
+				destination="reqres">
+				</ROAD>
+				<ROAD name="EmpDisc"
+				letter="Continue"
+				destination="DiscountOptions">
+				</ROAD>
+			</SITE>	 
+			<SYSTEMSITE name="Final" action="RETURN" />
+		</REGION>
+	</MAP>
+</SERVICE>
+

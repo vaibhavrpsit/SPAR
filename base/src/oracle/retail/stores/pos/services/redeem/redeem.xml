@@ -1,0 +1,908 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/redeem/redeem.xml /main/25 2013/12/17 10:50:37 rabhawsa Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    rabhawsa  12/17/13 - proprly handling the ESC button for redeem number
+ *                         undo.
+ *    jswan     03/26/12 - Modified to support centralized gift certificate and
+ *                         store credit.
+ *    asinton   08/11/11 - Fixed routes where Undo, Cancel and Timeout letters
+ *                         are sent
+ *    abhayg    08/13/10 - STOPPING POS TRANSACTION IF REGISTER HDD IS FULL
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   04/27/10 - XbranchMerge cgreene_refactor-duplicate-pos-classes
+ *                         from st_rgbustores_techissueseatel_generic_branch
+ *    cgreene   04/26/10 - XbranchMerge cgreene_tech11_techissueseatel from
+ *                         st_rgbustores_techissueseatel_generic_branch
+ *    asinton   04/22/10 - Modified redeem tour to fix timeout issue.
+ *    asinton   04/08/10 - XbranchMerge asinton_bug-9558370 from
+ *                         rgbustores_13.2x_generic_branch
+ *    asinton   04/08/10 - Removing fix for timeout issue.
+ *    nkgautam  04/08/10 - added signals and roads to handle timeouts
+ *    nkgautam  04/08/10 - XbranchMerge nkgautam_bug-9558370 from main
+ *    asinton   03/02/10 - Removed StackTraceRoad from pos application.
+ *    nganesh   01/20/10 - CurrencyUndo Road destination is modified to
+ *                         EnterRedeemForeignNumberUI
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
+
+    $Log:
+     4    360Commerce1.3         3/30/2007 4:09:37 AM   Michael Boyd    CR
+          26172 - v8x merge to trunk
+
+
+          4    .v8x      1.2.1.0     2/10/2007 2:22:23 PM   Charles D. Baker
+          CR
+          24498 - Updated to handle letters produced by Gift Card Activation
+          service.
+     3    360Commerce1.2         4/1/2005 2:59:36 AM    Robert Pearse
+     2    360Commerce1.1         3/10/2005 9:54:35 PM   Robert Pearse
+     1    360Commerce1.0         2/11/2005 11:43:35 PM  Robert Pearse
+    $
+    Revision 1.26.2.1  2004/12/10 17:05:23  lzhao
+    @scr 7824: Cancel button print/save cancelled txn, Undo goes to previous screen
+
+    Revision 1.26  2004/08/23 16:15:59  cdb
+    @scr 4204 Removed tab characters
+
+    Revision 1.25  2004/06/23 15:27:32  bwf
+    @scr 5312 DeActivate gift card when hitting undo.
+
+    Revision 1.24  2004/05/19 20:34:41  crain
+    @scr 5080 Tender Redeem_Disc. Applied Alt Flow not Called from Foreign Gift Cert Alt Flow
+
+    Revision 1.23  2004/04/27 23:13:36  crain
+    @scr 4553 Redeem Gift Certificate
+
+    Revision 1.22  2004/04/26 19:28:40  crain
+    @scr 4553 Redeem Gift Certificate
+
+    Revision 1.21  2004/04/23 00:35:07  crain
+    @scr 4553 Redeem Gift Certificate
+
+    Revision 1.20  2004/04/21 15:08:58  blj
+    @scr 3872 - cleanup from code review
+
+    Revision 1.19  2004/04/20 14:14:54  lzhao
+    @scr 3872: remove unused code, fix douplicate road name.
+
+    Revision 1.18  2004/04/15 16:18:14  lzhao
+    @scr 3872: gift card redeem
+
+    Revision 1.17  2004/04/12 18:37:47  blj
+    @scr 3872 - fixed a problem with validation occuring after foreign currency has been converted.
+
+    Revision 1.16  2004/04/08 18:49:09  lzhao
+    @scr 3872: Gift Card Redeem, update the gift card service.
+
+    Revision 1.15  2004/04/07 22:49:40  blj
+    @scr 3872 - fixed problems with foreign currency, fixed ui labels, redesigned to do validation and adding tender to transaction in separate sites.
+
+    Revision 1.14  2004/04/02 16:26:22  blj
+    @scr 3872 - Fixed validation, database and training mode errors
+
+    Revision 1.13  2004/04/01 01:46:32  crain
+    @scr 4105 Foreign Currency
+
+    Revision 1.12  2004/03/31 16:17:23  lzhao
+    @scr 3872: gift card redeem service update
+
+    Revision 1.11  2004/03/26 00:24:09  aarvesen
+    @scr 0 updated tours to use the tourmap
+
+    Revision 1.10  2004/03/25 23:01:23  lzhao
+    @scr #3872 Redeem Gift Card
+
+    Revision 1.9  2004/03/24 17:06:34  blj
+    @scr 3871-3872 - Added the ability to reprint redeem transaction receipts and added a void receipt.
+
+    Revision 1.8  2004/03/23 15:08:44  lzhao
+    @scr remove the comment for access control.
+
+    Revision 1.7  2004/03/23 00:30:23  lzhao
+    @scr 3872 - add Next for "ReadyToRedeem".
+
+    Revision 1.6  2004/03/22 23:59:08  lzhao
+    @scr 3872 - add gift card redeem (initial)
+
+    Revision 1.5  2004/03/22 17:26:43  blj
+    @scr 3872 - added redeem security, receipt printing and saving redeem transactions.
+
+    Revision 1.4  2004/03/16 18:42:46  cdb
+    @scr 0 Removed tabs from all java source code.
+
+    Revision 1.3  2004/03/11 20:03:18  blj
+    @scr 3871 - added/updated shuttles to/from redeem, to/from tender, to/from completesale.
+    also updated sites cargo for new redeem transaction.
+
+    Revision 1.2  2004/03/08 23:36:26  blj
+    @scr 3872 - redeem tour sites and shuttles
+
+    Revision 1.1  2004/02/26 04:48:54  blj
+    @scr 0 - redeem services has moved to _360commerce.  Redeem is now an ADO service.
+
+    Revision 1.2  2004/02/12 16:51:41  mcs
+    Forcing head revision
+
+    Revision 1.1.1.1  2004/02/11 01:04:19  cschellenger
+    updating to pvcs 360store-current
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Redeem" package="oracle.retail.stores.pos.services.redeem" tourcam="ON">
+<CARGO class="RedeemCargo" package="oracle.retail.stores.pos.services.redeem">
+</CARGO>
+<SERVICECODE>
+	 <LETTER name="VoidRedeem"/>
+	 <LETTER name="ContinueRedeem"/>
+     <LETTER name="Activation"/>
+     <LETTER name="ActivationCancelled"/>
+     <LETTER name="GiftCard"/>
+     <LETTER name="GiftCert"/>
+     <LETTER name="StoreCredit"/>
+     <LETTER name="Next"/>
+     <LETTER name="Continue"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Failure" />
+     <LETTER name="Success" />
+     <LETTER name="Issue" />
+     <LETTER name="Clear" />
+     <LETTER name="ExitTender" />
+     <LETTER name="ExitPrinting" />
+     <LETTER name="Ok" />
+     <LETTER name="Save" />
+     <LETTER name="Retry" />
+     <LETTER name="Override" />
+     <LETTER name="RedeemGiftCard" />
+     <LETTER name="Approved" />
+     <LETTER name="Declined" />
+     <LETTER name="Foreign" />
+     <LETTER name="Invalid" />
+     <LETTER name="No" />
+	 <LETTER name="QueueFull" />
+
+     <SITEACTION class="DisplayRedeemOptionsSite" />
+
+<!-- The following is required for Gift Card Redeem, Gift Certificate Redeem and Store Credit Redeem.
+     To be completed by other developers. It is commented out for now.  -->
+
+     <SITEACTION class="CheckIfGiftCardActivationRequiredSite"/>
+     <SITEACTION class="EnterRedeemAmountUISite"/>
+     <SITEACTION class="EnterRedeemNumberUISite"/>
+     <SITEACTION class="RedeemActionSite"/>
+     <SITEACTION class="ValidateRedeemActionSite"/>
+     <SITEACTION class="SaveRedeemActionSite"/>
+     <SITEACTION class="EnterRedeemForeignNumberUISite"/>
+     <SITEACTION class="WriteTransactionSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+     <SITEACTION class="CloseCashDrawerSite" package="oracle.retail.stores.pos.services.sale.complete"/>
+     <SITEACTION class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SITEACTION class="PrintCancelTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+     <SITEACTION class="SaveCanceledTransactionSite" package="oracle.retail.stores.pos.services.common"/>
+     <SITEACTION class="SaveCanceledRedeemTransactionSite" package="oracle.retail.stores.pos.services.redeem"/>
+
+     <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="SendToActivationAisle"/>
+     <LANEACTION class="SetTimeoutFlagRoad"/>
+     <LANEACTION class="TimeoutLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="UndoLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+     <LANEACTION class="VoidRedeemAisle"/>
+
+     <SHUTTLE class="TenderLaunchShuttle"/>
+     <SHUTTLE class="TenderReturnShuttle"/>
+     <SHUTTLE class="PrintingLaunchShuttle"/>
+     <SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+     <SHUTTLE class="ForeignCurrencyLaunchShuttle" package="oracle.retail.stores.pos.services.tender"/>
+     <SHUTTLE class="ForeignCurrencyReturnShuttle" package="oracle.retail.stores.pos.services.tender"/>
+     <SHUTTLE class="GiftCertificateRedeemLaunchShuttle"/>
+     <SHUTTLE class="GiftCertificateRedeemReturnShuttle"/>
+     <SHUTTLE class="GiftCardActivationLaunchShuttle" package="oracle.retail.stores.pos.services.redeem.giftcard"/>
+     <SHUTTLE class="GiftCardActivationReturnShuttle" package="oracle.retail.stores.pos.services.redeem.giftcard"/>
+     <SHUTTLE class="GiftCardRedeemReturnShuttle" />
+     <SHUTTLE class="GiftCardRedeemLaunchShuttle" />
+
+</SERVICECODE>
+
+<MAP>
+     <REGION region="SERVICE" startsite="CheckAccess">
+             <COMMON>
+              <!-- PAPB: Common road for user inactivity timeout -->
+	             <ROAD
+	                 name="Timeout"
+	                 letter="Timeout"
+	                 destination="PrintCancelTransaction"
+	                 tape="ADVANCE"
+	                 record="OFF"
+	                 index="OFF">
+	                 <COMMENT>
+	                     This common road is traveled after user inactivity timeout
+	                 </COMMENT>
+	             </ROAD>
+	         </COMMON>
+             <SITE name="CheckAccess" siteaction="CheckAccessSite">
+                <ROAD
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation">
+                </ROAD>
+                <ROAD
+                    name="UserAuthorized"
+                    letter="Continue"
+                    destination="DisplayRedeemOptions">
+                </ROAD>
+            </SITE>
+            <STATION name="SecurityOverrideStation"
+                servicename="security.override.override"
+                targettier="CURRENTTIER"
+                launchshuttle="SecurityOverrideLaunchShuttle" >
+                <ROAD
+                    name="LoginSucceededSecurityOverride"
+                    letter="Success"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SecurityOverrideCancelled"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+              </STATION>
+            <SITE  name="DisplayRedeemOptions"
+                siteaction="DisplayRedeemOptionsSite">
+                <ROAD
+                    name="StoreCreditSelected"
+                    letter="StoreCredit"
+                    destination="EnterRedeemAmount"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <AISLE name="ConvertUndoToCancel"
+                       letter="Undo"
+                       laneaction="CancelLetterAisle">
+                    <COMMENT>Convert Undo to Cancel in case there is a active
+                             redeem transaction.  There is little to no overhead
+                             apparent when canceling on a non-existant
+                             transaction.</COMMENT>
+                </AISLE>
+                 <ROAD
+                    name="CancelRedeemSelected"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardSelected"
+                    letter="GiftCard"
+                    destination="GiftCardStation"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="GiftCardRedeemFailure"
+                    letter="Failure"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="UndoSelected"
+                    letter="Undo"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="cancelSelected"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+                <ROAD
+                    name="GiftCertificateSelected"
+                    letter="GiftCert"
+                    destination="GiftCertificateStation"
+                    tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterRedeemAmount" siteaction="EnterRedeemAmountUISite">
+                <ROAD
+                    name="RedeemAmountAccepted"
+                    letter="Next"
+                    destination="EnterRedeemNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RedeemAmountUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RedeemAmountCancelSelected"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterRedeemNumber" siteaction="EnterRedeemNumberUISite">
+               <ROAD
+                    name="RedeemNumberAcceptedNext"
+                    letter="Next"
+                    destination="ValidateRedeemAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RedeemNumberUndoSelected"
+                    letter="Undo"
+                    destination="EnterRedeemAmount"
+                    tape="REWIND"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="RedeemCancelSelected"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ForeignSelected"
+                    letter="Foreign"
+                    destination="ForeignCurrencyStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="EnterRedeemForeignNumberUI" siteaction="EnterRedeemForeignNumberUISite">
+               <ROAD
+                    name="ForeignRedeemNumberAcceptedNext"
+                    letter="Next"
+                    destination="ValidateRedeemAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ForeignRedeemNumberUndoSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="REWIND"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ForeignRedeemCancelSelected"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="ValidateRedeemAction" siteaction="ValidateRedeemActionSite">
+                <ROAD
+                    name="ValidateRedeemActionSuccess"
+                    letter="Success"
+                    destination="RedeemAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="ValidateStoreCreditInvalidRoad"
+                    letter="Invalid"
+                    destination="EnterRedeemNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ValidateRedeemActionFailure"
+                    letter="Failure"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="RedeemAction" siteaction="RedeemActionSite">
+                <ROAD
+                    name="RedeemActionSuccess"
+                    letter="Success"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+                <ROAD
+                    name="StoreCreditInvalidRoad"
+                    letter="Invalid"
+                    destination="EnterRedeemNumber"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RedeemActionFailure"
+                    letter="Failure"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="WriteTransaction" siteaction="WriteTransactionSite">
+                <COMMENT >
+                    This site writes the transaction to the database.
+                </COMMENT>
+                <ROAD
+                    name="SaveTransaction"
+                    letter="Save"
+                    destination="SaveRedeemAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="SaveRedeemAction" siteaction="SaveRedeemActionSite">
+                <ROAD
+                    name="RedeemActionFailure"
+                    letter="Failure"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="WriteCompleted"
+                    letter="Success"
+                    destination="CloseCashDrawer"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SaveRetry"
+                    letter="Retry"
+                    destination="SaveRedeemAction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SaveQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CloseCashDrawer" siteaction="CloseCashDrawerSite">
+                <ROAD
+                    name="DrawerClosed"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckIfGiftCardActivationRequired" siteaction="CheckIfGiftCardActivationRequiredSite">
+                <!-- The timeout letter is handled by the common timeout road defined above. -->
+                <ROAD
+                    name="DeActivateTender"
+                    letter="Activation"
+                    destination="ActivationStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ReactivateGiftCard"
+                    letter="Reactivate"
+                    destination="ActivationAfterTimeoutStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoTender"
+                    letter="Continue"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckIfGiftCardActivationRequiredForUndo" siteaction="CheckIfGiftCardActivationRequiredSite">
+                <!-- The timeout letter is handled by the common timeout road defined above. -->
+                <ROAD
+                    name="ActivateTender"
+                    letter="Activation"
+                    destination="ActivationStationForUndo"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ReactivateGiftCard"
+                    letter="Reactivate"
+                    destination="ActivationAfterTimeoutStationForUndo"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoTender"
+                    letter="Continue"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>
+            <STATION
+                name="TenderStation"
+                servicename="services.tender.tender"
+                targettier="CURRENTTIER"
+                launchshuttle="TenderLaunchShuttle"
+                returnshuttle="TenderReturnShuttle">
+                <ROAD
+                    name="SendToActivationAfterUndoRoad"
+                    letter="Undo"
+                    destination="CheckIfGiftCardActivationRequiredForUndo"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SendToActivationAfterTimeoutRoad"
+                    letter="Timeout"
+                    laneaction="SetTimeoutFlagRoad"
+                    destination="CheckIfGiftCardActivationRequired"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TenderCompleted"
+                    letter="ExitTender"
+                    destination="PrintingStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="SendToActivationAfterCancelRoad"
+                    letter="Cancel"
+                    destination="CheckIfGiftCardActivationRequired"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoTender"
+                    letter="Continue"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="PrintingStation"
+                servicename="services.printing.printing"
+                targettier="CURRENTTIER"
+                launchshuttle="PrintingLaunchShuttle">
+                <COMMENT >
+                    This station is the transfer point for the Printing
+                    service.
+                </COMMENT>
+                <ROAD
+                    name="PrintingReturned"
+                    letter="ExitPrinting"
+                    destination="WriteTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the Printing service returns.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION
+                name="ForeignCurrencyStation"
+                servicename="services.foreigncurrency.foreigncurrency"
+                targettier="CURRENTTIER"
+                launchshuttle="ForeignCurrencyLaunchShuttle"
+                returnshuttle="ForeignCurrencyReturnShuttle">
+                <ROAD
+                    name="CurrencySelectedRoad"
+                    letter="Continue"
+                    destination="EnterRedeemForeignNumberUI"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CurrencyUndo"
+                    letter="Undo"
+                    destination="EnterRedeemNumber"
+                    tape="REWIND"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="CurrencyCancelled"
+                    letter="Cancel"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <SITE  name="PrintCancelTransaction" siteaction="PrintCancelTransactionSite">
+                <ROAD
+                    name="TransactionCanceled"
+                    letter="Continue"
+                    destination="SaveCanceledTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionTimedout"
+                    letter="Timeout"
+                    destination="SaveCanceledTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryPrintCancelTransactionSelected"
+                    letter="Retry"
+                    destination="PrintCancelTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="SaveCanceledTransaction" siteaction="SaveCanceledTransactionSite">
+                <ROAD
+                    name="TransactionSaved"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TimeoutTransactionSaved"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionSavedRetry"
+                    letter="Retry"
+                    destination="SaveCanceledTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="TransactionSavedQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <SITE  name="SaveCanceledRedeemTransaction" siteaction="SaveCanceledRedeemTransactionSite">
+                 <ROAD
+                    name="TimeoutTransactionSaved"
+                    letter="Timeout"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SITE  name="PrintCanceledRedeemTransaction" siteaction="PrintCancelTransactionSite">
+                <ROAD
+                    name="TransactionCanceled"
+                    letter="Continue"
+                    destination="SaveCanceledRedeemTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD
+                    name="RetryPrintCancelTransactionSelected"
+                    letter="Retry"
+                    destination="PrintCanceledRedeemTransaction"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+            <STATION
+                name="GiftCardStation"
+                servicename="redeem.giftcard.giftcardredeem"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardRedeemLaunchShuttle"
+                returnshuttle="GiftCardRedeemReturnShuttle" >
+                <ROAD
+                    name="TenderGiftCardRedeem"
+                    letter="Continue"
+                    destination="RedeemAction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ManualApprovedForTenderGiftCardRedeem"
+                    letter="Approved"
+                    destination="RedeemAction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="GiftCardRedeemFailure"
+                    letter="Failure"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD name="CancelGiftCardSelected"
+                      letter="Cancel"
+                      destination="PrintCancelTransaction"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="UndoGiftCardSelected"
+                    letter="Undo"
+                    destination="LastIndexed"
+                    tape="SPLICE" record="OFF" index="OFF">
+                </ROAD>
+               <ROAD name="GiftCardActivationCancelled"
+                     letter="ActivationCancelled"
+                     destination="PrintCancelTransaction"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </STATION>
+            <STATION
+                    name="GiftCertificateStation"
+                    servicename="redeem.giftcertificate.giftcertificateredeem"
+                    targettier="CURRENTTIER"
+                    launchshuttle="GiftCertificateRedeemLaunchShuttle"
+                    returnshuttle="GiftCertificateRedeemReturnShuttle">
+                    <ROAD
+                        name="ForeignGiftCertificateEntered"
+                        letter="Continue"
+                        destination="RedeemAction"
+                        tape="ADVANCE" record="OFF" index="ON">
+                    </ROAD>
+                    <ROAD
+                        name="GiftCertificateFailure"
+                        letter="Failure"
+                        destination="DisplayRedeemOptions"
+                        tape="ADVANCE" record="OFF" index="ON">
+                    </ROAD>
+                    <ROAD
+                        name="CancelGiftCertificateSelected"
+                        letter="Cancel"
+                        destination="PrintCancelTransaction"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD
+                        name="UndoGiftCertificateSelected"
+                        letter="Undo"
+                        destination="LastIndexed"
+                        tape="REWIND" record="OFF" index="OFF">
+                    </ROAD>
+            </STATION>
+            <STATION
+                name="ActivationAfterTimeoutStationForUndo"
+                servicename="tender.activation.activation"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardActivationLaunchShuttle"
+                returnshuttle="GiftCardActivationReturnShuttle">
+                <ROAD
+                    name="ActivationReturnedSuccessfulForRedeem"
+                    letter="Success"
+                    destination="DisplayRedeemOptions"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+               <ROAD name="ActivationFailure"
+                     letter="Failure"
+                     destination="PrintCancelTransaction"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </STATION>
+            <STATION
+                name="ActivationAfterTimeoutStation"
+                servicename="tender.activation.activation"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardActivationLaunchShuttle"
+                returnshuttle="GiftCardActivationReturnShuttle">
+                <ROAD
+                    name="ActivationReturnedSuccessfulForRedeem"
+                    letter="Success"
+                    destination="PrintCanceledRedeemTransaction"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+               <ROAD name="ActivationFailure"
+                     letter="Failure"
+                     destination="PrintCancelTransaction"
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+            </STATION>
+            <STATION
+                name="ActivationStationForUndo"
+                servicename="tender.activation.activation"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardActivationLaunchShuttle"
+                returnshuttle="GiftCardActivationReturnShuttle">
+                <AISLE
+                    name="DectivationReturnedSuccessfulForRedeemUndo"
+                    letter="Success"
+                    laneaction="UndoLetterAisle">
+                    <COMMENT>
+                        This Aisle will initiate the service to exit with an Undo letter.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="ActivationFailure"
+                      letter="Failure"
+                      destination="PrintCancelTransaction"
+                      tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+                <ROAD name="DectivationReturnedSuccessfulForRedeemUndoExit"
+                      letter="Undo"
+                      destination="DisplayRedeemOptions"
+                      tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+            </STATION>
+            <STATION
+                name="ActivationStation"
+                servicename="tender.activation.activation"
+                targettier="CURRENTTIER"
+                launchshuttle="GiftCardActivationLaunchShuttle"
+                returnshuttle="GiftCardActivationReturnShuttle">
+                <AISLE
+                    name="DectivationReturnedSuccessfulForRedeemCancel"
+                    letter="Success"
+                    laneaction="CancelLetterAisle">
+                    <COMMENT>
+                        This Aisle will initiate the service to exit with an Cancel letter.
+                    </COMMENT>
+                </AISLE>
+                <ROAD name="ActivationFailure"
+                      letter="Failure"
+                      destination="PrintCancelTransaction"
+                      tape="ADVANCE" record="ON" index="ON">
+                </ROAD>
+                <ROAD name="DectivationReturnedSuccessfulForRedeemCancelExit"
+                      letter="Cancel"
+                      destination="PrintCancelTransaction"
+                      tape="ADVANCE" record="OFF" index="ON">
+                </ROAD>
+            </STATION>
+          <SYSTEMSITE name="Final" action="RETURN" />
+          <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+
+     </REGION>
+</MAP>
+</SERVICE>

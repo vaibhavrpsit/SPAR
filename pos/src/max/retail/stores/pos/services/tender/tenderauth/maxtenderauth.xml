@@ -1,0 +1,680 @@
+<?xml version='1.0' ?>
+<!-- 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*   Copyright (c) 2012 - 2013 MAXHyperMarket, Inc.    All Rights Reserved.
+*   Rev 1.1  28/May/2013	Jyoti Rawal, Changes for Credit Card Functionality
+*  	Rev 1.0  25/Apr/2013	Jyoti Rawal, Initial Draft: Changes for Gift Card Functionality 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ -->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="Authorization"
+         package="oracle.retail.stores.pos.services.tender.tenderauth"
+         tourcam="ON">
+     <CARGO class="TenderAuthCargo" package ="max.retail.stores.pos.services.tender.tenderauth"/>
+     <SERVICECODE>
+          <LETTER name="Success"/>
+          <LETTER name="Failure"/>
+          <LETTER name="Cancel"/>
+          <LETTER name="Next"/>
+          <LETTER name="PinFailure"/>
+          <LETTER name="PinSuccess"/>
+          <LETTER name="PinCancel"/>
+          <LETTER name="PinUndo"/>
+          <LETTER name="Yes"/>
+          <LETTER name="No"/>
+          <LETTER name="Offline"/>
+          <LETTER name="Unavailable"/>
+          <LETTER name="ReferCharge"/>
+          <LETTER name="ReferCheck"/>
+          <LETTER name="Referral"/>
+          <LETTER name="CheckID"/>
+          <LETTER name="Declined"/>
+          <LETTER name="Approved"/>
+          <LETTER name="PositiveID"/>
+          <LETTER name="Credit"/>
+          <LETTER name="Check"/>
+          <LETTER name="ECheck"/>          
+          <LETTER name="Ok"/>
+          <LETTER name="Override"/>
+          <LETTER name="Continue"/>
+          <LETTER name="Retry"/>
+          <LETTER name="GiftCard"/>
+          <LETTER name="Debit"/>
+          <LETTER name="Undo"/>
+          <LETTER name="PINPad"/>
+          <LETTER name="Deplete"/>
+          <LETTER name="CancelFail"/>
+
+
+          <SITEACTION class="MAXSelectTenderItemActionSite" package="max.retail.stores.pos.services.tender.tenderauth"/>
+          <SITEACTION class="AuthorizeCreditActionSite"/>
+          <SITEACTION class="MAXAuthorizeGiftCardActionSite" package="max.retail.stores.pos.services.tender.tenderauth"/>
+          <SITEACTION class="AuthorizeDebitActionSite"/>
+          <SITEACTION class="GiftCardReferralUISite"/>
+          <SITEACTION class="DepleteGiftCardActionSite"/>
+          <SITEACTION class="VerifyCustomerIDUISite"/>
+          <SITEACTION class="ReferChargeUISite"/>
+          <SITEACTION class="VerifyCreditIDUISite"/>
+          <SITEACTION class="RetryCaptureUISite"/>
+          <SITEACTION class="SignatureCaptureOfflineUISite"/>
+          <SITEACTION class="PromptForManagerOverrideUISite" package="oracle.retail.stores.pos.services.tender.override" />
+          <SITEACTION class="AuthorizationOverrideActionSite"/>
+          <SITEACTION class="AuthorizeCheckActionSite"/>
+          <SITEACTION class="SoftDeclineCheckUISite"/>
+          <SITEACTION class="ReferCheckUISite"/>
+          
+          <LANEACTION class="AuthorizationFailedAisle" />
+          <LANEACTION class="DeleteDeclinedTenderAisle" />
+          <LANEACTION class="ReferCreditApprovedActionAisle" />
+          <LANEACTION class="ReferCheckApprovedActionAisle" />  
+          <LANEACTION class="ReferCheckSoftDeclineActionAisle" />
+          <LANEACTION class="ReferGiftCardApprovedActionAisle" />         
+<!--
+          <SIGNAL class="IsSaleReturnTransactionSignal" />
+          <SIGNAL class="IsVoidTransactionSignal" />
+-->
+          <SIGNAL  class="TransReentryLight">
+             <COMMENT >
+                 Light is green we're in Transaction Reentry mode.
+             </COMMENT>
+          </SIGNAL>
+        
+          <SHUTTLE class="SignatureCaptureLaunchShuttle" />
+          <SHUTTLE class="SignatureCaptureReturnShuttle" />
+          <SHUTTLE class="CheckLoginLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+          <SHUTTLE class="CheckLoginReturnShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+          <SHUTTLE class="PINPadLaunchShuttle" />
+<!--
+          <SHUTTLE class="PINPadLaunchShuttle"/>
+
+           <SHUTTLE class="SecurityOverrideLaunchShuttle"
+                    package="oracle.retail.stores.pos.services.admin.security.common"/>
+-->                    
+			<!-- Rev 1.1 Credit Card changes start -->        
+ 		 <SITEACTION class="MAXAuthorizeCreditActionSite" package="max.retail.stores.pos.services.tender.tenderauth"/>
+  			<!-- Rev 1.1 Credit Card changes end -->        
+     </SERVICECODE>
+     <MAP>
+          <REGION region="SERVICE" startsite="SelectTenderItem">
+
+               <SITE name="SelectTenderItem" siteaction="MAXSelectTenderItemActionSite">
+                    <ROAD name="AuthorizationSucceeded"
+                          letter="Success"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="AuthorizeCredit"
+                          letter="Credit"
+                          destination="AuthorizeCreditAction"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="AuthorizeCheck"
+                          letter="Check"
+                          destination="AuthorizeCheckAction"
+                          tape="ADVANCE"
+                          record="OFF"
+                          index="OFF">
+                    </ROAD>
+                    <ROAD 
+                          name="AuthorizeGiftCard"
+                          letter="GiftCard"
+                          destination="AuthorizeGiftCardAction"
+                          tape="ADVANCE"
+                          record="OFF"
+                          index="OFF">
+                    </ROAD>
+                    <ROAD 
+                          name="AuthorizeDebit"
+                          letter="Debit"
+                          destination="AuthorizeDebitAction"
+                          tape="ADVANCE"
+                          record="OFF"
+                          index="OFF">
+                    </ROAD>
+                    <ROAD name="FinishDepletion"
+                          letter="Deplete"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               <SITE name="AuthorizeCreditAction" siteaction="MAXAuthorizeCreditActionSite">
+                    <AISLE name="CreditAuthDeclined"
+                           letter="Failure"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                    <ROAD name="CreditAuthSucceeded"
+                          letter="Success"
+                          destination="SignatureCaptureStation"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                          <LIGHT  signal="TransReentryLight" negate="Y"/>
+                    </ROAD>
+                     <ROAD name="TransReentryCreditAuthSucceeded"
+                          letter="Success"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                          <LIGHT  signal="TransReentryLight"/>
+                    </ROAD>
+                    <ROAD name="VerifyCustomerIDRoad"
+                          letter="CheckID"
+                          destination="VerifyCustomerIDUI"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="VerifyCreditIDRoad"
+                          letter="PositiveID"
+                          destination="VerifyCreditIDUI"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="CreditCallCenterRoad"
+                          letter="ReferCharge"
+                          destination="ReferChargeUI"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="CreditAuthFailed"
+                          letter="CancelFail"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="RetryCreditAuthRoad"
+                          letter="Yes"
+                          destination="AuthorizeCreditAction"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="DeclineRetryCreditAuthRoad"
+                          letter="No"
+                          destination="ReferChargeUI"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="AuthDeclineOverrideRoad"
+                          letter="Override"
+                          destination="AuthorizationOverrideActionForCredit"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               <SITE name="AuthorizationOverrideActionForCredit" siteaction="AuthorizationOverrideActionSite">
+                       <ROAD name="AuthDeclineOverrideSuccess"
+                          letter="Success"
+                          destination="SignatureCaptureStation"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="AuthDeclineOverrideFailure"
+                          letter="Failure"
+                          destination="PromptForManagerOverrideUI"
+                          tape="ADVANCE" record="OFF" index="ON">
+                    </ROAD>
+               </SITE>
+               <SITE name="AuthorizationOverrideAction" siteaction="AuthorizationOverrideActionSite">
+                    <ROAD name="AuthDeclineOverrideSuccess"
+                          letter="Success"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="AuthDeclineOverrideFailure"
+                          letter="Failure"
+                          destination="PromptForManagerOverrideUI"
+                          tape="ADVANCE" record="OFF" index="ON">
+                    </ROAD>
+               </SITE>
+               <SITE name="ReferChargeUI" siteaction="ReferChargeUISite">
+                    <AISLE name="CheckForApprovalOverride"
+                           letter="Approved"
+                           laneaction="ReferCreditApprovedActionAisle">
+                    </AISLE>
+                    <AISLE name="ReferChargeDecline"
+                           letter="Declined"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                    <AISLE name="ReferChargeCancel"
+                           letter="Cancel"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                    <ROAD name="ReferChargeApproval"
+                          letter="Continue"
+                          destination="SignatureCaptureStation"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>                   
+                    <ROAD name="ReferChargeCancelFail"
+                          letter="CancelFail"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="ReferChargeOverrideRoad"
+                          letter="Override"
+                          destination="AuthorizationOverrideActionForCredit"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               <SITE  name="AuthorizeGiftCardAction" siteaction="MAXAuthorizeGiftCardActionSite">
+                   <AISLE 
+                       name="GiftCardAuthDeclined"
+                       letter="Failure"
+                       laneaction="DeleteDeclinedTenderAisle">
+                   </AISLE>
+                   <ROAD 
+                       name="GiftCardAuthSucceeded"
+                       letter="Success"
+                       destination="SelectTenderItem"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="GiftCardAuthSucceededDeplete"
+                       letter="Deplete"
+                       destination="DepleteGiftCardAction"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="GiftCardCallCenterRoad"
+                       letter="ReferCharge"
+                       destination="GiftCardReferralUI"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <!--ROAD 
+                       name="GiftCardCallCenterAuthOfflineRoad"
+                       letter="Referral"
+                       destination="GiftCardReferralUI"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD-->
+				   <!--Rev 1.0 changes start here-->
+				   <ROAD 
+                       name="GiftCardCallCenterAuthOfflineRoad"
+                       letter="Referral"
+                       destination="SelectTenderItem"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="GiftCardAuthFailed"
+                       letter="CancelFail"
+                       destination="SelectTenderItem"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="RetryGiftCardAuthRoad"
+                       letter="Yes"
+                       destination="AuthorizeGiftCardAction"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="AuthDeclineOverrideRoad"
+                       letter="Override"
+                       destination="AuthorizationOverrideAction"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+               </SITE>
+               <SITE  name="DepleteGiftCardAction" siteaction="DepleteGiftCardActionSite">
+                   <AISLE 
+                       name="GiftCardDepleteDeclined"
+                       letter="Failure"
+                       laneaction="DeleteDeclinedTenderAisle">
+                   </AISLE>
+                   <ROAD 
+                       name="GiftCardDepleteSucceeded"
+                       letter="Success"
+                       destination="SelectTenderItem"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="GiftCardDepleteCallCenterRoad"
+                       letter="ReferCharge"
+                       destination="GiftCardReferralUI"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="GiftCardDepleteFailed"
+                       letter="CancelFail"
+                       destination="SelectTenderItem"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="RetryGiftCardDepleteRoad"
+                       letter="Yes"
+                       destination="DepleteGiftCardAction"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="DepleteDeclineOverrideRoad"
+                       letter="Override"
+                       destination="AuthorizationOverrideAction"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+               </SITE>
+               <SITE  name="GiftCardReferralUI" siteaction="GiftCardReferralUISite">
+                   <AISLE name="GiftCardReferralDecline"
+                           letter="Declined"
+                           laneaction="DeleteDeclinedTenderAisle">
+                   </AISLE>
+                   <AISLE name="GiftCardReferralCancel"
+                           letter="Cancel"
+                           laneaction="DeleteDeclinedTenderAisle">
+                   </AISLE>
+                   <AISLE name="CheckForGiftCardApprovalOverride"
+                           letter="Approved"
+                           laneaction="ReferGiftCardApprovedActionAisle">
+                    </AISLE>
+                    <ROAD name="ReferGiftCardApproval"
+                          letter="Continue"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                   <ROAD 
+                       name="GiftCardReferralDeclineContinue"
+                       letter="CancelFail"
+                       destination="SelectTenderItem"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+                   <ROAD 
+                       name="GiftCardReferralOverrideRoad"
+                       letter="Override"
+                       destination="AuthorizationOverrideAction"
+                       tape="ADVANCE"
+                       record="OFF"
+                       index="OFF">
+                   </ROAD>
+               </SITE>
+               <SITE name="VerifyCustomerIDUI" siteaction="VerifyCustomerIDUISite">
+                      <AISLE name="VerifyCustomerIDCancel"
+                          letter="Cancel"
+                          laneaction="DeleteDeclinedTenderAisle">
+                   </AISLE>
+                    <ROAD name="CustomerIDInfoEntered"
+                          letter="Next"
+                          destination="SignatureCaptureStation"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>                                        
+                    <ROAD name="CreditIDFailed"
+                          letter="CancelFail"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               <SITE name="VerifyCreditIDUI" siteaction="VerifyCreditIDUISite">
+                       <AISLE name="PositiveIdDeclined"
+                        letter="No"
+                        laneaction="DeleteDeclinedTenderAisle">
+                       </AISLE>
+                    <ROAD name="CreditIDConfirmed"
+                          letter="Yes"
+                          destination="SignatureCaptureStation"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="CreditIDNotConfirmed"
+                          letter="CancelFail"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               <SITE name="RetryCapture"
+                     siteaction="RetryCaptureUISite">
+                     <ROAD
+                            name="RetryCancelled"
+                            letter="No"
+                            destination="SelectTenderItem"
+                            tape="ADVANCE" record="OFF" index="OFF">
+                     </ROAD>
+                     <ROAD  name="RetryRequested"
+                            letter="Yes"
+                            destination="SignatureCaptureStation"
+                            tape="ADVANCE" record="OFF" index="OFF">
+                     </ROAD>
+               </SITE>
+               <SITE name="DeviceOffline"
+                     siteaction="SignatureCaptureOfflineUISite">
+                     <ROAD
+                            name="OfflineAcknowledged"
+                            letter="Ok"
+                            destination="SelectTenderItem"
+                            tape="ADVANCE" record="OFF" index="OFF">
+                     </ROAD>
+               </SITE>
+                <STATION name="SignatureCaptureStation"
+                         launchshuttle="SignatureCaptureLaunchShuttle"
+                         returnshuttle="SignatureCaptureReturnShuttle"
+                         servicename="services.signaturecapture.signaturecapture" targettier="APPLICATIONTIER">
+                <AISLE name="SignatureNotVerified"
+                       letter="No"
+                       laneaction="AuthorizationFailedAisle" />
+                <ROAD name="SignatureCaptured"
+                      letter="Success"
+                      destination="SelectTenderItem" tape="ADVANCE" record="OFF" index="OFF"/>
+                <ROAD name="SignatureCausedDecline"
+                      letter="Declined"
+                      destination="SelectTenderItem" tape="ADVANCE" record="OFF" index="OFF"/>
+                <ROAD name="SignatureNotCaptured"
+                      letter="Failure"
+                      destination="RetryCapture" tape="ADVANCE" record="OFF" index="OFF"/>
+                <ROAD name="SignatureVerified"
+                      letter="Yes"
+                      destination="SelectTenderItem" tape="ADVANCE" record="OFF" index="OFF"/>
+                <ROAD name="SignatureCaptureDeviceOffline"
+                      letter="Offline"
+                      destination="DeviceOffline" tape="ADVANCE" record="OFF" index="OFF"/>
+                <ROAD name="DeviceUnavailable"
+                      letter="Unavailable"
+                      destination="SelectTenderItem" tape="ADVANCE" record="OFF" index="OFF"/>
+                </STATION>
+              <SITE name="PromptForManagerOverrideUI" siteaction="PromptForManagerOverrideUISite">
+                    <AISLE name="OverrideNotSelectedAisle"
+                           letter="Failure"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                   <ROAD name="ManagerOverrideChosen"
+                         letter="Yes"
+                         destination="CheckLoginStation"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                   </ROAD>
+                   <ROAD name="OverrideFailed"
+                         letter="CancelFail"
+                         destination="SelectTenderItem"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                   </ROAD>
+              </SITE>
+              
+               <SITE name="AuthorizeCheckAction" siteaction="AuthorizeCheckActionSite">
+                    <AISLE name="CheckAuthDeclined"
+                           letter="Failure"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                    <ROAD name="CheckAuthSucceeded"
+                          letter="Success"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="VerifyCheckIDRoad"
+                          letter="PositiveID"
+                          destination="SoftDeclineCheckUI"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="CheckCallCenterRoad"
+                          letter="ReferCheck"
+                          destination="ReferCheckUI"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="CheckAuthFailed"
+                          letter="CancelFail"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="RetryCheckAuthRoad"
+                          letter="Retry"
+                          destination="AuthorizeCheckAction"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="AuthDeclineOverrideRoad"
+                          letter="Override"
+                          destination="AuthorizationOverrideAction"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               
+               <SITE name="SoftDeclineCheckUI" siteaction="SoftDeclineCheckUISite">
+                    <AISLE name="CheckForSDOverride"
+                           letter="Yes"
+                           laneaction="ReferCheckSoftDeclineActionAisle">
+                    </AISLE>
+                    <AISLE name="SoftDeclinedCheckDeclined"
+                           letter="No"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                    <ROAD name="SoftDeclineApproved"
+                          letter="Continue"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>    
+                    <ROAD name="SoftDeclineCancelFailure"
+                          letter="CancelFail"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>                  
+                    <ROAD name="SoftDeclineCheckOverrideRoad"
+                          letter="Override"
+                          destination="AuthorizationOverrideAction"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               
+               <SITE name="ReferCheckUI" siteaction="ReferCheckUISite">
+                    <AISLE name="CheckForApprovalOverride"
+                           letter="Approved"
+                           laneaction="ReferCheckApprovedActionAisle">
+                    </AISLE>
+                    <ROAD name="ReferCheckApproval"
+                          letter="Continue"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="ReferCheckFailure"
+                          letter="Declined"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="ReferCheckOverrideRoad"
+                          letter="Override"
+                          destination="AuthorizationOverrideAction"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               <SITE name="AuthorizeDebitAction" siteaction="AuthorizeDebitActionSite">
+                    <AISLE name="DebitAuthDeclined"
+                           letter="Failure"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                    <AISLE name="DebitAuthRetryDeclined"
+                           letter="No"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                    <AISLE name="DebitAuthDeclined2"
+                           letter="Ok"
+                           laneaction="DeleteDeclinedTenderAisle">
+                    </AISLE>
+                    <ROAD name="DebitAuthSucceeded"
+                          letter="Success"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="DebitAuthFailed"
+                          letter="CancelFail"
+                          destination="SelectTenderItem"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="RetryCreditAuthRoad"
+                          letter="Yes"
+                          destination="AuthorizeDebitAction"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD name="RetryPinEntryRoad"
+                          letter="PINPad"
+                          destination="PINPadStation"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </SITE>
+               <STATION name="PINPadStation"
+                       servicename="_360commerce.tender.pinpad"
+                       targettier="APPLICATIONTIER"
+                       launchshuttle="PINPadLaunchShuttle">
+                   <AISLE name="PINPadOffline"
+                          letter="Failure"
+                          laneaction="DeleteDeclinedTenderAisle">
+                   </AISLE>
+                   <AISLE name="PINPadUndo"
+                          letter="Undo"
+                          laneaction="DeleteDeclinedTenderAisle">
+                   </AISLE>
+                   <AISLE name="PINPadCancel"
+                          letter="Cancel"
+                          laneaction="DeleteDeclinedTenderAisle">
+                   </AISLE>
+                   <ROAD name="RetrievedPIN"
+                         letter="Success"
+                         destination="AuthorizeDebitAction"
+                         tape="ADVANCE"
+                         record="OFF"
+                         index="OFF">
+                        <COMMENT>
+                            If the PIN was successfully retrieved the TenderDebit with Encrypted PIN block
+                            is added to the transaction for batch authorization by ValidDebitInfoEnteredRoad
+                        </COMMENT>
+                   </ROAD>
+                   <ROAD name="PinPadCancelFail"
+                         letter="CancelFail"
+                         destination="SelectTenderItem"
+                         tape="ADVANCE" record="OFF" index="OFF">
+                   </ROAD>
+              </STATION>
+              <STATION name="CheckLoginStation"
+                  servicename="services.operatorid.checklogin"
+                  targettier="CURRENTTIER"
+                  launchshuttle="CheckLoginLaunchShuttle"
+                  returnshuttle="CheckLoginReturnShuttle">
+                  <ROAD
+                      name="LoginSucceeded"
+                      letter="Success"
+                      destination="LastIndexed"
+                      tape="REWIND"
+                      record="OFF"
+                      index="OFF">
+                  </ROAD>
+                  <ROAD
+                      name="LoginFailed"
+                      letter="Failure"
+                      destination="PromptForManagerOverrideUI"
+                      tape="ADVANCE" record="OFF" index="OFF">
+                  </ROAD>
+              </STATION>          
+
+              <SYSTEMSITE name="LastIndexed" action="BACKUP" />
+              <SYSTEMSITE name="Final" action="RETURN"/>
+
+          </REGION>
+     </MAP>
+</SERVICE>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+  <page>
+    <region>
+      <left-sidebar>
+        <border-text>CONFIDENTIAL INFORMATION</border-text>
+      </left-sidebar>
+      <right-sidebar>
+        <border-text>NOT FOR EXTERNAL DISTRIBUTION</border-text>
+      </right-sidebar>
+    </region>
+  </page>
+  <!-- receipt blueprint generated output-->
+  <receipt/>
+</document>

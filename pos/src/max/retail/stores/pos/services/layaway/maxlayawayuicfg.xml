@@ -1,0 +1,498 @@
+<?xml version='1.0' ?>
+<!-- 
+/********************************************************************************
+ *   
+ *	Copyright (c) 2016 - 2017 MAX Hypermarket, Inc    All Rights Reserved.
+ *	
+ *
+ *  Rev 1.0     Jan 08, 2017	        Ashish Yadav		Changes for bug fix (Undo disable during layaway payment)
+ *
+ ********************************************************************************/
+ -->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<UICFG>
+    <BEAN
+        specName="LayawayOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="New"
+            enabled="true"
+            keyName="F2"
+            labelTag="New"/>
+
+        <BUTTON
+            actionName="Find"
+            enabled="true"
+            keyName="F3"
+            labelTag="Find"/>
+
+    </BEAN>
+
+    <BEAN
+        specName="CustomerLayawaySpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="CustomerInfoBean">
+    </BEAN>
+
+    <BEAN
+        specName="CustomerLayawayButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+    </BEAN>
+
+    <BEAN
+        specName="FindLayawayButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Layaway"
+            enabled="true"
+            keyName="F2"
+            labelTag="LayawayNumber"/>
+        <BUTTON
+            actionName="Customer"
+            enabled="true"
+            keyName="F3"
+            labelTag="Customer"/>
+    </BEAN>
+
+    <BEAN specName="LayawayListButtonSpec"
+          configuratorPackage="oracle.retail.stores.pos.ui"
+          configuratorClassName="POSBeanConfigurator"
+          beanPackage="oracle.retail.stores.pos.ui.beans"
+          beanClassName="NavigationButtonBean">
+        <BUTTON actionName="Payment" enabled="true"  keyName="F2" labelTag="Payment"/>
+        <BUTTON actionName="Pickup"  enabled="true"  keyName="F3" labelTag="Pickup"/>
+        <BUTTON actionName="Delete"  enabled="true"  keyName="F4" labelTag="Delete"/>
+    </BEAN>
+
+    <BEAN specName="LayawayListSpec"
+          configuratorPackage="oracle.retail.stores.pos.ui"
+          configuratorClassName="POSBeanConfigurator"
+          beanPackage="oracle.retail.stores.pos.ui.beans"
+          beanClassName="ListBean">
+
+        <BEANPROPERTY propName="focused" propValue="true"/>
+
+        <BEANPROPERTY propName="renderer"
+                      propValue="oracle.retail.stores.pos.ui.beans.LayawayItemRenderer"/>
+
+        <BEANPROPERTY propName="labelTags" propValue="LayawayNumberLabel,FirstItemLabel,StatusLabel,DateDueLabel,BalanceLabel"/>
+
+        <BEANPROPERTY propName="labelWeights" propValue="30,28,14,14,14"/>
+    </BEAN>
+
+    <BEAN
+        specName="PaymentDetailSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="PaymentDetailBean">
+    </BEAN>
+
+    <BEAN
+        specName="OfflineLayawaySpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="OfflinePaymentBean">
+    </BEAN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="layawayText"
+        specName="LAYAWAY_OPTIONS">
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[false]"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="LayawayOptionsScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="LayawayOptionsPrompt"/>
+
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="LayawayOptionsButtonSpec">
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="layawayText"
+        specName="CUSTOMER_LAYAWAY">
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="CustomerLayawaySpec">
+            <BEANPROPERTY
+                propName="OptionalValidatingFields" propValue="firstNameField,lastNameField,customerNameField,addressLine2Field,addressLine3Field,extPostalCodeField"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="addressLine1Field,cityField,postalCodeField,telephoneField"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="LayawayCustomerScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="LayawayCustomerPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="CustomerLayawayButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[false],Cancel[true],Undo[false],Next[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CustomerLayawaySpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CustomerLayawaySpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="CustomerLayawaySpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="layawayText"
+        specName="FIND_LAYAWAY">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[false]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="FindLayawayPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="FindLayawayScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="FindLayawayButtonSpec">
+        </ASSIGNMENT>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="layawayText"
+        specName="ENTER_LAYAWAY">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Next[false]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="LayawayNumberScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="LayawayNumberPrompt"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="8"/>
+            <BEANPROPERTY propName="maxLength" propValue="18"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+                deviceSessionName="ScannerSession"
+                targetBeanSpecName="PromptAndResponsePanelSpec"
+                listenerPackage="java.beans"
+                listenerInterfaceName="PropertyChangeListener"
+                adapterPackage="oracle.retail.stores.foundation.manager.gui"
+                adapterClassName="InputDataAdapter"
+                adapterParameter="setScannerData"
+                activateMode="MODE_SINGLESCAN"/>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="layawayText"
+                   modelPackage="oracle.retail.stores.pos.ui.beans"
+                   modelClassName="ListBeanModel"
+                   specName="LAYAWAY_LIST">
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+                    beanSpecName="GlobalNavigationPanelSpec">
+
+            <BEANPROPERTY propName="buttonStates"
+                          propValue="Help[true],Clear[false],Cancel[true],Undo[true],Next[false]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="StatusPanel"
+                    beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY propName="screenNameTag" propValue="LayawayListScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="enterData" propValue="false"/>
+            <BEANPROPERTY propName="promptTextTag" propValue="LayawayListPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT areaName="LocalNavigationPanel" beanSpecName="LayawayListButtonSpec">
+        </ASSIGNMENT>
+        <ASSIGNMENT areaName="WorkPanel" beanSpecName="LayawayListSpec">
+        </ASSIGNMENT>
+        <CONNECTION
+            sourceBeanSpecName="LayawayListSpec"
+            targetBeanSpecName="LayawayListButtonSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="ListSelectionListener"
+            adapterPackage="oracle.retail.stores.pos.ui.behavior"
+            adapterClassName="LayawayListAdapter"/>
+    </OVERLAYSCREEN>
+<!-- Changes starts for rev 1.0 (Ashish : Bug fix) -->
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="layawayText"
+        specName="PAYMENT_DETAIL">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[false],Clear[false],Next[true]"/>
+        </ASSIGNMENT>
+<!-- Changes ends for rev 1.0 (Ashish : Bug fix) -->
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="PaymentDetailSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="Payment,Location"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="PaymentDetailScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="PaymentDetailPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="PaymentDetailSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="PaymentDetailSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="PaymentDetailSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="layawayText"
+        specName="REFUND_DETAIL">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="PaymentDetailSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="Deletion Fee"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="RefundDetailScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="RefundDetailPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="PaymentDetailSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="PaymentDetailSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="PaymentDetailSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="layawayText"
+        specName="LAYAWAY_OFFLINE">
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="OfflineLayawaySpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="customerNameField,layawayNumberField,expirationDateField,balanceDueField,paymentAmount"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="OfflinePaymentScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="OfflinePaymentPrompt"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[true]"/>
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="OfflineLayawaySpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="OfflineLayawaySpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="OfflineLayawaySpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="OfflineLayawaySpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+    </OVERLAYSCREEN>
+
+</UICFG>

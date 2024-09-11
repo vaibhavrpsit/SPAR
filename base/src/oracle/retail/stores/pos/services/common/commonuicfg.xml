@@ -1,0 +1,428 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/common/commonuicfg.xml /main/22 2014/03/18 16:18:16 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   03/18/14 - Make allowable characters configurable.
+ *    yiqzhao   03/17/14 - Allow hypen in item id and serial number.
+ *    abhinavs  07/18/13 - Fix to enable Dashboard/browser for IBM JRE
+ *    cgreene   06/04/13 - implement manager override as dialogs
+ *    vbongu    11/26/12 - Dashboard changes
+ *    rsnayak   07/05/11 - Added Done Button
+ *    cgreene   06/07/11 - update to first pass of removing pospal project
+ *    vtemker   03/03/11 - Changes for Print Preview Reports Quickwin
+ *    abhayg    06/11/10 - Restricted copying of Giftcard number by Ctrl-C or
+ *                         Ctrl-X
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    nkgautam  01/27/10 - changed button keys of pickup and delivery
+ *    abondala  01/02/10 - Update Header date
+ *    cgreene   12/16/09 - add Keys button
+ *    nkgautam  11/17/09 - Added SerializedItemButtonSpec to accomodate pickup
+ *                         and delivery in serialisation tour
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+    <BEAN
+        specName="EmptyButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+    </BEAN>
+
+    <BEAN
+        specName="LogoSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="LogoBean">
+    </BEAN>
+
+    <BEAN
+        specName="PrintButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ValidateNavigationButtonBean">
+        <BUTTON
+            labelTag="Print"
+            actionName="Print"
+            enabled="true"
+            keyName="F2" />
+        <BUTTON
+            labelTag="Done"
+            actionName="Done"
+            enabled="true"
+            keyName="F3" />      
+    </BEAN>
+    
+    <BEAN
+        specName="PrintAndPreviewButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ValidateNavigationButtonBean">
+        <BUTTON
+            labelTag="Print"
+            actionName="Print"
+            enabled="true"
+            keyName="F2" />
+        <BUTTON
+            actionName="Preview" 
+            enabled="true"
+            keyName="F3"
+            labelTag="Preview"/>
+    </BEAN>
+    
+    <BEAN
+        specName="DialogSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DialogBean">
+        <BEANPROPERTY propName="cachingScheme" propValue="none"/>
+    </BEAN>
+
+    <BEAN
+        specName="ItemNotFoundSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ItemNotFoundBean">
+    </BEAN>
+
+    <BEAN
+      specName="HelpSpec"
+      configuratorPackage="oracle.retail.stores.pos.ui"
+      configuratorClassName="POSBeanConfigurator"
+      beanPackage="oracle.retail.stores.pos.ui.beans"
+      beanClassName="DisplayHelpBean">
+    </BEAN>
+
+    <BEAN
+        specName="SerializedItemButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean"
+        cachingScheme="ONE">
+        <BUTTON
+            labelTag="Pickup"
+            actionName="Pickup"
+            enabled="true"
+            keyName="F2" />
+        <BUTTON
+            labelTag="Delivery"
+            actionName="Delivery"
+            enabled="true"
+            keyName="F3" />
+
+    </BEAN>
+
+    <!-- The embedded dialog screen that is used for many dialogs. -->
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDialogSpec"
+        resourceBundleFilename="dialogText"
+        specName="DIALOG_TEMPLATE">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="responseField" propValue="javax.swing.JTextField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="DialogSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+        </ASSIGNMENT>
+
+        <CONNECTION sourceBeanSpecName="DialogSpec"
+                targetBeanSpecName="StatusPanelSpec"
+                listenerPackage="oracle.retail.stores.pos.ui.behavior"
+                listenerInterfaceName="ScreenNameListener"/>
+
+    </OVERLAYSCREEN>
+
+    <!-- The popup dialog screen that is re-used for many dialogs. -->
+    <OVERLAYSCREEN
+        specName="DIALOG_POPUP"
+        resourceBundleFilename="dialogText"
+        defaultScreenSpecName="DefaultDialogSpec" >
+        <ASSIGNMENT
+            areaName="DialogMainPanel"
+            beanSpecName="DialogSpec" />
+        <ASSIGNMENT
+            areaName="DialogButtonsPanel"
+            beanSpecName="DialogOneButtonSpec"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="commonText"
+        specName="ITEM_NOT_FOUND">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[true],Cancel[false],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="ItemNotFoundSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="ItemDescriptionField,PriceField,Quantity,UnitOfMeasureField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ItemNotFoundScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="ItemNotFoundPrompt"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="ItemNotFoundSpec"/>
+
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="ItemNotFoundSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="ItemNotFoundSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="commonText"
+        specName="GIFT_CARD">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="GiftCardScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="GiftCardPrompt"/>
+            <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.RestrictCutCopyTextField"/>
+            <BEANPROPERTY propName="minLength" propValue="13"/>
+            <BEANPROPERTY propName="maxLength" propValue="19"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="false"/>
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="MSRSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setMSRData"
+            activateMode="MODE_DECODESCAN"/>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="commonText"
+        specName="AUTHORIZATION">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="AuthorizationScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="AuthorizationPrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[false],Clear[false],Cancel[false],Undo[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+        resourceBundleFilename="commonText"
+        specName="CLOSE_DRAWER">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates" propValue="Help[false],Clear[false],Cancel[false],Undo[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="CloseDrawerScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="CloseDrawerPrompt"/>
+            <BEANPROPERTY
+                propName="enterData" propValue="false"/>
+            <BEANPROPERTY
+                propName="responseField" propValue="javax.swing.JTextField"/>
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="ResponseEntryScreenSpec"
+        resourceBundleFilename="commonText"
+        specName="ITEM_SERIAL_INPUT">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SerializedItemScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="SerializedItemPrompt"/>
+            <BEANPROPERTY
+                propName="responseField"
+                propValue="oracle.retail.stores.pos.ui.beans.AlphaNumericPlusTextField"/>
+            <BEANPROPERTY
+                propName="minLength"
+                propValue= "1"/>
+            <BEANPROPERTY
+                propName="maxLength"
+                propValue= "25"/>
+            <BEANPROPERTY
+            	propName="doubleByteCharsAllowed"
+            	propValue="false"/>
+            <BEANPROPERTY
+                propName="allowableCharacters"
+                propValue="-"/>            	
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="SerializedItemButtonSpec">
+        </ASSIGNMENT>
+
+        <DEVICECONNECTION
+            deviceSessionName="ScannerSession"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="java.beans"
+            listenerInterfaceName="PropertyChangeListener"
+            adapterPackage="oracle.retail.stores.foundation.manager.gui"
+            adapterClassName="InputDataAdapter"
+            adapterParameter="setScannerData"
+            activateMode="MODE_SINGLESCAN"/>
+
+         <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </OVERLAYSCREEN>
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultHelpSpec"
+        specName="HELP">
+
+        <ASSIGNMENT
+            areaName="BrowserPanel"
+            beanSpecName="HelpSpec"/>
+    </OVERLAYSCREEN>
+
+    <!-- This is the screen definition for the non-modal keyboard dialog. -->
+    <OVERLAYSCREEN
+        defaultScreenSpecName="KeyboardDialogSpec"
+        resourceBundleFilename="keyboardText"
+        specName="ONSCREEN_KEYBOARD">
+
+        <ASSIGNMENT
+            areaName="KeyboardDialogPanel"
+            beanSpecName="OnScreenKeyboardBeanSpec"/>
+    </OVERLAYSCREEN>
+
+</UICFG>

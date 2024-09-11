@@ -1,0 +1,1225 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/config/defaults/defaultuicfg.xml /main/46 2014/05/16 14:33:38 abondala Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    icole     09/20/14 - added property to restrict where the browser can be
+ *                         ivoked by clicking on the logo.   
+ *    abondala  05/14/14 - notifications requirement
+ *    mkutiana  11/04/13 - Added single Cancel button bean for Manager override
+ *                         with Fingerprint Login dialog
+ *    abhinavs  07/17/13 - Fix to enable Dashboard/browser for IBM JRE
+ *    arabalas  07/10/13 - changed the POS ui property type declaration from
+ *                         'proptype' to 'propType'
+ *    rgour     07/10/13 - Removing keyName from DialogOneButton because it has
+ *                         same text Enter for label and keyName both
+ *    cgreene   06/04/13 - implement manager override as dialogs
+ *    abondala  05/08/13 - customer dialog ui labels
+ *    cgreene   12/14/12 - Button image and plaf loading updates
+ *    mjwallac  10/22/12 - Button ui changes
+ *    yiqzhao   09/27/12 - remove relateditemuicfg from sale
+ *    yiqzhao   09/26/12 - refactor related item to add cross sell, upsell and
+ *                         substitute, remove pick one and pick many
+ *    yiqzhao   07/23/12 - modify order search flow for xchannel order and
+ *                         special order
+ *    jswan     04/18/12 - Modified to support cross channel create pickup
+ *                         order feature.
+ *    mkutiana  08/04/11 - Added StatusPanel to DialogTemplateSpec to allow for
+ *                         CONNECTION to StatusBean.OnlineDeviceStatusListener
+ *                         (see manageruicfg.xml).
+ *    abondala  07/28/11 - changed the logo and resolution
+ *    rrkohli   05/24/11 - reducing gap between stacked status panel and total
+ *                         status panel
+ *    sgu       05/23/11 - remove unused ui config house account payment
+ *    rrkohli   05/19/11 - nanged names chaged for pos ui quickwin
+ *    rrkohli   05/09/11 - formatting as per oracle formatter
+ *    rrkohli   05/05/11 - adding CommonStatusPanelSpec for POS UI quickwin
+ *    rrkohli   05/05/11 - POS UI quickwin
+ *    nkgautam  07/06/10 - bill pay report changes
+ *    cgreene   07/02/10 - added DialogOneButtonSpec
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  05/12/10 - Search external orders flow
+ *    cgreene   01/05/10 - implement parameter enabled bean spec
+ *    cgreene   12/16/09 - add Keys button
+ *    cgreene   12/16/09 - added onscreen keyboard beans, screens, templates
+ *    cgreene   12/07/09 - added Keys button
+ *    cgreene   10/30/09 - moved BrowserFoundationDialogDisplaySpec from
+ *                         browserfoundationuicfg.xml and added displayScales
+ *                         for dialogs
+ *    cgreene   09/17/09 - added specs to enable popup dialogs
+ *    masahu    02/19/09 - Enable the close button in F1/HELP SCREEN
+ *    aariyer   02/05/09 - Installer changes for Item basket
+ *    vikini    02/05/09 - commented Itembasket changes.
+ *    aariyer   02/04/09 - Files for Item Basket Feature
+ *    vikini    02/03/09 - Commenting the itembasket ui config
+ *    aariyer   02/02/09 - Added files for Item Basket feature
+ *    mdecama   12/05/08 - Updates to the RETURN_RESPONSE Screen
+ *    aphulamb  11/16/08 - add entry for datareplication
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <!-- The display spec for when displaying main pos window. -->
+    <DISPLAY specName="EYSPOSDisplaySpec">
+        <!-- Set the display width and height when not in PROD (fullscreen) mode. -->
+        <PROPERTY propName="displayWidth" propValue="1024" propType="int"/>
+        <PROPERTY propName="displayHeight" propValue="768" propType="int"/>
+        <!-- Set the resource bundle and key to use for finding the titlebar text. -->
+        <PROPERTY propName="resourceBundleFilename" propValue="commonText"/>
+        <!-- This text is used when resource bundle set above above cannot be found. -->
+        <PROPERTY propName="defaultTitle" propValue="Oracle Retail Point-of-Service"/>
+        <PROPERTY propName="titleTag" propValue="posApplicationTitle"/>
+        <PROPERTY propName="closeButton" propValue="enabled"/>
+    </DISPLAY>
+
+    <!-- The display spec for when displaying the help dialog. -->
+    <DISPLAY specName="HelpDialogDisplaySpec">
+        <!-- Set the PROD size of the help dialog, 1-100, compared to EYSPOSDisplaySpec -->
+        <PROPERTY propName="displayScale" propValue="100" propType="int"/>
+        <!-- Set the display width and height when not in PROD (fullscreen) mode. -->
+        <PROPERTY propName="width" propValue="1024" propType="int"/>
+        <PROPERTY propName="height" propValue="768" propType="int"/>
+        <!-- Set the resource bundle and key to use for finding the titlebar text. -->
+        <PROPERTY propName="resourceBundleFilename" propValue="commonText"/>
+        <!-- This text is used when resource bundle set above above cannot be found. -->
+        <PROPERTY propName="defaultTitle" propValue="Oracle Retail Point-of-Service"/>
+        <PROPERTY propName="titleTag" propValue="posHelpTitle"/>
+        <PROPERTY propName="closeButton" propValue="enabled"/>
+    </DISPLAY>
+
+    <!-- The display spec for when displaying popup dialogs. -->
+    <DISPLAY specName="DialogDisplaySpec">
+        <!-- Set the PROD size of the help dialog, 1-100, compared to EYSPOSDisplaySpec -->
+        <PROPERTY propName="displayScale" propValue="60" propType="int"/>
+        <!-- Set the display width and height when not in PROD (fullscreen) mode. -->
+        <PROPERTY propName="width" propValue="704" propType="int"/>
+        <PROPERTY propName="height" propValue="552" propType="int"/>
+        <!-- Set the resource bundle and key to use for finding the titlebar text. -->
+        <PROPERTY propName="resourceBundleFilename" propValue="commonText"/>
+        <!-- This text is used when resource bundle set above above cannot be found. -->
+        <PROPERTY propName="defaultTitle" propValue="Oracle Retail Point-of-Service"/>
+        <PROPERTY propName="titleTag" propValue="posApplicationTitle"/>
+        <PROPERTY propName="closeButton" propValue="enabled"/>
+    </DISPLAY>
+
+    <!-- The display spec for when displaying the embedded-browser. -->
+    <DISPLAY specName="BrowserFoundationDialogDisplaySpec">
+        <!-- Set the display width and height when not in PROD (fullscreen) mode. -->
+        <PROPERTY propName="displayWidth" propValue="1024" propType="int"/>
+        <PROPERTY propName="displayHeight" propValue="768" propType="int"/>
+        <PROPERTY propName="title" propValue="Oracle Retail Point-of-Service Browser Display"/>
+    </DISPLAY>
+
+    <!-- The display spec for when displaying the non-modal keyboard dialog. -->
+    <DISPLAY specName="KeyboardDialogDisplaySpec">
+        <PROPERTY propName="closeButton" propValue="enabled"/>
+    </DISPLAY>
+
+    <TEMPLATE
+        specName="EYSPOSTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+
+        <AREA
+            areaName="PromptAndResponsePanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.0" anchor="NORTHWEST" fill="HORIZONTAL" ipadx="0"
+                ipady="0">
+                <INSETS top="6" left="6" bottom="3" right="3"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="WorkPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="1" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="1.0" anchor="CENTER" fill="BOTH" ipadx="0"
+                ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="StatusPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="2" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.0" anchor="SOUTH" fill="HORIZONTAL" ipadx="0"
+                ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="GlobalNavigationPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="3" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.0" anchor="SOUTH" fill="HORIZONTAL" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="LocalNavigationPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="1" gridy="0" gridwidth="1" gridheight="3"
+                weightx="0.0" weighty="1.0" anchor="EAST" fill="BOTH" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="SmallLogoPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="1" gridy="3" gridwidth="1" gridheight="1"
+                weightx="0.0" weighty="0.0" anchor="CENTER" fill="NONE" ipadx="0"
+                ipady="0">
+            <INSETS top="0" left="5" bottom="0" right="0"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+    </TEMPLATE>
+
+    <TEMPLATE specName="POSStackedStatusTemplateSpec"
+        layoutManagerPackage="java.awt" layoutManagerClassName="GridBagLayout">
+
+        <AREA areaName="PromptAndResponsePanel" containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS gridx="0" gridy="0" gridwidth="2"
+                gridheight="1" weightx="1.0" weighty="0.0" anchor="NORTHWEST" fill="HORIZONTAL"
+                ipadx="0" ipady="0">
+                <INSETS top="6" left="6" bottom="3" right="3" />
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA areaName="WorkPanel" containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS gridx="0" gridy="1" gridwidth="2"
+                gridheight="1" weightx="1.0" weighty="1.0" anchor="CENTER" fill="BOTH"
+                ipadx="0" ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3" />
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA areaName="StatusPanel" containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS gridx="0" gridy="2" gridwidth="1"
+                gridheight="1" weightx="0.5" weighty="0.0" anchor="WEST" fill="BOTH"
+                ipadx="0" ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="0" />
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA areaName="TotalStatusPanel" containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS gridx="1" gridy="2" gridwidth="1"
+                gridheight="1" weightx="0.5" weighty="0.0" anchor="EAST" fill="BOTH"
+                ipadx="0" ipady="0">
+                <INSETS top="3" left="2" bottom="3" right="3" />
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA areaName="GlobalNavigationPanel" containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS gridx="0" gridy="3" gridwidth="2"
+                gridheight="1" weightx="1.0" weighty="0.0" anchor="SOUTH" fill="HORIZONTAL"
+                ipadx="0" ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA areaName="LocalNavigationPanel" containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS gridx="2" gridy="0" gridwidth="1"
+                gridheight="3" weightx="0.0" weighty="1.0" anchor="EAST" fill="BOTH"
+                ipadx="0" ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA areaName="SmallLogoPanel" containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS gridx="2" gridy="3" gridwidth="1"
+                gridheight="1" weightx="0.0" weighty="0.0" anchor="CENTER" fill="NONE"
+                ipadx="0" ipady="0">
+                <INSETS top="0" left="5" bottom="0" right="0" />
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+    </TEMPLATE>
+
+    <TEMPLATE
+        specName="ValidatingTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+
+        <AREA
+            areaName="PromptAndResponsePanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.0" anchor="NORTHWEST" fill="HORIZONTAL" ipadx="0"
+                ipady="0">
+                <INSETS top="6" left="6" bottom="3" right="3"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="WorkPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="1" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="1.0" anchor="NORTHWEST" fill="BOTH" ipadx="0"
+                ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="HelpPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="2" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.0" anchor="NORTHWEST" fill="BOTH" ipadx="0"
+                ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="StatusPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="3" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.0" anchor="NORTHWEST" fill="HORIZONTAL" ipadx="0"
+                ipady="0">
+                <INSETS top="3" left="6" bottom="3" right="3"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="GlobalNavigationPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="4" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.0" anchor="NORTHWEST" fill="HORIZONTAL" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="LocalNavigationPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="1" gridy="0" gridwidth="1" gridheight="4"
+                weightx="0.0" weighty="1.0" anchor="EAST" fill="BOTH" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="SmallLogoPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="1" gridy="4" gridwidth="1" gridheight="1"
+                weightx="0.0" weighty="0.0" anchor="CENTER" fill="NONE" ipadx="0"
+                ipady="0">
+            <INSETS top="0" left="5" bottom="0" right="0"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+    </TEMPLATE>
+
+    <TEMPLATE
+        specName="OnlineOfficeTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+
+        <AREA
+            areaName="BrowserPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="2" gridheight="1"
+                weightx="1.0" weighty="80.0" anchor="NORTH" fill="BOTH" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="BrowserStatusPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="1" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.00" anchor="SOUTH" fill="BOTH" ipadx="0"
+                ipady="0">
+                <INSETS top="0" left="0" bottom="0" right="0"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="OnlineOfficeNavigationPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="5" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.0" anchor="SOUTH" fill="HORIZONTAL" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+    </TEMPLATE>
+
+    <TEMPLATE
+        specName="BrowserTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+
+        <AREA
+            areaName="BrowserPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="80.0" anchor="NORTH" fill="BOTH" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="BrowserStatusPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="1" gridwidth="1" gridheight="1"
+                weightx="1.0" weighty="0.00" anchor="SOUTH" fill="BOTH" ipadx="0"
+                ipady="0">
+                <INSETS top="0" left="0" bottom="0" right="0"/>
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="LocalNavigationPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="1" gridy="0" gridwidth="1" gridheight="2"
+                weightx="0.03" weighty="0.1" anchor="EAST" fill="BOTH" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+    </TEMPLATE>
+
+    <TEMPLATE
+        specName="HelpBrowserTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+
+        <AREA
+            areaName="BrowserPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="1" gridheight="1"
+                weightx="0.98" weighty="1.0" anchor="CENTER" fill="BOTH" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+
+        <AREA
+            areaName="HelpNavigationPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="1" gridwidth="REMAINDER" gridheight="6"
+                weightx="0.02" weighty="0.0" anchor="SOUTH" fill="BOTH" ipadx="0"
+                ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+    </TEMPLATE>
+
+    <!-- A template used for presenting a popup dialog -->
+    <TEMPLATE
+        specName="DialogTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="GridBagLayout">
+
+        <AREA
+            areaName="DialogPromptPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="0" gridwidth="1" gridheight="1"
+                weightx="0.1" weighty="0.0" anchor="CENTER" fill="HORIZONTAL"
+                ipadx="0" ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+        <AREA
+            areaName="DialogMainPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="1" gridwidth="1" gridheight="1"
+                weightx="0.1" weighty="0.1" anchor="CENTER" fill="BOTH"
+                ipadx="0" ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+        <AREA
+            areaName="DialogButtonsPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel">
+            <GRIDBAGCONSTRAINTS
+                gridx="0" gridy="2" gridwidth="1" gridheight="1"
+                weightx="0.1" weighty="0.0" anchor="CENTER" fill="HORIZONTAL"
+                ipadx="0" ipady="0">
+            </GRIDBAGCONSTRAINTS>
+        </AREA>
+    </TEMPLATE>
+
+    <!-- The template used for presenting the non-modal keyboard dialog -->
+    <TEMPLATE
+        specName="KeyboardDialogTemplateSpec"
+        layoutManagerPackage="java.awt"
+        layoutManagerClassName="BorderLayout">
+
+        <AREA
+            areaName="KeyboardDialogPanel"
+            containerPackage="javax.swing"
+            containerClassName="JPanel"
+            borderconstraints="CENTER">
+        </AREA>
+    </TEMPLATE>
+
+    <BEAN
+        specName="GlobalNavigationPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="GlobalNavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="Help"
+            keyName="F1"
+            enabled="true"
+            label="Help"
+            labelTag="Help"
+            iconName="buttonIconHelp"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.HelpAction"/>
+
+        <BUTTON
+            actionName="Clear"
+            keyName="F11"
+            enabled="false"
+            labelTag="Delete"
+            iconName="buttonIconClear"
+            label="Delete"/>
+
+        <BUTTON
+            actionName="Cancel"
+            keyName="F12"
+            labelTag="Cancel"
+            enabled="false"
+            label="Cancel"
+            iconName="buttonIconCancel"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.ConfirmCancelAction"/>
+
+        <BUTTON
+            actionName="Undo"
+            keyName="Esc"
+            enabled="true"
+            labelTag="Undo"
+            iconName="buttonIconUndo"
+            label="Undo"/>
+
+        <BUTTON
+            actionName="Next"
+            keyName="Enter"
+            enabled="false"
+            labelTag="Next"
+            iconName="buttonIconNext"
+            label="Next"/>
+
+        <BUTTON
+            actionName="Keys"
+            keyName="Ctrl+K"
+            enabled="true"
+            labelTag="Keys"
+            label="Keys"
+            parameterName="OnScreenKeyboardEnabled"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.KeyDialogAction"/>
+    </BEAN>
+
+    <BEAN
+        specName="ToggableNavigationButtonBeanSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ToggableNavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="Search"
+            keyName="F2"
+            enabled="false"
+            labelTag="Search"
+            label="Search"/>
+    </BEAN>
+
+    <BEAN
+        specName="OnlineOfficeNavigationSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="GlobalNavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="Close"
+            keyName="F1"
+            enabled="true"
+            labelTag="Exit"/>
+    </BEAN>
+
+    <BEAN
+        specName="HelpNavigationPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="GlobalNavigationButtonBean"
+        cachingScheme="ONE">
+
+        <BUTTON
+            actionName="Done"
+            keyName="F1"
+            enabled="true"
+            labelTag="Done"
+            actionListenerName="oracle.retail.stores.pos.ui.behavior.CloseDialogAction"/>
+    </BEAN>
+
+    <!-- Used for prompting the end user for input or action. -->
+    <BEAN
+        specName="PromptAndResponsePanelSpec"
+        beanClassName="PromptAndResponseBean"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        cachingScheme="ONE">
+    </BEAN>
+
+    <BEAN
+        specName="WorkPanelSpec"
+        beanClassName="LogoBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+    </BEAN>
+
+    <BEAN
+        specName="HelpPanelSpec"
+        beanClassName="HelpBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        cachingScheme="ONE">
+    </BEAN>
+
+    <BEAN
+        specName="DisplayHelpPanelSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DisplayHelpBean">
+    </BEAN>
+
+    <BEAN
+        specName="StatusPanelSpec"
+        beanClassName="StatusBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        cachingScheme="ONE">
+    </BEAN>
+
+    <BEAN
+        specName="LocalNavigationPanelSpec"
+        beanClassName="NavigationButtonBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+    </BEAN>
+
+    <BEAN
+        specName="EmptyPanelSpec"
+        beanClassName="EmptyBean"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+    </BEAN>
+
+    <!-- SmallLogoPanelSpec displays a non-interactive logo. See also HyperlinkLogoPanelSpec. -->
+    <BEAN
+        specName="SmallLogoPanelSpec"
+        beanClassName="LogoBeanSmall"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+    </BEAN>
+    
+    <!--  HyperlinkLogoPanelSpec is used to enable launching the browser by clicking on the logo -->
+    <BEAN
+        specName="HyperlinkLogoPanelSpec"
+        beanClassName="LogoBeanSmall"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans">
+        <BEANPROPERTY propName="enableBrowserLaunch" propType="boolean" propValue="true"/>
+    </BEAN>
+    
+    <!-- Optional bean used for prompting the end user inside of popup dialogs. -->
+    <BEAN
+        specName="DialogPromptPanelSpec"
+        beanClassName="PromptAndResponseBean"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        cachingScheme="ONE">
+        <BEANPROPERTY propName="enterData" propValue="false"/>
+    </BEAN>
+
+    <!-- Bean containing the main popup dialog area, which can be a prompt or a
+         collection of fields for responding. -->
+    <BEAN
+        specName="DialogMainPanelSpec"
+        beanClassName="DialogPromptAndResponseBean"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        cachingScheme="ONE">
+    </BEAN>
+
+    <!-- Bean used to display one button to the confirm the popup dialog. -->
+    <BEAN
+        specName="DialogOneButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DialogNavigationButtonBean">
+
+        <BUTTON
+            actionName="Ok"
+            enabled="true"
+            labelTag="Enter"
+            label="Enter"/>
+            <!-- a ConfirmActionListener is added to dialog button by default. -->
+    </BEAN>
+    
+    <!-- Bean used to display Cancel button to popup dialog. -->
+    <BEAN
+        specName="DialogOneCancelButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DialogNavigationButtonBean">
+
+        <BUTTON
+            actionName="Cancel"
+            enabled="true"
+            labelTag="Cancel"
+            label="Cancel"
+            keyName="Esc"/>
+            <!-- a ConfirmActionListener is added to dialog button by default. -->
+    </BEAN>
+
+    <!-- Bean used to display two buttons to confirm or dismiss the popup
+         dialog. -->
+    <BEAN
+        specName="DialogTwoButtonsSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="DialogNavigationButtonBean">
+
+        <BUTTON
+            actionName="Ok"
+            enabled="true"
+            labelTag="Ok"
+            label="Ok"
+            keyName="Enter" />
+        <BUTTON
+            actionName="Cancel"
+            enabled="true"
+            labelTag="Cancel"
+            label="Cancel"
+            keyName="Esc"/>
+            <!-- a ConfirmActionListener is added to dialog button by default. -->
+    </BEAN>
+    <!-- End beans used for popup dialog default screen -->
+
+    <!-- Bean used for popup non-modal keyboard dialog -->
+    <BEAN
+        specName="OnScreenKeyboardBeanSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="OnScreenKeyboardBean">
+    </BEAN>
+    <!-- End bean used for popup non-modal keyboard dialog -->
+
+    <BEAN
+        specName="StackedStatusPanelSpec"       
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="StackedStatusBean"
+        cachingScheme="ONE">
+    </BEAN>
+
+    <DEFAULTSCREEN
+        specName="EYSPOSDialogSpec"
+        templateSpecName="EYSPOSTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="posUI">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="enterData"     propValue="false"/>
+            <BEANPROPERTY propName="promptText"    propValue=""/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="EmptyPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="LocalNavigationPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="SmallLogoPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[false],Cancel[false],Undo[false],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+    </DEFAULTSCREEN>
+
+    <!-- Default pos screen spec -->
+    <DEFAULTSCREEN
+        specName="EYSPOSDefaultSpec"
+        templateSpecName="EYSPOSTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="posUI">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="enterData" propValue="false"/>
+            <BEANPROPERTY propName="doubleByteCharsAllowed" propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="EmptyPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="LocalNavigationPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="SmallLogoPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+    </DEFAULTSCREEN>
+
+    <DEFAULTSCREEN specName="POSStackedStatusScreenSpec"
+        templateSpecName="POSStackedStatusTemplateSpec" displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans" modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="posUI">
+
+        <ASSIGNMENT areaName="PromptAndResponsePanel" beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY propName="enterData" propValue="false" />
+            <BEANPROPERTY propName="doubleByteCharsAllowed"
+                propValue="true" />
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="WorkPanel" beanSpecName="EmptyPanelSpec" />
+
+        <ASSIGNMENT areaName="StatusPanel" beanSpecName="CommonStatusPanelSpec" />
+        <ASSIGNMENT areaName="TotalStatusPanel" beanSpecName="EmptyPanelSpec" />
+
+        <ASSIGNMENT areaName="LocalNavigationPanel" beanSpecName="LocalNavigationPanelSpec" />
+
+        <ASSIGNMENT areaName="SmallLogoPanel" beanSpecName="SmallLogoPanelSpec" />
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel" beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY propName="manageNextButton" propValue="true" />
+            <BEANPROPERTY propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]" />
+        </ASSIGNMENT>
+    </DEFAULTSCREEN>
+
+    <!-- Default response entry screen spec -->
+    <DEFAULTSCREEN
+        specName="ResponseEntryScreenSpec"
+        templateSpecName="EYSPOSTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="posUI">
+
+        <ASSIGNMENT areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="enterData"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="zeroAllowed"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="negativeAllowed"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="doubleByteCharsAllowed"
+                propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="WorkPanel"
+            beanSpecName="EmptyPanelSpec"/>
+
+        <ASSIGNMENT areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec"/>
+
+        <ASSIGNMENT areaName="LocalNavigationPanel"
+            beanSpecName="LocalNavigationPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="SmallLogoPanelSpec"/>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="ClearActionListener"/>
+    </DEFAULTSCREEN>
+
+    <!-- Default toggable screen spec -->
+    <DEFAULTSCREEN
+        specName="ResponseEntryToggableLocalNavigationScreenSpec"
+        templateSpecName="EYSPOSTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="posUI">
+
+        <ASSIGNMENT areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="enterData"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="zeroAllowed"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="negativeAllowed"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="doubleByteCharsAllowed"
+                propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT areaName="WorkPanel"
+            beanSpecName="EmptyPanelSpec"/>
+
+        <ASSIGNMENT areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec"/>
+
+        <ASSIGNMENT areaName="LocalNavigationPanel"
+            beanSpecName="LocalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Search[false]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="SmallLogoPanelSpec"/>
+
+        <ASSIGNMENT areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="PromptAndResponsePanelSpec"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            listenerInterfaceName="ClearActionListener"/>
+
+       <CONNECTION
+            sourceBeanSpecName="PromptAndResponsePanelSpec"
+            targetBeanSpecName="ToggableNavigationButtonBeanSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+    </DEFAULTSCREEN>
+
+    <!-- Default validating screen spec -->
+    <DEFAULTSCREEN
+        specName="DefaultValidatingSpec"
+        templateSpecName="ValidatingTemplateSpec"
+        displaySpecName="EYSPOSDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="classpath://oracle/retail/stores/pos/config/posUI.properties">
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="enterData"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="doubleByteCharsAllowed"
+                propValue="true"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="EmptyPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="HelpPanel"
+            beanSpecName="HelpPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="LocalNavigationPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="SmallLogoPanel"
+            beanSpecName="SmallLogoPanelSpec"/>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="true"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[false],Next[false],Keys[true]"/>
+        </ASSIGNMENT>
+    </DEFAULTSCREEN>
+
+    <!-- Default help screen spec -->
+    <DEFAULTSCREEN
+        specName="DefaultHelpSpec"
+        templateSpecName="HelpBrowserTemplateSpec"
+        displaySpecName="HelpDialogDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="commonText">
+
+        <ASSIGNMENT
+            areaName="BrowserPanel"
+            beanSpecName="DisplayHelpPanelSpec"/>
+        <ASSIGNMENT
+            areaName="HelpNavigationPanel"
+            beanSpecName="HelpNavigationPanelSpec"/>
+    </DEFAULTSCREEN>
+
+    <!-- This is the default screen definition for popup-style dialogs. -->
+    <DEFAULTSCREEN
+        specName="DefaultDialogSpec"
+        templateSpecName="DialogTemplateSpec"
+        displaySpecName="DialogDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="commonText">
+
+        <ASSIGNMENT
+            areaName="DialogMainPanel"
+            beanSpecName="DialogMainPanelSpec"/>
+        <ASSIGNMENT
+            areaName="DialogButtonsPanel"
+            beanSpecName="DialogTwoButtonsSpec"/>
+    </DEFAULTSCREEN>
+
+    <!-- This is the screen definition for the non-modal keyboard dialog. -->
+    <DEFAULTSCREEN
+        specName="KeyboardDialogSpec"
+        templateSpecName="KeyboardDialogTemplateSpec"
+        displaySpecName="KeyboardDialogDisplaySpec"
+        modelPackage="oracle.retail.stores.pos.ui.beans"
+        modelClassName="POSBaseBeanModel"
+        resourceBundleFilename="commonText">
+
+        <ASSIGNMENT
+            areaName="KeyboardDialogPanel"
+            beanSpecName="OnScreenKeyboardBeanSpec"/>
+    </DEFAULTSCREEN>
+
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/adminuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/about/aboutuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/dailyoperations/businessdate/businessdateuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/common/commonuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/customer/customeruicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/dailyoperations/dailyoperationsuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/employee/employeeuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/main/mainuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/manager/manageruicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/modifyitem/modifyitemuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/modifytransaction/modifytransactionuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/nosale/nosaleuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/operatorid/operatoriduicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/dailyoperations/poscount/poscountuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/queue/queueuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/dailyoperations/register/registeruicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/manager/registerreports/reportsuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/role/roleuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/security/securityuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/security/override/overrideuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/dailyoperations/till/tilluicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/returns/returnsuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/sale/saleuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/tender/tenderuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/tender/capturecustomerinfo/capturecustomerinfouicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/tender/patriot/captureirscustomeruicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/tender/houseaccount/houseaccountuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/inquiry/inquiryoptionsuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/ejournal/ejournaluicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/printing/printinguicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/giftcard/giftcarduicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/signaturecapture/signaturecaptureuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/parametermanager/parameteruicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/reasoncodemanager/reasoncodeuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/admin/listeditor/listeditoruicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/browser/browseruicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/reprintreceipt/reprintreceiptuicfg.xml"/>
+    <!-- added vatreprintreceiptuicfg.xml to support VAT -->
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/reprintreceipt/vatreprintreceiptuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/postvoid/postvoiduicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/layaway/layawayuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/email/emailuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/order/orderuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/servicealert/servicealertuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/send/senduicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/specialorder/specialorderuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/pricing/pricinguicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/alterations/alterationsuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/instantcredit/instantcredituicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/giftoptions/giftoptionsuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/redeem/redeemuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/giftcertificate/giftcertificateuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/foreigncurrency/foreigncurrencyuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/modifyitem/relateditem/relateditemuicfg.xml"/>    
+    <!-- Start PSI Data operations
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/inventoryinquiry/inventoryinquiryuicfg.xml"/>
+    END PSI Data operations -->
+    <!-- Start browser configuration -->
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/browserfoundation/browserfoundationuicfg.xml"/>
+    <!-- END browser configuration -->
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/order/createpickup/pickupuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/order/search/searchorderuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/order/createdelivery/deliveryuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/order/xchannelcreatepickup/xchannelcreatepickupuicfg.xml"/>
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/order/xchannelcreateshipping/xchannelcreateshippinguicfg.xml"/>  
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/externalorder/searchorder/searchorderuicfg.xml"/>
+    <!-- POS-RM integration support -->
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/returnauthorization/returnauthorizationuicfg.xml"/>
+   <!-- Start ItemBasket Data operations
+    <INCLUDE filename="classpath://oracle/retail/stores/pos/services/itembasket/itembasketuicfg.xml"/>
+   END ItemBasket Data operations -->
+   <!-- Start Bill Pay
+     <INCLUDE filename="classpath://oracle/retail/stores/pos/services/modifytransaction/billpay/billpayuicfg.xml"/>
+   End Bill Pay -->
+   <INCLUDE filename="classpath://oracle/retail/stores/pos/services/notifications/notificationsuicfg.xml"/>
+</UICFG>

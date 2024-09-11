@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!--
+This is for Transformer type objects being managed by Spring Framework.
+Beans should be named starting with prefix transformer_ so that in Java code it is easier
+to identify which context file is being used for the Bean.
+-->
+
+<beans>
+
+     <bean id="transformer_CustomerDomainTransformer" class="oracle.retail.stores.domain.transform.entity.customer.CustomerTransformer" scope="singleton">
+            <property name="customerGroupDomainTransformer" ref="transformer_CustomerGroupDomainTransformer"/>
+            <property name="addressDomainTransformer"       ref="transformer_AddressDomainTransformer"/>
+            <property name="phoneDomainTransformer"         ref="transformer_PhoneDomainTransformer"/>
+            <property name="emailDomainTransformer"         ref="transformer_EmailDomainTransformer"/>
+            <property name="contactDomainTransformer"       ref="transformer_ContactDomainTransformer"/>
+     </bean>
+     <bean id="transformer_CustomerGroupDomainTransformer" class="oracle.retail.stores.domain.transform.entity.customer.CustomerGroupTransformer" scope="singleton"/>
+     <bean id="transformer_PricingGroupDomainTransformer" class="oracle.retail.stores.domain.transform.entity.customer.PricingGroupTransformer" scope="singleton"/>
+     <bean id="transformer_AddressDomainTransformer" class="oracle.retail.stores.domain.transform.entity.customer.AddressTransformer" scope="singleton">
+         <property name="contactDomainTransformer" ref="transformer_ContactDomainTransformer"/>
+     </bean>
+     <bean id="transformer_PhoneDomainTransformer" class="oracle.retail.stores.domain.transform.entity.customer.PhoneTransformer" scope="singleton"/>
+     <bean id="transformer_EmailDomainTransformer" class="oracle.retail.stores.domain.transform.entity.customer.EmailTransformer" scope="singleton"/>
+     <bean id="transformer_ContactDomainTransformer" class="oracle.retail.stores.domain.transform.entity.customer.ContactTransformer" scope="singleton">
+        <property name="phoneDomainTransformer" ref="transformer_PhoneDomainTransformer"/>
+     </bean>
+     <bean id="transformer_PLUItemAggregationTransformer" class="oracle.retail.stores.domain.transform.entity.Item.PLUItemAggregationTransformer" scope="singleton"/>
+     <bean id="transformer_PluItemTransformer" class="oracle.retail.stores.domain.transform.entity.Item.PluItemTransformer" scope="singleton"/>
+     <bean id="transformer_PriceChangeTransformer" class="oracle.retail.stores.domain.transform.entity.Item.PriceChangeTransformer" scope="singleton"/>
+     <bean id="transformer_PriceDerivationRuleTransformer" class="oracle.retail.stores.domain.transform.entity.Item.PriceDerivationRuleTransformer" scope="singleton"/>
+     <bean id="transformer_TaxRulesTransformer" class="oracle.retail.stores.domain.transform.entity.Item.TaxRulesTransformer" scope="singleton"/>
+     <bean id="transformer_CustomerEntityTransformer" class="oracle.retail.stores.transform.xchannel.customer.CustomerTransformer" scope="singleton">
+         <property name="mapperService"            ref="service_TransformerMappingService"/>
+         <property name="encryptionService"        ref="service_KeyStoreEncryptionService"/>
+         <property name="phoneEntityTransformer"   ref="transformer_PhoneEntityTransformer"/>
+         <property name="emailEntityTransformer"   ref="transformer_EmailEntityTransformer"/>
+         <property name="addressEntityTransformer" ref="transformer_AddressEntityTransformer"/>
+         <property name="contactEntityTransformer" ref="transformer_ContactEntityTransformer"/>
+     </bean>
+     <bean id="transformer_AddressEntityTransformer" class="oracle.retail.stores.transform.xchannel.customer.AddressTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+         <property name="contactEntityTransformer" ref="transformer_ContactEntityTransformer"/>
+     </bean>
+     <bean id="transformer_PhoneEntityTransformer" class="oracle.retail.stores.transform.xchannel.customer.PhoneTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+     <bean id="transformer_EmailEntityTransformer" class="oracle.retail.stores.transform.xchannel.customer.EmailTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+     <bean id="transformer_ContactEntityTransformer" class="oracle.retail.stores.transform.xchannel.customer.ContactTransformer" scope="singleton">
+        <property name="mapperService"          ref="service_TransformerMappingService"/>
+        <property name="phoneEntityTransformer" ref="transformer_PhoneEntityTransformer"/>
+        <property name="emailEntityTransformer" ref="transformer_EmailEntityTransformer"/>
+     </bean>
+     <bean id="transformer_CustomerSearchCriteriaTransformer" class="oracle.retail.stores.transform.xchannel.customer.CustomerSearchCriteriaTransformer" scope="singleton">
+        <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+	
+	 <!-- Store Order Translator between extended RTG and JPA -->
+	 <bean id="transformer_OrderSummaryEntityTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderSummaryExtTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+     <!-- Store Order Translator between extended view RTG and common object OrderSearchCriteria -->
+     <bean id="transformer_OrderCriteriaExtViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderCriteriaExtViewTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>  
+     <!-- Store Order Translator from JPA object OrderSummary to Domain object OrderSummaryEntry-->
+     <bean id="transformer_OrderSummaryDomainTransformer" class="oracle.retail.stores.domain.transform.entity.order.OrderSummaryTransformer" scope="singleton"/>      
+     
+     <bean id="transformer_RetailStoreTransformer" class="oracle.retail.stores.transform.xchannel.store.RetailStoreTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+         <property name="addressDomainTransformer" ref="transformer_AddressDomainTransformer"/>
+     </bean>   
+     
+     
+     <!-- Begin Commerce Anywhere Translators between RTG objects and JPA Entities -->
+     <bean id="transformer_OrderSummaryTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderSummaryTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>    
+     <bean id="transformer_OrderCriteriaViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderCriteriaViewTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+     
+     <bean id="transformer_OrderItemDiscountTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemDiscountTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+     <bean id="transformer_OrderItemManualPriceOverrideTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemManualPriceOverrideTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+     <bean id="transformer_OrderItemPricePromotionTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemPricePromotionTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+     <bean id="transformer_OrderItemTaxTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemTaxTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+     </bean>
+     <bean id="transformer_OrderItemStatusTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemStatusTransformer" scope="singleton">
+         <property name="mapperService"            ref="service_TransformerMappingService"/>
+         <property name="phoneEntityTransformer"   ref="transformer_PhoneEntityTransformer"/>
+         <property name="phoneDomainTransformer"   ref="transformer_PhoneDomainTransformer"/>
+         <property name="addressEntityTransformer" ref="transformer_AddressEntityTransformer"/>
+         <property name="addressDomainTransformer" ref="transformer_AddressDomainTransformer"/>
+         <property name="contactEntityTransformer" ref="transformer_ContactEntityTransformer"/>
+         <property name="contactDomainTransformer" ref="transformer_ContactDomainTransformer"/>
+     </bean>
+    <bean id="transformer_OrderLineItemTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderLineItemTransformer" scope="singleton">
+         <property name="mapperService"                      ref="service_TransformerMappingService"/>
+         <property name="encryptionService"                  ref="service_KeyStoreEncryptionService"/>
+         <property name="itemStatusTransformer"              ref="transformer_OrderItemStatusTransformer"/>
+         <property name="itemTaxTransformer"                 ref="transformer_OrderItemTaxTransformer"/>
+         <property name="itemPricePromotionTransformer"      ref="transformer_OrderItemPricePromotionTransformer"/>
+         <property name="itemManualPriceOverrideTransformer" ref="transformer_OrderItemManualPriceOverrideTransformer"/>
+         <property name="itemDiscountTransformer"            ref="transformer_OrderItemDiscountTransformer"/>
+    </bean>
+    <bean id="transformer_OrderPaymentTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderPaymentTransformer" scope="singleton">
+         <property name="mapperService"            ref="service_TransformerMappingService"/>
+         <property name="encryptionService"        ref="service_KeyStoreEncryptionService"/>
+         <property name="phoneDomainTransformer"   ref="transformer_PhoneDomainTransformer"/>
+         <property name="addressEntityTransformer" ref="transformer_AddressEntityTransformer"/>
+         <property name="addressDomainTransformer" ref="transformer_AddressDomainTransformer"/>
+         <property name="contactEntityTransformer" ref="transformer_ContactEntityTransformer"/>
+         <property name="contactDomainTransformer" ref="transformer_ContactDomainTransformer"/>
+    </bean>
+    <bean id="transformer_OrderTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderTransformer" scope="singleton">
+         <property name="mapperService"             ref="service_TransformerMappingService"/>
+         <property name="lineItemTransformer"       ref="transformer_OrderLineItemTransformer"/>
+         <property name="itemStatusTransformer"     ref="transformer_OrderItemStatusTransformer"/>
+         <property name="paymentTransformer"        ref="transformer_OrderPaymentTransformer"/>
+         <property name="customerEntityTransformer" ref="transformer_CustomerEntityTransformer"/>
+         <property name="customerDomainTransformer" ref="transformer_CustomerDomainTransformer"/>
+    </bean>
+    <bean id="transformer_OrderItemDiscountPickupViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemDiscountPickupViewTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+    </bean>
+    <bean id="transformer_OrderItemTaxPickupViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemTaxPickupViewTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+    </bean>
+    <bean id="transformer_OrderItemPickupViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemPickupViewTransformer" scope="singleton">
+         <property name="mapperService"            ref="service_TransformerMappingService"/>
+         <property name="discountTransformer"      ref="transformer_OrderItemDiscountPickupViewTransformer"/>
+         <property name="taxTransformer"           ref="transformer_OrderItemTaxPickupViewTransformer"/>
+         <property name="lineItemTransformer"      ref="transformer_OrderLineItemTransformer"/>
+    </bean>
+    <bean id="transformer_OrderDeliveryTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderDeliveryTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+    </bean>
+    <bean id="transformer_OrderPickupViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderPickupViewTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+         <property name="lineItemTransformer" ref="transformer_OrderItemPickupViewTransformer"/>
+         <property name="deliveryTransformer" ref="transformer_OrderDeliveryTransformer"/>
+         <property name="paymentTransformer"  ref="transformer_OrderPaymentTransformer"/>
+    </bean>
+    <bean id="transformer_OrderItemDiscountReturnViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemDiscountReturnViewTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+    </bean>
+    <bean id="transformer_OrderItemTaxReturnViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemTaxReturnViewTransformer" scope="singleton">
+         <property name="mapperService" ref="service_TransformerMappingService"/>
+    </bean>
+    <bean id="transformer_OrderItemReturnViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderItemReturnViewTransformer" scope="singleton">
+         <property name="mapperService"       ref="service_TransformerMappingService"/>
+         <property name="discountTransformer" ref="transformer_OrderItemDiscountReturnViewTransformer"/>
+         <property name="taxTransformer"      ref="transformer_OrderItemTaxReturnViewTransformer"/>
+    </bean>
+    <bean id="transformer_OrderReturnViewTransformer" class="oracle.retail.stores.transform.xchannel.order.OrderReturnViewTransformer" scope="singleton">
+         <property name="mapperService"       ref="service_TransformerMappingService"/>
+         <property name="lineItemTransformer" ref="transformer_OrderItemReturnViewTransformer"/>
+    </bean>
+    <!-- END Commerce Anywhere Translators between RTG objects and JPA Entities -->
+    
+    <!-- BEGIN ATG Translators between CSC order and domain objects -->
+    <bean id="service_CSCTransformerMappingService" class="oracle.retail.stores.domain.manager.externalorder.atg.transformer.Mapper" scope="singleton">
+         <constructor-arg type="java.lang.String" value="../config/CSCTransformerMapping.xml"/>
+    </bean>	
+    <bean id="transformer_CSCAdjustmentTransformer" class="oracle.retail.stores.domain.manager.externalorder.atg.transformer.AdjustmentTransformer" scope="singleton">
+         <property name="mapperService" ref="service_CSCTransformerMappingService"/>
+    </bean>
+    <bean id="transformer_CSCTaxTransformer" class="oracle.retail.stores.domain.manager.externalorder.atg.transformer.TaxTransformer" scope="singleton">
+         <property name="mapperService" ref="service_CSCTransformerMappingService"/>
+    </bean>
+    <bean id="transformer_CSCCommerceItemTransformer" class="oracle.retail.stores.domain.manager.externalorder.atg.transformer.CommerceItemTransformer" scope="singleton">
+         <property name="mapperService" ref="service_CSCTransformerMappingService"/>
+         <property name="adjustmentTransformer" ref="transformer_CSCAdjustmentTransformer"/>
+         <property name="taxTransformer" ref="transformer_CSCTaxTransformer"/>
+    </bean>
+    <bean id="transformer_CSCShippingChargeTransformer" class="oracle.retail.stores.domain.manager.externalorder.atg.transformer.ShippingChargeTransformer" scope="singleton">
+         <property name="mapperService" ref="service_CSCTransformerMappingService"/>
+         <property name="adjustmentTransformer" ref="transformer_CSCAdjustmentTransformer"/>
+         <property name="taxTransformer" ref="transformer_CSCTaxTransformer"/>
+    </bean>
+    <bean id="transformer_CSCShippingGroupTransformer" class="oracle.retail.stores.domain.manager.externalorder.atg.transformer.ShippingGroupTransformer" scope="singleton">
+         <property name="mapperService" ref="service_CSCTransformerMappingService"/>
+         <property name="commerceItemTransformer" ref="transformer_CSCCommerceItemTransformer"/>
+         <property name="shippingChargeTransformer" ref="transformer_CSCShippingChargeTransformer"/>
+    </bean>
+    <bean id="transformer_CSCPaymentTransformer" class="oracle.retail.stores.domain.manager.externalorder.atg.transformer.PaymentTransformer" scope="singleton">
+         <property name="mapperService" ref="service_CSCTransformerMappingService"/>
+    </bean>
+    <bean id="transformer_CSCOrderTransformer" class="oracle.retail.stores.domain.manager.externalorder.atg.transformer.OrderTransformer" scope="singleton">
+         <property name="mapperService" ref="service_CSCTransformerMappingService"/>
+         <property name="shippingGroupTransformer" ref="transformer_CSCShippingGroupTransformer"/>
+         <property name="adjustmentTransformer" ref="transformer_CSCAdjustmentTransformer"/>
+         <property name="paymentTransformer" ref="transformer_CSCPaymentTransformer"/>
+    </bean>
+    <!-- END ATG Translators between CSC order and domain objects -->
+  
+</beans>

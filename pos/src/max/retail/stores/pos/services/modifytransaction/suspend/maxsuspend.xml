@@ -1,0 +1,259 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Copyright (c) 2012 - 2013 MAX, Inc.    All Rights Reserved.
+  Rev 1.0	5/04/2013	Prateek	 		Initial Draft: Changes for Suspended Bills FES.
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="suspend" package="oracle.retail.stores.pos.services.modifytransaction.suspend" tourcam="OFF">
+     <COMMENT>
+     </COMMENT>
+<CARGO class="ModifyTransactionSuspendCargo" package="oracle.retail.stores.pos.services.modifytransaction.suspend">
+     <COMMENT>
+     </COMMENT>
+</CARGO>
+<SERVICECODE>
+     <LETTER name="Next"/>
+     <LETTER name="DoNext"/>
+     <LETTER name="ParameterError"/>
+     <LETTER name="DbError"/>
+     <LETTER name="HardTotalsError"/>
+     <LETTER name="Ok"/>
+     <LETTER name="Failure"/>
+     <LETTER name="Undo"/>
+     <LETTER name="Success"/>
+     <LETTER name="Suspend"/>
+     <LETTER name="Cancel"/>
+     <LETTER name="Print"/>
+     <LETTER name="SuspendedTransaction"/>
+     <!--Changes done for HDD Full Patch From Oracle Starts-->
+     <LETTER name="QueueFull"/>
+     <LETTER name="Retry"/>
+     <!--Changes done for HDD Full Patch From Oracle Ends-->
+     <SITEACTION class="CheckTransactionSite" package="oracle.retail.stores.pos.services.modifytransaction.suspend" template="siteaction.tpl">
+          <COMMENT>
+               Confirms transaction exists to suspend.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="SuspendTransactionSite" package="oracle.retail.stores.pos.services.modifytransaction.suspend" template="siteaction.tpl">
+          <COMMENT>
+               Perform suspension of transaction.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="SuspendSaveConfirmSite" package="oracle.retail.stores.pos.services.modifytransaction.suspend" template="siteaction.tpl">
+          <COMMENT>
+               Confirm suspension of transaction.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="SelectReasonCodeSite" package="oracle.retail.stores.pos.services.modifytransaction.suspend" template="siteaction.tpl">
+          <COMMENT>
+               If required, display a list of reasons for suspending 
+               the transaction.
+          </COMMENT>
+     </SITEACTION>
+     <SITEACTION class="PrintReceiptSite" package="oracle.retail.stores.pos.services.modifytransaction.suspend" template="siteaction.tpl">
+          <COMMENT>
+                Print suspend-transaction receipt.
+          </COMMENT>
+     </SITEACTION>
+     
+     <SITEACTION class="MAXValidateSuspendLimit" package="max.retail.stores.pos.services.modifytransaction.suspend" template="siteaction.tpl">
+          <COMMENT>
+                Print suspend-transaction receipt.
+          </COMMENT>
+     </SITEACTION>
+     
+     <LANEACTION class="DefaultRoad" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="ReasonCodeParameterErrorAisle" package="oracle.retail.stores.pos.services.modifytransaction.suspend" template="laneaction.tpl"/>
+     <LANEACTION class="ReasonCodeNextAisle" package="oracle.retail.stores.pos.services.modifytransaction.suspend" template="laneaction.tpl"/>
+     <LANEACTION class="DataBaseErrorAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="WriteHardTotalsErrorAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="FailureConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common" template="laneaction.tpl"/>
+     <LANEACTION class="PrintSuspendedTransactionReceiptAisle" package="oracle.retail.stores.pos.services.modifytransaction.suspend" template="laneaction.tpl"/>
+	 <LANEACTION class="MAXPrintSuspendedAcknowledgeAisle" package="max.retail.stores.pos.services.modifytransaction.suspend" template="laneaction.tpl"/>
+	
+</SERVICECODE>
+<MAP>
+     <COMMENT>
+     </COMMENT>
+     <REGION region="SERVICE" startsite="ValidateSuspendLimit">
+     	  <SITE name="ValidateSuspendLimit" siteaction="MAXValidateSuspendLimit">
+     			<ROAD name="SuspendContinue" 
+     				  letter="Success" 
+     				  laneaction="DefaultRoad" 
+     				  destination="CheckTransaction" 
+     				  tape="ADVANCE" 
+     				  record="ON" 
+     				  index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               	</ROAD>
+               	<ROAD name="SuspendFailure" 
+     				  letter="Ok" 
+     				  destination="Final" 
+     				  tape="ADVANCE" 
+     				  record="ON" 
+     				  index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               	</ROAD>
+     	  </SITE>	
+          <SITE name="CheckTransaction" siteaction="CheckTransactionSite">
+               <COMMENT>
+                    Confirms that a transaction is in progress (but not tendered).  If not allowed,
+                    display an error message.
+               </COMMENT>
+               <AISLE name="SuspendDisallowedAcknowledged" letter="Ok" laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         An error has occurred and has been acknowledged by 
+                         the user. Send a Failure letter
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="SuspendContinue" letter="Success" laneaction="DefaultRoad" destination="SelectReasonCode" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendExit" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Exit service because suspend is not allowed.
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="SelectReasonCode" siteaction="SelectReasonCodeSite">
+               <COMMENT>
+                    If required, display a list of reasons for suspending 
+                    the transaction
+               </COMMENT>
+               <MOCKUP image=""/>
+               <AISLE name="ReasonCodeNext" letter="Next" laneaction="ReasonCodeNextAisle">
+                    <COMMENT>
+                         Save reason code entered by user
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="ReasonCodeUndo" letter="Undo" laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         Exit from this service.
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="ReasonCodeParametersNotFound" letter="ParameterError" laneaction="ReasonCodeParameterErrorAisle">
+                    <COMMENT>
+                         Save reason code entered by user
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="ParameterErrorAcknowledged" letter="Ok" laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         An error has occurred and has been acknowledged by 
+                         the user. Send a Failure letter
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="ReasonCodeContinue" letter="DoNext" laneaction="DefaultRoad" destination="SuspendTransaction" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ReasonCodeBypass" letter="Suspend" laneaction="DefaultRoad" destination="SuspendTransaction" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                    This road is taken when no reason code is required.
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="ReasonCodeRetrievalFailed" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Exit service due to error
+                    </COMMENT>
+               </ROAD>
+                    <ROAD name="ReasonCodeCancel"
+                          letter="Cancel"
+                          destination="Final"
+                          tape="ADVANCE" record="OFF" index="OFF">
+                         <COMMENT>
+                              This road is traversed when the Cancel key is
+                              pressed.
+                         </COMMENT>
+                    </ROAD>
+          </SITE>
+          <SITE name="SuspendTransaction" siteaction="SuspendTransactionSite">
+               <COMMENT>
+                    Save transaction and mark it suspended
+               </COMMENT>
+               <MOCKUP image=""/>
+               <AISLE name="DatabaseError" letter="DbError" laneaction="DataBaseErrorAisle">
+                    <COMMENT>
+                         Display Database Error Message
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="WriteHardTotalsError" letter="HardTotalsError" laneaction="WriteHardTotalsErrorAisle">
+                    <COMMENT>
+                         Display Hard Totals Error Message
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="DbErrorAcknowledged" letter="Ok" laneaction="FailureConversionAisle">
+                    <COMMENT>
+                         An error has occurred and has been acknowledged by 
+                         the user. Send a Failure letter
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="SuspendTransactionFailed" letter="Failure" destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                         Exit service due to error
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendTransactionSucceeded" letter="Success" destination="SuspendConfirm" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               </ROAD>
+	       <!--Changes done for HDD Full Patch From Oracle Starts-->
+               <ROAD name="SuspendTransactionRetry" letter="Retry" destination="SuspendTransaction" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               </ROAD>
+               <ROAD name="SuspendTransactionQueueFull" letter="QueueFull" destination="Final" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               </ROAD>
+	       <!--Changes done for HDD Full Patch From Oracle Ends-->
+          </SITE>
+          <SITE name="SuspendConfirm" siteaction="SuspendSaveConfirmSite">
+               <COMMENT>
+                    Display an acknowledgement of successful save.
+               </COMMENT>
+               <AISLE name="ConfirmAcknowledged" letter="SuspendedTransaction" laneaction="SuccessConversionAisle">
+               </AISLE>
+               <ROAD name="SuspendConfirmOk" letter="Success" destination="PrintReceipt" tape="ADVANCE" record="ON" index="ON">
+                    <COMMENT>
+                    </COMMENT>
+               </ROAD>
+          </SITE>
+          <SITE name="PrintReceipt" siteaction="PrintReceiptSite">
+               <COMMENT>
+                    Print Receipt if configured
+               </COMMENT>
+               <MOCKUP image=""/>
+               <AISLE name="PrintSuspendedTransactionReceipt" 
+                      letter="Print" 
+                      laneaction="PrintSuspendedTransactionReceiptAisle">
+                    <COMMENT>
+                         Print suspended transaction receipt
+                    </COMMENT>
+               </AISLE>
+               <AISLE name="PrintSuspendedAcknowledge" 
+                      letter="Success" 
+                      laneaction="MAXPrintSuspendedAcknowledgeAisle">
+                    <COMMENT>
+                         Print suspended transaction receipt
+                    </COMMENT>
+               </AISLE>
+               <ROAD name="PrintReceiptContinue" 
+                     letter="SuspendedTransaction" 
+                     destination="Final" 
+                     tape="ADVANCE" record="ON" index="ON">
+               </ROAD>
+          </SITE>
+          <SYSTEMSITE name="Final" action="RETURN">
+          </SYSTEMSITE>
+          <SYSTEMSITE name="LastIndexed" action="BACKUP">
+          </SYSTEMSITE>
+     </REGION>
+</MAP>
+</SERVICE>

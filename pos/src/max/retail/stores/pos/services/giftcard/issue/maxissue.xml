@@ -1,0 +1,213 @@
+<?xml version='1.0' ?>
+
+<!-- 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   Copyright (c) 2012 - 2013 MAXHyperMarket, Inc.    All Rights Reserved.
+   	Rev 1.1  18/Jul/2013	Jyoti Rawal, Bug 7195 - GC- POS Crashed while reloading with 5500
+  	Rev 1.0  15/Apr/2013	Jyoti Rawal, Initial Draft: Changes for Gift Card Functionality 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ -->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE name="GiftCardIssue" package="oracle.retail.stores.pos.services.giftcard.issue"
+	tourcam="ON">
+	<COMMENT>
+		Point-Of-Sale is the implementation of the Sale
+		Package Requirements.
+    </COMMENT>
+	<CARGO class="MAXGiftCardCargo" package="max.retail.stores.pos.services.giftcard" /> <!--Rev 1.0 changes  -->
+	<SERVICECODE>
+		<LETTER name="Cancel" />
+		<LETTER name="Continue" />
+		<LETTER name="Fifth" />
+		<LETTER name="First" />
+		<LETTER name="Fourth" />
+		<LETTER name="GetCardAmount" />
+		<LETTER name="GetCardNumber" />
+		<LETTER name="InvalidCardNumber" />
+		<LETTER name="Next" />
+		<LETTER name="Offline" />
+		<LETTER name="Ok" />
+		<LETTER name="PredeterminedAmountUndo" />
+		<LETTER name="RequestActivation" />
+		<LETTER name="Second" />
+		<LETTER name="Seventh" />
+		<LETTER name="Sixth" />
+		<LETTER name="Third" />
+		<LETTER name="Undo" />
+		<LETTER name="Overrideden" />
+		
+		<!-- Rev 1.0 : Starts -->
+		<LETTER name="InvalidCardCastNumber" />
+		<!-- Rev 1.0 : Ends -->
+		<LANEACTION class="GiftCardIssueAmountEnteredAisle" />
+		<LANEACTION class="GiftCardIssueCardNumEnteredAisle" />
+		<SHUTTLE class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common" />
+		<SITEACTION class="GetAmountForGiftCardIssueSite" />
+		<SITEACTION class="GetCardNumForGiftCardIssueSite" />		
+		<SITEACTION class="IssueGiftCardStartSite" />
+		<SITEACTION class="CardNumUndoSelectedSite" />
+		<!-- Rev 1.0 : Starts -->
+		<SITEACTION class="MAXGetCardNumForGiftCardIssueSite" package="max.retail.stores.pos.services.giftcard.issue"/>
+		<LANEACTION class="MAXGiftCardIssueCardNumEnteredAisle" package="max.retail.stores.pos.services.giftcard.issue"/>
+		<LANEACTION class="MAXGiftCardIssueAmountEnteredAisle" package="max.retail.stores.pos.services.giftcard.issue"/>
+		<LANEACTION class="MAXCheckAccessForGCAmountIssuedAisle" package="max.retail.stores.pos.services.giftcard.issue"/>
+		<!-- Rev 1.0 : Ends -->	
+		<!--Rev 1.1 changes-->	
+		<SITEACTION  class="CheckAccessSite" package="oracle.retail.stores.pos.services.admin.security.common"/>
+	</SERVICECODE>
+	<MAP>
+		<REGION region="SERVICE" startsite="IssueGiftCardStart">
+			<SITE name="IssueGiftCardStart" siteaction="IssueGiftCardStartSite">
+				<ROAD name="GetCardAmount" letter="GetCardAmount" destination="GetAmountForGiftCardIssue"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="GetCardNumber" letter="GetCardNumber" destination="GetCardNumForGiftCardIssue"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="UndoSelected" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>				
+			</SITE>				
+			<!--Rev 1.0 changes start -->	
+			<SITE name="GetAmountForGiftCardIssue" siteaction="GetAmountForGiftCardIssueSite">
+			   <AISLE name="AmountEntered1" letter="Next"
+					laneaction="MAXCheckAccessForGCAmountIssuedAisle">
+				</AISLE>
+				<AISLE name="AmountEntered" letter="Overrideden"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<AISLE name="FirstSelected" letter="First"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<AISLE name="SecondSelected" letter="Second"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<AISLE name="ThirdSelected" letter="Third"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<AISLE name="FourthSelected" letter="Fourth"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<AISLE name="FifthSelected" letter="Fifth"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<AISLE name="SixthSelected" letter="Sixth"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<AISLE name="SeventhSelected" letter="Seventh"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<AISLE name="SeventhSelected" letter="Overrideden"
+					laneaction="MAXGiftCardIssueAmountEnteredAisle">
+				</AISLE>
+				<!--Rev 1.0 changes end -->
+				  <ROAD name="OverrideRequired" 
+	                letter="Override" 
+	                destination="CheckSecurityAccess"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="AmountValidated" letter="Continue"
+					destination="GetCardNumForGiftCardIssue" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="InvalidAmountEntered" letter="Ok"
+					destination="GetAmountForGiftCardIssue" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="UndoSelected" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="CancelSelected" letter="Cancel" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>
+			<!--Rev 1.1changes-->
+			<SITE  name="CheckSecurityAccess" siteaction="CheckAccessSite">
+                	<ROAD 
+                    name="NoAccess"
+                    letter="Override"
+                    destination="SecurityOverrideStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="AccessGranted"
+                    letter="Continue"
+                    destination="GetCardNumForGiftCardIssue"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+           	 </SITE>
+			<STATION name="SecurityOverrideStation" servicename="security.override.override"
+				targettier="CURRENTTIER" launchshuttle="SecurityOverrideLaunchShuttle">
+				<ROAD name="CancelTransactionSecurityOverrideSucceeded" letter="Success"
+					destination="GetCardNumForGiftCardIssue" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="CancelTransactionSecurityOverrideFailed" letter="Failure"
+					destination="GetAmountForGiftCardIssue" tape="SPLICE" record="OFF" index="OFF">
+				</ROAD>
+			</STATION>			
+			<!--Rev 1.0 changes start -->	
+			<SITE name="GetCardNumForGiftCardIssue" siteaction="MAXGetCardNumForGiftCardIssueSite">
+				<COMMENT>
+					This site displays the GET_CARD_NUM_FOR_GIFT_CARD_RELOAD
+					from GiftCardNumIssue to ask the user to enter gift
+					card number item.
+                </COMMENT>
+				<AISLE name="GiftCardNumberEntered" letter="Next"
+					laneaction="MAXGiftCardIssueCardNumEnteredAisle">
+					<COMMENT>
+						This aisle is traversed after the user entered the
+						gift card information. It adds the gift card to the
+						item list in the cargo.
+                    </COMMENT>
+				</AISLE>
+				<!--Rev 1.0 changes  end-->
+				<ROAD name="UndoSelected" letter="Undo" destination="CardNumUndoSelected"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="GiftCardItemAdded" letter="Continue" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+				<ROAD name="InvalidGiftCardNumber" letter="InvalidCardNumber"
+					destination="GetCardNumForGiftCardIssue" tape="ADVANCE" record="OFF"
+					index="OFF">
+					<COMMENT>
+						The gift card MAG swipe was invalid or the user entered
+						an invalid number. Allow user to re-swipe or re-enter
+						the gift card number.
+                    </COMMENT>
+				</ROAD>
+				<ROAD name="InvalidGiftCardCastNumber" letter="InvalidCardCastNumber"
+					destination="Final" tape="ADVANCE" record="OFF"
+					index="OFF">					
+				</ROAD>
+				<ROAD name="CancelSelected" letter="Cancel" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+			</SITE>
+			<SITE name="CardNumUndoSelected" siteaction="CardNumUndoSelectedSite">
+				<ROAD name="FixAmountUndoSelected" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+					<COMMENT>
+						Undo non price required gift card item, the system will go to
+						Final, show sale screen
+                    </COMMENT>
+				</ROAD>
+				<ROAD name="UndoSelected" letter="GetCardAmount" destination="GetAmountForGiftCardIssue"
+					tape="ADVANCE" record="OFF" index="OFF">
+					<COMMENT>
+						Cannot directly go to Final. It will get amount again
+                    </COMMENT>
+				</ROAD>
+			</SITE>			
+			<SYSTEMSITE name="Final" action="RETURN" />
+			<SYSTEMSITE name="LastIndexed" action="BACKUP" />
+			<SYSTEMSITE name="NamedIndex" action="BACKUP" />
+		</REGION>
+	</MAP>
+</SERVICE>

@@ -1,0 +1,470 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/alterations/alterationsuicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:29 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/17/09 - Added ADE Header
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  $Log:
+   3    360Commerce 1.2         3/31/2005 4:27:13 PM   Robert Pearse
+   2    360Commerce 1.1         3/10/2005 10:19:37 AM  Robert Pearse
+   1    360Commerce 1.0         2/11/2005 12:09:27 PM  Robert Pearse
+  $
+  Revision 1.3  2004/03/16 18:42:43  cdb
+  @scr 0 Removed tabs from all java source code.
+
+  Revision 1.2  2004/02/12 16:49:04  mcs
+  Forcing head revision
+
+  Revision 1.1.1.1  2004/02/11 01:04:14  cschellenger
+  updating to pvcs 360store-current
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="AlterationsOptionsButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="NavigationButtonBean">
+
+        <BUTTON
+            actionName="Pants"
+            enabled="true"
+            keyName="F2"
+            labelTag="Pants"/>
+            
+        <BUTTON
+            actionName="Shirt"
+            enabled="true"
+            keyName="F3"
+            labelTag="Tops"/>
+
+        <BUTTON
+            actionName="Coat"
+            enabled="true"
+            keyName="F4"
+            labelTag="Coat"/>
+
+        <BUTTON
+            actionName="Skirt"
+            enabled="true"
+            keyName="F5"
+            labelTag="Skirt"/>
+        
+        <BUTTON
+            actionName="Dress"
+            enabled="true"
+            keyName="F6"
+            labelTag="Dress"/>
+
+       <BUTTON
+           actionName="Repairs"
+           enabled="true"
+           keyName="F7"
+           labelTag="Repairs"/>
+       
+    </BEAN>
+    
+    <BEAN
+        specName="AlterationsSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="AlterationsBean">
+    </BEAN>
+                    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="EYSPOSDefaultSpec"
+      resourceBundleFilename="alterationsText"
+        specName="ALTERATION_TYPE">
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="AlterationTypeScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="AlterationTypePrompt"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="AlterationsOptionsButtonSpec">
+        </ASSIGNMENT>
+
+    </OVERLAYSCREEN> 
+    
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+      resourceBundleFilename="alterationsText"
+        specName="PANTS_ALTERATION">
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="AlterationsSpec">
+            <BEANPROPERTY
+                propName="AlterationsModel" propValue="Pants"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="ItemDescriptionField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="PantsAlterationScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="PantsAlterationPrompt"/>
+        </ASSIGNMENT>
+        
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="AlterationsSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+
+
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+      resourceBundleFilename="alterationsText"
+        specName="SHIRT_ALTERATION">
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="AlterationsSpec">
+            <BEANPROPERTY
+                propName="AlterationsModel" propValue="Shirt"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="ItemDescriptionField"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="ShirtAlterationScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="ShirtAlterationPrompt"/>
+        </ASSIGNMENT>
+        
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="AlterationsSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+      resourceBundleFilename="alterationsText"
+        specName="COAT_ALTERATION">
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="AlterationsSpec">
+            <BEANPROPERTY
+                propName="AlterationsModel" propValue="Coat"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="ItemDescriptionField"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="CoatAlterationScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="CoatAlterationPrompt"/>
+        </ASSIGNMENT>
+        
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="AlterationsSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+      resourceBundleFilename="alterationsText"
+        specName="SKIRT_ALTERATION">
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="AlterationsSpec">
+            <BEANPROPERTY
+                propName="AlterationsModel" propValue="Skirt"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="ItemDescriptionField"/>        
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="SkirtAlterationScreenName"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="ItemDescriptionField"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="SkirtAlterationPrompt"/>
+        </ASSIGNMENT>
+        
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="AlterationsSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+      resourceBundleFilename="alterationsText"
+        specName="DRESS_ALTERATION">
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="AlterationsSpec">
+            <BEANPROPERTY
+                propName="AlterationsModel" propValue="Dress"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="ItemDescriptionField"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="DressAlterationScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="DressAlterationPrompt"/>
+        </ASSIGNMENT>
+        
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="AlterationsSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+      resourceBundleFilename="alterationsText"
+        specName="REPAIRS_ALTERATION">
+        
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="AlterationsSpec">
+            <BEANPROPERTY
+                propName="AlterationsModel" propValue="Repairs"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields" propValue="ItemDescriptionField"/>
+        </ASSIGNMENT>
+        
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Clear[true],Cancel[true],Undo[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="RepairsScreenName"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag" propValue="RepairsPrompt"/>
+        </ASSIGNMENT>
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+
+        <CONNECTION
+            sourceBeanSpecName="AlterationsSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+        <CONNECTION
+            listenerInterfaceName="ValidateActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="AlterationsSpec"/>
+    </OVERLAYSCREEN>
+</UICFG>

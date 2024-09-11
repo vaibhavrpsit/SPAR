@@ -1,0 +1,142 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/pricing/markdown/markdownoptions.xml /main/15 2013/07/08 14:22:28 yiqzhao Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    yiqzhao   07/08/13 - Avoid sliding buttons when return.
+ *    cgreene   05/27/10 - convert to oracle packaging
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="MarkdownOptions"
+    package="oracle.retail.stores.pos.services.pricing.markdown"
+    tourcam="OFF">
+    <CARGO class="PricingCargo" package="oracle.retail.stores.pos.services.pricing"/>
+    <SERVICECODE>
+        <LETTER name="MarkdownAmt"/>
+        <LETTER name="MarkdownPer"/>
+        <LETTER name="Next"/>
+        <LETTER name="Clear"/>
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Continue"/>
+
+        <SHUTTLE class="MarkdownLaunchShuttle" package="oracle.retail.stores.pos.services.pricing"/>
+        <SHUTTLE class="MarkdownReturnShuttle" package="oracle.retail.stores.pos.services.pricing"/>
+
+        <LANEACTION class="NextLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="DiscountAmountSelectedRoad" package="oracle.retail.stores.pos.services.pricing"/>
+        <LANEACTION class="DiscountPercentSelectedRoad" package="oracle.retail.stores.pos.services.pricing"/>  
+
+        <SITEACTION class="CheckOnlyOneDiscountSite" package="oracle.retail.stores.pos.services.pricing"/>             
+        <SITEACTION class="MarkdownOptionsSite"/>
+
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="CheckOnlyOneDiscount">
+            <SITE name="CheckOnlyOneDiscount" siteaction="CheckOnlyOneDiscountSite">
+                <ROAD
+                    name="DiscountSucceeded"
+                    letter="Continue"
+                    destination="MarkdownOptions">
+                </ROAD>
+                <ROAD
+                    name="DiscountFailed"
+                    letter="Cancel"
+                    destination="Final">
+                </ROAD>
+            </SITE>
+        
+        <SITE name="MarkdownOptions" siteaction="MarkdownOptionsSite">
+              <ROAD
+                  name="MarkdownAmountSelected"
+                  letter="MarkdownAmt"
+                  laneaction="DiscountAmountSelectedRoad"
+                  destination="MarkdownStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+
+              <ROAD
+                  name="MarkdownPercentSelected"
+                  laneaction="DiscountPercentSelectedRoad"
+                  letter="MarkdownPer"
+                  destination="MarkdownStation"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+			  <ROAD
+                  name="MarkdownNotAllowed"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="PricingUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="PricingCancel"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </SITE>
+
+
+<!-- Markdown Station -->
+          <STATION name="MarkdownStation"
+              servicename="pricing.markdown.markdown"
+              targettier="CURRENTTIER"
+              launchshuttle="MarkdownLaunchShuttle"
+              returnshuttle="MarkdownReturnShuttle">
+              <AISLE
+                  name="MarkdownCleared"
+                  letter="Clear"
+                  laneaction="NextLetterAisle">
+              </AISLE>
+              <ROAD
+                  name="MarkdownCanceled"
+                  letter="Cancel"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="MarkdownUndo"
+                  letter="Undo"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+              <ROAD
+                  name="MarkdownFailure"
+                  letter="Failure"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>              
+              <ROAD
+                  name="MarkdownSuccess"
+                  letter="Next"
+                  destination="Final"
+                  tape="ADVANCE" record="OFF" index="OFF">
+              </ROAD>
+          </STATION>
+
+            <SYSTEMSITE name="Final" action="RETURN"/>
+        </REGION>
+    </MAP>
+</SERVICE>
+

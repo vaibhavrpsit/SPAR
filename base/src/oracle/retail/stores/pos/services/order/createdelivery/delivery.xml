@@ -1,0 +1,258 @@
+<?xml version='1.0' ?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2009, 2012, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/order/createdelivery/delivery.xml /main/12 2012/05/02 14:07:48 jswan Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    jswan     04/13/12 - Moved to the order package during the cross
+ *                         channel project to provide better organization for
+ *                         the order create process.
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    cgreene   03/26/10 - move timeout road to common service
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/16/09 - Added ADE Header
+ *
+ * ===========================================================================
+ */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE
+    name="delivery"
+    package="oracle.retail.stores.pos.services.order.createdelivery"
+    tourcam="ON">
+    <CARGO class="PickupDeliveryOrderCargo" package="oracle.retail.stores.pos.services.order.createpickup"/>
+    <SERVICECODE>
+
+        <LETTER name="Undo"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Success"/>
+        <LETTER name="Done"/>
+        <LETTER name="Next"/>
+        <LETTER name="AskForDate"/>
+
+        <LANEACTION class="JournalCustomerInformationRoad" package="oracle.retail.stores.pos.services.order.createpickup"/>
+
+        <SITEACTION class="EnterCustomerInformationSite" package="oracle.retail.stores.pos.services.order.createpickup"/>
+        <SITEACTION class="CreatePickupDeliveryOrderSite" package="oracle.retail.stores.pos.services.order.createpickup"/>
+        <SITEACTION class="GetDeliveryDateEnteredSite" />
+        <SITEACTION class="ShowDeliveryDateEnterScreenSite" />
+
+        <SHUTTLE class="DeliveryAddressLaunchShuttle" />
+        <SHUTTLE class="DeliveryAddressReturnShuttle" />
+        <SHUTTLE class="CustomerLaunchShuttle" package="oracle.retail.stores.pos.services.order.createpickup"/>
+        <SHUTTLE class="CustomerReturnShuttle" package="oracle.retail.stores.pos.services.order.createpickup"/>
+    </SERVICECODE>
+    <MAP>
+        <REGION region="SERVICE" startsite="EnterCustomerInformation">
+            <SITE name="EnterCustomerInformation" siteaction="EnterCustomerInformationSite">
+				<ROAD
+                    name="AddCustomerRoad"
+                    letter="AddCustomer"
+                    destination="CustomerStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="AskForDateRoad"
+                    letter="AskForDate"
+                    destination="DeliveryAddressStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+		   </SITE>
+
+		   <STATION
+                name="CustomerStation"
+                servicename="customer.main.customermain"
+                targettier="CURRENTTIER"
+                launchshuttle="CustomerLaunchShuttle"
+                returnshuttle="CustomerReturnShuttle">
+                <COMMENT >
+                    Transfer control to customer services to execute
+                    Customer functionality.
+                </COMMENT>
+                <ROAD
+                    name="CustomerContinue"
+                    letter="Continue"
+                    destination="DeliveryAddressStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when the Customer service runs to
+                        completion.
+                    </COMMENT>
+                </ROAD>
+                 <ROAD
+                    name="CustomerUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when the user backs out of the Customer
+                        service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CustomerCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        Road to traverse when the user Cancels out of the Customer
+                        service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="DeliveryOffline"
+                    letter="Offline"
+                    destination="DeliveryAddressStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service
+                        returns with a Cancel letter.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+
+			<STATION
+                name="DeliveryAddressStation"
+                servicename="delivery.address.deliveryAddress"
+                targettier="CURRENTTIER"
+                launchshuttle="DeliveryAddressLaunchShuttle"
+                returnshuttle="DeliveryAddressReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the shippingaddress
+                    service.
+                </COMMENT>
+				<ROAD
+                    name="DeliveryReturned"
+                    letter="Continue"
+                    laneaction="JournalCustomerInformationRoad"
+                    destination="ShowDeliveryDateEnterScreen"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="UndoDelivery"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service
+                        returns with an Undo letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="CancelDelivery"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service
+                        returns with a Cancel letter.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+
+			<SITE name="GetDeliveryDateEntered" siteaction="GetDeliveryDateEnteredSite">
+                 <ROAD
+                    name="CheckSameAddressProcessedRoad"
+                    letter="Continue"
+                    destination="CreatePickupDeliveryOrder"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				 <ROAD
+                    name="CancelRoad"
+                    letter="Ok"
+                    destination="ShowDeliveryDateEnterScreen"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				 <ROAD
+                    name="CancelRoad"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="UndoRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+			<SITE name="ShowDeliveryDateEnterScreen" siteaction="ShowDeliveryDateEnterScreenSite">
+                 <ROAD
+                    name="CheckSameAddressProcessedRoad"
+                    letter="Next"
+                    destination="GetDeliveryDateEntered"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="CancelRoad"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+				<ROAD
+                    name="UndoRoad"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+
+			<SITE name="CreatePickupDeliveryOrder" siteaction="CreatePickupDeliveryOrderSite">
+                 <ROAD
+                    name="OrderCreatedRoad"
+                    letter="Continue"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </SITE>
+            <SYSTEMSITE name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE name="Final" action="RETURN"/>
+
+        </REGION>
+    </MAP>
+</SERVICE>

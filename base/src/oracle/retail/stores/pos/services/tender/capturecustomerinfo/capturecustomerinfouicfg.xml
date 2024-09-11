@@ -1,0 +1,260 @@
+<?xml version="1.0"?>
+<!--
+/* ===========================================================================
+* Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved. 
+ * ===========================================================================
+ * $Header: rgbustores/applications/pos/src/oracle/retail/stores/pos/services/tender/capturecustomerinfo/capturecustomerinfouicfg.xml /rgbustores_13.4x_generic_branch/1 2011/05/06 14:15:27 mszekely Exp $
+ * ===========================================================================
+ * NOTES
+ * <other useful comments, qualifications, etc.>
+ *
+ * MODIFIED    (MM/DD/YY)
+ *    npoola    09/29/10 - enabled the validation for the required fields
+ *    blarsen   09/02/10 - added postalCodeField to validating field list for
+ *                         capture customer info spec
+ *    cgreene   05/26/10 - convert to oracle packaging
+ *    abondala  01/02/10 - Update Header date
+ *    abondala  12/25/09 - Updated ADE Header
+ *    cgreene   12/16/09 - add Keys button
+ *
+ * ===========================================================================
+ */
+-->
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* *
+
+     $Log:
+      4    360Commerce 1.3         1/25/2006 4:10:51 PM   Brett J. Larsen merge
+            7.1.1 changes (aka. 7.0.3 fixes) into 360Commerce view
+      3    360Commerce 1.2         3/31/2005 4:27:20 PM   Robert Pearse
+      2    360Commerce 1.1         3/10/2005 10:19:59 AM  Robert Pearse
+      1    360Commerce 1.0         2/11/2005 12:09:48 PM  Robert Pearse
+     $
+     Revision 1.13  2004/07/29 13:00:12  kll
+     @scr 6358: changed order of RequiredValidatingFields for the CaptureCustomerInfoSpec
+
+     Revision 1.12  2004/07/16 18:00:38  khassen
+     @scr 6311 - turned off the Next button manager for all overlay screens.
+
+     Revision 1.11  2004/07/13 14:06:17  khassen
+     Updating bean properties for managing next button.
+
+     Revision 1.10  2004/07/02 19:42:51  khassen
+     @scr 5752 - updated required fields.
+
+     Revision 1.9  2004/06/11 14:44:47  dfierling
+     @scr 5464 - fixed required fields for Customer Info
+
+     Revision 1.8  2004/03/16 18:42:39  cdb
+     @scr 0 Removed tabs from all java source code.
+
+     Revision 1.7  2004/02/27 19:23:02  khassen
+     @scr 0 Capture Customer Info use-case
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*/
+-->
+<!DOCTYPE UICFG SYSTEM "classpath://oracle/retail/stores/pos/config/defaults/posui.dtd">
+
+<UICFG>
+
+    <BEAN
+        specName="CaptureCustomerInfoButtonSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="ValidateNavigationButtonBean">
+
+    </BEAN>
+    <BEAN
+        specName="CaptureCustomerInfoSpec"
+        configuratorPackage="oracle.retail.stores.pos.ui"
+        configuratorClassName="POSBeanConfigurator"
+        beanPackage="oracle.retail.stores.pos.ui.beans"
+        beanClassName="CaptureCustomerInfoBean">
+    </BEAN>
+
+
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="captureCustomerInfoText"
+        specName="CAPTURE_CUSTOMER_INFO_BANK_CHECK">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="CaptureCustomerInfoSpec">
+            <BEANPROPERTY
+                propName="OptionalValidatingFields"
+                propValue="telephoneField"/>
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+                propValue="firstNameField,lastNameField,addressLine1Field,cityField,countryField,stateField,postalCodeField,IDTypeField"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="CaptureCustomerInfoScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="CaptureCustomerInfoPromptText"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+             listenerInterfaceName="ValidateActionListener"
+             listenerPackage="oracle.retail.stores.pos.ui.behavior"
+             sourceBeanSpecName="GlobalNavigationPanelSpec"
+             targetBeanSpecName="CaptureCustomerInfoSpec"/>
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CaptureCustomerInfoSpec"/>
+        <CONNECTION
+            sourceBeanSpecName="CaptureCustomerInfoSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="captureCustomerInfoText"
+        specName="CAPTURE_CUSTOMER_INFO_SEND">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="CaptureCustomerInfoSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+                propValue="firstNameField,lastNameField,addressLine1Field,cityField,countryField,stateField,postalCodeField,telephoneField"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="CaptureCustomerInfoButtonSpec">
+            <BEANPROPERTY
+                propName="actionName"
+                propValue="Done"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="CaptureCustomerInfoScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="CaptureCustomerInfoPromptText"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+             listenerInterfaceName="ValidateActionListener"
+             listenerPackage="oracle.retail.stores.pos.ui.behavior"
+             sourceBeanSpecName="GlobalNavigationPanelSpec"
+             targetBeanSpecName="CaptureCustomerInfoSpec"/>
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CaptureCustomerInfoSpec"/>
+        <CONNECTION
+            sourceBeanSpecName="CaptureCustomerInfoSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+    <OVERLAYSCREEN
+        defaultScreenSpecName="DefaultValidatingSpec"
+        resourceBundleFilename="captureCustomerInfoText"
+        specName="CAPTURE_CUSTOMER_INFO_DEFAULT">
+
+        <ASSIGNMENT
+            areaName="GlobalNavigationPanel"
+            beanSpecName="GlobalNavigationPanelSpec">
+            <BEANPROPERTY
+                propName="manageNextButton"
+                propValue="false"/>
+            <BEANPROPERTY
+                propName="buttonStates"
+                propValue="Help[true],Cancel[true],Undo[true],Clear[true],Next[true],Keys[true]"/>
+        </ASSIGNMENT>
+
+        <ASSIGNMENT
+            areaName="WorkPanel"
+            beanSpecName="CaptureCustomerInfoSpec">
+            <BEANPROPERTY
+                propName="RequiredValidatingFields"
+            propValue="firstNameField,lastNameField,addressLine1Field,cityField,countryField,stateField,postalCodeField,telephoneField"/>                
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="LocalNavigationPanel"
+            beanSpecName="CaptureCustomerInfoButtonSpec">
+            <BEANPROPERTY
+                propName="actionName"
+                propValue="Done"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="StatusPanel"
+            beanSpecName="StatusPanelSpec">
+            <BEANPROPERTY
+                propName="screenNameTag" propValue="CaptureCustomerInfoScreenName"/>
+        </ASSIGNMENT>
+        <ASSIGNMENT
+            areaName="PromptAndResponsePanel"
+            beanSpecName="PromptAndResponsePanelSpec">
+            <BEANPROPERTY
+                propName="promptTextTag"
+                propValue="CaptureCustomerInfoPromptText"/>
+        </ASSIGNMENT>
+
+        <CONNECTION
+             listenerInterfaceName="ValidateActionListener"
+             listenerPackage="oracle.retail.stores.pos.ui.behavior"
+             sourceBeanSpecName="GlobalNavigationPanelSpec"
+             targetBeanSpecName="CaptureCustomerInfoSpec"/>
+        <CONNECTION
+            listenerInterfaceName="ClearActionListener"
+            listenerPackage="oracle.retail.stores.pos.ui.behavior"
+            sourceBeanSpecName="GlobalNavigationPanelSpec"
+            targetBeanSpecName="CaptureCustomerInfoSpec"/>
+        <CONNECTION
+            sourceBeanSpecName="CaptureCustomerInfoSpec"
+            targetBeanSpecName="GlobalNavigationPanelSpec"
+            listenerPackage="javax.swing.event"
+            listenerInterfaceName="DocumentListener"/>
+
+    </OVERLAYSCREEN>
+
+</UICFG>

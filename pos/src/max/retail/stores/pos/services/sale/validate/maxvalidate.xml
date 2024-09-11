@@ -1,0 +1,1286 @@
+<?xml version='1.0' ?>
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2016 - 2017 MAX Hypermarket, Inc.    All Rights Reserved.
+ *	
+ *  Rev 1.3		May 30, 2020		Karni Singh			POS REQ: Register CRM customer with OTP.
+ *	Rev 1.2     Dec 28, 2016		Ashish Yadav		Online Points Redemption FES
+ *	Rev 1.1     Dec 16, 2016		Ashish Yadav		Home Delivery Send FES
+ *	Rev 1.0     Nov 09, 2016		Ashish Yadav		Code Merging
+ *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE SERVICE SYSTEM "classpath://oracle/retail/stores/foundation/tour/dtd/tourguide.dtd">
+
+<SERVICE 
+    name="ValidateSale"
+    package="oracle.retail.stores.pos.services.sale.validate"
+    tourcam="OFF">
+    <COMMENT >
+        This service perform all pre tender validation. 
+    </COMMENT>
+    <CARGO  class="MAXSaleCargo" package="max.retail.stores.pos.services.sale"/>
+    <SERVICECODE >
+        <LANEACTION class="ValidateAmountsAisle"/>
+        <LANEACTION class="SuccessConversionAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="GetSerialNumberFromUIAisle"/>
+        <LANEACTION class="CancelLetterAisle" package="oracle.retail.stores.pos.services.common"/>
+        <LANEACTION class="AddItemAisle" package="oracle.retail.stores.pos.services.sale"/>
+        <LANEACTION class="TenderCompletedRoad"/>
+        <LETTER name="AlterationItems"/>
+        <LETTER name="Cancel"/>
+        <LETTER name="Continue"/>
+        <LETTER name="ExitLayaway"/>
+        <LETTER name="ExitTender"/>
+        <LETTER name="Failure"/>
+        <LETTER name="Offline"/>
+        <LETTER name="Layaway"/>
+        <LETTER name="Ok"/>
+        <LETTER name="RequiredCustomer"/>
+        <LETTER name="Sale"/>
+        <LETTER name="Return"/>
+        <LETTER name="RPIDisabled"/>
+        <LETTER name="LaunchTender"/>
+        <LETTER name="CheckDiscounts"/>
+        <LETTER name="ProcessSerializedItemsForOrder"/>
+        <LETTER name="Success"/>
+        <LETTER name="SendItems"/>
+        <LETTER name="Serial"/>
+        <LETTER name="Done"/>
+        <LETTER name="Undo"/>
+        <LETTER name="SendItemsNeedShippingMethod"/>
+        <LETTER name="QueueFull"/>
+<!-- Changes start for code merging -->
+		<LETTER name="Offline" />
+		<LETTER name="LinkCRMCustomer" />
+		<LETTER name="ValidateDC" />
+		<LETTER name="InvalidAmount" />
+		<LETTER name="InvalidCardNumber" />
+		<LETTER name="Retry" />
+		<!-- End Extra code here -->
+		<!--Change for Capillary Coupon Discount -->
+		<LETTER name="Mobile" />
+		<!--End for Change in Capillary Coupon Discount -->
+		<!-- added by dipak for revision -->
+		<LETTER name="CapillaryCoupon"/>
+		<LETTER name="Timeout"/>
+		<!-- Changes end for code merging -->
+        <SIGNAL class="IsAlterationItemPresentSignal"/>
+        <SIGNAL class="IsNotAlterationItemPresentSignal"/>
+        <SIGNAL class="SkipReturnAuthorizationSignal"/>
+        <SHUTTLE class="LayawayPaymentLaunchShuttle"/>
+        <SHUTTLE class="LayawayPaymentReturnShuttle"/>
+        <SHUTTLE class="SpecialOrderDepositLaunchShuttle"/>
+        <SHUTTLE class="SpecialOrderDepositReturnShuttle"/>
+		<SHUTTLE  class="SecurityOverrideLaunchShuttle" package="oracle.retail.stores.pos.services.admin.security.common"/>
+		<!-- Changes start for code merging-->
+		<SHUTTLE class="MAXCustomerLaunchShuttle" package="max.retail.stores.pos.services.sale.validate" />
+		<!-- Changes ends for code merging-->
+        <SHUTTLE class="CustomerLaunchShuttle"/>
+        <SHUTTLE class="CustomerReturnShuttle"/>
+        <SHUTTLE class="TenderLaunchShuttle"/>
+        <SHUTTLE class="TenderReturnShuttle"/>
+		<!-- Changes start for code merging-->
+		<SHUTTLE class="MAXTenderLaunchShuttle" package="max.retail.stores.pos.services.sale.validate"/>
+		<SHUTTLE class="MAXTenderReturnShuttle" package="max.retail.stores.pos.services.sale.validate"/>
+		<!-- Changes ends for code merging-->
+        <SHUTTLE class="ShippingMethodLaunchShuttle"/>
+        <SHUTTLE class="ShippingMethodReturnShuttle"/>
+        <SHUTTLE class="ReturnAuthorizationLaunchShuttle" package="oracle.retail.stores.pos.services.returnauthorization"/>
+        <SHUTTLE class="ReturnAuthorizationReturnShuttle" package="oracle.retail.stores.pos.services.returnauthorization"/>
+        <SITEACTION class="CheckSendItemsTransactionLevelSite"/>
+        <!--<SITEACTION class="CheckForAlterationItemsSite"/>-->
+        <SITEACTION class="CheckForLinkedCustomerSite"/>
+        <SITEACTION class="CheckItemsRequireSerializationNumberSite"/>
+        <SITEACTION class="CheckTransactionTypeSite"/>
+        <SITEACTION class="ItemSerialNumberRequiredSite"/>
+        <SITEACTION class="ValidateDiscountsSite"/>
+        <SITEACTION class="AlterationsErrorSite"/>
+		<!-- Changes start for code merging--> -->
+		<SITEACTION class="MAXCheckForAlterationItemsSite" package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXCheckForLinkedCustomerSite" package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXLinkBlindTICCustomerSite" package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXAddTICCustomerSite" package="max.retail.stores.pos.services.sale.validate" />
+		<LANEACTION class="MAXCheckAmtEligibleAisle" package="max.retail.stores.pos.services.sale" />
+		<LANEACTION class="MAXRequireTICCustomerAisle" package="max.retail.stores.pos.services.sale" />
+		<SITEACTION class="MAXAddTICLoyaltyCustomerSite" package="max.retail.stores.pos.services.customer.tic" />
+		<LANEACTION class="MAXTICCustomerEnteredAisle" package="max.retail.stores.pos.services.sale" />
+		<LANEACTION class="MAXExitTICCustomerScreenAisle" package="max.retail.stores.pos.services.sale" />
+		<LANEACTION class="MAXLinkTICCustomerAisle" package="max.retail.stores.pos.services.sale" />
+		<SIGNAL class="MAXIsExistingTICCustomerSignal" package="max.retail.stores.pos.services.sale" />
+		<SITEACTION class="MAXProcessTICRequestSite" package="max.retail.stores.pos.services.sale" />
+		<LANEACTION class="MAXCustomerLookupAisle" package="max.retail.stores.pos.services.sale.validate" />
+		
+		<SITEACTION class="MAXPromptForCapillaryCouponSite"
+			package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXEnterCouponNumberSite" package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXDisplayCapillaryTimeout" package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXEnterMobileNumberSite" package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXRemoveCapillaryDiscountsSite" package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXCheckTransactionTypeSite" package="max.retail.stores.pos.services.sale.validate" />
+		<SITEACTION class="MAXCheckSendItemsTransactionLevelSite" package="max.retail.stores.pos.services.sale.validate" />
+
+		<LANEACTION class="MAXValidateCouponAisle" package="max.retail.stores.pos.services.sale.validate" />
+		<LANEACTION class="MAXSetNonTICMobileNumberAisle" package="max.retail.stores.pos.services.sale.validate" />
+		<!-- Changes ends for code merging-->
+		
+				<!-- Rev 1.5 start -->
+		<LANEACTION class="MAXValidateCRMEnrolOTPAisle" package="max.retail.stores.pos.services.customer.tic" />
+		<SITEACTION class="MAXCRMEnrolmentEnterOTPSite" package="max.retail.stores.pos.services.customer.tic"/>
+		<SITEACTION class="MAXLMREnrolmentOverrideAccessSite" package="max.retail.stores.pos.services.customer.tic"/>	
+		<LANEACTION class="MAXOTPByPassedWithManagerOverrideAisle" package="max.retail.stores.pos.services.customer.tic" />
+		<!-- Rev 1.5 end -->
+		
+    </SERVICECODE>
+    <MAP >
+        <REGION  region="SERVICE" startsite="ValidateDiscounts">
+            <SITE  name="ValidateDiscounts" siteaction="ValidateDiscountsSite">
+                <COMMENT >
+                    Validate advance pricing rules, transaction discounts 
+                    and check related parameters also validate tax applied 
+                    to the items
+                </COMMENT>
+                <AISLE
+                    name="ValidateAmounts"
+                    letter="CheckDiscounts"
+                    laneaction="ValidateAmountsAisle">
+                    <COMMENT>
+                        This aisle puts up an error msg if the discount amount
+                        is greater than the subtotal. It can be used to do other
+                        verifications, if needed.
+                    </COMMENT>
+                </AISLE>
+		<ROAD name="InvalidDiscountsApplied" letter="Failure"
+					destination="Final" tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="ErroroneousAmount" letter="Ok" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+	<!-- Changes start for code merging-->
+                <ROAD 
+                    name="ValidDiscountsApplied"
+                    letter="LaunchTender"
+                    destination="CheckForLinkedCustomer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+	<!-- Changes ends for ocde merging-->
+               <!-- <ROAD 
+                    name="InvalidDiscountsApplied"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="ErroroneousAmount"
+                    letter="Ok"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>-->
+            </SITE>
+	    <!-- Changes start for code merging-->
+	    <SITE name="PromptForCapillaryCoupon" siteaction="MAXPromptForCapillaryCouponSite">
+			<COMMENT>
+				This site prompts the user for Redemption of Capillary Coupon.
+			</COMMENT>
+			 <ROAD name="CouponRedeem"
+				  letter="Yes"
+				  destination="MAXEnterCouponNumber" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when user opts for redeeming capillary coupon.
+				  </COMMENT>
+			</ROAD>
+			<ROAD name="CouponNotRedeem" 
+				  letter="No"
+				  destination="CheckSendItemsTransactionLevel" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when user refuses to redeem capillary coupon.
+				  </COMMENT>
+				</ROAD>
+				<!-- added by dipak for revision
+				
+				 -->
+				 <ROAD name="DoNotRedeemCoupon" 
+				  letter="DoNotRedeem"
+				  destination="CheckSendItemsTransactionLevel" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when user refuses to redeem capillary coupon.
+				  </COMMENT>
+				</ROAD>
+			<ROAD name="NonTicMobile" 
+				  letter="Mobile"
+				  destination="MAXEnterMobileNumber" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when no customer is linked in the transaction.
+				  </COMMENT>
+				</ROAD>
+				
+			</SITE>
+			
+			<SITE name="MAXEnterMobileNumber" siteaction="MAXEnterMobileNumberSite">
+			<AISLE name="SetMobileNumber" 
+				   letter="Next"
+					laneaction="MAXSetNonTICMobileNumberAisle">
+					<COMMENT>
+				  	This aisle sets the mobile number entered by the user.
+				  </COMMENT>
+			</AISLE>
+			<ROAD name="RedeemCoupon"
+				  letter="Ok"
+				  destination="MAXEnterCouponNumber" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when user enters NON-TIC customer's mobile number.
+				  </COMMENT>
+			</ROAD>
+				<ROAD name="SellItemScreen" 
+				  letter="Undo"
+				  destination="Final" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when user presses Undo on MAXLEnterMobileNumberSite.
+				  </COMMENT>
+				</ROAD>
+			</SITE>
+			
+			<SITE name="MAXEnterCouponNumber" siteaction="MAXEnterCouponNumberSite">
+				<COMMENT>
+				  	This site enables the user to enter the capillary coupon number. 
+				  </COMMENT>
+			<AISLE name="ValidateCouponNumber" 
+				   letter="Next"
+					laneaction="MAXValidateCouponAisle">
+					<COMMENT>
+				  	This aisle validates the coupon number entered by the user.
+				  </COMMENT>
+			</AISLE>
+			<ROAD name="CouponNumberEntered" 
+				  letter="Ok"
+				  destination="PromptForCapillaryCoupon" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when the coupon number has been validated by Capillary. 
+				  </COMMENT>
+				</ROAD>
+			<!-- Multiple coupon redemption stopped changes start -  Karni -->
+			<ROAD name="CouponNumberEnteredSuccess" 
+				  letter="DoNotRedeem"
+				  destination="CheckSendItemsTransactionLevel" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when the coupon number has been validated by Capillary. 
+				  </COMMENT>
+				</ROAD>
+			<!-- Multiple coupon redemption stopped changes end - Karni -->
+			<ROAD name="SellItemScreen" 
+				  letter="Undo"
+				  destination="RemoveCapillaryDiscounts" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when user presses Undo on MAXEnterCouponNumberSite.
+				  </COMMENT>
+				</ROAD>
+				
+				<ROAD name="CapillaryOffline" 
+				  letter="Offline"
+				  destination="PromptForCapillaryCoupon" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when Capillary is offline.
+				  </COMMENT>
+				</ROAD>
+				
+				<ROAD name="InvalidCoupon" 
+				  letter="Invalid"
+				  destination="PromptForCapillaryCoupon" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when user has entered an invalid coupon number.
+				  </COMMENT>
+				</ROAD>
+				<ROAD name="TimeoutFaliure" letter="Timeout" destination="TimeoutDispaly"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE>
+			
+			<SITE  name="TimeoutDispaly" siteaction="MAXDisplayCapillaryTimeout">
+			
+				<ROAD name="CapillaryNetworkIssue" letter="Offline" destination="PromptForCapillaryCoupon"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE>
+			<SITE name="RemoveCapillaryDiscounts" siteaction="MAXRemoveCapillaryDiscountsSite">
+			<COMMENT>
+					Removes all capillary coupons discount applied.
+                </COMMENT>
+				<ROAD name="SellItemScreen" 
+				  letter="Undo"
+				  destination="Final" 
+				  tape="ADVANCE" record="ON" index="ON">
+				  <COMMENT>
+				  	This road is traversed when user presses Undo on MAXEnterCouponNumberSite.
+				  </COMMENT>
+				</ROAD>
+			</SITE>
+	    <!-- Chnages ends for code merging-->
+            <SITE  name="CheckTransactionType" siteaction="MAXCheckTransactionTypeSite">
+                <COMMENT >
+                    Determines what type of transaction are we processing 
+                </COMMENT>
+                <ROAD 
+                    name="ProcessLayaway"
+                    letter="Layaway"
+                    destination="LayawayPaymentStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+				<!-- Changes start for code merging -->
+				<ROAD name="ProcessSaleReturn" letter="SaleReturn" destination="TenderStation"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="LunchCapillaryCouponFlow" letter="CapillaryCoupon"
+					destination="PromptForCapillaryCoupon" tape="ADVANCE" record="ON"
+					index="ON">
+					<COMMENT>
+						This road is traversed to prompt the user for Capillary Coupon Redemption. 
+					</COMMENT>
+				</ROAD>
+				<ROAD name="PromptNonTicCapillaryCoupon" letter="CapillaryCouponWithWrongTIC"
+					destination="PromptForCapillaryCoupon" tape="ADVANCE" record="ON"
+					index="ON">
+					<COMMENT>
+						This road is traversed to prompt the coupon for non tic customer in Capillary Coupon Redemption. 
+					</COMMENT>
+				</ROAD>
+				<ROAD name="CheckSendTransaction" letter="SendItems"
+					destination="CheckSendItemsTransactionLevel" tape="ADVANCE" record="ON"
+					index="ON">
+					<COMMENT>
+						This road is traversed to prompt the coupon for non tic customer in Capillary Coupon Redemption. 
+					</COMMENT>
+				</ROAD>
+				<!-- Changes end for code merging -->
+                <ROAD 
+                    name="ProcessReturn"
+                    letter="Return"
+                    destination="ReturnAuthorizationStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT signal="SkipReturnAuthorizationSignal" negate="Y"/>
+                </ROAD>
+                <ROAD 
+                    name="SkipReturnAuthorization"
+                    letter="Return"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT signal="SkipReturnAuthorizationSignal"/>
+                </ROAD>
+                <ROAD 
+                    name="ReturnAuthorizationOffline"
+                    letter="Failure"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="ProcessSale"
+                    letter="Sale"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="ProcessSerializedItemsForOrderRoad"
+                    letter="ProcessSerializedItemsForOrder"
+                    destination="CheckItemsRequireSerializationNumber"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <SITE  name="CheckSendItemsTransactionLevel" siteaction="MAXCheckSendItemsTransactionLevelSite">
+                <ROAD 
+                    name="SendItemsFound"
+                    letter="SendItems"
+                    destination="ShippingMethodStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="NoSendItemsFound"
+                    letter="Continue"
+                    destination="CheckForAlterationItems"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+		<!-- Changes start for ocde merging-->
+		<ROAD name="StopRedeemCapillaryCoupon" letter="DoNotRedeem" destination="CheckForAlterationItems"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+		<!-- Changes ends for code mergingg-->
+            </SITE>
+            <SITE  name="CheckItemsRequireSerializationNumber" siteaction="CheckItemsRequireSerializationNumberSite">
+                <ROAD
+                    name="CheckItemsRequireSerialNumberComplete"
+                    letter="Done"
+                    destination="SpecialOrderDepositStation"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemSerialNumberRequired"
+                    letter="Serial"
+                    destination="ItemSerialNumberRequired"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>            
+            <SITE  name="ItemSerialNumberRequired" siteaction="ItemSerialNumberRequiredSite">
+                <AISLE
+                    name="GetSerialNumberFromUI"
+                    letter="Next"
+                    laneaction="GetSerialNumberFromUIAisle"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </AISLE>
+                <ROAD
+                    name="CheckItemsRequireSerializationNumberRoad"
+                    letter="Continue"
+                    destination="CheckItemsRequireSerializationNumber"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+                <ROAD
+                    name="ItemSerialNumberRequiredUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE" record="OFF" index="OFF">
+                </ROAD>
+            </SITE>            
+            <STATION 
+                name="ReturnAuthorizationStation"
+                servicename="services.returnauthorization.returnauthorization"
+                targettier="CURRENTTIER"
+                launchshuttle="ReturnAuthorizationLaunchShuttle"
+                returnshuttle="ReturnAuthorizationReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the return authorization 
+                    service. After it done, it will call tender station
+                </COMMENT>
+                <ROAD 
+                    name="ReturnAuthorized"
+                    letter="Approved"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the return authorization and tender services 
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="ReturnAuthorized"
+                    letter="Success"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the return authorization and tender services 
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="ReturnAuthorized"
+                    letter="Next"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the return authorization and tender services 
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="ReturnDenied"
+                    letter="Denied"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the return authorization and tender services 
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="RPINotEnabled"
+                    letter="RPIDisabled"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the return authorization and tender services 
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="ReturnAuthorizationUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the return authorization service return
+                        and tender service undo.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="ReturnAuthorizationCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the return authorization service return
+                        and tender service failure.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="ReturnAuthorizationOffline"
+                    letter="Offline"
+                    destination="TenderStation"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the return authorization service return
+                        and tender service failure.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+                        
+            <STATION 
+                name="ShippingMethodStation"
+                servicename="send.displaysendmethod.displaysendmethod"
+                targettier="CURRENTTIER"
+                launchshuttle="ShippingMethodLaunchShuttle"
+                returnshuttle="ShippingMethodReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the shippingaddress 
+                    service.
+                </COMMENT>
+		<!-- Changes start for code merging-->
+                <ROAD 
+                    name="ShippingMethodReturned"
+                    letter="Success"
+                    destination="CheckForAlterationItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service 
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <!--  Chnages start for Rev 1.1(Ashish : Send) -->
+                <ROAD 
+                    name="ShippingMethodReturned1"
+                    letter="Done"
+                    destination="CheckForAlterationItems"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service 
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <!--  Chnages start for Rev 1.1(Ashish : Send) -->
+	    <!-- Changes ends for ocde merging-->
+                <ROAD 
+                    name="UndoShipping"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service 
+                        returns with an Undo letter.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="CancelShipping"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the shippingaddress service 
+                        returns with a Cancel letter.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+            <STATION 
+                name="LayawayPaymentStation"
+                servicename="layaway.payment.layawaypayment"
+                targettier="CURRENTTIER"
+                launchshuttle="LayawayPaymentLaunchShuttle"
+                returnshuttle="LayawayPaymentReturnShuttle">
+                <COMMENT >
+                    This station is the transfer point for the layaway 
+                    payment service
+                </COMMENT>
+                <ROAD 
+                    name="LayawayPaymentUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed when escape has been pressed 
+                        in the layaway payment service
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="CancelLayaway"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the user presses the Cancel 
+                        key from the layaway service.
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="LayawayPaymentSuccess"
+                    letter="ExitLayaway"
+                    destination="Final"
+                    tape="DISCARD"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traveled when the Tender service returns 
+                        from layaway payment.
+                    </COMMENT>
+                </ROAD>
+                <AISLE
+                    name="LayawayExitTender"
+                    letter="ExitTender"
+                    laneaction="SuccessConversionAisle">
+                    <COMMENT>
+                        This aisle is traversed to convert the current letter
+                        to Success
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="LayawaySuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Layaway service
+                        returns.
+                    </COMMENT>
+                </ROAD>
+                <ROAD
+                    name="LayawayQueueFull"
+                    letter="QueueFull"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+            </STATION>
+            <STATION 
+                name="SpecialOrderDepositStation"
+                servicename="specialorder.deposit.specialorderdeposit"
+                targettier="CURRENTTIER"
+                launchshuttle="SpecialOrderDepositLaunchShuttle"
+                returnshuttle="SpecialOrderDepositReturnShuttle">
+                <COMMENT >
+                    This station goes to the Special Order Deposit service. 
+                </COMMENT>
+                <ROAD 
+                    name="UndoSpecialOrderDepositStation"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed when escape has been pressed 
+                        in the special order deposit service
+                    </COMMENT>
+                </ROAD>
+                <ROAD 
+                    name="CancelSpecialOrderDepositStation"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                </ROAD>
+                <ROAD 
+                    name="FailureSpecialOrderDepositStation"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT >
+                        This road is traversed in a Failure letter.
+                    </COMMENT>
+                </ROAD>
+                <AISLE
+                    name="SpecialOrderExitTender"
+                    letter="ExitTender"
+                    laneaction="SuccessConversionAisle">
+                    <COMMENT>
+                        This aisle is traversed to convert the current letter
+                        to Success
+                    </COMMENT>
+                </AISLE>
+                <ROAD
+                    name="SpecialOrderSuccess"
+                    letter="Success"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="OFF"
+                    index="OFF">
+                    <COMMENT>
+                        This road is traveled when the Special Order service
+                        successfully returns.
+                    </COMMENT>
+                </ROAD>
+            </STATION>
+	    <!-- Changes start for code merging-->
+            <STATION 
+                name="TenderStation"
+                servicename="services.tender.tender"
+                targettier="CURRENTTIER"
+                launchshuttle="MAXTenderLaunchShuttle"
+                returnshuttle="MAXTenderReturnShuttle">
+	    <!-- Changes end for code merging-->
+               <AISLE
+                    name="TenderCompleted"
+                    letter="ExitTender"
+                    laneaction="AddItemAisle">
+                    <COMMENT>
+                        This aisle puts up an error msg if the discount amount
+                        is greater than the subtotal. It can be used to do other
+                        verifications, if needed.
+                    </COMMENT>
+                </AISLE>
+                <ROAD 
+                    name="TenderUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>   
+                 <ROAD 
+                    name="NoPanSelected"
+                    letter="NoOptionSelected"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD> 
+                 
+                 <ROAD 
+                    name="NOSelfDeclarationForm"
+                    letter="No"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                                         
+                <ROAD 
+                    name="TenderCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>                               
+                <ROAD 
+                    name="TenderSucceded"
+                    letter="Success"
+                    laneaction="TenderCompletedRoad"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="TenderFailure"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </STATION>
+            <SITE  name="CheckForAlterationItems" siteaction="MAXCheckForAlterationItemsSite">
+                <ROAD 
+                    name="AlterationItemsFound"
+                    letter="AlterationItems"
+                    destination="CheckForLinkedCustomer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="NoAlterationItemsFound"
+                    letter="Continue"
+                    destination="CheckTransactionType"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+		<!-- Changes start for code merging-->
+		<ROAD name="LinkCRMCustomer" letter="LinkCRMCustomer"
+					destination="CheckForLinkedCustomer" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="CRMCustomerFound" letter="Success" destination="CheckTransactionType"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<!-- added by dipak for redeemption -->
+				<ROAD name="StopForRedeemption" letter="DoNotReedem" destination="CheckTransactionType"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>	
+		<!-- Changes neds for code merging-->
+            </SITE>
+            <SITE  name="CheckForLinkedCustomer" siteaction="MAXCheckForLinkedCustomerSite">
+		<!-- Changes start for code merging-->
+			<AISLE name="RequireTICCustomer" letter="RequireTICCustomer"
+					laneaction="MAXRequireTICCustomerAisle">
+
+				</AISLE>
+				<AISLE name="CheckAmtEligibleAisle" letter="CheckAmtEligible"
+					laneaction="MAXCheckAmtEligibleAisle">
+					<COMMENT>
+						This aisle is traveled when an item number has been
+						entered and is not empty.
+					</COMMENT>
+				</AISLE>
+				<ROAD name="CaptureTICCustomerRoad" letter="CaptureTICCustomer"
+					destination="MAXAddTICLoyaltyCustomer" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+				<!-- added by dipak for the revision of Capillary Coupon Discount -->
+				<ROAD name="DONOTCaptureTICCustomer" letter="DONOTCaptureTICCustomer"
+					destination="CheckTransactionType" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+<!-- Changes ends for code merging-->
+                <!--<ROAD 
+                    name="CustomerLinked"
+                    letter="Success"
+                    destination="CheckTransactionType"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>-->
+                <ROAD 
+                    name="CustomerNotLinked"
+                    letter="RequiredCustomer"
+                    destination="LinkTICCustomer"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+		<!-- Changes start for code merging-->
+		<ROAD name="CustomerNotLinked" letter="Undo" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="LunchCapillaryCouponFlowForNonTIC" letter="CapillaryCouponNonTIC"
+					destination="PromptForCapillaryCoupon" tape="ADVANCE" record="ON"
+					index="ON">
+					<COMMENT>
+						This road is traversed to prompt the user for Capillary Coupon Redemption. 
+					</COMMENT>
+				</ROAD>
+				<ROAD name="LunchCapillaryCouponFlowForTIC" letter="CapillaryCoupon"
+					destination="PromptForCapillaryCoupon" tape="ADVANCE" record="ON"
+					index="ON">
+					<COMMENT>
+						This road is traversed to prompt the user for Capillary Coupon Redemption. 
+					</COMMENT>
+				</ROAD>
+				<ROAD name="LunchCapillaryCouponFlowForNonTIC" letter="Success"
+					destination="CheckTransactionType" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+		<!-- Changes ends for code merging-->
+            </SITE>
+	    <!-- Changes start for code merging-->
+	    	<SITE name="MAXProcessTICRequest" siteaction="MAXProcessTICRequestSite">
+
+
+				<!-- <ROAD name="TICCustomerRequestSuccess" letter="Tender2" destination="ItemLookupStationForBestDeal" 
+					tape="ADVANCE" record="OFF" index="OFF"> </ROAD> -->
+
+
+
+				<AISLE name="CRMProcessOk" letter="Ok"
+					laneaction="MAXExitTICCustomerScreenAisle">
+				</AISLE>
+
+				<ROAD name="CRMEnrolmentOTPValidationReq" letter="OTPValidationRequired"
+					destination="CRMEnrolmentOTPReq" tape="ADVANCE" record="OFF"
+					index="ON">
+				</ROAD>
+
+				<ROAD name="CRMProcessReturn" letter="ReturnAdd" destination="MAXAddTICLoyaltyCustomer"
+					tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>
+
+
+				<!-- new Tic user -->
+
+				<AISLE name="CRMProcessNext" letter="Next" laneaction="MAXLinkTICCustomerAisle">
+					<LIGHT signal="MAXIsExistingTICCustomerSignal" negate="Y" />
+				</AISLE>
+
+				<!-- existing Tic user -->
+
+				<AISLE name="CRMProcessNext1" letter="Next"
+					laneaction="MAXExitTICCustomerScreenAisle">
+					<LIGHT signal="MAXIsExistingTICCustomerSignal" />
+				</AISLE>
+
+
+
+
+				<AISLE name="TICCustomerLink" letter="LinkCustID" laneaction="MAXLinkTICCustomerAisle">
+				</AISLE>
+
+
+				<ROAD name="SuccessRoad" letter="Success" destination="CheckTransactionType"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+
+			</SITE>
+
+<!-- Rev 1.3 start -->
+			<SITE name="CRMEnrolmentOTPReq" siteaction="MAXCRMEnrolmentEnterOTPSite">			
+				<AISLE name="ValidateCRMEnrolOTP" letter="Next"
+					laneaction="MAXValidateCRMEnrolOTPAisle">
+				</AISLE>
+				<ROAD name="CRMOTPValidSuccess" letter="Success" destination="MAXProcessTICRequest"
+					tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>		
+				<ROAD name="RetryOTP" letter="Retry" destination="CRMEnrolmentOTPReq"
+					tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>
+				<ROAD name="CancelOTP" letter="Cancel" destination="MAXAddTICLoyaltyCustomer"
+					tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>
+				<ROAD name="Undo" letter="Undo" destination="MAXAddTICLoyaltyCustomer"
+					tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>
+				<ROAD name="NoManagerOverride" letter="No" destination="MAXAddTICLoyaltyCustomer"
+					tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>
+				<ROAD name="ManagerOverride" letter="Yes" destination="LMREnrolmentOverrideAccess"
+					tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>
+			</SITE>
+			<SITE name="LMREnrolmentOverrideAccess" siteaction="MAXLMREnrolmentOverrideAccessSite">
+                    <ROAD 
+                        name="NoAccess"
+                        letter="Override"
+                        destination="LMREnrolmentSecurityOverrideStation">
+                    </ROAD>
+                    <ROAD 
+                        name="UserAuthorized"
+                        letter="Continue"
+                        destination="MAXProcessTICRequest">
+                    </ROAD>
+               </SITE>
+	       <!--  from ls customized 12 version END -->
+	      
+	       <STATION name="LMREnrolmentSecurityOverrideStation"
+                    servicename="security.override.override"
+                    targettier="CURRENTTIER"
+                    launchshuttle="SecurityOverrideLaunchShuttle" >
+                    <ROAD 
+                        name="LoginSucceededSecurityOverride"
+                        letter="Success"
+                         laneaction="MAXOTPByPassedWithManagerOverrideAisle"
+                        destination="MAXProcessTICRequest"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD 
+                        name="SecurityOverrideFailed"
+                        letter="Failure"
+                        destination="MAXAddTICLoyaltyCustomer"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+                    <ROAD 
+                        name="SecurityOverrideCancelled"
+                        letter="Cancel"
+                        destination="MAXAddTICLoyaltyCustomer"
+                        tape="ADVANCE" record="OFF" index="OFF">
+                    </ROAD>
+               </STATION>
+		<!-- Rev 1.3 end -->
+
+
+			<!-- rev 1.4 end -->
+
+			<SITE name="LinkTICCustomer" siteaction="MAXLinkBlindTICCustomerSite">
+				<AISLE name="CustomerLookupByID" letter="Next"
+					laneaction="MAXCustomerLookupAisle">
+				</AISLE>
+				<ROAD name="InvalidTICCardRoad" letter="Ok" destination="CheckForLinkedCustomer"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="CustomerLookupSuccessRoad" letter="Success"
+					destination="CheckTransactionType" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="TICCustomerEnteredRoad" letter="Yes" destination="AddTICCustomer"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="CustomerLookupFailedRoad" letter="No"
+					destination="CheckTransactionType" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="UndoCustomerAddRoad" letter="Undo" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE>
+			<SITE name="AddTICCustomer" siteaction="MAXAddTICCustomerSite">
+				<ROAD name="TICCustomerEnteredRoad" letter="Next"
+					destination="CheckTransactionType" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="UndoCustomerAddRoad" letter="Ok" destination="LinkTICCustomer"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE>
+			<!--MAX Rev 1.2 Change : End -->
+		<!-- Changes ends for code merging-->
+            <SITE  name="AlterationsError" siteaction="AlterationsErrorSite">
+                <ROAD 
+                    name="AssociateCustomer"
+                    letter="Yes"
+                    destination="CustomerStation"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="AssociateCustomerCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+            </SITE>
+            <STATION 
+                name="CustomerStation"
+                servicename="customer.main.customermain"
+                targettier="CURRENTTIER"
+                launchshuttle="CustomerLaunchShuttle"
+                returnshuttle="CustomerReturnShuttle">
+                <ROAD 
+                    name="CustomerLinkedSucceded"
+                    letter="Success"
+                    destination="CheckTransactionType"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+				<ROAD 
+                    name="CustomerLinkedContinue"
+                    letter="Continue"
+                    destination="CheckTransactionType"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+				<ROAD 
+                    name="CustomerLinkedNext"
+                    letter="Next"
+                    destination="CheckTransactionType"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+				<ROAD 
+                    name="CustomerLinkedUndo"
+                    letter="Undo"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="CustomerLinkFailed"
+                    letter="Failure"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                </ROAD>
+                <ROAD 
+                    name="CustomerLinkCancel"
+                    letter="Cancel"
+                    destination="Final"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT signal="IsNotAlterationItemPresentSignal"/>
+                </ROAD>
+                <ROAD 
+                    name="CustomerLinkAlterationCancel"
+                    letter="Cancel"
+                    destination="AlterationsError"
+                    tape="ADVANCE"
+                    record="ON"
+                    index="ON">
+                    <LIGHT signal="IsAlterationItemPresentSignal"/>
+                </ROAD>
+            </STATION>
+            
+            <SITE name="MAXAddTICLoyaltyCustomer" siteaction="MAXAddTICLoyaltyCustomerSite">
+
+				<AISLE name="RequireTICCustomer" letter="Next"
+					laneaction="MAXTICCustomerEnteredAisle">
+
+				</AISLE>
+				<ROAD name="TICCustomerFailure" letter="Failure"
+					destination="MAXAddTICLoyaltyCustomer" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="TICCustomerProcessRequest" letter="ProcessRequest"
+					destination="MAXProcessTICRequest" tape="ADVANCE" record="OFF"
+					index="OFF">
+				</ROAD>
+				<ROAD name="MAXAddTICCustomerUndo" letter="Undo" destination="Final"
+					tape="ADVANCE" record="OFF" index="OFF">
+				</ROAD>
+
+
+				<ROAD name="SuccessRoad" letter="Success" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+
+			</SITE>
+
+			<!-- <SITE name="MAXProcessTICRequest" siteaction="MAXProcessTICRequestSite">
+
+
+
+
+				<AISLE name="CRMProcessOk" letter="Ok"
+					laneaction="MAXExitTICCustomerScreenAisle">
+				</AISLE>
+
+
+				<ROAD name="CRMProcessReturn" letter="ReturnAdd" destination="MAXAddTICLoyaltyCustomer"
+					tape="ADVANCE" record="OFF" index="ON">
+				</ROAD>
+
+
+
+				<AISLE name="CRMProcessNext" letter="Next" laneaction="MAXLinkTICCustomerAisle">
+					<LIGHT signal="MAXIsExistingTICCustomerSignal" negate="Y" />
+				</AISLE>
+
+
+				<AISLE name="CRMProcessNext" letter="Next"
+					laneaction="MAXExitTICCustomerScreenAisle">
+					<LIGHT signal="MAXIsExistingTICCustomerSignal" />
+				</AISLE>
+
+
+
+
+				<AISLE name="TICCustomerLink" letter="LinkCustID" laneaction="MAXLinkTICCustomerAisle">
+				</AISLE>
+
+
+				<ROAD name="SuccessRoad" letter="Success" destination="CheckTransactionType"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+
+			</SITE> -->
+
+
+
+			<!-- rev 1.4 end -->
+
+			<SITE name="LinkTICCustomer" siteaction="MAXLinkBlindTICCustomerSite">
+				<AISLE name="CustomerLookupByID" letter="Next"
+					laneaction="MAXCustomerLookupAisle">
+				</AISLE>
+				<ROAD name="InvalidTICCardRoad" letter="Ok" destination="CheckForLinkedCustomer"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="CustomerLookupSuccessRoad" letter="Success"
+					destination="CheckTransactionType" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="TICCustomerEnteredRoad" letter="Yes" destination="AddTICCustomer"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+				<ROAD name="CustomerLookupFailedRoad" letter="No"
+					destination="CheckTransactionType" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="UndoCustomerAddRoad" letter="Undo" destination="Final"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE>
+			<!-- Changes starts for Rev 1.2(Ashish : Online Points Redemption) -->
+			<!-- <SITE name="AddTICCustomer" siteaction="MAXAddTICCustomerSite">
+				<ROAD name="TICCustomerEnteredRoad" letter="Next"
+					destination="CheckTransactionType" tape="ADVANCE" record="ON"
+					index="ON">
+				</ROAD>
+				<ROAD name="UndoCustomerAddRoad" letter="Ok" destination="LinkTICCustomer"
+					tape="ADVANCE" record="ON" index="ON">
+				</ROAD>
+			</SITE> -->
+			<!-- Changes starts for Rev 1.2(Ashish : Online Points Redemption) -->
+			<!--MAX Rev 1.2 Change : End -->
+            <SYSTEMSITE  name="Final" action="RETURN"/>
+            <SYSTEMSITE  name="LastIndexed" action="BACKUP"/>
+            <SYSTEMSITE  name="NamedIndex" action="BACKUP"/>
+        </REGION>
+    </MAP>
+</SERVICE>
