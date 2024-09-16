@@ -195,7 +195,7 @@ public class MAXJdbcSaveControlTransaction extends JdbcSaveTransaction {
 		sql.addColumn(FIELD_TRANSACTION_SEQUENCE_NUMBER, getTransactionSequenceNumber(transaction));
 		sql.addColumn(FIELD_BUSINESS_DAY_DATE, getBusinessDayString(transaction));
 		sql.addColumn(FIELD_CONTROL_TRANSACTION_TYPE_CODE, getTransactionType(transaction));
-
+		
 		try {
 			dataConnection.execute(sql.getSQLString());
 		} catch (DataException de) {
