@@ -135,7 +135,7 @@ public class MAXCustomerContactSiteTest extends MAXCustomerContactSite {/**
 			// display loyalty point details
 			if (cargo.getCustomer() instanceof MAXCustomerIfc) {
 				MAXCustomerIfc customer = (MAXCustomerIfc) cargo.getCustomer();
-
+             if(cargo.isCustomerCRMsearch()) {
 				if (customer.getCustomerType().equalsIgnoreCase(
 						MAXCustomerConstantsIfc.CRM)) {
 					
@@ -174,7 +174,7 @@ public class MAXCustomerContactSiteTest extends MAXCustomerContactSite {/**
 
 						 phoneNumber = customer.getPrimaryPhone().getPhoneNumber().toString();
 						String wallet = MAXEWalletHelperUtiltiy.getEWalletDetails(targetURL, storeCode,phoneNumber, workstationID, channel,walletOwner, requestId, requestType);
-						System.out.println("Wallet Details " + wallet);
+					//	System.out.println("Wallet Details " + wallet);
 						logger.info("AKS: GetEWallet API Response \n" + wallet.toString());
 						JSONParser parser = new JSONParser();
 						JSONObject json = (JSONObject) parser.parse(wallet);
@@ -195,7 +195,7 @@ public class MAXCustomerContactSiteTest extends MAXCustomerContactSite {/**
 							eWalletBalance = ewalletresponseMap.get("responseCode")
 									.toString();
 						}
-						System.out.println("ewallet balance" + eWalletBalance);
+						//System.out.println("ewallet balance" + eWalletBalance);
 
 						logger.info("AKS: EWallet Balance \n" + wallet.toString());
 
@@ -382,17 +382,18 @@ public class MAXCustomerContactSiteTest extends MAXCustomerContactSite {/**
 					}
                       if(!cargo.isCustomerCRMsearch()) {
 					args[14] = eWalletBalance;
-					System.out.println("eWalletBalance" + eWalletBalance);
+				//	System.out.println("eWalletBalance" + eWalletBalance);
                       }
-					dialogModel.setResourceID("LoyaltyPointsDetails");
-					dialogModel.setType(DialogScreensIfc.ACKNOWLEDGEMENT);
-					dialogModel.setArgs(args);
-					dialogModel.setButtonLetter(DialogScreensIfc.BUTTON_OK,
-							"Link");
-					POSUIManagerIfc ui = (POSUIManagerIfc) bus
-							.getManager(UIManagerIfc.TYPE);
-					ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, dialogModel);
-					return;
+					//dialogModel.setResourceID("LoyaltyPointsDetails");
+					//dialogModel.setType(DialogScreensIfc.ACKNOWLEDGEMENT);
+					//dialogModel.setArgs(args);
+					//dialogModel.setButtonLetter(DialogScreensIfc.BUTTON_OK,
+							//"Link");
+					//POSUIManagerIfc ui = (POSUIManagerIfc) bus
+							//.getManager(UIManagerIfc.TYPE);
+					//ui.showScreen(POSUIManagerIfc.DIALOG_TEMPLATE, dialogModel);
+					//return;
+                      bus.mail("Link");
 				
 				}
 			}
@@ -400,7 +401,7 @@ public class MAXCustomerContactSiteTest extends MAXCustomerContactSite {/**
 			// MAX Chanhges for TIC customer By Manpreet:End
 
 			bus.mail("Link", BusIfc.CURRENT);
-		} else {
+			}} else {
 
 			/*
 			 * for tic customer change akhilesh when the page is called during

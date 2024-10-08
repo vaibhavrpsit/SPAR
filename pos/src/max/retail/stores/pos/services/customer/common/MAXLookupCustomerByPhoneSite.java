@@ -94,7 +94,9 @@ public class MAXLookupCustomerByPhoneSite extends PosSiteActionAdapter {
 		Vector<PhoneIfc> tempPhones = cargo.getCustomer().getPhones();
 		
 		MAXWebCRMCustomerSearchUtility customerSearchUtility = MAXWebCRMCustomerSearchUtility.getInstance();
+		//Added By vaibhav for bypassing sbi points and ewallet
 		boolean isCRMCustomerFetched = false;
+		//end
 		
         ParameterManagerIfc pm = (ParameterManagerIfc)bus.getManager(ParameterManagerIfc.TYPE);
         try
@@ -284,7 +286,7 @@ if(true) {
         searchCustomer.setCardNumber("");
         
     	customerSearchUtility.searchCRMCustomer(bus, searchCustomer);
-    	//Added by vaibhav
+    	//Added By vaibhav for bypassing sbi points and ewallet
     	if(!cargo.isCustomerCRMsearch()) {
     	if(searchCustomer.getPointBal()!= null){
     		newCustomer.setBalancePoint(new BigDecimal(searchCustomer.getPointBal()));
@@ -312,6 +314,9 @@ if(true) {
 		Vector addVec = new Vector();
 		addVec.add(address);
 		newCustomer.setAddresses(addVec);
+	}
+	if(cargo.isCustomerCRMsearch()&& !cargo.getCustomer().getCustomerID().equalsIgnoreCase("") ) {
+		newCustomer.setCustomerType("T");
 	}
 	cargo.setCustomer(newCustomer);
 	}
