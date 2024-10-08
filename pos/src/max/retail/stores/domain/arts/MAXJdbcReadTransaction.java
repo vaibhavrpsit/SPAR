@@ -2654,10 +2654,13 @@ public class MAXJdbcReadTransaction extends JdbcReadTransaction implements
 					// set HSN Number
 					((MAXSaleReturnLineItemIfc) lineItem).setHSNNumber(hsn);
 					//Added by vaibhav for solving retrieve issue
+					if(liquom != null && liqcat != null){
 					if(!liquom.equalsIgnoreCase(" ")||! liqcat.equalsIgnoreCase(" ")) {
 					((MAXSaleReturnLineItemIfc) lineItem).setliquom(liquom);
 					((MAXSaleReturnLineItemIfc) lineItem).setliqcat(liqcat);
+					System.out.println("vaibhav 2660");
 					}
+				}
 				}
 				// defect fix by Nayya rev 2.4 ends
 				if (!itemVoidFlag.equals("1")) {
@@ -3519,8 +3522,8 @@ public class MAXJdbcReadTransaction extends JdbcReadTransaction implements
 				+ getBusinessDayString(transaction));
 		sql.addQualifier(ALIAS_RETAIL_TRANSACTION + "." + FIELD_RETAIL_STORE_ID
 				+ " = " + ALIAS_RETAIL_STORE + "." + FIELD_RETAIL_STORE_ID);
-		sql.addQualifier(ALIAS_RETAIL_STORE + "." + FIELD_PARTY_ID + " = "
-				+ ALIAS_ADDRESS + "." + FIELD_PARTY_ID);
+		//sql.addQualifier(ALIAS_RETAIL_STORE + "." + FIELD_PARTY_ID + " = "
+				//+ ALIAS_ADDRESS + "." + FIELD_PARTY_ID);
 		sql.addQualifier(ALIAS_ADDRESS + "." + FIELD_CONTACT_CITY +" IS NOT NULL");
 		// Ashish : Start added below lines
 		// sql.addQualifier(ALIAS_ADDRESS + "." + FIELD_ADDRESS_TYPE_CODE +
@@ -3528,7 +3531,7 @@ public class MAXJdbcReadTransaction extends JdbcReadTransaction implements
 		// Ashish : End added above lines
 
 		try {
-		//	System.out.println(sql.getSQLString()+"---------------------Anuj----------");
+			System.out.println(sql.getSQLString()+"---------------------Anuj----------");
 			dataConnection.execute(sql.getSQLString());
 
 			ResultSet rs = (ResultSet) dataConnection.getResult();
