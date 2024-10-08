@@ -376,7 +376,7 @@ public class MAXCustomerCargo extends CustomerCargo
 
 	public void setCustomerCRMsearch(boolean customerCRMsearch) {
 		CustomerCRMsearch = customerCRMsearch;
-	}
+	}//end
 
 	public MAXTICCustomerIfc getTicCustomer() {
 		return ticCustomer;
