@@ -271,11 +271,14 @@ public class MAXPaidUpActionSite extends PosSiteActionAdapter {
 		try
 		{
 		CustomerIfc customer=cargo.getTransaction().getCustomer();
+		
 		if(customer instanceof MAXCustomer)
 		{
 			MAXCustomer mCustomer=(MAXCustomer)customer;
+			if(mCustomer.getLMREWalletTraceId()!=null) {
 			String walletTraceId=mCustomer.getLMREWalletTraceId().toString();
 			System.out.println("traceId   "+ walletTraceId);
+			}
 		}
 		}catch(Exception e)
 		{

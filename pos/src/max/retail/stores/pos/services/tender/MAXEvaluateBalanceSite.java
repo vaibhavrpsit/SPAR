@@ -58,7 +58,7 @@ public class MAXEvaluateBalanceSite extends EvaluateBalanceSite {
 	 * (com.extendyourstore.foundation.tour.ifc.BusIfc)
 	 */
 	public void arrive(BusIfc bus) {
-		TenderCargo cargo = (TenderCargo) bus.getCargo();
+		MAXTenderCargo cargo = (MAXTenderCargo) bus.getCargo();
 	
 		// ((SaleReturnTransaction) sr).getPrintFreeItem();
 
@@ -331,6 +331,9 @@ public class MAXEvaluateBalanceSite extends EvaluateBalanceSite {
         
         // Make sure the customer info hasn't already been captured and that we 
         // aren't set to use OracleCustomer
+         
+        if(!(txnADO.getCustomer()!=null)) {
+        	
         if (txnADO != null && txnADO.getCaptureCustomer() == null && 
                 "N".equals(utility.getParameterValue("OracleCustomer", "N")) )
         {
@@ -368,6 +371,7 @@ public class MAXEvaluateBalanceSite extends EvaluateBalanceSite {
             {                
                 isCaptureCustomerNeeded = TenderStateEnum.REFUND_DUE.equals(tenderState); 
             }
+        }
         }
         
         return isCaptureCustomerNeeded;
