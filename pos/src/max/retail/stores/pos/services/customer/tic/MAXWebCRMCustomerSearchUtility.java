@@ -462,22 +462,24 @@ public class MAXWebCRMCustomerSearchUtility
     JSONParser parser = new JSONParser();
     try
     {
+    	//Modified By vaibhav for bypassing sbi points and ewallet
       JSONObject jsonObject = (JSONObject)parser.parse(trimString);
       //System.out.println("jsonObject"+jsonObject.get("custName"));
-      if (jsonObject.get("messageId") != null) {
-        searchCrmCustomer.setResMessageId((String)jsonObject.get("messageId"));
+     // if (jsonObject.get("messageId") != null) {
+      if (jsonObject.get("messageCode") != null) {
+        searchCrmCustomer.setResMessageId((String)jsonObject.get("messageCode"));
       }
-      if (jsonObject.get("cardNumber") != null) {
-        searchCrmCustomer.setResCardNumber((String)jsonObject.get("cardNumber"));
+      if (jsonObject.get("cardNum") != null) {
+        searchCrmCustomer.setResCardNumber((String)jsonObject.get("cardNum"));
       }
-      if (jsonObject.get("mobileNumber") != null) {
-        searchCrmCustomer.setResMobileNumber((String)jsonObject.get("mobileNumber"));
+      if (jsonObject.get("mobile") != null) {
+        searchCrmCustomer.setResMobileNumber((String)jsonObject.get("mobile"));
       }
       if (jsonObject.get("message") != null) {
         searchCrmCustomer.setMessage((String)jsonObject.get("message"));
       }
-      if (jsonObject.get("response") != null) {
-        searchCrmCustomer.setResponse((String)jsonObject.get("response"));
+      if (jsonObject.get("respose") != null) {
+        searchCrmCustomer.setResponse((String)jsonObject.get("respose"));
       }
       if (jsonObject.get("custName") != null) {
         searchCrmCustomer.setCustName((String)jsonObject.get("custName"));
