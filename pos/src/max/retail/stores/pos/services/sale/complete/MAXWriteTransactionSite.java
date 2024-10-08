@@ -14,6 +14,9 @@ import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +24,13 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -58,8 +68,8 @@ public class MAXWriteTransactionSite extends WriteTransactionSite {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	HttpURLConnection connection=null;
-	
+	HttpsURLConnection connection=null;
+
 	String mobileNumber=null;
 	StringBuilder response;
 	
@@ -82,7 +92,7 @@ public class MAXWriteTransactionSite extends WriteTransactionSite {
         //mobileNumber = (cargo.getTransaction().getCustomer() != null)? (cargo.getTransaction().getCustomer().getPrimaryPhone().getPhoneNumber() != null? cargo.getTransaction().getCustomer().getPrimaryPhone().getPhoneNumber().toString(): null): null;
        if (cargo.getTransaction().getCustomer()!=null&&cargo.getTransaction().getCustomer().getPrimaryPhone()!=null&&cargo.getTransaction().getCustomer().getPrimaryPhone().getPhoneNumber()!=null) {
     	   //if (cargo.getTransaction().getCustomer().getPrimaryPhone().getPhoneNumber()!=null) {
-    		   submitInvoice(bus,ui);
+    		  // submitInvoice(bus,ui);
     		  
 		//}
 	}
@@ -302,8 +312,46 @@ public class MAXWriteTransactionSite extends WriteTransactionSite {
 	public String executesubmitInvoiseRequest(String URL, JSONObject jsonContentObj) throws IOException, JsonParseException {
 
 		URL targetURL = new URL(URL);
+
+		connection = (HttpsURLConnection) targetURL.openConnection();
 		
-		connection = (HttpURLConnection) targetURL.openConnection();
+		SSLContext sc = null;
+		try {
+			sc = SSLContext.getInstance("TLSv1.2");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		TrustManager[] certs = new TrustManager[] { new X509TrustManager() {
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}
+
+			@Override
+			public void checkClientTrusted(X509Certificate[] certs, String t) {
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] certs, String t) {
+			}
+		} };
+		try {
+			sc.init(null, certs, new java.security.SecureRandom());
+		} catch (KeyManagementException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		connection.setSSLSocketFactory(sc.getSocketFactory());
+		connection.setHostnameVerifier(new HostnameVerifier()
+		{
+			@Override
+			public boolean verify(String hostname, SSLSession session)
+			{
+				return true;
+			}
+		});
+		
 		connection.setRequestMethod(MAXOxigenTenderConstants.REQUEST_METHOD_POST);
 		String urlParameters = jsonContentObj.toString();
 
@@ -387,12 +435,8 @@ public class MAXWriteTransactionSite extends WriteTransactionSite {
 			e.printStackTrace();
 		}
 
-
-		
-		
-			
-	 
-	    bus.mail((LetterIfc)new Letter("Override"), BusIfc.CURRENT);
+	   // bus.mail(new Letter("Override"), BusIfc.CURRENT);
+		bus.mail(new Letter("Save"), BusIfc.CURRENT);
 	  }
 	// Rev 1.0 ends
 }
