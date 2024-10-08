@@ -264,8 +264,8 @@
         specName="CustomerInfoDialogSpec"
         configuratorPackage="oracle.retail.stores.pos.ui"
         configuratorClassName="POSBeanConfigurator"
-        beanPackage="oracle.retail.stores.pos.ui.beans"
-        beanClassName="CustomerInfoBean">
+        beanPackage="max.retail.stores.pos.ui.beans"
+        beanClassName="MAXCustomerInfoBean">
         <BEANPROPERTY propName="orientation" propValue="BOTTOM"/>
         <BEANPROPERTY propName="recentItemsBean" propValue="oracle.retail.stores.pos.ui.beans.ExtendedItemDataListBean"/>
         <BEANPROPERTY propName="recommendedItemsBean" propValue="oracle.retail.stores.pos.ui.beans.ExtendedItemDataListBean"/>
