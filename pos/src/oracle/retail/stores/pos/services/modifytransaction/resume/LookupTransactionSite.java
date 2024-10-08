@@ -205,6 +205,8 @@ import oracle.retail.stores.utility.I18NHelper;
 import oracle.retail.stores.utility.JournalConstantsIfc;
 
 import org.apache.commons.lang3.StringUtils;
+
+import max.retail.stores.domain.arts.MAXTransactionReadDataTransaction;
 /**
  * Retrieves list of suspended transactions.
  */
@@ -267,9 +269,9 @@ public class LookupTransactionSite extends PosSiteActionAdapter
         try
         {
             // read transaction from database
-            TransactionReadDataTransaction readTransaction = null;
+            MAXTransactionReadDataTransaction readTransaction = null;
 
-            readTransaction = (TransactionReadDataTransaction) DataTransactionFactory.create(DataTransactionKeys.TRANSACTION_READ_DATA_TRANSACTION);
+            readTransaction = (MAXTransactionReadDataTransaction) DataTransactionFactory.create(DataTransactionKeys.TRANSACTION_READ_DATA_TRANSACTION);
 
             retrieveTransaction =
                 (RetailTransactionIfc) readTransaction.readTransaction(searchTransaction);
