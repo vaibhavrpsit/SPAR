@@ -69,6 +69,7 @@ public class MAXMcouponCheckForCustomerSite extends PosSiteActionAdapter {
 				if (customerIfc != null
 						&& !customerIfc.getCustomerID()
 								.equalsIgnoreCase("") && customerIfc.getCustomerType().equalsIgnoreCase("T")) {
+								//||customerIfc.getCustomerType().equalsIgnoreCase("L")) {
 					customerID = customerIfc.getCustomerID();
 				} else if (transaction.getMAXTICCustomer() != null
 						&& ((MAXTICCustomer) transaction.getMAXTICCustomer())
