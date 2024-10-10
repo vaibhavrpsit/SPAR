@@ -646,5 +646,9 @@ public interface MAXARTSDatabaseIfc extends ARTSDatabaseIfc {
 				public static final String FIELD_SC_OTP_RETRIES = "SC_OTP_RETRIES";
 				public static final String FIELD_CUST_MOBILE_NUM_SC = "CUST_MOBILE_NUM";
 				//Rev 1.6 Ends
+				
+				//change for MPOS 01-04-2024
+				public static final String FIELD_MPOS_EMPLOYEE_PASSWORD = "mpos_pwd";
+				public static final String FIELD_MPOS_EMPLOYEE_PASSWORD_SALT = "mpos_pwd_salt";	
 					
 }
