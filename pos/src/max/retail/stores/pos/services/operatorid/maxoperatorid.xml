@@ -296,8 +296,8 @@ MAX-POS-LOGIN-FESV1 0.doc requirement.
 				</COMMENT>
 			</ARRIVE>
 		</SITEACTION>
-		<SITEACTION class="MAXValidateLoginSite"
-			package="max.retail.stores.pos.services.operatorid">
+		<SITEACTION class="ValidateLoginSite"
+			package="oracle.retail.stores.pos.services.operatorid">
 			<COMMENT>
 				This site reads the employee record and compares
 				its password to the password entered by the user.
@@ -551,7 +551,7 @@ MAX-POS-LOGIN-FESV1 0.doc requirement.
 				</ROAD>
 			</SITE>
 
-			<SITE name="ValidateLogin" siteaction="MAXValidateLoginSite">
+			<SITE name="ValidateLogin" siteaction="ValidateLoginSite">
 				<COMMENT>
 					This site validates the login information.
 				</COMMENT>
